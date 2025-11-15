@@ -1,0 +1,16 @@
+name: Mirror private repository
+
+on:
+  push:
+    branches:
+        - "**"
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror repository
+        run: |
+            git clone --mirror https://${{ secrets.TOKEN }}@github.com/jeremyarmijo/R-Type.git
+            cd R-Type.git
+            git push --mirror https://${{ secrets.TOKEN }}@github.com/EpitechPGE3-2025/G-CPP-500-PAR-5-2-bsrtype-47.git
