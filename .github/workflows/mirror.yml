@@ -1,9 +1,9 @@
-name: Mirror private repository
+name: Mirror private repository and check commit convention
 
 on:
   push:
     branches:
-        - "**"
+      - "**"
 
 jobs:
   mirror:
@@ -15,3 +15,20 @@ jobs:
             git clone --mirror https://${{ secrets.TOKEN }}@github.com/jeremyarmijo/R-Type.git
             cd R-Type.git
             git push --mirror https://${{ secrets.TOKEN }}@github.com/EpitechPGE3-2025/G-CPP-500-PAR-5-2-bsrtype-47.git
+
+  check-commit-convention:
+    if: github.repository == 'jeremyarmijo/R-Type'
+    runs-on: ubuntu-latest
+    needs: mirror
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Lint commit message
+        uses: wagoid/commitlint-github-action@v5
+        with:
+          configFile: ".commitlintrc.js"
+          failOnWarnings: false
+        continue-on-error: true
