@@ -23,5 +23,5 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: documentation
+          folder: documentation/docs/html
           branch: gh-pages
