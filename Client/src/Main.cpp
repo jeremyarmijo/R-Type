@@ -1,7 +1,6 @@
-#include <filesystem>
 #include <iostream>
 
-#include "GameEngine.hpp"
+#include "engine/GameEngine.hpp"
 
 /**
  * @brief example setup to run engine and create various objects such as
@@ -13,7 +12,6 @@
  */
 int main(int argc, char* argv[]) {
   std::cout << "Starting R-Type" << std::endl;
-  std::cout << "CWD = " << std::filesystem::current_path() << std::endl;
 
   GameEngine engine;
 
