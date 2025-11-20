@@ -18,12 +18,14 @@
    - [0x0A - PLAYER_READY](#0x0a---player_ready)
    - [0x0B - LOBBY_LEAVE](#0x0b---lobby_leave)
    - [0x0C - CHAT_MESSAGE](#0x0c---chat_message)
-   - [0x0D - GAME_START](#0x0d---game_start)
-   - [0x0E - GAME_END](#0x0e---game_end)
-   - [0x0F - PLAYER_DISCONNECT](#0x0f---player_disconnect)
-   - [0x10 - ERROR](#0x10---error)
-   - [0x11 - CHUNK_REQUEST](#0x11---chunk_request)
-   - [0x12 - CHUNK_DATA](#0x12---chunk_data)
+   - [0x0D - GAME_LOADING](#0x0d---game_loading)
+   - [0x0E - PLAYER_END_LOADING](#0x0e---player_end_loading)
+   - [0x0F - GAME_START](#0x0f---game_start)
+   - [0x10 - GAME_END](#0x10---game_end)
+   - [0x11 - PLAYER_DISCONNECT](#0x11---player_disconnect)
+   - [0x12 - ERROR](#0x12---error)
+   - [0x13 - CHUNK_REQUEST](#0x13---chunk_request)
+   - [0x14 - CHUNK_DATA](#0x14---chunk_data)
 4. [Messages UDP (Temps Réel)](#messages-udp-temps-réel)
    - [0x20 - PLAYER_INPUT](#0x20---player_input)
    - [0x21 - GAME_STATE](#0x21---game_state)
@@ -46,7 +48,7 @@
 
 ### Choix TCP / UDP
 
-- **TCP** : Utilisé pour les communications critiques nécessitant une livraison garantie (authentification, connexion, chat, événements de lobby, données de chunks)
+- **TCP** : Utilisé pour les communications critiques nécessitant une livraison garantie (authentification, connexion, chat, événements de lobby, données de chunks, chargement)
 - **UDP** : Utilisé pour toutes les communications temps réel du gameplay (mouvements, tirs, états des entités, notifications de chunks)
 
 ---
@@ -319,9 +321,9 @@ Message textuel dans le lobby ou en jeu.
 
 ---
 
-### 0x0D - GAME_START
+### 0x0D - GAME_LOADING
 
-Notification du démarrage d'une partie.
+Notification de début de chargement de la partie (tous les joueurs sont prêts).
 
 **Direction** : Serveur → Clients
 
@@ -330,17 +332,49 @@ Notification du démarrage d'une partie.
 | 0x00   | mapId       | uint16 | 2      | ID de la map/niveau |
 | 0x02   | gameMode    | uint8  | 1      | Mode de jeu (0=coop, 1=versus) |
 | 0x03   | difficulty  | uint8  | 1      | Difficulté (0-3) |
-| 0x04   | startTick   | uint32 | 4      | Tick de démarrage |
-| 0x08   | mapWidth    | uint32 | 4      | Largeur totale de la map (en pixels) |
-| 0x0C   | mapHeight   | uint16 | 2      | Hauteur de la map (en pixels) |
-| 0x0E   | chunkSize   | uint16 | 2      | Taille d'un chunk (en pixels) |
+| 0x04   | mapWidth    | uint32 | 4      | Largeur totale de la map (en pixels) |
+| 0x08   | mapHeight   | uint16 | 2      | Hauteur de la map (en pixels) |
+| 0x0A   | chunkSize   | uint16 | 2      | Taille d'un chunk (en pixels) |
+| 0x0C   | tickStart   | uint32 | 4      | Tick de démarrage prévu (optionnel) |
 
-**Conditions de démarrage** :
-- Tous les joueurs du lobby doivent être "ready"
+**Note** : Ce message indique au client de préparer le chargement des chunks. Après réception, le client doit demander les chunks visibles.
 
 ---
 
-### 0x0E - GAME_END
+### 0x0E - PLAYER_END_LOADING
+
+Le client informe le serveur qu'il a terminé le chargement des chunks.
+
+**Direction** : Client → Serveur
+
+| Offset | Champ         | Type   | Taille | Description |
+|--------|---------------|--------|--------|-------------|
+| 0x00   | playerId      | uint16 | 2      | ID du joueur |
+| 0x02   | missingChunks | uint16 | 2      | Nombre de chunks manquants (0 si tout est OK) |
+
+**Note** :
+- Le serveur attend que tous les joueurs envoient ce message
+- Une fois tous les joueurs prêts, le serveur envoie `GAME_START`
+- Si `missingChunks > 0`, le serveur peut renvoyer les chunks manquants
+
+---
+
+### 0x0F - GAME_START
+
+Démarrage effectif du gameplay (tous les joueurs ont chargé).
+
+**Direction** : Serveur → Clients
+
+| Offset | Champ            | Type   | Taille | Description |
+|--------|------------------|--------|--------|-------------|
+| 0x00   | startTick        | uint32 | 4      | Tick serveur de démarrage du gameplay |
+| 0x04   | playerSpawnX     | float  | 4      | Position X de spawn du joueur |
+| 0x08   | playerSpawnY     | float  | 4      | Position Y de spawn du joueur |
+| 0x0C   | scrollSpeed      | float  | 4      | Vitesse initiale du scrolling |
+
+---
+
+### 0x10 - GAME_END
 
 Notification de fin de partie avec résultats.
 
@@ -362,7 +396,7 @@ Notification de fin de partie avec résultats.
 
 ---
 
-### 0x0F - PLAYER_DISCONNECT
+### 0x11 - PLAYER_DISCONNECT
 
 Notification de déconnexion d'un joueur.
 
@@ -375,7 +409,7 @@ Notification de déconnexion d'un joueur.
 
 ---
 
-### 0x10 - ERROR
+### 0x12 - ERROR
 
 Message d'erreur du serveur.
 
@@ -399,10 +433,11 @@ Message d'erreur du serveur.
 - `0x0009` : Chunk déjà chargé
 - `0x000A` : Partie déjà commencée
 - `0x000B` : Tous les joueurs ne sont pas prêts
+- `0x000C` : Chargement incomplet
 
 ---
 
-### 0x11 - CHUNK_REQUEST
+### 0x13 - CHUNK_REQUEST
 
 Demande d'un chunk de map spécifique.
 
@@ -414,7 +449,7 @@ Demande d'un chunk de map spécifique.
 
 ---
 
-### 0x12 - CHUNK_DATA
+### 0x14 - CHUNK_DATA
 
 Données d'un chunk de map.
 
