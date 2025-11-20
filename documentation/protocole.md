@@ -11,31 +11,34 @@
    - [0x03 - SIGNUP_REQUEST](#0x03---signup_request)
    - [0x04 - SIGNUP_RESPONSE](#0x04---signup_response)
    - [0x05 - LOGOUT](#0x05---logout)
-   - [0x06 - LOBBY_LIST](#0x06---lobby_list)
-   - [0x07 - LOBBY_JOIN](#0x07---lobby_join)
-   - [0x08 - LOBBY_JOINED](#0x08---lobby_joined)
-   - [0x09 - CHAT_MESSAGE](#0x09---chat_message)
-   - [0x0A - GAME_START](#0x0a---game_start)
-   - [0x0B - GAME_END](#0x0b---game_end)
-   - [0x0C - PLAYER_DISCONNECT](#0x0c---player_disconnect)
-   - [0x0D - ERROR](#0x0d---error)
-   - [0x0E - CHUNK_REQUEST](#0x0e---chunk_request)
-   - [0x0F - CHUNK_DATA](#0x0f---chunk_data)
+   - [0x06 - LOBBY_LIST_REQUEST](#0x06---lobby_list_request)
+   - [0x07 - LOBBY_LIST_RESPONSE](#0x07---lobby_list_response)
+   - [0x08 - LOBBY_JOIN](#0x08---lobby_join)
+   - [0x09 - LOBBY_UPDATE](#0x09---lobby_update)
+   - [0x0A - PLAYER_READY](#0x0a---player_ready)
+   - [0x0B - LOBBY_LEAVE](#0x0b---lobby_leave)
+   - [0x0C - CHAT_MESSAGE](#0x0c---chat_message)
+   - [0x0D - GAME_START](#0x0d---game_start)
+   - [0x0E - GAME_END](#0x0e---game_end)
+   - [0x0F - PLAYER_DISCONNECT](#0x0f---player_disconnect)
+   - [0x10 - ERROR](#0x10---error)
+   - [0x11 - CHUNK_REQUEST](#0x11---chunk_request)
+   - [0x12 - CHUNK_DATA](#0x12---chunk_data)
 4. [Messages UDP (Temps Réel)](#messages-udp-temps-réel)
-   - [0x10 - PLAYER_INPUT](#0x10---player_input)
-   - [0x11 - GAME_STATE](#0x11---game_state)
-   - [0x12 - ENTITY_SPAWN](#0x12---entity_spawn)
-   - [0x13 - ENTITY_DESTROY](#0x13---entity_destroy)
-   - [0x14 - PLAYER_HIT](#0x14---player_hit)
-   - [0x15 - POWERUP_COLLECTED](#0x15---powerup_collected)
-   - [0x16 - FORCE_UPDATE](#0x16---force_update)
-   - [0x17 - BOSS_SPAWN](#0x17---boss_spawn)
-   - [0x18 - BOSS_UPDATE](#0x18---boss_update)
-   - [0x19 - SCROLLING_UPDATE](#0x19---scrolling_update)
-   - [0x1A - ACK](#0x1a---ack)
-   - [0x1B - CHUNK_UNLOAD](#0x1b---chunk_unload)
-   - [0x1C - CHUNK_TILE_UPDATE](#0x1c---chunk_tile_update)
-   - [0x1D - CHUNK_VISIBILITY](#0x1d---chunk_visibility)
+   - [0x20 - PLAYER_INPUT](#0x20---player_input)
+   - [0x21 - GAME_STATE](#0x21---game_state)
+   - [0x22 - ENTITY_SPAWN](#0x22---entity_spawn)
+   - [0x23 - ENTITY_DESTROY](#0x23---entity_destroy)
+   - [0x24 - PLAYER_HIT](#0x24---player_hit)
+   - [0x25 - POWERUP_COLLECTED](#0x25---powerup_collected)
+   - [0x26 - FORCE_UPDATE](#0x26---force_update)
+   - [0x27 - BOSS_SPAWN](#0x27---boss_spawn)
+   - [0x28 - BOSS_UPDATE](#0x28---boss_update)
+   - [0x29 - SCROLLING_UPDATE](#0x29---scrolling_update)
+   - [0x2A - ACK](#0x2a---ack)
+   - [0x2B - CHUNK_UNLOAD](#0x2b---chunk_unload)
+   - [0x2C - CHUNK_TILE_UPDATE](#0x2c---chunk_tile_update)
+   - [0x2D - CHUNK_VISIBILITY](#0x2d---chunk_visibility)
 5. [Gestion de la Fiabilité UDP](#gestion-de-la-fiabilité-udp)
 6. [Résumé des Types de Messages](#résumé-des-types-de-messages)
 
@@ -68,7 +71,7 @@ Tous les messages, TCP et UDP, commencent par ce header :
 | 1   | 0x02   | UDP protocol |
 | 3   | 0x08   | Requires ACK (UDP) |
 
-**Note** : Le flag `Requires ACK` (0x08) est utilisé uniquement avec les messages UDP critiques qui nécessitent une confirmation de réception via un message ACK (0x1A).
+**Note** : Le flag `Requires ACK` (0x08) est utilisé uniquement avec les messages UDP critiques qui nécessitent une confirmation de réception via un message ACK (0x2A).
 
 ---
 
@@ -92,8 +95,6 @@ Demande de connexion avec identifiants existants.
 Header: 01 01 13 00 00 00
 Payload: 06 46 61 6C 63 6F 6E 07 68 61 73 68 31 32 33
 ```
-
-**Note de sécurité** : Le mot de passe doit être hashé côté client avant l'envoi (par exemple avec SHA-256).
 
 ---
 
@@ -198,7 +199,17 @@ Payload: 00 01
 
 ---
 
-### 0x06 - LOBBY_LIST
+### 0x06 - LOBBY_LIST_REQUEST
+
+Demande la liste des lobbies disponibles.
+
+**Direction** : Client → Serveur
+
+Ce message n'a pas de payload (uniquement le header).
+
+---
+
+### 0x07 - LOBBY_LIST_RESPONSE
 
 Liste des parties disponibles.
 
@@ -207,21 +218,23 @@ Liste des parties disponibles.
 | Offset | Champ      | Type   | Taille | Description |
 |--------|------------|--------|--------|-------------|
 | 0x00   | lobbyCount | uint8  | 1      | Nombre de lobbies |
-| 0x01   | lobbies[]  | struct | N×13   | Informations par lobby |
+| 0x01   | lobbies[]  | struct | var    | Informations par lobby |
 
-**Structure Lobby** (13 bytes) :
+**Structure Lobby** (variable) :
 
 | Offset | Champ        | Type   | Taille | Description |
 |--------|--------------|--------|--------|-------------|
 | 0x00   | lobbyId      | uint16 | 2      | ID du lobby |
 | 0x02   | nameLen      | uint8  | 1      | Longueur du nom |
-| 0x03   | name         | char[] | 8      | Nom (padding avec 0x00) |
-| 0x0B   | playerCount  | uint8  | 1      | Joueurs actuels |
-| 0x0C   | maxPlayers   | uint8  | 1      | Capacité maximale |
+| 0x03   | name         | char[] | N      | Nom du lobby en UTF-8 |
+| var    | playerCount  | uint8  | 1      | Joueurs actuels |
+| var    | maxPlayers   | uint8  | 1      | Capacité maximale |
+| var    | hasStarted   | uint8  | 1      | 1=partie en cours, 0=en attente |
+
 
 ---
 
-### 0x07 - LOBBY_JOIN
+### 0x08 - LOBBY_JOIN
 
 Demande de rejoindre un lobby.
 
@@ -233,29 +246,66 @@ Demande de rejoindre un lobby.
 
 ---
 
-### 0x08 - LOBBY_JOINED
+### 0x09 - LOBBY_UPDATE
 
-Confirmation d'entrée dans un lobby.
+Synchronisation complète de l'état du lobby (remplace LOBBY_JOINED).
 
-**Direction** : Serveur → Client
+**Direction** : Serveur → Tous les clients du lobby (broadcast)
 
 | Offset | Champ        | Type   | Taille | Description |
 |--------|--------------|--------|--------|-------------|
 | 0x00   | lobbyId      | uint16 | 2      | ID du lobby |
 | 0x02   | playerCount  | uint8  | 1      | Nombre de joueurs |
-| 0x03   | players[]    | struct | N×34   | Infos des joueurs présents |
+| 0x03   | players[]    | struct | var    | Infos des joueurs présents |
 
-**Structure Player Info** (34 bytes) :
+**Structure Player Info** (variable) :
 
 | Offset | Champ      | Type   | Taille | Description |
 |--------|------------|--------|--------|-------------|
 | 0x00   | playerId   | uint16 | 2      | ID du joueur |
 | 0x02   | nameLen    | uint8  | 1      | Longueur du pseudo |
-| 0x03   | name       | char[] | 31     | Pseudo (padding avec 0x00) |
+| 0x03   | name       | char[] | N      | Pseudo en UTF-8 |
+| var    | ready      | uint8  | 1      | 1=prêt, 0=pas prêt |
+
+**Événements déclenchant LOBBY_UPDATE** :
+- Un joueur rejoint le lobby
+- Un joueur quitte le lobby
+- Un joueur change son statut "ready"
+- Le propriétaire change les paramètres du lobby
+- Changement de map, mode, difficulté, etc.
 
 ---
 
-### 0x09 - CHAT_MESSAGE
+### 0x0A - PLAYER_READY
+
+Envoyé quand le joueur change son statut "prêt".
+
+**Direction** : Client → Serveur
+
+| Offset | Champ    | Type   | Taille | Description |
+|--------|----------|--------|--------|-------------|
+| 0x00   | playerId | uint16 | 2      | ID du joueur |
+| 0x02   | ready    | uint8  | 1      | 1=prêt, 0=pas prêt |
+
+**Réponse du serveur** : `LOBBY_UPDATE` (broadcast à tous les joueurs du lobby)
+
+---
+
+### 0x0B - LOBBY_LEAVE
+
+Demande de quitter le lobby.
+
+**Direction** : Client → Serveur
+
+| Offset | Champ    | Type   | Taille | Description |
+|--------|----------|--------|--------|-------------|
+| 0x00   | playerId | uint16 | 2      | ID du joueur qui quitte |
+
+**Réponse du serveur** : `LOBBY_UPDATE` (broadcast aux joueurs restants)
+
+---
+
+### 0x0C - CHAT_MESSAGE
 
 Message textuel dans le lobby ou en jeu.
 
@@ -269,7 +319,7 @@ Message textuel dans le lobby ou en jeu.
 
 ---
 
-### 0x0A - GAME_START
+### 0x0D - GAME_START
 
 Notification du démarrage d'une partie.
 
@@ -285,9 +335,12 @@ Notification du démarrage d'une partie.
 | 0x0C   | mapHeight   | uint16 | 2      | Hauteur de la map (en pixels) |
 | 0x0E   | chunkSize   | uint16 | 2      | Taille d'un chunk (en pixels) |
 
+**Conditions de démarrage** :
+- Tous les joueurs du lobby doivent être "ready"
+
 ---
 
-### 0x0B - GAME_END
+### 0x0E - GAME_END
 
 Notification de fin de partie avec résultats.
 
@@ -309,7 +362,7 @@ Notification de fin de partie avec résultats.
 
 ---
 
-### 0x0C - PLAYER_DISCONNECT
+### 0x0F - PLAYER_DISCONNECT
 
 Notification de déconnexion d'un joueur.
 
@@ -322,7 +375,7 @@ Notification de déconnexion d'un joueur.
 
 ---
 
-### 0x0D - ERROR
+### 0x10 - ERROR
 
 Message d'erreur du serveur.
 
@@ -344,10 +397,12 @@ Message d'erreur du serveur.
 - `0x0007` : Action non permise
 - `0x0008` : Chunk inexistant
 - `0x0009` : Chunk déjà chargé
+- `0x000A` : Partie déjà commencée
+- `0x000B` : Tous les joueurs ne sont pas prêts
 
 ---
 
-### 0x0E - CHUNK_REQUEST
+### 0x11 - CHUNK_REQUEST
 
 Demande d'un chunk de map spécifique.
 
@@ -357,15 +412,9 @@ Demande d'un chunk de map spécifique.
 |--------|---------|-------|--------|-------------|
 | 0x00   | chunkX  | int32 | 4      | Coordonnée X du chunk demandé |
 
-**Exemple** : Demande du chunk X=5
-```
-Header: 0E 01 04 00 00 00
-Payload: 00 00 00 05
-```
-
 ---
 
-### 0x0F - CHUNK_DATA
+### 0x12 - CHUNK_DATA
 
 Données d'un chunk de map.
 
@@ -409,7 +458,7 @@ Données d'un chunk de map.
 
 ## Messages UDP (Temps Réel)
 
-### 0x10 - PLAYER_INPUT
+### 0x20 - PLAYER_INPUT
 
 Entrées du joueur envoyées au serveur à chaque frame.
 
@@ -432,13 +481,13 @@ Entrées du joueur envoyées au serveur à chaque frame.
 
 **Exemple** : Mouvement droite + tir
 ```
-Header: 10 02 0B 00 00 00
+Header: 20 02 0B 00 00 00
 Payload: 00 00 00 2A 00 00 01 F4 01 00 01
 ```
 
 ---
 
-### 0x11 - GAME_STATE
+### 0x21 - GAME_STATE
 
 État complet du jeu envoyé périodiquement par le serveur.
 
@@ -497,7 +546,7 @@ Payload: 00 00 00 2A 00 00 01 F4 01 00 01
 
 ---
 
-### 0x12 - ENTITY_SPAWN
+### 0x22 - ENTITY_SPAWN
 
 Notification de spawn d'une nouvelle entité.
 
@@ -514,7 +563,7 @@ Notification de spawn d'une nouvelle entité.
 
 ---
 
-### 0x13 - ENTITY_DESTROY
+### 0x23 - ENTITY_DESTROY
 
 Notification de destruction d'une entité.
 
@@ -529,7 +578,7 @@ Notification de destruction d'une entité.
 
 ---
 
-### 0x14 - PLAYER_HIT
+### 0x24 - PLAYER_HIT
 
 Notification qu'un joueur a été touché.
 
@@ -545,7 +594,7 @@ Notification qu'un joueur a été touché.
 
 ---
 
-### 0x15 - POWERUP_COLLECTED
+### 0x25 - POWERUP_COLLECTED
 
 Notification de collecte d'un bonus.
 
@@ -560,7 +609,7 @@ Notification de collecte d'un bonus.
 
 ---
 
-### 0x16 - FORCE_UPDATE
+### 0x26 - FORCE_UPDATE
 
 État de la Force (module spécial R-Type).
 
@@ -577,7 +626,7 @@ Notification de collecte d'un bonus.
 
 ---
 
-### 0x17 - BOSS_SPAWN
+### 0x27 - BOSS_SPAWN
 
 Notification d'apparition d'un boss.
 
@@ -593,7 +642,7 @@ Notification d'apparition d'un boss.
 
 ---
 
-### 0x18 - BOSS_UPDATE
+### 0x28 - BOSS_UPDATE
 
 Mise à jour de l'état du boss.
 
@@ -611,7 +660,7 @@ Mise à jour de l'état du boss.
 
 ---
 
-### 0x19 - SCROLLING_UPDATE
+### 0x29 - SCROLLING_UPDATE
 
 Mise à jour de la position du scrolling (starfield).
 
@@ -625,7 +674,7 @@ Mise à jour de la position du scrolling (starfield).
 
 ---
 
-### 0x1A - ACK
+### 0x2A - ACK
 
 Accusé de réception pour messages critiques.
 
@@ -644,7 +693,7 @@ Accusé de réception pour messages critiques.
 
 ---
 
-### 0x1B - CHUNK_UNLOAD
+### 0x2B - CHUNK_UNLOAD
 
 Notification qu'un chunk peut être déchargé de la mémoire.
 
@@ -655,15 +704,9 @@ Notification qu'un chunk peut être déchargé de la mémoire.
 | 0x00   | sequenceNum | uint32 | 4      | Numéro de séquence (détection perte/dupliqués) |
 | 0x04   | chunkX      | int32  | 4      | Coordonnée X du chunk à décharger |
 
-**Exemple** : Déchargement du chunk X=2
-```
-Header: 1B 02 08 00 00 00
-Payload: 00 00 00 15 00 00 00 02
-```
-
 ---
 
-### 0x1C - CHUNK_TILE_UPDATE
+### 0x2C - CHUNK_TILE_UPDATE
 
 Mise à jour d'une tile spécifique dans un chunk (ex: tile détruite).
 
@@ -678,15 +721,9 @@ Mise à jour d'une tile spécifique dans un chunk (ex: tile détruite).
 | 0x0C   | newTileType | uint8  | 1      | Nouveau type de tile |
 | 0x0D   | newHealth   | uint8  | 1      | Nouveaux points de vie |
 
-**Exemple** : Tile détruite au chunk X=5, tile locale (10, 15)
-```
-Header: 1C 02 0E 00 00 00
-Payload: 00 00 00 20 00 00 00 05 00 0A 00 0F 00 00
-```
-
 ---
 
-### 0x1D - CHUNK_VISIBILITY
+### 0x2D - CHUNK_VISIBILITY
 
 Liste des chunks visibles pour un joueur (optimisation du streaming).
 
@@ -697,12 +734,6 @@ Liste des chunks visibles pour un joueur (optimisation du streaming).
 | 0x00   | sequenceNum | uint32 | 4      | Numéro de séquence (détection perte/dupliqués) |
 | 0x04   | chunkCount  | uint8  | 1      | Nombre de chunks visibles |
 | 0x05   | chunks[]    | int32  | N×4    | Liste des coordonnées X des chunks visibles |
-
-**Exemple** : Chunks 3, 4, 5, 6, 7 visibles
-```
-Header: 1D 02 19 00 00 00
-Payload: 00 00 00 25 05 00 00 00 03 00 00 00 04 00 00 00 05 00 00 00 06 00 00 00 07
-```
 
 ---
 
@@ -721,33 +752,44 @@ Le `sequenceNum` est un compteur qui s'incrémente à chaque message envoyé. Il
 
 ## Résumé des Types de Messages
 
-### TCP (0x01 - 0x0F)
+### TCP (0x01 - 0x12)
 
 | Type | Nom                  | Description |
 |------|----------------------|-------------|
-| 0x01 | CLIENT_CONNECT       | Demande de connexion initiale |
-| 0x02 | SERVER_WELCOME       | Confirmation de connexion |
-| 0x03 | LOBBY_LIST           | Liste des parties disponibles |
-| 0x04 | LOBBY_JOIN           | Demande de rejoindre un lobby |
-| 0x05 | LOBBY_JOINED         | Confirmation d'entrée dans lobby |
-| 0x06 | CHAT_MESSAGE         | Message textuel |
-| 0x07 | GAME_START           | Démarrage de partie |
-| 0x08 | GAME_END             | Fin de partie avec résultats |
-| 0x09 | PLAYER_DISCONNECT    | Déconnexion d'un joueur |
-| 0x0A | ERROR                | Message d'erreur |
+| 0x01 | LOGIN_REQUEST        | Demande de connexion |
+| 0x02 | LOGIN_RESPONSE       | Réponse de connexion |
+| 0x03 | SIGNUP_REQUEST       | Demande de création de compte |
+| 0x04 | SIGNUP_RESPONSE      | Réponse de création de compte |
+| 0x05 | LOGOUT               | Déconnexion |
+| 0x06 | LOBBY_LIST_REQUEST   | Demande la liste des lobbies |
+| 0x07 | LOBBY_LIST_RESPONSE  | Liste des parties disponibles |
+| 0x08 | LOBBY_JOIN           | Demande de rejoindre un lobby |
+| 0x09 | LOBBY_UPDATE         | Synchronisation état du lobby (broadcast) |
+| 0x0A | PLAYER_READY         | Changement statut "prêt" |
+| 0x0B | LOBBY_LEAVE          | Quitter le lobby |
+| 0x0C | CHAT_MESSAGE         | Message textuel |
+| 0x0D | GAME_START           | Démarrage de partie avec infos de map |
+| 0x0E | GAME_END             | Fin de partie avec résultats |
+| 0x0F | PLAYER_DISCONNECT    | Déconnexion d'un joueur |
+| 0x10 | ERROR                | Message d'erreur |
+| 0x11 | CHUNK_REQUEST        | Demande d'un chunk de map |
+| 0x12 | CHUNK_DATA           | Données d'un chunk de map |
 
-### UDP (0x10 - 0x1F)
+### UDP (0x20 - 0x2D)
 
 | Type | Nom                  | Description |
 |------|----------------------|-------------|
-| 0x10 | PLAYER_INPUT         | Entrées du joueur |
-| 0x11 | GAME_STATE           | État complet du jeu |
-| 0x12 | ENTITY_SPAWN         | Apparition d'une entité |
-| 0x13 | ENTITY_DESTROY       | Destruction d'une entité |
-| 0x14 | PLAYER_HIT           | Joueur touché |
-| 0x15 | POWERUP_COLLECTED    | Collecte de bonus |
-| 0x16 | FORCE_UPDATE         | État de la Force |
-| 0x17 | BOSS_SPAWN           | Apparition d'un boss |
-| 0x18 | BOSS_UPDATE          | Mise à jour du boss |
-| 0x19 | SCROLLING_UPDATE     | Mise à jour du scrolling |
-| 0x1A | ACK                  | Accusé de réception |
+| 0x20 | PLAYER_INPUT         | Entrées du joueur |
+| 0x21 | GAME_STATE           | État complet du jeu |
+| 0x22 | ENTITY_SPAWN         | Apparition d'une entité |
+| 0x23 | ENTITY_DESTROY       | Destruction d'une entité |
+| 0x24 | PLAYER_HIT           | Joueur touché |
+| 0x25 | POWERUP_COLLECTED    | Collecte de bonus |
+| 0x26 | FORCE_UPDATE         | État de la Force |
+| 0x27 | BOSS_SPAWN           | Apparition d'un boss |
+| 0x28 | BOSS_UPDATE          | Mise à jour du boss |
+| 0x29 | SCROLLING_UPDATE     | Mise à jour du scrolling |
+| 0x2A | ACK                  | Accusé de réception |
+| 0x2B | CHUNK_UNLOAD         | Déchargement d'un chunk |
+| 0x2C | CHUNK_TILE_UPDATE    | Mise à jour d'une tile |
+| 0x2D | CHUNK_VISIBILITY     | Chunks visibles |
