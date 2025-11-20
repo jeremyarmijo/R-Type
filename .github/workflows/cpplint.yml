@@ -1,0 +1,28 @@
+name: cpplint (Google code norms)
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  cpplint:
+    if: github.repository == 'jeremyarmijo/R-Type'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install cpp-lint
+        run: |
+          sudo apt update
+          sudo apt install pipx
+          pipx ensurepath
+
+      - name: Run cpp-lint with google style checks
+        run: |
+          pipx install cpplint
+          cpplint --filter=-legal/copyright $(find . -name '*.cpp' -o -name '*.hpp' -o -name '*.c' -o -name '*.h')
