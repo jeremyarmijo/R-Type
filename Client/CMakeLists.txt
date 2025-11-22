@@ -12,8 +12,9 @@ file(GLOB_RECURSE SOURCES
 add_executable(RTYPE_Client ${SOURCES})
 
 target_include_directories(RTYPE_Client PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/engine/ecs/
+    ${PROJECT_SOURCE_DIR}/src/
     ${PROJECT_SOURCE_DIR}/src/engine/
+    ${PROJECT_SOURCE_DIR}/src/engine/ecs/
     ${PROJECT_SOURCE_DIR}/src/engine/graphics/
     ${PROJECT_SOURCE_DIR}/src/engine/physics/
     ${PROJECT_SOURCE_DIR}/src/engine/inputs/
