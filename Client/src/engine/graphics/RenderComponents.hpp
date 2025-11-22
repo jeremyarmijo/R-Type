@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "engine/physics/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 
 struct Sprite {
   std::string textureKey;

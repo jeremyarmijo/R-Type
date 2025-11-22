@@ -7,8 +7,8 @@
 #include <vector>
 #include <utility>
 
-#include "engine/ecs/Entity.hpp"
-#include "engine/ecs/SparseArray.hpp"
+#include "ecs/Entity.hpp"
+#include "ecs/SparseArray.hpp"
 
 class Registry {
  public:

@@ -3,7 +3,7 @@
 #include <utility>
 #include <algorithm>
 
-#include "engine/ecs/Zipper.hpp"
+#include "ecs/Zipper.hpp"
 
 template <class... Containers>
 class Zipper;

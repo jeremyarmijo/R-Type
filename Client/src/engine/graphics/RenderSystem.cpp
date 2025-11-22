@@ -1,4 +1,4 @@
-#include "engine/graphics/RenderSystem.hpp"
+#include "graphics/RenderSystem.hpp"
 
 #include <algorithm>
 #include <iostream>

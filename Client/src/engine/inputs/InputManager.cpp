@@ -1,4 +1,4 @@
-#include "engine/inputs/InputManager.hpp"
+#include "inputs/InputManager.hpp"
 
 #include <iostream>
 
