@@ -1,6 +1,7 @@
-#include "TextureManager.hpp"
+#include "engine/graphics/TextureManager.hpp"
 
 #include <iostream>
+#include <string>
 
 bool TextureManager::LoadTexture(const std::string& key,
                                  const std::string& filepath) {

@@ -5,9 +5,10 @@
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
-#include "Entity.hpp"
-#include "SparseArray.hpp"
+#include "engine/ecs/Entity.hpp"
+#include "engine/ecs/SparseArray.hpp"
 
 class Registry {
  public:

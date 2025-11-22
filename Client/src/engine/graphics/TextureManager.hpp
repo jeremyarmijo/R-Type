@@ -11,7 +11,7 @@ class TextureManager {
   SDL_Renderer* m_renderer;
 
  public:
-  TextureManager(SDL_Renderer* renderer) : m_renderer(renderer) {}
+  explicit TextureManager(SDL_Renderer* renderer) : m_renderer(renderer) {}
 
   ~TextureManager() {
     for (auto& pair : m_textures) {

@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "Physics2D.hpp"
+#include "engine/physics/Physics2D.hpp"
 
 struct Sprite {
   std::string textureKey;
@@ -22,7 +22,7 @@ struct Animation {
   int currentFrame;
   bool isPlaying;
 
-  Animation(const std::string& anim = "", bool playing = false)
+  explicit Animation(const std::string& anim = "", bool playing = false)
       : currentAnimation(anim),
         currentTime(0),
         currentFrame(0),
@@ -34,6 +34,6 @@ struct Camera {
   float zoom;
   bool isActive;
 
-  Camera(Vector2 pos = {0, 0}, float z = 1.0f, bool active = true)
+  explicit Camera(Vector2 pos = {0, 0}, float z = 1.0f, bool active = true)
       : position(pos), zoom(z), isActive(active) {}
 };

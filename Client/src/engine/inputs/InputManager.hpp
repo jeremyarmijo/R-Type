@@ -1,15 +1,15 @@
 #pragma once
 #include <SDL2/SDL.h>
 
-#include "Physics2D.hpp"
-#include "Registry.hpp"
-#include "RenderComponents.hpp"
-#include "Zipper.hpp"
+#include "engine/physics/Physics2D.hpp"
+#include "engine/graphics/RenderComponents.hpp"
+#include "engine/ecs/Registry.hpp"
+#include "engine/ecs/Zipper.hpp"
 
 struct PlayerControlled {
   float moveSpeed;
 
-  PlayerControlled(float speed = 200.0f) : moveSpeed(speed) {}
+  explicit PlayerControlled(float speed = 200.0f) : moveSpeed(speed) {}
 };
 
 struct InputState {

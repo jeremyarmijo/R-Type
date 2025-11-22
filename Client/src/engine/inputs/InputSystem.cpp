@@ -1,4 +1,4 @@
-#include "InputSystem.hpp"
+#include "engine/inputs/InputSystem.hpp"
 
 #include <iostream>
 

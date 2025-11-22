@@ -1,8 +1,9 @@
 #pragma once
 #include <tuple>
 #include <utility>
+#include <algorithm>
 
-#include "SparseArray.hpp"
+#include "engine/ecs/Zipper.hpp"
 
 template <class... Containers>
 class Zipper;
@@ -105,7 +106,7 @@ class Zipper {
   using iterator = ZipperIterator<Containers...>;
   using iterator_tuple = typename iterator::iterator_tuple;
 
-  Zipper(Containers&... cs)
+  explicit Zipper(Containers&... cs)
       : m_begin(compute_begin(cs...)),
         m_end(compute_end(cs...)),
         m_size(compute_size(cs...)) {}
@@ -233,7 +234,7 @@ class IndexedZipper {
   using iterator = IndexedZipperIterator<Containers...>;
   using iterator_tuple = typename iterator::iterator_tuple;
 
-  IndexedZipper(Containers&... cs)
+  explicit IndexedZipper(Containers&... cs)
       : m_begin(compute_begin(cs...)),
         m_end(compute_end(cs...)),
         m_size(compute_size(cs...)) {}

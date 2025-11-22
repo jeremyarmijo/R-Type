@@ -1,6 +1,6 @@
 #pragma once
-#include "InputManager.hpp"
-#include "Physics2D.hpp"
+#include "engine/inputs/InputManager.hpp"
+#include "engine/physics/Physics2D.hpp"
 
 void player_input_system(Registry& registry,
                          SparseArray<PlayerControlled>& playerControlled,

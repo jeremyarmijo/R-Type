@@ -1,12 +1,12 @@
 #pragma once
 #include <SDL2/SDL.h>
 
-#include "AnimationManager.hpp"
-#include "Physics2D.hpp"
-#include "Registry.hpp"
-#include "RenderComponents.hpp"
-#include "TextureManager.hpp"
-#include "Zipper.hpp"
+#include "engine/graphics/AnimationManager.hpp"
+#include "engine/graphics/TextureManager.hpp"
+#include "engine/graphics/RenderComponents.hpp"
+#include "engine/physics/Physics2D.hpp"
+#include "engine/ecs/Registry.hpp"
+#include "engine/ecs/Zipper.hpp"
 
 void animation_system(Registry& registry, SparseArray<Animation>& animations,
                       SparseArray<Sprite>& sprites,

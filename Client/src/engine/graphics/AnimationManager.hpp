@@ -15,7 +15,7 @@ struct AnimationClip {
   std::vector<AnimationFrame> frames;
   bool loop;
 
-  AnimationClip(bool shouldLoop = true) : loop(shouldLoop) {}
+  explicit AnimationClip(bool shouldLoop = true) : loop(shouldLoop) {}
 };
 
 class AnimationManager {
