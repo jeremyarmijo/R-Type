@@ -6,7 +6,7 @@
 struct Vector2 {
   float x, y;
 
-  Vector2(float x = 0, float y = 0) : x(x), y(y) {} // NOLINT(runtime/explicit)
+  Vector2(float x = 0, float y = 0) : x(x), y(y) {}  // NOLINT(runtime/explicit)
 
   Vector2 operator+(const Vector2& other) const {
     return {x + other.x, y + other.y};
