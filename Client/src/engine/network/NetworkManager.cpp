@@ -1,6 +1,6 @@
 #pragma once
-#include "./NetworkManager.hpp"
-#include "./Decoder.hpp"
+#include "network/NetworkManager.hpp"
+#include "network/Decoder.hpp"
 #include <arpa/inet.h>
 #include <cstring>
 #include <iostream>

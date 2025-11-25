@@ -1,5 +1,5 @@
 #pragma once
-#include "Event.hpp"
+#include "network/Event.hpp"
 #include <array>
 #include <functional>
 #include <vector>

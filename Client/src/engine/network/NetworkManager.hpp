@@ -1,6 +1,6 @@
 #pragma once
-#include "CircularBuffer.hpp"
-#include "Event.hpp"
+#include "network/CircularBuffer.hpp"
+#include "network/Event.hpp"
 #include <mutex>
 #include <queue>
 #include <string>
