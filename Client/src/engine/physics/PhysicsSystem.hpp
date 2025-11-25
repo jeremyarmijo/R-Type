@@ -1,7 +1,7 @@
 #pragma once
-#include "Physics2D.hpp"
-#include "Registry.hpp"
-#include "Zipper.hpp"
+#include "physics/Physics2D.hpp"
+#include "ecs/Registry.hpp"
+#include "ecs/Zipper.hpp"
 
 void physics_movement_system(Registry& registry,
                              SparseArray<Transform>& transforms,

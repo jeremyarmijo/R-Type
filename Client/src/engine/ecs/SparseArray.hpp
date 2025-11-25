@@ -2,6 +2,7 @@
 #include <memory>
 #include <optional>
 #include <vector>
+#include <utility>
 
 template <typename Component>
 class SparseArray {

@@ -1,8 +1,9 @@
-#include "GameEngine.hpp"
+#include "engine/GameEngine.hpp"
 
 #include <SDL2/SDL_image.h>
 
 #include <iostream>
+#include <string>
 
 /**
  * @brief Creates of the SDL window, intializes the TextureManager class and

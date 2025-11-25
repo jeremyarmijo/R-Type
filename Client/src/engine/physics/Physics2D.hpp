@@ -6,7 +6,7 @@
 struct Vector2 {
   float x, y;
 
-  Vector2(float x = 0, float y = 0) : x(x), y(y) {}
+  Vector2(float x = 0, float y = 0) : x(x), y(y) {}  // NOLINT(runtime/explicit)
 
   Vector2 operator+(const Vector2& other) const {
     return {x + other.x, y + other.y};
@@ -48,7 +48,7 @@ struct RigidBody {
   float restitution;  // Bounciness (0 = no bounce, 1 = perfect bounce)
   bool isStatic;      // Static objects don't move
 
-  RigidBody(float m = 1.0f, float rest = 0.5f, bool stat = false)
+  explicit RigidBody(float m = 1.0f, float rest = 0.5f, bool stat = false)
       : velocity{0, 0},
         acceleration{0, 0},
         mass(m),

@@ -3,15 +3,15 @@
 
 #include <string>
 
-#include "AnimationManager.hpp"
-#include "InputSystem.hpp"
-#include "NetworkManager.hpp"
-#include "Physics2D.hpp"
-#include "PhysicsSystem.hpp"
-#include "Registry.hpp"
-#include "RenderComponents.hpp"
-#include "RenderSystem.hpp"
-#include "TextureManager.hpp"
+#include "inputs/InputSystem.hpp"
+#include "network/NetworkManager.hpp"
+#include "physics/Physics2D.hpp"
+#include "physics/PhysicsSystem.hpp"
+#include "ecs/Registry.hpp"
+#include "graphics/AnimationManager.hpp"
+#include "graphics/RenderComponents.hpp"
+#include "graphics/RenderSystem.hpp"
+#include "graphics/TextureManager.hpp"
 
 constexpr int MAX_PLAYERS = 4;
 
