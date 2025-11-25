@@ -1,19 +1,21 @@
-#pragma once
 #include "network/NetworkManager.hpp"
 #include "network/Decoder.hpp"
+
 #include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <cstring>
 #include <iostream>
 #include <mutex>
-#include <netinet/in.h>
 #include <queue>
 #include <string>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <thread>
-#include <unistd.h>
+#include <vector>
 
-bool NetworkManager::Connect(const std::string &ip, int port) {
+bool NetworkManager::Connect(const std::string& ip, int port) {
   serverIP = ip;
   tcpPort = port;
   running = true;
@@ -36,13 +38,15 @@ int NetworkManager::ConnectTCP() {
   memset(&serverAddr, 0, sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_port = htons(tcpPort);
+
   if (inet_pton(AF_INET, serverIP.c_str(), &serverAddr.sin_addr) <= 0) {
     std::cerr << "Invalid address\n";
     close(sockfd);
     return -1;
   }
 
-  if (connect(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
+  if (connect(sockfd, reinterpret_cast<struct sockaddr*>(&serverAddr),
+              sizeof(serverAddr)) < 0) {
     std::cerr << "Connexion server TCP error\n";
     close(sockfd);
     return -1;
@@ -54,37 +58,25 @@ int NetworkManager::ConnectTCP() {
   return 0;
 }
 
-Event NetworkManager::DecodePacket(std::vector<uint8_t> &packet) {
-  Event newEvent;
-  Decoder decode;
-  newEvent.type = packet[0];
-  uint8_t flag = packet[1];
-
-  uint32_t lengthPayload;
-  memcpy(&lengthPayload, &packet[2], sizeof(lengthPayload));
-
-  const uint8_t *payloadPtr = packet.data() + 6;
-
-  newEvent = decode.decode(packet);
-  return newEvent;
+Event NetworkManager::DecodePacket(std::vector<uint8_t>& packet) {
+  Decoder decoder;
+  return decoder.decode(packet);
 }
 
 void NetworkManager::ProcessRecvBuffer() {
   while (recvBuffer.size() >= 6) {
-
     uint32_t packetSize;
-    memcpy(&packetSize, &recvBuffer[2], 4);
+    memcpy(&packetSize, &recvBuffer[2], sizeof(packetSize));
 
-    if (recvBuffer.size() < 6 + packetSize)
+    if (recvBuffer.size() < 6 + packetSize) {
       return;
-
-    std::vector<uint8_t> packet;
-    int end = 6 + packetSize;
+    }
 
     std::vector<uint8_t> packet(recvBuffer.begin(),
                                 recvBuffer.begin() + 6 + packetSize);
 
     recvBuffer.erase(recvBuffer.begin(), recvBuffer.begin() + 6 + packetSize);
+
     Event evt = DecodePacket(packet);
     eventBuffer.push(evt);
   }
@@ -107,18 +99,23 @@ void NetworkManager::ReadTCP() {
 
 void NetworkManager::ThreadLoop() {
   while (running) {
-
-    if (!tcpConnected)
-      if (ConnectTCP() == -1)
+    if (!tcpConnected) {
+      if (ConnectTCP() == -1) {
         return;
+      }
+    }
 
-    if (udpPort != -1)
+    if (udpPort != -1) {
       ConnectUDP();
+    }
 
-    if (tcpConnected)
+    if (tcpConnected) {
       ReadTCP();
-    if (udpConnected)
+    }
+
+    if (udpConnected) {
       ReadUDP();
+    }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
