@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 
-#include "Decoder.hpp"
-#include "Event.hpp"
+#include "network/Decoder.hpp"
+#include "network/Event.hpp"
 
 // Handlers R-Type
 
