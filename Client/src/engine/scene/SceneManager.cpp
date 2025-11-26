@@ -2,6 +2,8 @@
 
 #include "engine/GameEngine.hpp"
 
+#include <string>
+
 void SceneManager::ChangeScene(const std::string& name) {
   auto it = m_scenes.find(name);
   if (it != m_scenes.end()) {

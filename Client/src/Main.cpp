@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include "engine/GameEngine.hpp"
 #include "scene/SceneManager.hpp"
@@ -87,35 +88,8 @@ class MyGameScene : public Scene {
       std::cout << "YOU WIN! Score: " << m_score << std::endl;
       std::cout << "Going to Game Over screen..." << std::endl;
 
-      // TODO: Pass score to GameOverScene
-      ChangeScene("gameover");  // ← SCENE TRANSITION!
+      ChangeScene("gameover");
       return;
-    }
-
-    // Check lose condition (player fell off)
-    auto& transforms = GetRegistry().get_components<Transform>();
-    if (!m_players.empty() && transforms[m_players[0]]) {
-      if (transforms[m_players[0]]->position.y > 700) {
-        std::cout << "Player fell! Game Over!" << std::endl;
-        ChangeScene("gameover");  // ← SCENE TRANSITION!
-        return;
-      }
-    }
-
-    // Check if enemies fell (give points)
-    for (size_t i = 0; i < m_enemies.size();) {
-      if (!transforms[m_enemies[i]] ||
-          transforms[m_enemies[i]]->position.y > 700) {
-        if (transforms[m_enemies[i]]) {
-          GetRegistry().kill_entity(m_enemies[i]);
-        }
-
-        m_enemies.erase(m_enemies.begin() + i);
-        m_score += 100;
-        std::cout << "Enemy destroyed! Score: " << m_score << std::endl;
-      } else {
-        ++i;
-      }
     }
   }
 

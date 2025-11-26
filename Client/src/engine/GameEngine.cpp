@@ -279,7 +279,7 @@ void GameEngine::HandleEvents() {
       m_running = false;
     } else if (event.type == SDL_KEYDOWN) {
       HandleKeyPress(event.key.keysym.sym);
-    };
+    }
     if (m_sceneManager) {
       m_sceneManager->HandleEvent(event);
     }
