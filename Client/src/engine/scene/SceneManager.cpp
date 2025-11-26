@@ -1,8 +1,8 @@
 #include "scene/SceneManager.hpp"
 
-#include "engine/GameEngine.hpp"
-
 #include <string>
+
+#include "engine/GameEngine.hpp"
 
 void SceneManager::ChangeScene(const std::string& name) {
   auto it = m_scenes.find(name);
