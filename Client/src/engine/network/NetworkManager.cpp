@@ -1,13 +1,13 @@
 #pragma once
 
-// C system headers
+#include "network/NetworkManager.hpp"
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-// C++ system headers
 #include <cstring>
 #include <iostream>
 #include <mutex>
@@ -16,10 +16,9 @@
 #include <thread>
 #include <vector>
 
-// Project headers
-#include "network/NetworkManager.hpp"
-#include "network/Decoder.hpp"
+#include "network/DecodFunc.hpp"
 
+NetworkManager::NetworkManager() : eventBuffer(50) { SetupDecoder(decoder); }
 
 bool NetworkManager::Connect(const std::string& ip, int port) {
   serverIP = ip;
@@ -37,7 +36,7 @@ int NetworkManager::ConnectTCP() {
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) {
-    std::cerr << "Socket creation error\n";
+    std::cerr << "TCP Socket creation error\n";
     return -1;
   }
 
@@ -64,24 +63,57 @@ int NetworkManager::ConnectTCP() {
   return 0;
 }
 
+int NetworkManager::ConnectUDP() {
+  int sockfd;
+  struct sockaddr_in serverAddr;
+
+  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0) {
+    std::cerr << "UDP Socket creation error\n";
+    return -1;
+  }
+
+  memset(&serverAddr, 0, sizeof(serverAddr));
+  serverAddr.sin_family = AF_INET;
+  serverAddr.sin_port = htons(udpPort);
+
+  if (inet_pton(AF_INET, serverIP.c_str(), &serverAddr.sin_addr) <= 0) {
+    std::cerr << "Invalid address\n";
+    close(sockfd);
+    return -1;
+  }
+
+  if (connect(sockfd, reinterpret_cast<struct sockaddr*>(&serverAddr),
+              sizeof(serverAddr)) < 0) {
+    std::cerr << "Connexion server UDP error\n";
+    close(sockfd);
+    return -1;
+  }
+
+  udpSocket = sockfd;
+  udpConnected = true;
+  std::cout << "Connected to UDP server!\n";
+  return 0;
+}
+
 Event NetworkManager::DecodePacket(std::vector<uint8_t>& packet) {
-  Decoder decoder;
   return decoder.decode(packet);
 }
 
-void NetworkManager::ProcessRecvBuffer() {
-  while (recvBuffer.size() >= 6) {
+void NetworkManager::ProcessTCPRecvBuffer() {
+  while (recvTcpBuffer.size() >= 6) {
     uint32_t packetSize;
-    memcpy(&packetSize, &recvBuffer[2], sizeof(packetSize));
+    memcpy(&packetSize, &recvTcpBuffer[2], sizeof(packetSize));
 
-    if (recvBuffer.size() < 6 + packetSize) {
+    if (recvTcpBuffer.size() < 6 + packetSize) {
       return;
     }
 
-    std::vector<uint8_t> packet(recvBuffer.begin(),
-                                recvBuffer.begin() + 6 + packetSize);
+    std::vector<uint8_t> packet(recvTcpBuffer.begin(),
+                                recvTcpBuffer.begin() + 6 + packetSize);
 
-    recvBuffer.erase(recvBuffer.begin(), recvBuffer.begin() + 6 + packetSize);
+    recvTcpBuffer.erase(recvTcpBuffer.begin(),
+                        recvTcpBuffer.begin() + 6 + packetSize);
 
     Event evt = DecodePacket(packet);
     eventBuffer.push(evt);
@@ -93,13 +125,31 @@ void NetworkManager::ReadTCP() {
   int bytesReceived = recv(tcpSocket, tempBuffer, sizeof(tempBuffer), 0);
 
   if (bytesReceived > 0) {
-    recvBuffer.insert(recvBuffer.end(), tempBuffer, tempBuffer + bytesReceived);
-    ProcessRecvBuffer();
+    recvTcpBuffer.insert(recvTcpBuffer.end(), tempBuffer,
+                         tempBuffer + bytesReceived);
+    ProcessTCPRecvBuffer();
   } else if (bytesReceived == 0) {
     std::cout << "Serveur déconnecté" << std::endl;
     tcpConnected = false;
   } else {
     std::cerr << "Erreur de lecture" << std::endl;
+  }
+}
+
+void NetworkManager::ReadUDP() {
+  char tempBuffer[2048];
+  int bytesReceived = recv(udpSocket, tempBuffer, sizeof(tempBuffer), 0);
+
+  if (bytesReceived > 0) {
+    std::vector<uint8_t> packet(tempBuffer, tempBuffer + bytesReceived);
+    // handelACK();
+    Event evt = DecodePacket(packet);
+    eventBuffer.push(evt);
+  } else if (bytesReceived == 0) {
+    std::cout << "UDP server disconnected" << std::endl;
+    udpConnected = false;
+  } else {
+    std::cerr << "UDP read error" << std::endl;
   }
 }
 
@@ -111,7 +161,7 @@ void NetworkManager::ThreadLoop() {
       }
     }
 
-    if (udpPort != -1) {
+    if (!udpConnected && udpPort != -1) {
       ConnectUDP();
     }
 
@@ -119,7 +169,7 @@ void NetworkManager::ThreadLoop() {
       ReadTCP();
     }
 
-    if (udpConnected) {
+    if (udpConnected && udpPort != -1) {
       ReadUDP();
     }
 

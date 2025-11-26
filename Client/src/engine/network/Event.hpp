@@ -285,6 +285,48 @@ struct CHUNK_VISIBILITY {
   std::vector<int32_t> chunks;
 };
 
+enum class EventType : uint8_t {
+  // TCP Messages
+  LOGIN_REQUEST = 0x01,
+  LOGIN_RESPONSE = 0x02,
+  SIGNUP_REQUEST = 0x03,
+  SIGNUP_RESPONSE = 0x04,
+  LOGOUT = 0x05,
+  LOBBY_LIST_REQUEST = 0x06,
+  LOBBY_LIST_RESPONSE = 0x07,
+  LOBBY_JOIN = 0x08,
+  LOBBY_UPDATE = 0x09,
+  PLAYER_READY = 0x0A,
+  LOBBY_LEAVE = 0x0B,
+  CHAT_MESSAGE = 0x0C,
+  GAME_LOADING = 0x0D,
+  PLAYER_END_LOADING = 0x0E,
+  GAME_START = 0x0F,
+  GAME_END = 0x10,
+  PLAYER_DISCONNECT = 0x11,
+  ERROR = 0x12,
+  CHUNK_REQUEST = 0x13,
+  CHUNK_DATA = 0x14,
+
+  // UDP Messages
+  PLAYER_INPUT = 0x20,
+  GAME_STATE = 0x21,
+  ENTITY_SPAWN = 0x22,
+  ENTITY_DESTROY = 0x23,
+  PLAYER_HIT = 0x24,
+  POWERUP_COLLECTED = 0x25,
+  FORCE_UPDATE = 0x26,
+  BOSS_SPAWN = 0x27,
+  BOSS_UPDATE = 0x28,
+  SCROLLING_UPDATE = 0x29,
+  ACK = 0x2A,
+  CHUNK_UNLOAD = 0x2B,
+  CHUNK_TILE_UPDATE = 0x2C,
+  CHUNK_VISIBILITY = 0x2D,
+
+  UNKNOWN = 0xFF
+};
+
 using EventData =
     std::variant<std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, SIGNUP_REQUEST,
                  SIGNUP_RESPONSE, LOGOUT, LOBBY_LIST_REQUEST,
@@ -297,6 +339,6 @@ using EventData =
                  CHUNK_TILE_UPDATE, CHUNK_VISIBILITY>;
 
 struct Event {
-  uint8_t type;
+  EventType type;
   EventData data;
 };

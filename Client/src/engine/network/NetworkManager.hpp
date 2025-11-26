@@ -7,12 +7,13 @@
 #include <vector>
 
 #include "network/CircularBuffer.hpp"
+#include "network/Decoder.hpp"
 #include "network/Event.hpp"
 
 class NetworkManager {
  public:
   NetworkManager();
-  ~NetworkManager();
+  ~NetworkManager() {}
 
   bool Connect(const std::string& ip, int port);
   void Disconnect();
@@ -44,9 +45,11 @@ class NetworkManager {
   void ReadTCP();
   void ReadUDP();
 
-  void ProcessRecvBuffer();
+  void ProcessTCPRecvBuffer();
+
+  Decoder decoder;
   Event DecodePacket(std::vector<uint8_t>& packet);
 
-  std::vector<uint8_t> recvBuffer;
+  std::vector<uint8_t> recvTcpBuffer;
   CircularBuffer<Event> eventBuffer;
 };
