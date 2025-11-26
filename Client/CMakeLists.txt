@@ -19,6 +19,7 @@ target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/src/engine/physics/
     ${PROJECT_SOURCE_DIR}/src/engine/inputs/
     ${PROJECT_SOURCE_DIR}/src/engine/network/
+    ${PROJECT_SOURCE_DIR}/src/engine/scene/
 )
 
 find_package(SDL2 REQUIRED)

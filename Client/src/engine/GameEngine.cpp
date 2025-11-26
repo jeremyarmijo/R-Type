@@ -262,6 +262,9 @@ void GameEngine::Run() {
 
     m_inputManager.Update();
     HandleEvents();
+    if (m_sceneManager) {
+      m_sceneManager->Update(m_deltaTime);
+    }
     Update(deltaTime);
     Render();
   }
@@ -276,6 +279,9 @@ void GameEngine::HandleEvents() {
       m_running = false;
     } else if (event.type == SDL_KEYDOWN) {
       HandleKeyPress(event.key.keysym.sym);
+    }
+    if (m_sceneManager) {
+      m_sceneManager->HandleEvent(event);
     }
   }
 }
@@ -328,6 +334,10 @@ void GameEngine::Render() {
 
   sprite_render_system(m_registry, transforms, sprites, &m_textureManager,
                        m_renderer, m_cameraPosition);
+
+  if (m_sceneManager) {
+    m_sceneManager->Render();
+  }
 
   if (m_showDebug) RenderDebugInfo();
 
