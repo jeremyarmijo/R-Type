@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
 #include <optional>
-#include <vector>
 #include <utility>
+#include <vector>
 
 template <typename Component>
 class SparseArray {

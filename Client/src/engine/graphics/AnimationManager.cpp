@@ -1,7 +1,7 @@
-#include <vector>
-#include <string>
-
 #include "graphics/AnimationManager.hpp"
+
+#include <string>
+#include <vector>
 
 void AnimationManager::CreateAnimation(
     const std::string& name, const std::string& textureKey,

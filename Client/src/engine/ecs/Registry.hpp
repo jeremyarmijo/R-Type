@@ -4,8 +4,8 @@
 #include <functional>
 #include <typeindex>
 #include <unordered_map>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "ecs/Entity.hpp"
 #include "ecs/SparseArray.hpp"
