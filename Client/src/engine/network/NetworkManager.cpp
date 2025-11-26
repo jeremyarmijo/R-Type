@@ -1,12 +1,13 @@
-#include "network/NetworkManager.hpp"
-#include "network/Decoder.hpp"
+#pragma once
 
+// C system headers
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+// C++ system headers
 #include <cstring>
 #include <iostream>
 #include <mutex>
@@ -14,6 +15,11 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+// Project headers
+#include "network/NetworkManager.hpp"
+#include "network/Decoder.hpp"
+
 
 bool NetworkManager::Connect(const std::string& ip, int port) {
   serverIP = ip;

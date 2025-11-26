@@ -1,13 +1,13 @@
 #pragma once
 
-#include "network/CircularBuffer.hpp"
-#include "network/Event.hpp"
-
 #include <mutex>
 #include <queue>
 #include <string>
 #include <thread>
 #include <vector>
+
+#include "network/CircularBuffer.hpp"
+#include "network/Event.hpp"
 
 class NetworkManager {
  public:

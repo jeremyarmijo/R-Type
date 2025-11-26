@@ -4,14 +4,14 @@
 
 template <typename T>
 class CircularBuffer {
-  private:
+ private:
     std::vector<T> m_buffer;
     size_t m_maxItem;
     size_t m_lastItemIndex = 0;
     size_t m_firstItemIndex = 0;
     size_t m_nbItem = 0;
 
-  public:
+ public:
     explicit CircularBuffer(size_t capacity)
         : m_maxItem(capacity), m_buffer(capacity) {}
 
