@@ -1,6 +1,6 @@
 #pragma once
 
-#include "network/NetworkManager.hpp"
+#include "include/NetworkManager.hpp"
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -16,7 +16,7 @@
 #include <thread>
 #include <vector>
 
-#include "network/DecodFunc.hpp"
+#include "include/DecodFunc.hpp"
 
 NetworkManager::NetworkManager() : eventBuffer(50) { SetupDecoder(decoder); }
 
@@ -104,6 +104,7 @@ void NetworkManager::ProcessTCPRecvBuffer() {
   while (recvTcpBuffer.size() >= 6) {
     uint32_t packetSize;
     memcpy(&packetSize, &recvTcpBuffer[2], sizeof(packetSize));
+    packetSize = ntohl(packetSize);
 
     if (recvTcpBuffer.size() < 6 + packetSize) {
       return;
@@ -156,9 +157,7 @@ void NetworkManager::ReadUDP() {
 void NetworkManager::ThreadLoop() {
   while (running) {
     if (!tcpConnected) {
-      if (ConnectTCP() == -1) {
-        return;
-      }
+      ConnectTCP();
     }
 
     if (!udpConnected && udpPort != -1) {
@@ -175,4 +174,10 @@ void NetworkManager::ThreadLoop() {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
+}
+
+Event NetworkManager::PopEvent() {
+  auto res = eventBuffer.pop();
+  if (res.has_value()) return res.value();
+  return Event{};
 }

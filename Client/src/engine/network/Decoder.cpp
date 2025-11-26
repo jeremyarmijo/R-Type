@@ -1,6 +1,6 @@
-#include <vector>
+#include "include/Decoder.hpp"
 
-#include "network/Decoder.hpp"
+#include <vector>
 
 Decoder::Decoder() { handlers.fill(nullptr); }
 
