@@ -179,10 +179,10 @@ Entity GameEngine::CreateSprite(const std::string& textureKey, Vector2 position,
                                 int layer) {
   Entity entity = m_registry.spawn_entity();
 
-  m_registry.add_component(entity, Transform{position, {1, 1}, 0});
-  m_registry.add_component(
-      entity, Sprite{textureKey, {0, 0, 0, 0}, {0.5f, 0.5f}, layer});
-
+  m_registry.emplace_component<Transform>(entity, position, Vector2{1, 1},
+                                          0.0f);
+  m_registry.emplace_component<Sprite>(entity, textureKey, SDL_Rect{0, 0, 0, 0},
+                                       Vector2{0.5f, 0.5f}, layer);
   return entity;
 }
 
@@ -200,8 +200,8 @@ Entity GameEngine::CreatePhysicsObject(const std::string& textureKey,
                                        bool isStatic) {
   Entity entity = CreateSprite(textureKey, position);
 
-  m_registry.add_component(entity, RigidBody{1.0f, 0.5f, isStatic});
-  m_registry.add_component(entity, BoxCollider{size.x, size.y});
+  m_registry.emplace_component<RigidBody>(entity, 1.0f, 0.5f, isStatic);
+  m_registry.emplace_component<BoxCollider>(entity, size.x, size.y);
 
   return entity;
 }
@@ -210,8 +210,8 @@ Entity GameEngine::CreateAnimatedSprite(const std::string& textureKey,
                                         Vector2 position,
                                         const std::string& animationKey) {
   Entity entity = CreateSprite(textureKey, position);
-  m_registry.add_component(entity, Animation{animationKey, true});
 
+  m_registry.emplace_component<Animation>(entity, animationKey, true);
   auto& sprite = m_registry.get_components<Sprite>()[entity];
   auto& animation = m_registry.get_components<Animation>()[entity];
 
@@ -235,13 +235,10 @@ Entity GameEngine::CreatePlayer(const std::string& textureKey,
                                 const std::string& animationKey,
                                 Vector2 position, float moveSpeed) {
   Entity player = CreateAnimatedSprite(textureKey, position, animationKey);
-  m_registry.add_component(player, RigidBody{1.0f, 0.5f, false});
-  m_registry.add_component(player, BoxCollider{60, 32});
 
-  m_registry.add_component(player, PlayerControlled{moveSpeed});
-
-  std::cout << "Created player at (" << position.x << ", " << position.y << ")"
-            << std::endl;
+  m_registry.emplace_component<RigidBody>(player, 1.0f, 0.5f, false);
+  m_registry.emplace_component<BoxCollider>(player, 60.0f, 32.0f);
+  m_registry.emplace_component<PlayerControlled>(player, moveSpeed);
 
   return player;
 }
