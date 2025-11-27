@@ -1,5 +1,6 @@
 #include "graphics/AnimationManager.hpp"
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -15,5 +16,7 @@ void AnimationManager::CreateAnimation(
 const AnimationClip* AnimationManager::GetAnimation(
     const std::string& name) const {
   auto it = m_animations.find(name);
+  if (it == m_animations.end())
+    std::cout << "failed to find texture: " << name << std::endl;
   return (it != m_animations.end()) ? &it->second : nullptr;
 }
