@@ -90,7 +90,6 @@ class MyGameScene : public Scene {
       std::cout << "Game scene initialized successfully" << std::endl;
       std::cout << "Players: " << m_players.size() << std::endl;
       std::cout << "Enemies: " << m_enemies.size() << std::endl;
-
     } catch (const std::exception& e) {
       std::cerr << "CRITICAL ERROR in OnEnter: " << e.what() << std::endl;
       m_isInitialized = false;
@@ -155,7 +154,6 @@ class MyGameScene : public Scene {
         ChangeScene("gameover");
         return;
       }
-
     } catch (const std::bad_optional_access& e) {
       std::cerr << "ERROR: Accessing invalid component (bad_optional_access)"
                 << std::endl;

@@ -48,7 +48,6 @@ void SceneManager::Update(float deltaTime) {
       if (m_registry) {
         m_registry->print_debug_info();
       }
-
     } catch (const std::exception& e) {
       std::cerr << "ERROR during scene transition: " << e.what() << std::endl;
       m_nextScene = nullptr;
