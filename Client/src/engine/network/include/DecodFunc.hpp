@@ -4,8 +4,8 @@
 #include <cstring>
 #include <iostream>
 #include <ostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "Decoder.hpp"
 #include "Event.hpp"
@@ -22,7 +22,6 @@ Event DecodeLOGIN_RESPONSE(const std::vector<uint8_t>& packet) {
 
   uint32_t payloadLength = 0;
   memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
-  payloadLength = ntohl(payloadLength);
   offset += 4;
 
   if (payloadLength != packet.size() - 6) {
@@ -55,5 +54,5 @@ Event DecodeLOGIN_RESPONSE(const std::vector<uint8_t>& packet) {
 }
 
 void SetupDecoder(Decoder& decoder) {
-  decoder.registerHandler(0x01, DecodeLOGIN_RESPONSE);
+  decoder.registerHandler(0x02, DecodeLOGIN_RESPONSE);
 }

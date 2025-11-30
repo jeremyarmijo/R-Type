@@ -15,6 +15,8 @@ class CircularBuffer {
   explicit CircularBuffer(size_t capacity)
       : m_maxItem(capacity), m_buffer(capacity) {}
 
+  size_t size() { return m_nbItem; }
+
   bool isEmpty() { return m_nbItem == 0; }
 
   bool isFull() { return m_nbItem == m_maxItem; }
