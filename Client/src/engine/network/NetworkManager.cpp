@@ -8,9 +8,9 @@
 
 #include <cstring>
 #include <iostream>
+#include <string>
 #include <thread>
 #include <vector>
-#include <string>
 
 #include "include/DecodFunc.hpp"
 #include "include/EncodeFunc.hpp"
@@ -161,12 +161,35 @@ void NetworkManager::ReadTCP() {
   }
 }
 
+void NetworkManager::SendACK(std::vector<uint8_t>& evt) {
+  if (evt.size() < 6) return;
+
+  uint8_t flag;
+  memcpy(&flag, &evt[1], sizeof(flag));
+  if (flag != 0x08) return;
+
+  uint32_t sequenceNum;
+  memcpy(&sequenceNum, &evt[6], sizeof(sequenceNum));
+
+  std::vector<uint8_t> response(11);
+  response[0] = 0x2A;
+  response[1] = 0x02;
+  uint32_t payloadSize = 5;
+  memcpy(&response[2], &payloadSize, sizeof(uint32_t));
+
+  memcpy(&response[6], &sequenceNum, sizeof(uint32_t));
+  response[10] = evt[0];
+
+  SendUdp(response);
+}
+
 void NetworkManager::ReadUDP() {
   char tempBuffer[2048];
   int bytesReceived = recv(udpSocket, tempBuffer, sizeof(tempBuffer), 0);
 
   if (bytesReceived > 0) {
     std::vector<uint8_t> packet(tempBuffer, tempBuffer + bytesReceived);
+    SendACK(packet);
     Event evt = DecodePacket(packet);
     std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
@@ -186,8 +209,7 @@ void NetworkManager::ReadUDP() {
 void NetworkManager::SendUdp(std::vector<uint8_t>& packet) {
   if (!udpConnected || udpSocket < 0) return;
 
-  int sent = send(udpSocket, packet.data(), packet.size(),
-                  MSG_DONTWAIT);
+  int sent = send(udpSocket, packet.data(), packet.size(), MSG_DONTWAIT);
   if (sent < 0) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       std::cerr << "UDP Send would block, buffer full\n";
@@ -207,9 +229,8 @@ void NetworkManager::SendTcp(std::vector<uint8_t>& packet) {
 
   size_t totalSent = 0;
   while (totalSent < packet.size()) {
-    int sent =
-        send(tcpSocket, packet.data() + totalSent, packet.size() - totalSent,
-             MSG_DONTWAIT);
+    int sent = send(tcpSocket, packet.data() + totalSent,
+                    packet.size() - totalSent, MSG_DONTWAIT);
 
     if (sent < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -229,9 +250,9 @@ void NetworkManager::SendTcp(std::vector<uint8_t>& packet) {
     sequenceNumTcp++;
   }
 }
+
 void NetworkManager::SendActionServer() {
-  std::unique_lock<std::mutex> lock(
-      mut);
+  std::unique_lock<std::mutex> lock(mut);
   size_t bufferSize = actionBuffer.size();
 
   for (size_t i = 0; i < bufferSize; ++i) {

@@ -50,6 +50,7 @@ class NetworkManager {
   void ReadUDP();
 
   void SendUdp(std::vector<uint8_t>& packet);
+  void SendACK(std::vector<uint8_t>& evt);
   void SendTcp(std::vector<uint8_t>& packet);
 
   void ProcessTCPRecvBuffer();

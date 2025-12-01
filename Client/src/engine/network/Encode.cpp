@@ -1,6 +1,6 @@
-#include <vector>
-
 #include "include/Encode.hpp"
+
+#include <vector>
 
 Encoder::Encoder() { handlers.fill(nullptr); }
 
