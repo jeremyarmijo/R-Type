@@ -10,8 +10,8 @@
 #include "graphics/TextureManager.hpp"
 #include "inputs/InputSystem.hpp"
 #include "network/NetworkManager.hpp"
-#include "physics/Physics2D.hpp"
-#include "physics/PhysicsSystem.hpp"
+#include "components/Physics2D.hpp"
+#include "systems/PhysicsSystem.hpp"
 #include "scene/SceneManager.hpp"
 
 constexpr int MAX_PLAYERS = 4;

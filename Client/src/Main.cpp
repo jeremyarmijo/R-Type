@@ -32,7 +32,7 @@ class MyGameScene : public Scene {
 
       if (!textures.GetTexture("player")) {
         std::cout << "Loading player texture..." << std::endl;
-        if (!textures.LoadTexture("player", "../assets/player.png")) {
+        if (!textures.LoadTexture("player", "../Client/assets/player.png")) {
           std::cerr << "ERROR: Failed to load player texture!" << std::endl;
           return;
         }

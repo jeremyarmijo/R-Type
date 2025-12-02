@@ -6,7 +6,7 @@
 #include "graphics/AnimationManager.hpp"
 #include "graphics/RenderComponents.hpp"
 #include "graphics/TextureManager.hpp"
-#include "physics/Physics2D.hpp"
+#include "components/Physics2D.hpp"
 
 void animation_system(Registry& registry, SparseArray<Animation>& animations,
                       SparseArray<Sprite>& sprites,
