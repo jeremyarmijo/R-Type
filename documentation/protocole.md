@@ -142,13 +142,7 @@ Demande de création de nouveau compte.
 | 0x01   | username     | char[] | N      | Nom d'utilisateur en UTF-8 |
 | var    | passwordLen  | uint8  | 1      | Longueur du mot de passe (max 64) |
 | var    | password     | char[] | N      | Mot de passe en UTF-8 (hashé côté client) |
-| var    | emailLen     | uint8  | 1      | Longueur de l'email (max 128) |
-| var    | email        | char[] | N      | Email en UTF-8 |
 
-**Exemple** : Création du compte "Falcon"
-```
-Header: 03 01 2E 00 00 00
-Payload: 06 46 61 6C 63 6F 6E 07 68 61 73 68 31 32 33 11 66 61 6C 63 6F 6E 40 65 6D 61 69 6C 2E 63 6F 6D
 ```
 
 ---
@@ -192,12 +186,6 @@ Demande de déconnexion propre.
 | Offset | Champ    | Type   | Taille | Description |
 |--------|----------|--------|--------|-------------|
 | 0x00   | playerId | uint16 | 2      | ID du joueur qui se déconnecte |
-
-**Exemple**
-```
-Header: 05 01 02 00 00 00
-Payload: 00 01
-```
 
 ---
 
