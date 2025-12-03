@@ -10,6 +10,37 @@
 #include "Decoder.hpp"
 #include "Event.hpp"
 
+Event DecodeLOGIN_REQUEST(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LOGIN_REQUEST;
+
+  LOGIN_REQUEST data;
+  size_t offset = 0;
+
+  uint8_t msgType = packet[offset++];
+  uint8_t flags = packet[offset++];
+
+  uint32_t payloadLength = 0;
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  offset += 4;
+
+  if (payloadLength != packet.size() - 6) {
+    return Event{};
+  }
+
+  uint8_t usernameLen = packet[offset++];
+  offset++;
+  data.username =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), usernameLen);
+  offset += sizeof(data.username);
+  uint8_t passwordLen = packet[offset];
+  offset++;
+  data.password =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), passwordLen);
+  evt.data = data;
+  return evt;
+}
+
 Event DecodeLOGIN_RESPONSE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::LOGIN_RESPONSE;
@@ -53,6 +84,85 @@ Event DecodeLOGIN_RESPONSE(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
+Event DecodeSIGNUP_REQUEST(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::SIGNUP_REQUEST;
+
+  SIGNUP_REQUEST data;
+  size_t offset = 2;
+  uint32_t payloadLength = 0;
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  offset += 4;
+  if (payloadLength != packet.size() - 6) {
+    return Event{};
+  }
+
+  uint8_t usernameLen = packet[offset++];
+  data.username =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), usernameLen);
+  offset += sizeof(data.username);
+  uint8_t passwordLen = packet[offset++];
+  data.password =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), passwordLen);
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeSIGNUP_RESPONSE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::SIGNUP_RESPONSE;
+
+  SIGNUP_RESPONSE data;
+  size_t offset = 2;
+  uint32_t payloadLength = 0;
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  offset += 4;
+
+  if (payloadLength != packet.size() - 6) {
+    return Event{};
+  }
+
+  data.success = packet[offset++];
+
+  if (data.success == 1) {
+    uint8_t messageLen = packet[offset++];
+    data.message =
+        std::string(reinterpret_cast<const char*>(&packet[offset]), messageLen);
+
+  } else {
+    memcpy(&data.errorCode, &packet[offset], sizeof(data.errorCode));
+    offset += sizeof(data.errorCode);
+
+    uint8_t messageLen = packet[offset++];
+    data.message =
+        std::string(reinterpret_cast<const char*>(&packet[offset]), messageLen);
+  }
+
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeLOGOUT(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LOGOUT;
+
+  LOGOUT data;
+  size_t offset = 2;
+  uint32_t payloadLength = 0;
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  offset += 4;
+  if (payloadLength != packet.size() - 6) {
+    return Event{};
+  }
+  memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeLOBBY_LIST_REQUEST(const std::vector<uint8_t>& packet) {
+  return Event{};
+}
+
 Event DecodeLOBBY_LIST_RESPONSE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::LOBBY_LIST_RESPONSE;
@@ -76,18 +186,36 @@ Event DecodeLOBBY_LIST_RESPONSE(const std::vector<uint8_t>& packet) {
     LOBBY_LIST_RESPONSE::Lobby lobby;
     memcpy(&lobby.lobbyId, &packet[offset], sizeof(lobby.lobbyId));
     offset += sizeof(lobby.lobbyId);
-    
+
     uint8_t nameLen = packet[offset++];
-    lobby.name = std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
+    lobby.name =
+        std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
     offset += nameLen;
-    
+
     lobby.playerCount = packet[offset++];
     lobby.maxPlayers = packet[offset++];
     lobby.hasStarted = packet[offset++];
-    
+
     data.lobbies.push_back(lobby);
   }
 
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeLOBBY_JOIN(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LOBBY_JOIN;
+
+  LOBBY_JOIN data;
+  size_t offset = 2;
+  uint32_t payloadLength = 0;
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  offset += 4;
+  if (payloadLength != packet.size() - 6) {
+    return Event{};
+  }
+  memcpy(&data.lobbyId, &packet[offset], sizeof(data.lobbyId));
   evt.data = data;
   return evt;
 }
@@ -118,15 +246,52 @@ Event DecodeLOBBY_UPDATE(const std::vector<uint8_t>& packet) {
     LOBBY_UPDATE::PlayerInfo player;
     memcpy(&player.playerId, &packet[offset], sizeof(player.playerId));
     offset += sizeof(player.playerId);
-    
+
     uint8_t nameLen = packet[offset++];
-    player.name = std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
+    player.name =
+        std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
     offset += nameLen;
-    
+
     player.ready = packet[offset++];
     data.players.push_back(player);
   }
 
+  evt.data = data;
+  return evt;
+}
+
+Event DecodePLAYER_READY(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::PLAYER_READY;
+
+  PLAYER_READY data;
+  size_t offset = 2;
+  uint32_t payloadLength = 0;
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  offset += 4;
+  if (payloadLength != packet.size() - 6) {
+    return Event{};
+  }
+  memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
+  offset += sizeof(data.playerId);
+  data.ready = packet[offset++];
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeLOBBY_LEAVE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LOBBY_LEAVE;
+
+  LOBBY_LEAVE data;
+  size_t offset = 2;
+  uint32_t payloadLength = 0;
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  offset += 4;
+  if (payloadLength != packet.size() - 6) {
+    return Event{};
+  }
+  memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
   evt.data = data;
   return evt;
 }
@@ -153,8 +318,9 @@ Event DecodeCHAT_MESSAGE(const std::vector<uint8_t>& packet) {
   uint16_t msgLen;
   memcpy(&msgLen, &packet[offset], sizeof(msgLen));
   offset += sizeof(msgLen);
-  
-  data.message = std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
+
+  data.message =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
   offset += msgLen;
 
   evt.data = data;
@@ -191,6 +357,25 @@ Event DecodeGAME_LOADING(const std::vector<uint8_t>& packet) {
   offset += sizeof(data.tickStart);
 
   evt.data = data;
+  return evt;
+}
+
+Event DecodePLAYER_END_LOADING(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::PLAYER_END_LOADING;
+
+  PLAYER_END_LOADING data;
+  size_t offset = 2;
+  uint32_t payloadLength = 0;
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  offset += 4;
+  if (payloadLength != packet.size() - 6) {
+    return Event{};
+  }
+  memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
+  evt.data = data;
+  offset += sizeof(data.playerId);
+  memcpy(&data.missingChunks, &packet[offset], sizeof(data.missingChunks));
   return evt;
 }
 
@@ -300,10 +485,32 @@ Event DecodeERROR(const std::vector<uint8_t>& packet) {
 
   memcpy(&data.errorCode, &packet[offset], sizeof(data.errorCode));
   offset += sizeof(data.errorCode);
-  
+
   uint8_t msgLen = packet[offset++];
-  data.message = std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
+  data.message =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
   offset += msgLen;
+
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeCHUNK_REQUEST(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::CHUNK_REQUEST;
+  CHUNK_REQUEST data;
+  size_t offset = 0;
+
+  uint8_t msgType = packet[offset++];
+  uint8_t flags = packet[offset++];
+  uint32_t payloadLength = 0;
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  offset += 4;
+
+  if (payloadLength != packet.size() - 6) {
+    return Event{};
+  }
+  memcpy(&data.chunkX, &packet[offset], sizeof(data.chunkX));
 
   evt.data = data;
   return evt;
@@ -345,7 +552,6 @@ Event DecodeCHUNK_DATA(const std::vector<uint8_t>& packet) {
     offset += sizeof(tile.tileY);
     tile.tileType = packet[offset++];
     tile.tileSprite = packet[offset++];
-    tile.tileFlags = packet[offset++];
     tile.tileHealth = packet[offset++];
     data.tiles.push_back(tile);
   }
@@ -355,5 +561,24 @@ Event DecodeCHUNK_DATA(const std::vector<uint8_t>& packet) {
 }
 
 void SetupDecoder(Decoder& decoder) {
+  decoder.registerHandler(0x01, DecodeLOGIN_REQUEST);
   decoder.registerHandler(0x02, DecodeLOGIN_RESPONSE);
+  decoder.registerHandler(0x03, DecodeSIGNUP_REQUEST);
+  decoder.registerHandler(0x04, DecodeSIGNUP_RESPONSE);
+  decoder.registerHandler(0x05, DecodeLOGOUT);
+  decoder.registerHandler(0x06, DecodeLOBBY_LIST_REQUEST);
+  decoder.registerHandler(0x07, DecodeLOBBY_LIST_RESPONSE);
+  decoder.registerHandler(0x08, DecodeLOBBY_JOIN);
+  decoder.registerHandler(0x09, DecodeLOBBY_UPDATE);
+  decoder.registerHandler(0x0A, DecodePLAYER_READY);
+  decoder.registerHandler(0x0B, DecodeLOBBY_LEAVE);
+  decoder.registerHandler(0x0C, DecodeCHAT_MESSAGE);
+  decoder.registerHandler(0x0D, DecodeGAME_LOADING);
+  decoder.registerHandler(0x0E, DecodePLAYER_END_LOADING);
+  decoder.registerHandler(0x0F, DecodeGAME_START);
+  decoder.registerHandler(0x10, DecodeGAME_END);
+  decoder.registerHandler(0x11, DecodePLAYER_DISCONNECT);
+  decoder.registerHandler(0x12, DecodeERROR);
+  decoder.registerHandler(0x13, DecodeCHUNK_REQUEST);
+  decoder.registerHandler(0x14, DecodeCHUNK_DATA);
 }

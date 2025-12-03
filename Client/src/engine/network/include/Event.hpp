@@ -9,9 +9,7 @@
 // -------------------------
 
 struct LOGIN_REQUEST {
-  uint8_t usernameLen;
   std::string username;
-  uint8_t passwordLen;
   std::string password;
 };
 
@@ -25,12 +23,8 @@ struct LOGIN_RESPONSE {
 };
 
 struct SIGNUP_REQUEST {
-  uint8_t usernameLen;
   std::string username;
-  uint8_t passwordLen;
   std::string password;
-  uint8_t emailLen;
-  std::string email;
 };
 
 struct SIGNUP_RESPONSE {
@@ -138,7 +132,6 @@ struct CHUNK_DATA {
     uint16_t tileY;
     uint8_t tileType;
     uint8_t tileSprite;
-    uint8_t tileFlags;
     uint8_t tileHealth;
   };
   int32_t chunkX;
