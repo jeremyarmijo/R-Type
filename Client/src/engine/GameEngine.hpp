@@ -3,15 +3,16 @@
 
 #include <string>
 
-#include "inputs/InputSystem.hpp"
-#include "network/NetworkManager.hpp"
-#include "physics/Physics2D.hpp"
-#include "physics/PhysicsSystem.hpp"
 #include "ecs/Registry.hpp"
 #include "graphics/AnimationManager.hpp"
 #include "graphics/RenderComponents.hpp"
 #include "graphics/RenderSystem.hpp"
 #include "graphics/TextureManager.hpp"
+#include "inputs/InputSystem.hpp"
+#include "network/NetworkManager.hpp"
+#include "components/Physics2D.hpp"
+#include "systems/PhysicsSystem.hpp"
+#include "scene/SceneManager.hpp"
 
 constexpr int MAX_PLAYERS = 4;
 
@@ -29,6 +30,7 @@ class GameEngine {
   AnimationManager m_animationManager;
   NetworkManager m_networkManager;
   InputManager m_inputManager;
+  SceneManager* m_sceneManager;
 
   Vector2 m_cameraPosition;
   Vector2 m_gravity;
@@ -44,6 +46,7 @@ class GameEngine {
         m_windowWidth(800),
         m_windowHeight(600),
         m_textureManager(nullptr),
+        m_sceneManager(nullptr),
         m_cameraPosition{0, 0},
         m_gravity{0, 0},
         m_deltaTime(0.0f),
@@ -57,6 +60,10 @@ class GameEngine {
   void RegisterSystems();
   void Shutdown();
   void Run();
+
+  void SetSceneManager(SceneManager* sceneManager) {
+    m_sceneManager = sceneManager;
+  }
 
   Entity CreateSprite(const std::string& textureKey, Vector2 position,
                       int layer = 0);

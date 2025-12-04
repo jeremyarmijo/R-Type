@@ -24,6 +24,8 @@ bool TextureManager::LoadTexture(const std::string& key,
 
 SDL_Texture* TextureManager::GetTexture(const std::string& key) {
   auto it = m_textures.find(key);
+  if (it == m_textures.end())
+    std::cout << "failed to find texture: " << key << std::endl;
   return (it != m_textures.end()) ? it->second : nullptr;
 }
 

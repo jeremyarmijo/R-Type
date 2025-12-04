@@ -1,10 +1,10 @@
 #pragma once
 #include <SDL2/SDL.h>
 
-#include "physics/Physics2D.hpp"
-#include "graphics/RenderComponents.hpp"
 #include "ecs/Registry.hpp"
 #include "ecs/Zipper.hpp"
+#include "graphics/RenderComponents.hpp"
+#include "components/Physics2D.hpp"
 
 struct PlayerControlled {
   float moveSpeed;
