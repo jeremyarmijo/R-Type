@@ -1,0 +1,167 @@
+// Copyright 2025 Dalia Guiz
+#include "./Movement.hpp"
+#include "components/Physics2D.hpp"
+#include "../../components/Player/PlayerController.hpp"
+#include "../../components/Player/Enemy.hpp"
+#include "../../components/Player/ProjectTile.hpp"
+#include "ecs/Zipper.hpp"
+#include "Movement/Movement.hpp"
+#include "../../components/Player/Boss.hpp"
+
+void player_movement_system(Registry& registry, float deltaTime) {
+    auto& transforms = registry.get_components<Transform>();
+    auto& rigidbodies = registry.get_components<RigidBody>();
+    auto& players = registry.get_components<PlayerControlled>();
+
+    for (auto&& [transform, rigidbody, player] :
+         Zipper(transforms, rigidbodies, players)) {
+        rigidbody.velocity = {0.f, 0.f};
+        Vector2 movement = player.input * player.speed;
+
+        rigidbody.velocity = movement;
+        transform.position += rigidbody.velocity * deltaTime;
+    }
+}
+
+void ennemy_movement_system(Registry &registry, float deltaTime) {
+    auto& transforms = registry.get_components<Transform>();
+    auto& rigidbodies = registry.get_components<RigidBody>();
+    auto& enemies = registry.get_components<Enemy>();
+
+    for (auto&& [transform, rigidbody, enemy] :
+         Zipper(transforms, rigidbodies, enemies)) {
+        enemy.timer += deltaTime;
+        rigidbody.velocity = {0.f, 0.f};
+        switch (enemy.type) {
+            case EnemyType::Basic:
+            rigidbody.velocity.x = -enemy.speed;
+        break;
+            case EnemyType::Zigzag:
+            rigidbody.velocity.x = -enemy.speed;
+            rigidbody.velocity.y = std::sin(enemy.timer * 5.f) *
+            enemy.amplitude;
+        break;
+            case EnemyType::Wave:
+                rigidbody.velocity.x = -enemy.speed;
+                rigidbody.velocity.y = std::cos(enemy.timer * 2.f) *
+                enemy.amplitude;
+                break;
+    }
+        transform.position += rigidbody.velocity * deltaTime;
+    }
+}
+
+void projectTile_movement_system(Registry &registry, float deltaTime) {
+    auto& transforms = registry.get_components<Transform>();
+    auto& rigidbodies = registry.get_components<RigidBody>();
+    auto& projectTiles = registry.get_components<ProjectTile>();
+    auto& collisions = registry.get_components<BoxCollider>();
+    auto& entities = registry.get_entities();
+
+    for (auto& e : entities) {
+        auto& transform = transforms[e.id()];
+        auto& rigidbody = rigidbodies[e.id()];
+        auto& projectTile = projectTiles[e.id()];
+        auto& collision = collisions[e.id()];
+
+        if (!projectTile.has_value())
+            continue;
+
+        projectTile->timer += deltaTime;
+        transform->position += rigidbody->velocity * deltaTime;
+
+        if (projectTile->timer > 2.f )
+            registry.kill_entity(e);
+    }
+}
+
+
+void boss_movement_system(Registry &registry, float deltaTime) {
+    auto& transforms = registry.get_components<Transform>();
+    auto& rigidbodies = registry.get_components<RigidBody>();
+    auto& bosses = registry.get_components<Boss>();
+
+    for (auto&& [transform, rigidbody, boss] :
+         Zipper(transforms, rigidbodies, bosses)) {
+        boss.timer += deltaTime;
+        rigidbody.velocity = {0.f, 0.f};
+
+        switch (boss.type) {
+            case BossType::BigShip:
+            {
+                switch (boss.phase) {
+                    case BossPhase::Phase1:
+                        rigidbody.velocity.x = std::sin(boss.timer * 1.5f) *
+                        boss.speed;
+                        break;
+
+                    case BossPhase::Phase2:
+                        rigidbody.velocity.y = std::sin(boss.timer * 3.f) *
+                        boss.amplitude;
+                        break;
+
+                    case BossPhase::Phase3:
+                        rigidbody.velocity.x = -boss.speed * 1.2f;
+                        rigidbody.velocity.y = std::sin(boss.timer * 5.f) *
+                        boss.amplitude * 1.5f;
+                        break;
+                }
+            }
+            break;
+
+            case BossType::Snake:
+            {
+                rigidbody.velocity.x = -boss.speed;
+                rigidbody.velocity.y = std::sin(boss.timer * 8.f) *
+                boss.amplitude;
+            }
+            break;
+
+            case BossType::BydoEye:
+            {
+                rigidbody.velocity = {0.f, 0.f};
+            }
+            break;
+
+            case BossType::Battleship:
+            {
+                rigidbody.velocity.x = -boss.speed * 0.5f;
+                rigidbody.velocity.y = std::sin(boss.timer * 2.f) * 20.f;
+            }
+            break;
+
+            case BossType::FinalBoss:
+            {
+                float t = boss.timer;
+                float phase = fmod(t, 12.f);
+
+                if (phase < 3.f) {
+                    rigidbody.velocity.x = -boss.speed * 1.2f;
+                    rigidbody.velocity.y = std::sin(t * 10.f) *
+                    (boss.amplitude * 1.5f);
+                } else if (phase < 6.f) {
+                    float radius = 60.f;
+                    rigidbody.velocity.x = std::cos(t * 2.f) * radius;
+                    rigidbody.velocity.y = std::sin(t * 3.f) * radius;
+                } else if (phase < 9.f) {
+                    float shake = std::sin(t * 30.f) * 15.f;
+                    rigidbody.velocity.x = -boss.speed * 3.f;
+                    rigidbody.velocity.y = shake;
+                } else {
+                    rigidbody.velocity.x = boss.speed * 0.5f;
+                    rigidbody.velocity.y = std::sin(t * 1.5f) * 20.f;
+                }
+            }
+            break;
+        }
+        transform.position += rigidbody.velocity * deltaTime;
+
+        if (boss.type == BossType::BigShip) {
+            if (boss.timer > 10.f && boss.phase == BossPhase::Phase1)
+                boss.phase = BossPhase::Phase2;
+
+            if (boss.timer > 20.f && boss.phase == BossPhase::Phase2)
+                boss.phase = BossPhase::Phase3;
+        }
+    }
+}
