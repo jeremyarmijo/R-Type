@@ -1,0 +1,13 @@
+// Copyright 2025 Dalia Guiz
+#pragma once
+#include "../Physics2D.hpp"
+
+struct ProjectTile {
+    float speed;
+    Vector2 direction;
+    float timer = 0.f;
+    bool is_existing;
+    int damage;
+    bool is_player_projectile;
+    bool active = true;
+};
