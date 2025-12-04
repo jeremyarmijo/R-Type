@@ -1,11 +1,5 @@
 #include "include/NetworkManager.hpp"
 
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -15,9 +9,20 @@
 #include "include/DecodFunc.hpp"
 #include "include/EncodeFunc.hpp"
 
-NetworkManager::NetworkManager() : eventBuffer(50), actionBuffer(50) {
+NetworkManager::NetworkManager()
+    : eventBuffer(50),
+      actionBuffer(50),
+      tcpSocket(ioContext),
+      udpSocket(ioContext) {
   SetupDecoder(decoder);
   SetupEncoder(encoder);
+}
+
+NetworkManager::~NetworkManager() {
+  Disconnect();
+  if (networkThread.joinable()) {
+    networkThread.join();
+  }
 }
 
 bool NetworkManager::Connect(const std::string& ip, int port) {
@@ -28,85 +33,85 @@ bool NetworkManager::Connect(const std::string& ip, int port) {
   return true;
 }
 
-void NetworkManager::Disconnect() { running = false; }
+void NetworkManager::Disconnect() {
+  running = false;
+
+  asio::error_code ec;
+  if (tcpSocket.is_open()) {
+    tcpSocket.close(ec);
+  }
+  if (udpSocket.is_open()) {
+    udpSocket.close(ec);
+  }
+}
 
 int NetworkManager::ConnectTCP() {
-  int sockfd;
-  struct sockaddr_in serverAddr;
+  try {
+    asio::ip::tcp::endpoint endpoint(asio::ip::address::from_string(serverIP),
+                                     tcpPort);
 
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0) {
-    std::cerr << "TCP Socket creation error\n";
+    asio::error_code error;
+    tcpSocket.connect(endpoint, error);
+
+    if (error) {
+      std::cerr << "Connexion server TCP error: " << error.message() << "\n";
+      return -1;
+    }
+
+    tcpSocket.non_blocking(true, error);
+    if (error) {
+      std::cerr << "Failed to set TCP socket non-blocking: " << error.message()
+                << "\n";
+      tcpSocket.close();
+      return -1;
+    }
+
+    tcpConnected = true;
+    std::cout << "Connected to TCP server!\n";
+    return 0;
+
+  } catch (const std::exception& error) {
+    std::cerr << "TCP connection exception: " << error.what() << "\n";
     return -1;
   }
-
-  memset(&serverAddr, 0, sizeof(serverAddr));
-  serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(tcpPort);
-
-  if (inet_pton(AF_INET, serverIP.c_str(), &serverAddr.sin_addr) <= 0) {
-    std::cerr << "Invalid address\n";
-    close(sockfd);
-    return -1;
-  }
-
-  if (connect(sockfd, reinterpret_cast<struct sockaddr*>(&serverAddr),
-              sizeof(serverAddr)) < 0) {
-    std::cerr << "Connexion server TCP error\n";
-    close(sockfd);
-    return -1;
-  }
-
-  tcpSocket = sockfd;
-
-  int flags = fcntl(tcpSocket, F_GETFL, 0);
-  if (flags < 0) flags = 0;
-  fcntl(tcpSocket, F_SETFL, flags | O_NONBLOCK);
-
-  tcpConnected = true;
-  std::cout << "Connected to TCP server!\n";
-  return 0;
 }
 
 int NetworkManager::ConnectUDP() {
-  int sockfd;
-  struct sockaddr_in serverAddr;
+  try {
+    udpEndpoint = asio::ip::udp::endpoint(
+        asio::ip::address::from_string(serverIP), udpPort);
 
-  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-  if (sockfd < 0) {
-    std::cerr << "UDP Socket creation error\n";
+    asio::error_code error;
+    udpSocket.open(asio::ip::udp::v4(), error);
+
+    if (error) {
+      std::cerr << "UDP Socket creation error: " << error.message() << "\n";
+      return -1;
+    }
+
+    udpSocket.connect(udpEndpoint, error);
+    if (error) {
+      std::cerr << "Connexion server UDP error: " << error.message() << "\n";
+      udpSocket.close();
+      return -1;
+    }
+
+    udpSocket.non_blocking(true, error);
+    if (error) {
+      std::cerr << "Failed to set UDP socket non-blocking: " << error.message()
+                << "\n";
+      udpSocket.close();
+      return -1;
+    }
+
+    udpConnected = true;
+    std::cout << "Connected to UDP server!\n";
+    return 0;
+
+  } catch (const std::exception& error) {
+    std::cerr << "UDP connection exception: " << error.what() << "\n";
     return -1;
   }
-
-  memset(&serverAddr, 0, sizeof(serverAddr));
-  serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(udpPort);
-
-  if (inet_pton(AF_INET, serverIP.c_str(), &serverAddr.sin_addr) <= 0) {
-    std::cerr << "Invalid address\n";
-    close(sockfd);
-    return -1;
-  }
-
-  if (connect(sockfd, reinterpret_cast<struct sockaddr*>(&serverAddr),
-              sizeof(serverAddr)) < 0) {
-    std::cerr << "Connexion server UDP error\n";
-    close(sockfd);
-    return -1;
-  }
-
-  int flags = fcntl(sockfd, F_GETFL, 0);
-  if (flags < 0) flags = 0;
-  if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) < 0) {
-    std::cerr << "Failed to set UDP socket non-blocking\n";
-    close(sockfd);
-    return -1;
-  }
-
-  udpSocket = sockfd;
-  udpConnected = true;
-  std::cout << "Connected to UDP server!\n";
-  return 0;
 }
 
 Event NetworkManager::DecodePacket(std::vector<uint8_t>& packet) {
@@ -133,6 +138,7 @@ void NetworkManager::ProcessTCPRecvBuffer() {
       const auto* input = std::get_if<LOGIN_RESPONSE>(&evt.data);
       if (!input) return;
       udpPort = input->udpPort;
+      std::cout << "UDP Port =" << udpPort << "\n";
     }
     std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
@@ -142,22 +148,23 @@ void NetworkManager::ProcessTCPRecvBuffer() {
 void NetworkManager::ReadTCP() {
   char tempBuffer[1024];
 
-  int bytesReceived = recv(tcpSocket, tempBuffer, sizeof(tempBuffer), 0);
+  asio::error_code error;
+  size_t bytesReceived =
+      tcpSocket.read_some(asio::buffer(tempBuffer, sizeof(tempBuffer)), error);
 
-  if (bytesReceived > 0) {
+  if (!error && bytesReceived > 0) {
     recvTcpBuffer.insert(recvTcpBuffer.end(), tempBuffer,
                          tempBuffer + bytesReceived);
     ProcessTCPRecvBuffer();
-  } else if (bytesReceived == 0) {
+  } else if (error == asio::error::eof) {
     std::cout << "Serveur TCP déconnecté" << std::endl;
     tcpConnected = false;
-  } else {
-    if (errno == EAGAIN || errno == EWOULDBLOCK) {
-      return;
-    } else {
-      std::cerr << "TCP read error" << std::endl;
-      tcpConnected = false;
-    }
+  } else if (error == asio::error::would_block ||
+             error == asio::error::try_again) {
+    return;
+  } else if (error) {
+    std::cerr << "TCP read error: " << error.message() << std::endl;
+    tcpConnected = false;
   }
 }
 
@@ -185,60 +192,66 @@ void NetworkManager::SendACK(std::vector<uint8_t>& evt) {
 
 void NetworkManager::ReadUDP() {
   char tempBuffer[2048];
-  int bytesReceived = recv(udpSocket, tempBuffer, sizeof(tempBuffer), 0);
 
-  if (bytesReceived > 0) {
+  asio::error_code error;
+  size_t bytesReceived =
+      udpSocket.receive(asio::buffer(tempBuffer, sizeof(tempBuffer)), 0, error);
+
+  if (!error && bytesReceived > 0) {
     std::vector<uint8_t> packet(tempBuffer, tempBuffer + bytesReceived);
     SendACK(packet);
     Event evt = DecodePacket(packet);
     std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
-  } else if (bytesReceived == 0) {
+  } else if (error == asio::error::eof) {
     std::cout << "UDP server disconnected" << std::endl;
     udpConnected = false;
-  } else {
-    if (errno == EAGAIN || errno == EWOULDBLOCK) {
-      return;
-    } else {
-      std::cerr << "UDP read error" << std::endl;
-      udpConnected = false;
-    }
+  } else if (error == asio::error::would_block ||
+             error == asio::error::try_again) {
+    return;
+  } else if (error) {
+    std::cerr << "UDP read error: " << error.message() << std::endl;
+    udpConnected = false;
   }
 }
 
 void NetworkManager::SendUdp(std::vector<uint8_t>& packet) {
-  if (!udpConnected || udpSocket < 0) return;
+  if (!udpConnected || !udpSocket.is_open()) return;
 
-  int sent = send(udpSocket, packet.data(), packet.size(), MSG_DONTWAIT);
-  if (sent < 0) {
-    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+  asio::error_code error;
+  size_t sent = udpSocket.send(asio::buffer(packet), 0, error);
+
+  if (error) {
+    if (error == asio::error::would_block || error == asio::error::try_again) {
       std::cerr << "UDP Send would block, buffer full\n";
       return;
     }
-    std::cerr << "UDP Send error: " << strerror(errno) << std::endl;
+    std::cerr << "UDP Send error: " << error.message() << std::endl;
     udpConnected = false;
     return;
   }
-  std::cout << "UDP Port =" << udpPort << "\n";
   std::cout << "UDP message Send (" << sent << " bytes)\n";
   sequenceNumUdp++;
 }
 
 void NetworkManager::SendTcp(std::vector<uint8_t>& packet) {
-  if (!tcpConnected || tcpSocket < 0) return;
+  if (!tcpConnected || !tcpSocket.is_open()) return;
 
   size_t totalSent = 0;
   while (totalSent < packet.size()) {
-    int sent = send(tcpSocket, packet.data() + totalSent,
-                    packet.size() - totalSent, MSG_DONTWAIT);
+    asio::error_code error;
+    size_t sent = tcpSocket.write_some(
+        asio::buffer(packet.data() + totalSent, packet.size() - totalSent),
+        error);
 
-    if (sent < 0) {
-      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+    if (error) {
+      if (error == asio::error::would_block ||
+          error == asio::error::try_again) {
         std::cerr << "TCP Send would block, buffer full. Sent " << totalSent
                   << "/" << packet.size() << " bytes\n";
         break;
       }
-      std::cerr << "TCP Send error: " << strerror(errno) << std::endl;
+      std::cerr << "TCP Send error: " << error.message() << std::endl;
       tcpConnected = false;
       return;
     }

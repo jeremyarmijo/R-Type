@@ -1,5 +1,6 @@
 #pragma once
 
+#include <asio.hpp>
 #include <mutex>
 #include <queue>
 #include <string>
@@ -15,7 +16,7 @@
 class NetworkManager {
  public:
   NetworkManager();
-  ~NetworkManager() {}
+  ~NetworkManager();
 
   bool Connect(const std::string& ip, int port);
   void Disconnect();
@@ -33,11 +34,14 @@ class NetworkManager {
 
   bool running = false;
 
-  int tcpSocket = -1;
   int tcpPort = -1;
   int udpPort = -1;
-  int udpSocket = -1;
   std::string serverIP;
+
+  asio::io_context ioContext;
+  asio::ip::tcp::socket tcpSocket;
+  asio::ip::udp::socket udpSocket;
+  asio::ip::udp::endpoint udpEndpoint;
 
   std::thread networkThread;
 

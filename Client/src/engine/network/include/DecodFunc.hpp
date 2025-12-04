@@ -76,15 +76,16 @@ Event DecodeLOBBY_LIST_RESPONSE(const std::vector<uint8_t>& packet) {
     LOBBY_LIST_RESPONSE::Lobby lobby;
     memcpy(&lobby.lobbyId, &packet[offset], sizeof(lobby.lobbyId));
     offset += sizeof(lobby.lobbyId);
-    
+
     uint8_t nameLen = packet[offset++];
-    lobby.name = std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
+    lobby.name =
+        std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
     offset += nameLen;
-    
+
     lobby.playerCount = packet[offset++];
     lobby.maxPlayers = packet[offset++];
     lobby.hasStarted = packet[offset++];
-    
+
     data.lobbies.push_back(lobby);
   }
 
@@ -118,11 +119,12 @@ Event DecodeLOBBY_UPDATE(const std::vector<uint8_t>& packet) {
     LOBBY_UPDATE::PlayerInfo player;
     memcpy(&player.playerId, &packet[offset], sizeof(player.playerId));
     offset += sizeof(player.playerId);
-    
+
     uint8_t nameLen = packet[offset++];
-    player.name = std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
+    player.name =
+        std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
     offset += nameLen;
-    
+
     player.ready = packet[offset++];
     data.players.push_back(player);
   }
@@ -153,8 +155,9 @@ Event DecodeCHAT_MESSAGE(const std::vector<uint8_t>& packet) {
   uint16_t msgLen;
   memcpy(&msgLen, &packet[offset], sizeof(msgLen));
   offset += sizeof(msgLen);
-  
-  data.message = std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
+
+  data.message =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
   offset += msgLen;
 
   evt.data = data;
@@ -300,9 +303,10 @@ Event DecodeERROR(const std::vector<uint8_t>& packet) {
 
   memcpy(&data.errorCode, &packet[offset], sizeof(data.errorCode));
   offset += sizeof(data.errorCode);
-  
+
   uint8_t msgLen = packet[offset++];
-  data.message = std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
+  data.message =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
   offset += msgLen;
 
   evt.data = data;
