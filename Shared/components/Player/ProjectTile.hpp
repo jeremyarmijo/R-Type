@@ -8,6 +8,6 @@ struct ProjectTile {
     float timer = 0.f;
     bool is_existing;
     int damage;
-    bool is_player_projectile;
+    bool is_player_projectTile;
     bool active = true;
 };
