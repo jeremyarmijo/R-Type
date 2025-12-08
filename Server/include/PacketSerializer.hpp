@@ -6,7 +6,6 @@
 
 class PacketSerializer {
 public:
-    // Création d'un paquet
     template<typename T>
     static std::vector<uint8_t> Serialize(Protocol::PacketType type, 
                                           const T& payload,
@@ -26,7 +25,6 @@ public:
         return packet;
     }
     
-    // Lecture d'un paquet
     static bool Deserialize(const std::vector<uint8_t>& data,
                            Protocol::PacketHeader& header) {
         if (data.size() < sizeof(Protocol::PacketHeader)) {
@@ -36,7 +34,7 @@ public:
         std::memcpy(&header, data.data(), sizeof(header));
         
         if (header.magic != Protocol::MAGIC_NUMBER) {
-            return false; // Paquet invalide
+            return false;
         }
         
         return true;

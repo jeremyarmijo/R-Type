@@ -15,6 +15,7 @@ add_executable(RTYPE_Client ${SOURCES})
 target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/include/network
     ${PROJECT_SOURCE_DIR}/include/
+    ${PROJECT_SOURCE_DIR}/
 )
 
 # find_package(SDL2 REQUIRED)

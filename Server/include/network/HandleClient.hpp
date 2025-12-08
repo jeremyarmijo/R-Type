@@ -13,20 +13,16 @@ public:
     const std::string& GetUsername() const { return username_; }
     const asio::ip::tcp::endpoint& GetTCPEndpoint() const { return tcp_endpoint_; }
     
-    // UDP endpoint management
     bool HasUDPEndpoint() const { return udp_endpoint_.has_value(); }
     const asio::ip::udp::endpoint& GetUDPEndpoint() const { return udp_endpoint_.value(); }
     void SetUDPEndpoint(const asio::ip::udp::endpoint& endpoint) { udp_endpoint_ = endpoint; }
     
-    // Authentication
     bool IsAuthenticated() const { return is_authenticated_; }
     void SetAuthenticated(bool auth) { is_authenticated_ = auth; }
     
-    // Heartbeat management
     void UpdateLastSeen();
     bool IsTimedOut(std::chrono::seconds timeout) const;
     
-    // Statistics
     uint64_t GetPacketsSent() const { return packets_sent_; }
     uint64_t GetPacketsReceived() const { return packets_received_; }
     void IncrementPacketsSent() { ++packets_sent_; }

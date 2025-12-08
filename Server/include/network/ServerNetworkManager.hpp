@@ -1,16 +1,17 @@
 #pragma once
-#include "network/INetworkManager.hpp"
-#include "network/UDPServer.hpp"
-#include "network/ClientManager.hpp"
+#include <iostream>
 #include <asio.hpp>
 #include <thread>
 #include <queue>
 #include <mutex>
 
-// Forward declaration
+#include "network/INetworkManager.hpp"
+#include "network/UDPServer.hpp"
+#include "network/ClientManager.hpp"
+#include "network/TCPServer.hpp"
+
 class TCPServer;
 
-// Structure pour les événements de connexion/déconnexion
 struct ConnectionEvent {
     enum Type { CONNECTED, DISCONNECTED };
     Type type;
@@ -23,7 +24,6 @@ public:
     ~ServerNetworkManager() override;
 
     bool Initialize(uint16_t tcp_port, uint16_t udp_port);
-    bool Initialize(uint16_t port) override;  // Backward compatibility
     void Shutdown() override;
     
     void SendTo(uint32_t client_id, const NetworkMessage& msg) override;
@@ -51,20 +51,16 @@ private:
     
     ClientManager client_manager_;
     
-    // Thread-safe message queue
     std::queue<NetworkMessage> incoming_messages_;
     std::mutex queue_mutex_;
     
-    // Thread-safe connection events queue
     std::queue<ConnectionEvent> connection_events_;
     std::mutex events_mutex_;
     
-    // Callbacks
     MessageCallback message_callback_;
     ConnectionCallback connection_callback_;
     DisconnectionCallback disconnection_callback_;
     
-    // Timeout timer
     std::unique_ptr<asio::steady_timer> timeout_timer_;
     static constexpr std::chrono::seconds CLIENT_TIMEOUT{10};
 };

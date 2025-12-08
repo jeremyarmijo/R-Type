@@ -5,8 +5,9 @@
 #include <string>
 #include <unordered_map>
 
-// Forward declaration
-class TCPSession;
+#include "include/ServerMacro.hpp"
+
+class ProcessPacketTCP;
 
 class TCPServer {
 public:
@@ -28,27 +29,25 @@ public:
     void SetUDPPort(uint16_t port) { udp_port_ = port; }
 
 private:
-    friend class TCPSession;  // Allow TCPSession to access callbacks
+    friend class ProcessPacketTCP;
     
     void StartAccept();
-    void HandleAccept(std::shared_ptr<TCPSession> session, const asio::error_code& error);
 
     asio::ip::tcp::acceptor acceptor_;
     LoginCallback login_callback_;
     DisconnectCallback disconnect_callback_;
     
-    std::unordered_map<uint32_t, std::shared_ptr<TCPSession>> sessions_;
-    std::mutex sessions_mutex_;
+    std::unordered_map<uint32_t, std::shared_ptr<ProcessPacketTCP>> sessions_;
+    std::mutex process_packet_mutex_;
     
-    uint32_t next_client_id_ = 1;
-    uint16_t udp_port_ = 4243;
+    uint32_t next_client_id_;
+    uint16_t udp_port_;
 };
 
-// Session TCP pour un client individuel
-class TCPSession : public std::enable_shared_from_this<TCPSession> {
+class ProcessPacketTCP : public std::enable_shared_from_this<ProcessPacketTCP> {
 public:
-    TCPSession(asio::ip::tcp::socket socket, uint32_t client_id, TCPServer* server);
-    ~TCPSession();
+    ProcessPacketTCP(asio::ip::tcp::socket socket, uint32_t client_id, TCPServer* server);
+    ~ProcessPacketTCP();
 
     void Start();
     void Close();
@@ -70,11 +69,11 @@ private:
     asio::ip::tcp::endpoint endpoint_;
     uint32_t client_id_;
     TCPServer* server_;
-    
-    std::array<uint8_t, 6> header_buffer_;  // Type(1) + Flags(1) + Length(4)
+
+    std::array<uint8_t, 6> header_buffer_;
     std::vector<uint8_t> payload_buffer_;
     uint8_t current_msg_type_ = 0;
-    
+
     bool authenticated_ = false;
     std::string username_;
 };
