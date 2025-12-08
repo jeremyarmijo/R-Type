@@ -89,14 +89,12 @@ void ProcessPacketTCP::HandleReadHeader(const asio::error_code& error,
                 << std::endl;
     }
 
-    // Notifier la déconnexion
     if (server_->disconnect_callback_ && authenticated_) {
       server_->disconnect_callback_(client_id_);
     }
     return;
   }
 
-  // Parser header: Type(1) + Flags(1) + Length(4 big-endian)
   uint8_t type = header_buffer_[0];
   uint8_t flags = header_buffer_[1];
   uint32_t length = (static_cast<uint32_t>(header_buffer_[2]) << 24) |
@@ -108,22 +106,11 @@ void ProcessPacketTCP::HandleReadHeader(const asio::error_code& error,
             << (int)type << " flags=0x" << (int)flags << " length=" << std::dec
             << length << std::endl;
 
-  // Vérifier taille raisonnable
-  if (length > 1024) {
-    std::cerr << "[ProcessPacketTCP] Payload too large: " << length
-              << std::endl;
-    Close();
-    return;
-  }
-
-  // Stocker le type pour le traitement
   current_msg_type_ = type;
 
-  // Lire le payload
   if (length > 0) {
     ReadPayload(length);
   } else {
-    // Pas de payload, relire header
     ReadHeader();
   }
 }
@@ -147,9 +134,8 @@ void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
     return;
   }
 
-  // Traiter selon le type de message
   switch (current_msg_type_) {
-    case 0x01:  // LOGIN_REQUEST
+    case 0x01:
       ProcessLoginRequest();
       break;
 
@@ -159,19 +145,12 @@ void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
       break;
   }
 
-  // Lire le prochain message
   ReadHeader();
 }
 
 void ProcessPacketTCP::ProcessLoginRequest() {
-  if (payload_buffer_.size() < 2) {
-    SendLoginError(0x1004, "Invalid login request");
-    return;
-  }
-
   size_t offset = 0;
 
-  // Lire username
   uint8_t username_len = payload_buffer_[offset++];
   if (offset + username_len > payload_buffer_.size()) {
     SendLoginError(0x1004, "Invalid username length");
@@ -182,35 +161,14 @@ void ProcessPacketTCP::ProcessLoginRequest() {
                           username_len);
   offset += username_len;
 
-  // Lire password (on ne le vérifie pas pour l'instant)
-  if (offset >= payload_buffer_.size()) {
-    SendLoginError(0x1004, "Missing password");
-    return;
-  }
-
-  uint8_t password_len = payload_buffer_[offset++];
-  if (offset + password_len > payload_buffer_.size()) {
-    SendLoginError(0x1004, "Invalid password length");
-    return;
-  }
-
-  std::string password(reinterpret_cast<char*>(&payload_buffer_[offset]),
-                       password_len);
-
-  // TODO: Vérifier credentials dans une base de données
-  // Pour l'instant, on accepte tout le monde
-
   std::cout << "[ProcessPacketTCP] Login request from '" << username_
             << "' (client " << client_id_ << ")" << std::endl;
-
   authenticated_ = true;
 
-  // Notifier le succès avec callback
   if (server_->login_callback_) {
     server_->login_callback_(client_id_, username_, endpoint_);
   }
 
-  // Envoyer réponse
   SendLoginResponse(true, client_id_, server_->GetUDPPort());
 }
 
@@ -218,40 +176,25 @@ void ProcessPacketTCP::SendLoginResponse(bool success, uint32_t player_id,
                                          uint16_t udp_port) {
   std::vector<uint8_t> response;
 
-  // Header: Type(1) + Flags(1) + Length(4)
-  response.push_back(0x02);  // Type: LOGIN_RESPONSE
-  response.push_back(0x01);  // Flags: TCP protocol
+  response.push_back(0x02);
+  response.push_back(0x01);
 
-  if (success) {
-    // Length = 9 bytes (success + playerId + serverTick + udpPort)
-    response.push_back(0x00);
-    response.push_back(0x00);
-    response.push_back(0x00);
-    response.push_back(0x09);
+  response.push_back(0x00);
+  response.push_back(0x00);
+  response.push_back(0x00);
+  response.push_back(0x09);
 
-    // Payload
-    response.push_back(0x01);                     // Success = 1
-    response.push_back((player_id >> 8) & 0xFF);  // Player ID high byte
-    response.push_back(player_id & 0xFF);         // Player ID low byte
+  response.push_back(0x01);
+  response.push_back((player_id >> 8) & 0xFF);
+  response.push_back(player_id & 0xFF);
 
-    // Server tick (placeholder: 1)
-    response.push_back(0x00);
-    response.push_back(0x00);
-    response.push_back(0x00);
-    response.push_back(0x01);
+  response.push_back(0x00);
+  response.push_back(0x00);
+  response.push_back(0x00);
+  response.push_back(0x01);
 
-    // UDP port
-    response.push_back((udp_port >> 8) & 0xFF);
-    response.push_back(udp_port & 0xFF);
-  } else {
-    // Length = 1 byte (success = 0)
-    response.push_back(0x00);
-    response.push_back(0x00);
-    response.push_back(0x00);
-    response.push_back(0x01);
-
-    response.push_back(0x00);  // Success = 0
-  }
+  response.push_back((udp_port >> 8) & 0xFF);
+  response.push_back(udp_port & 0xFF);
 
   auto self = shared_from_this();
   asio::async_write(
@@ -271,21 +214,18 @@ void ProcessPacketTCP::SendLoginError(uint16_t error_code,
                                       const std::string& message) {
   std::vector<uint8_t> response;
 
-  // Header: Type(1) + Flags(1) + Length(4)
-  response.push_back(0x02);  // Type: LOGIN_RESPONSE
-  response.push_back(0x01);  // Flags: TCP protocol
+  response.push_back(0x02);
+  response.push_back(0x01);
 
-  // Length = 4 + message.size() (success + errorCode + messageLen + message)
   uint32_t payload_size = 4 + message.size();
   response.push_back((payload_size >> 24) & 0xFF);
   response.push_back((payload_size >> 16) & 0xFF);
   response.push_back((payload_size >> 8) & 0xFF);
   response.push_back(payload_size & 0xFF);
 
-  // Payload (échec)
-  response.push_back(0x00);                      // Success = 0
-  response.push_back((error_code >> 8) & 0xFF);  // Error code high byte
-  response.push_back(error_code & 0xFF);         // Error code low byte
+  response.push_back(0x00);
+  response.push_back((error_code >> 8) & 0xFF);
+  response.push_back(error_code & 0xFF);
   response.push_back(static_cast<uint8_t>(message.size()));
 
   for (char c : message) {
@@ -300,6 +240,6 @@ void ProcessPacketTCP::SendLoginError(uint16_t error_code,
           std::cout << "[ProcessPacketTCP] LOGIN_ERROR sent to client "
                     << client_id_ << std::endl;
         }
-        Close();  // Fermer après erreur
+        Close();
       });
 }
