@@ -1,6 +1,7 @@
 // Copyright 2025 Dalia Guiz
 #pragma once
 #include "../Physics2D.hpp"
+
 enum class EnemyType {
     Basic,
     Zigzag,
@@ -18,7 +19,3 @@ struct Enemy {
     int weaponId;
 };
 
-struct Health {
-    int hp;
-    bool isAlive = true;
-};
