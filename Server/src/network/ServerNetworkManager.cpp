@@ -125,7 +125,6 @@ void ServerNetworkManager::Update() {
         connection_callback_(event.client_id);
       }
     } else if (event.type == ConnectionEvent::DISCONNECTED) {
-      std::cout << "nb events = " << events.size() << std::endl;
       if (disconnection_callback_) {
         disconnection_callback_(event.client_id);
       }
