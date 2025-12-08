@@ -3,8 +3,9 @@
 #include <iostream>
 
 TCPServer::TCPServer(asio::io_context& io_context, uint16_t port)
-    : acceptor_(io_context,
-                asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)), next_client_id_(1), udp_port_(PORT_UDP_DEFAULT) {
+    : acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
+      next_client_id_(1),
+      udp_port_(PORT_UDP_DEFAULT) {
   std::cout << "[TCPServer] Listening on port " << port << std::endl;
   StartAccept();
 }
@@ -81,6 +82,26 @@ void ProcessPacketTCP::ReadHeader() {
       });
 }
 
+uint32_t ProcessPacketTCP::bytes_to_uint32(const uint8_t* data) {
+  uint32_t tmp;
+  std::memcpy(&tmp, data, sizeof(uint32_t));
+  return ntohl(tmp);
+}
+
+void ProcessPacketTCP::push_buffer_uint32(std::vector<uint8_t>& buffer,
+                                          uint32_t value) {
+  buffer.push_back((value >> 24) & 0xFF);
+  buffer.push_back((value >> 16) & 0xFF);
+  buffer.push_back((value >> 8) & 0xFF);
+  buffer.push_back(value & 0xFF);
+}
+
+void ProcessPacketTCP::push_buffer_uint16(std::vector<uint8_t>& buffer,
+                                          uint16_t value) {
+  buffer.push_back((value >> 8) & 0xFF);
+  buffer.push_back(value & 0xFF);
+}
+
 void ProcessPacketTCP::HandleReadHeader(const asio::error_code& error,
                                         std::size_t bytes_transferred) {
   if (error) {
@@ -97,10 +118,7 @@ void ProcessPacketTCP::HandleReadHeader(const asio::error_code& error,
 
   uint8_t type = header_buffer_[0];
   uint8_t flags = header_buffer_[1];
-  uint32_t length = (static_cast<uint32_t>(header_buffer_[2]) << 24) |
-                    (static_cast<uint32_t>(header_buffer_[3]) << 16) |
-                    (static_cast<uint32_t>(header_buffer_[4]) << 8) |
-                    static_cast<uint32_t>(header_buffer_[5]);
+  uint32_t length = bytes_to_uint32(&header_buffer_[2]);
 
   std::cout << "[ProcessPacketTCP] Received header: type=0x" << std::hex
             << (int)type << " flags=0x" << (int)flags << " length=" << std::dec
@@ -128,7 +146,7 @@ void ProcessPacketTCP::ReadPayload(uint16_t payload_size) {
 
 void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
                                          std::size_t bytes_transferred) {
-  if (error) {
+  if (error && error != asio::error::eof) {
     std::cerr << "[ProcessPacketTCP] Payload read error: " << error.message()
               << std::endl;
     return;
@@ -179,22 +197,14 @@ void ProcessPacketTCP::SendLoginResponse(bool success, uint32_t player_id,
   response.push_back(0x02);
   response.push_back(0x01);
 
-  response.push_back(0x00);
-  response.push_back(0x00);
-  response.push_back(0x00);
-  response.push_back(0x09);
+  push_buffer_uint32(response, 9);
 
   response.push_back(0x01);
-  response.push_back((player_id >> 8) & 0xFF);
-  response.push_back(player_id & 0xFF);
 
-  response.push_back(0x00);
-  response.push_back(0x00);
-  response.push_back(0x00);
-  response.push_back(0x01);
+  push_buffer_uint16(response, player_id);
+  push_buffer_uint32(response, 1);
 
-  response.push_back((udp_port >> 8) & 0xFF);
-  response.push_back(udp_port & 0xFF);
+  push_buffer_uint16(response, udp_port);
 
   auto self = shared_from_this();
   asio::async_write(
@@ -218,14 +228,10 @@ void ProcessPacketTCP::SendLoginError(uint16_t error_code,
   response.push_back(0x01);
 
   uint32_t payload_size = 4 + message.size();
-  response.push_back((payload_size >> 24) & 0xFF);
-  response.push_back((payload_size >> 16) & 0xFF);
-  response.push_back((payload_size >> 8) & 0xFF);
-  response.push_back(payload_size & 0xFF);
+  push_buffer_uint32(response, payload_size);
 
   response.push_back(0x00);
-  response.push_back((error_code >> 8) & 0xFF);
-  response.push_back(error_code & 0xFF);
+  push_buffer_uint16(response, error_code);
   response.push_back(static_cast<uint8_t>(message.size()));
 
   for (char c : message) {

@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <arpa/inet.h>
 
 #include "include/ServerMacro.hpp"
 
@@ -57,6 +58,9 @@ public:
 
 private:
     void ReadHeader();
+    uint32_t bytes_to_uint32(const uint8_t* data);
+    void push_buffer_uint16(std::vector<uint8_t>& buffer, uint16_t value);
+    void push_buffer_uint32(std::vector<uint8_t>& buffer, uint32_t value);
     void HandleReadHeader(const asio::error_code& error, std::size_t bytes_transferred);
     void ReadPayload(uint16_t payload_size);
     void HandleReadPayload(const asio::error_code& error, std::size_t bytes_transferred);
