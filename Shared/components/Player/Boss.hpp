@@ -26,9 +26,4 @@ struct Boss {
     float amplitude = 40.f;
 };
 
-struct Health {
-    float hp = 100.f;
-    float maxHp = 100.f;
-};
-
 #endif  // SHARED_COMPONENTS_PLAYER_BOSS_HPP_
