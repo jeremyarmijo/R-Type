@@ -1,4 +1,5 @@
 // Copyright 2025 Dalia Guiz
+#include <algorithm>
 #include "Player/Boss.hpp"
 #include "./Movement.hpp"
 #include "components/Physics2D.hpp"
@@ -7,7 +8,6 @@
 #include "Player/ProjectTile.hpp"
 #include "ecs/Zipper.hpp"
 #include "Movement/Movement.hpp"
-#include <algorithm>
 
 void player_movement_system(SparseArray<Transform>& transforms,
     SparseArray<RigidBody>& rigidbodies,
