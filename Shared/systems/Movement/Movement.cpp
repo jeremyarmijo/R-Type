@@ -1,32 +1,31 @@
 // Copyright 2025 Dalia Guiz
+#include "Player/Boss.hpp"
 #include "./Movement.hpp"
 #include "components/Physics2D.hpp"
-#include "../../components/Player/PlayerController.hpp"
-#include "../../components/Player/Enemy.hpp"
-#include "../../components/Player/ProjectTile.hpp"
+#include "Player/PlayerController.hpp"
+#include "Player/Enemy.hpp"
+#include "Player/ProjectTile.hpp"
 #include "ecs/Zipper.hpp"
 #include "Movement/Movement.hpp"
-#include "../../components/Player/Boss.hpp"
+#include <algorithm>
 
-void player_movement_system(Registry& registry, float deltaTime) {
-    auto& transforms = registry.get_components<Transform>();
-    auto& rigidbodies = registry.get_components<RigidBody>();
-    auto& players = registry.get_components<PlayerControlled>();
-
+void player_movement_system(SparseArray<Transform>& transforms,
+    SparseArray<RigidBody>& rigidbodies,
+    SparseArray<PlayerControlled>& players,
+    float deltaTime
+) {
     for (auto&& [transform, rigidbody, player] :
          Zipper(transforms, rigidbodies, players)) {
-        rigidbody.velocity = {0.f, 0.f};
-        Vector2 movement = player.input * player.speed;
-
-        rigidbody.velocity = movement;
+        // rigidbody.velocity = {0.f, 0.f};
+        rigidbody.velocity = player.input * player.speed;
         transform.position += rigidbody.velocity * deltaTime;
     }
 }
 
-void ennemy_movement_system(Registry &registry, float deltaTime) {
-    auto& transforms = registry.get_components<Transform>();
-    auto& rigidbodies = registry.get_components<RigidBody>();
-    auto& enemies = registry.get_components<Enemy>();
+void enemy_movement_system(SparseArray<Transform>& transforms,
+    SparseArray<RigidBody>& rigidbodies,
+    SparseArray<Enemy>& enemies,
+    float deltaTime) {
 
     for (auto&& [transform, rigidbody, enemy] :
          Zipper(transforms, rigidbodies, enemies)) {
@@ -51,36 +50,39 @@ void ennemy_movement_system(Registry &registry, float deltaTime) {
     }
 }
 
-void projectTile_movement_system(Registry &registry, float deltaTime) {
-    auto& transforms = registry.get_components<Transform>();
-    auto& rigidbodies = registry.get_components<RigidBody>();
-    auto& projectTiles = registry.get_components<ProjectTile>();
-    auto& collisions = registry.get_components<BoxCollider>();
-    auto& entities = registry.get_entities();
+void projectTile_movement_system(SparseArray<Transform>& transforms,
+    SparseArray<RigidBody>& rigidbodies,
+    SparseArray<ProjectTile>& projectiles,
+    Registry& registry,
+    float deltaTime) {
 
-    for (auto& e : entities) {
-        auto& transform = transforms[e.id()];
-        auto& rigidbody = rigidbodies[e.id()];
-        auto& projectTile = projectTiles[e.id()];
-        auto& collision = collisions[e.id()];
-
-        if (!projectTile.has_value())
+    size_t max = std::max({transforms.size(), rigidbodies.size(),
+    projectiles.size()});
+    for (size_t i = 0; i < max; ++i) {
+        if (!projectiles[i].has_value())
+            continue;
+        if (!transforms[i].has_value())
+            continue;
+        if (!rigidbodies[i].has_value())
             continue;
 
-        projectTile->timer += deltaTime;
-        transform->position += rigidbody->velocity * deltaTime;
+        auto& transform = transforms[i].value();
+        auto& rigidbody = rigidbodies[i].value();
+        auto& proj = projectiles[i].value();
 
-        if (projectTile->timer > 2.f )
-            registry.kill_entity(e);
+        proj.timer += deltaTime;
+        transform.position += rigidbody.velocity * deltaTime;
+
+        if (proj.timer > 2.f) {
+            // registry knows entity id : convert index -> Entity
+            registry.kill_entity(registry.entity_from_index(i));
+        }
     }
 }
 
-
-void boss_movement_system(Registry &registry, float deltaTime) {
-    auto& transforms = registry.get_components<Transform>();
-    auto& rigidbodies = registry.get_components<RigidBody>();
-    auto& bosses = registry.get_components<Boss>();
-
+void boss_movement_system(SparseArray<Transform>& transforms,
+    SparseArray<RigidBody>& rigidbodies,
+    SparseArray<Boss>& bosses, float deltaTime) {
     for (auto&& [transform, rigidbody, boss] :
          Zipper(transforms, rigidbodies, bosses)) {
         boss.timer += deltaTime;
