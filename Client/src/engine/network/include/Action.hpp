@@ -29,10 +29,6 @@ struct AuthUDP {
   uint16_t playerId;
 };
 
-struct PlayerInput {
-  uint32_t tick;
-};
-
 struct LoginData {
   std::string username;
   std::string passwordHash;
@@ -71,7 +67,7 @@ struct ChunkRequestData {
 };
 
 using ActionData =
-    std::variant<std::monostate, AuthUDP, PlayerInput, LoginData, SignupData, LogoutData,
+    std::variant<std::monostate, AuthUDP, LoginData, SignupData, LogoutData,
                  LobbyJoinData, PlayerReadyData, LobbyLeaveData,
                  PlayerEndLoadingData, ChunkRequestData>;
 
