@@ -11,6 +11,8 @@
 #include "graphics/AnimationManager.hpp"
 #include "graphics/TextureManager.hpp"
 #include "inputs/InputManager.hpp"
+#include "ui/UIManager.hpp"
+#include "include/NetworkManager.hpp"
 
 class GameEngine;
 class SceneManager;
@@ -19,17 +21,18 @@ class Scene {
  protected:
   GameEngine* m_engine;
   SceneManager* m_sceneManager;
+  UIManager m_uiManager;
   std::string m_name;
 
  public:
-  Scene(GameEngine* engine, SceneManager* sceneManager, const std::string& name)
-      : m_engine(engine), m_sceneManager(sceneManager), m_name(name) {}
+  Scene(GameEngine* engine, SceneManager* sceneManager,
+        const std::string& name);
 
   virtual ~Scene() {}
   virtual void OnEnter() = 0;
   virtual void OnExit() = 0;
   virtual void Update(float deltaTime) {}
-  virtual void Render() {}
+  virtual void Render() = 0;
   virtual void HandleEvent(SDL_Event& event) {}
   const std::string& GetName() const { return m_name; }
 
@@ -38,7 +41,13 @@ class Scene {
   TextureManager& GetTextures();
   AnimationManager& GetAnimations();
   InputManager& GetInput();
+  NetworkManager& GetNetwork();
+  SDL_Renderer* GetRenderer();
+  Vector2 GetCameraPosition();
+  UIManager& GetUI() { return m_uiManager; }
 
+  void RenderSprites(int minLayer = 0, int maxLayer = 16);
+  void RenderSpritesLayered();
   void ChangeScene(const std::string& sceneName);
 };
 
