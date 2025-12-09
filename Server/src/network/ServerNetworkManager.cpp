@@ -39,6 +39,14 @@ bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port) {
   }
 }
 
+template<typename T>
+T bytes_to_type(const uint8_t* data, std::function<T(const T)> converter) {
+  T tmp;
+  std::memcpy(&tmp, data, sizeof(T));
+  return converter(tmp);
+}
+
+
 void ServerNetworkManager::Shutdown() {
   if (work_guard_) {
     work_guard_.reset();
@@ -60,15 +68,40 @@ void ServerNetworkManager::IOThreadFunc() {
   std::cout << "[ServerNetworkManager] IO thread stopped" << std::endl;
 }
 
+int ServerNetworkManager::CheckHeader(const std::vector<uint8_t> &data) {
+  uint8_t type = data[0];
+  uint8_t flags = data[1];
+  uint32_t length = bytes_to_type<uint32_t>(&data[2], ntohl);
+  if (type == 0x19 && flags == 0x02) {
+    return true;
+  } else {
+    std::cerr << "[ServerNetworkManager] Invalid UDP packet header" << std::endl;
+    return false;
+  }
+}
+
 void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
                                      const asio::ip::udp::endpoint &sender) {
   if (data.size() < 3) {
     std::cerr << "[ServerNetworkManager] Invalid UDP packet size" << std::endl;
     return;
   }
+  uint16_t player_id = -1;
+  if (CheckHeader(data) && data.size() >= 11) {
+    std::cout << "hello" << std::endl;
+    std::cout << "" << std::endl;
+    std::cout << "hello" << std::endl;
+       player_id = (data[10] << 8) | data[11];
 
-  uint16_t player_id = (data[1] << 8) | data[2];
-
+    player_id = bytes_to_type<uint16_t>(&data[10], ntohs);
+  } else {
+    std::cerr << "[ServerNetworkManager] UDP packet with invalid header from "
+              << sender.address().to_string() << ":" << sender.port() << std::endl;
+    return;
+  }
+  for (auto byte : data) {
+    std::cout << std::hex << (int)byte << " ";
+  }
   auto client = client_manager_.GetClient(player_id);
 
   if (!client) {
