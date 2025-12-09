@@ -9,8 +9,8 @@
 #include "graphics/RenderComponents.hpp"
 #include "graphics/RenderSystem.hpp"
 #include "graphics/TextureManager.hpp"
-#include "inputs/InputSystem.hpp"
 #include "include/NetworkManager.hpp"
+#include "inputs/InputSystem.hpp"
 #include "scene/SceneManager.hpp"
 #include "systems/PhysicsSystem.hpp"
 

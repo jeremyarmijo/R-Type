@@ -2,7 +2,7 @@
 
 SDL_Rect UIElement::GetScreenRect(int screenW, int screenH) const {
   SDL_Rect result = m_rect;
-  
+
   // Apply anchor positioning
   switch (m_anchor) {
     case UIAnchor::TopLeft:
@@ -37,6 +37,6 @@ SDL_Rect UIElement::GetScreenRect(int screenW, int screenH) const {
       result.y = screenH - m_rect.h - m_rect.y;
       break;
   }
-  
+
   return result;
 }

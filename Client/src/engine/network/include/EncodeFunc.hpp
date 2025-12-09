@@ -1,24 +1,25 @@
 #pragma once
 #include <arpa/inet.h>
+
 #include <cstring>
 #include <vector>
 
 #include "Encode.hpp"
 
 void Auth(const Action& a, std::vector<uint8_t>& out, uint32_t sequenceNum) {
-    const auto* auth = std::get_if<AuthUDP>(&a.data);
-    if (!auth) return;
+  const auto* auth = std::get_if<AuthUDP>(&a.data);
+  if (!auth) return;
 
-    out.resize(4);
-    size_t offset = 0;
+  out.resize(4);
+  size_t offset = 0;
 
-    uint32_t seq = htonl(sequenceNum);
-    memcpy(out.data() + offset, &seq, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
+  uint32_t seq = htonl(sequenceNum);
+  memcpy(out.data() + offset, &seq, sizeof(uint32_t));
+  offset += sizeof(uint32_t);
 
-    uint16_t playerId = htons(auth->playerId);
-    out.resize(offset + sizeof(uint16_t));
-    memcpy(out.data() + offset, &playerId, sizeof(uint16_t));
+  uint16_t playerId = htons(auth->playerId);
+  out.resize(offset + sizeof(uint16_t));
+  memcpy(out.data() + offset, &playerId, sizeof(uint16_t));
 }
 
 void Player_Up(const Action& a, std::vector<uint8_t>& out,

@@ -1,34 +1,33 @@
 #include "ui/UITextInput.hpp"
-#include <iostream>
+
 #include <algorithm>
+#include <iostream>
 
 UITextInput::UITextInput(int x, int y, int w, int h,
                          const std::string& placeholder,
-                         const std::string& fontPath,
-                         int fontSize,
+                         const std::string& fontPath, int fontSize,
                          UIAnchor anchor)
-  : UIElement(x, y, w, h, anchor),
-    m_text(""),
-    m_placeholder(placeholder),
-    m_fontPath(fontPath),
-    m_fontSize(fontSize),
-    m_textColor{255, 255, 255, 255},
-    m_placeholderColor{128, 128, 128, 255},
-    m_backgroundColor{40, 40, 50, 255},
-    m_borderColor{100, 100, 120, 255},
-    m_focusedBorderColor{100, 150, 255, 255},
-    m_borderThickness(2),
-    m_padding(8),
-    m_maxLength(100),
-    m_isFocused(false),
-    m_isPassword(false),
-    m_cursorPosition(0),
-    m_cursorBlinkTime(0.0f),
-    m_cursorVisible(true),
-    m_font(nullptr),
-    m_textTexture(nullptr),
-    m_needsUpdate(true) {
-}
+    : UIElement(x, y, w, h, anchor),
+      m_text(""),
+      m_placeholder(placeholder),
+      m_fontPath(fontPath),
+      m_fontSize(fontSize),
+      m_textColor{255, 255, 255, 255},
+      m_placeholderColor{128, 128, 128, 255},
+      m_backgroundColor{40, 40, 50, 255},
+      m_borderColor{100, 100, 120, 255},
+      m_focusedBorderColor{100, 150, 255, 255},
+      m_borderThickness(2),
+      m_padding(8),
+      m_maxLength(100),
+      m_isFocused(false),
+      m_isPassword(false),
+      m_cursorPosition(0),
+      m_cursorBlinkTime(0.0f),
+      m_cursorVisible(true),
+      m_font(nullptr),
+      m_textTexture(nullptr),
+      m_needsUpdate(true) {}
 
 UITextInput::~UITextInput() {
   if (m_textTexture) {
@@ -104,9 +103,7 @@ void UITextInput::SetBorderThickness(int thickness) {
   m_borderThickness = thickness;
 }
 
-void UITextInput::SetPadding(int padding) {
-  m_padding = padding;
-}
+void UITextInput::SetPadding(int padding) { m_padding = padding; }
 
 void UITextInput::SetFontSize(int size) {
   if (m_fontSize != size) {
@@ -119,11 +116,13 @@ void UITextInput::SetFontSize(int size) {
   }
 }
 
-void UITextInput::SetOnTextChanged(std::function<void(const std::string&)> callback) {
+void UITextInput::SetOnTextChanged(
+    std::function<void(const std::string&)> callback) {
   m_onTextChanged = callback;
 }
 
-void UITextInput::SetOnSubmit(std::function<void(const std::string&)> callback) {
+void UITextInput::SetOnSubmit(
+    std::function<void(const std::string&)> callback) {
   m_onSubmit = callback;
 }
 
@@ -160,13 +159,12 @@ bool UITextInput::LoadFont() {
 
   if (m_fontPath.empty()) {
     const char* defaultFonts[] = {
-      "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-      "/System/Library/Fonts/Helvetica.ttc",
-      "C:\\Windows\\Fonts\\arial.ttf",
-      "../assets/fonts/default.ttf",
-      "./assets/fonts/default.ttf",
-      "assets/fonts/default.ttf"
-    };
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/System/Library/Fonts/Helvetica.ttc",
+        "C:\\Windows\\Fonts\\arial.ttf",
+        "../assets/fonts/default.ttf",
+        "./assets/fonts/default.ttf",
+        "assets/fonts/default.ttf"};
 
     for (const char* path : defaultFonts) {
       m_font = TTF_OpenFont(path, m_fontSize);
@@ -180,7 +178,8 @@ bool UITextInput::LoadFont() {
   }
 
   if (!m_font) {
-    std::cerr << "Failed to load font for text input: " << TTF_GetError() << std::endl;
+    std::cerr << "Failed to load font for text input: " << TTF_GetError()
+              << std::endl;
     return false;
   }
 
@@ -211,7 +210,8 @@ void UITextInput::UpdateTextTexture(SDL_Renderer* renderer) {
     return;
   }
 
-  SDL_Surface* surface = TTF_RenderText_Blended(m_font, displayText.c_str(), color);
+  SDL_Surface* surface =
+      TTF_RenderText_Blended(m_font, displayText.c_str(), color);
   if (!surface) {
     std::cerr << "Failed to render text input: " << TTF_GetError() << std::endl;
     return;
@@ -242,22 +242,18 @@ void UITextInput::Render(SDL_Renderer* renderer, TextureManager* textures) {
   }
 
   // Draw background
-  SDL_SetRenderDrawColor(renderer, m_backgroundColor.r, m_backgroundColor.g, 
+  SDL_SetRenderDrawColor(renderer, m_backgroundColor.r, m_backgroundColor.g,
                          m_backgroundColor.b, m_backgroundColor.a);
   SDL_RenderFillRect(renderer, &m_rect);
 
   // Draw border
   SDL_Color borderColor = m_isFocused ? m_focusedBorderColor : m_borderColor;
-  SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, 
-                         borderColor.b, borderColor.a);
-  
+  SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b,
+                         borderColor.a);
+
   for (int i = 0; i < m_borderThickness; ++i) {
-    SDL_Rect borderRect = {
-      m_rect.x - i, 
-      m_rect.y - i, 
-      m_rect.w + i * 2, 
-      m_rect.h + i * 2
-    };
+    SDL_Rect borderRect = {m_rect.x - i, m_rect.y - i, m_rect.w + i * 2,
+                           m_rect.h + i * 2};
     SDL_RenderDrawRect(renderer, &borderRect);
   }
 
@@ -283,8 +279,9 @@ void UITextInput::Render(SDL_Renderer* renderer, TextureManager* textures) {
     // Draw cursor
     if (m_isFocused && m_cursorVisible && !m_text.empty() && LoadFont()) {
       // Calculate cursor position
-      std::string textBeforeCursor = GetDisplayText().substr(0, m_cursorPosition);
-      
+      std::string textBeforeCursor =
+          GetDisplayText().substr(0, m_cursorPosition);
+
       int cursorX = textX;
       if (!textBeforeCursor.empty()) {
         int textWidth;
@@ -294,14 +291,14 @@ void UITextInput::Render(SDL_Renderer* renderer, TextureManager* textures) {
 
       // Only draw cursor if it's within visible area
       if (cursorX >= textX && cursorX <= m_rect.x + m_rect.w - m_padding) {
-        SDL_SetRenderDrawColor(renderer, m_textColor.r, m_textColor.g, 
+        SDL_SetRenderDrawColor(renderer, m_textColor.r, m_textColor.g,
                                m_textColor.b, m_textColor.a);
         SDL_Rect cursorRect = {cursorX, textY, 2, textH};
         SDL_RenderFillRect(renderer, &cursorRect);
       }
     } else if (m_isFocused && m_cursorVisible && m_text.empty()) {
       // Draw cursor at start when text is empty
-      SDL_SetRenderDrawColor(renderer, m_textColor.r, m_textColor.g, 
+      SDL_SetRenderDrawColor(renderer, m_textColor.r, m_textColor.g,
                              m_textColor.b, m_textColor.a);
       int cursorHeight = m_fontSize;
       int cursorY = m_rect.y + (m_rect.h - cursorHeight) / 2;
@@ -310,7 +307,7 @@ void UITextInput::Render(SDL_Renderer* renderer, TextureManager* textures) {
     }
   } else if (m_isFocused && m_cursorVisible) {
     // Draw cursor even when no text texture exists
-    SDL_SetRenderDrawColor(renderer, m_textColor.r, m_textColor.g, 
+    SDL_SetRenderDrawColor(renderer, m_textColor.r, m_textColor.g,
                            m_textColor.b, m_textColor.a);
     int textX = m_rect.x + m_padding;
     int cursorHeight = m_fontSize;
@@ -321,8 +318,8 @@ void UITextInput::Render(SDL_Renderer* renderer, TextureManager* textures) {
 }
 
 bool UITextInput::IsPointInside(int x, int y) const {
-  return (x >= m_rect.x && x < m_rect.x + m_rect.w &&
-          y >= m_rect.y && y < m_rect.y + m_rect.h);
+  return (x >= m_rect.x && x < m_rect.x + m_rect.w && y >= m_rect.y &&
+          y < m_rect.y + m_rect.h);
 }
 
 bool UITextInput::HandleEvent(const SDL_Event& event) {

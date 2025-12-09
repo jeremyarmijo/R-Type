@@ -1,32 +1,32 @@
 #pragma once
 #include <SDL2/SDL.h>
+
+#include <algorithm>
 #include <memory>
 #include <vector>
-#include <algorithm>
-#include "ui/UIElement.hpp"
+
 #include "graphics/TextureManager.hpp"
+#include "ui/UIElement.hpp"
 
 class UIManager {
-private:
+ private:
   std::vector<std::unique_ptr<UIElement>> m_elements;
   SDL_Renderer* m_renderer;
   TextureManager* m_textures;
   int m_screenWidth;
   int m_screenHeight;
 
-public:
+ public:
   UIManager(SDL_Renderer* renderer, TextureManager* textures, int w, int h)
-    : m_renderer(renderer), 
-      m_textures(textures), 
-      m_screenWidth(w), 
-      m_screenHeight(h) {}
+      : m_renderer(renderer),
+        m_textures(textures),
+        m_screenWidth(w),
+        m_screenHeight(h) {}
 
-  ~UIManager() {
-    Clear();
-  }
+  ~UIManager() { Clear(); }
 
   // Add a new UI element
-  template<typename T, typename... Args>
+  template <typename T, typename... Args>
   T* AddElement(Args&&... args) {
     auto element = std::make_unique<T>(std::forward<Args>(args)...);
     T* ptr = element.get();
@@ -35,9 +35,7 @@ public:
   }
 
   // Remove all elements
-  void Clear() {
-    m_elements.clear();
-  }
+  void Clear() { m_elements.clear(); }
 
   // Update all elements
   void Update(float deltaTime) {
@@ -52,9 +50,10 @@ public:
   void Render() {
     // Sort by layer before rendering
     std::sort(m_elements.begin(), m_elements.end(),
-      [](const std::unique_ptr<UIElement>& a, const std::unique_ptr<UIElement>& b) {
-        return a->GetLayer() < b->GetLayer();
-      });
+              [](const std::unique_ptr<UIElement>& a,
+                 const std::unique_ptr<UIElement>& b) {
+                return a->GetLayer() < b->GetLayer();
+              });
 
     for (auto& element : m_elements) {
       if (element->IsVisible()) {
@@ -69,7 +68,7 @@ public:
     for (auto it = m_elements.rbegin(); it != m_elements.rend(); ++it) {
       if ((*it)->IsVisible() && (*it)->IsEnabled()) {
         if ((*it)->HandleEvent(event)) {
-          return true; // Event consumed
+          return true;  // Event consumed
         }
       }
     }
@@ -83,9 +82,7 @@ public:
   }
 
   // Get number of elements
-  size_t GetElementCount() const {
-    return m_elements.size();
-  }
+  size_t GetElementCount() const { return m_elements.size(); }
 
   // Get screen dimensions
   int GetScreenWidth() const { return m_screenWidth; }

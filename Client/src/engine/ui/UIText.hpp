@@ -1,17 +1,15 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+
 #include <string>
+
 #include "ui/UIElement.hpp"
 
-enum class TextAlign {
-  Left,
-  Center,
-  Right
-};
+enum class TextAlign { Left, Center, Right };
 
 class UIText : public UIElement {
-private:
+ private:
   std::string m_text;
   std::string m_fontPath;
   int m_fontSize;
@@ -23,13 +21,12 @@ private:
   int m_textWidth;
   int m_textHeight;
 
-public:
-  UIText(int x, int y, const std::string& text, 
-         const std::string& fontPath = "", 
-         int fontSize = 24,
+ public:
+  UIText(int x, int y, const std::string& text,
+         const std::string& fontPath = "", int fontSize = 24,
          SDL_Color color = {255, 255, 255, 255},
          UIAnchor anchor = UIAnchor::TopLeft);
-  
+
   virtual ~UIText();
 
   // Prevent copying due to raw pointers
@@ -48,7 +45,7 @@ public:
   void Update(float deltaTime) override;
   void Render(SDL_Renderer* renderer, TextureManager* textures) override;
 
-private:
+ private:
   bool LoadFont();
   void UpdateTextTexture(SDL_Renderer* renderer);
 };

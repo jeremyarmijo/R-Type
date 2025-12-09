@@ -10,9 +10,9 @@
 #include "ecs/Registry.hpp"
 #include "graphics/AnimationManager.hpp"
 #include "graphics/TextureManager.hpp"
+#include "include/NetworkManager.hpp"
 #include "inputs/InputManager.hpp"
 #include "ui/UIManager.hpp"
-#include "include/NetworkManager.hpp"
 
 class GameEngine;
 class SceneManager;

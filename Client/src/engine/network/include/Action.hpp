@@ -71,8 +71,8 @@ struct ChunkRequestData {
 };
 
 using ActionData =
-    std::variant<std::monostate, AuthUDP, PlayerInput, LoginData, SignupData, LogoutData,
-                 LobbyJoinData, PlayerReadyData, LobbyLeaveData,
+    std::variant<std::monostate, AuthUDP, PlayerInput, LoginData, SignupData,
+                 LogoutData, LobbyJoinData, PlayerReadyData, LobbyLeaveData,
                  PlayerEndLoadingData, ChunkRequestData>;
 
 struct Action {

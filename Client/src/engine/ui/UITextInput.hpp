@@ -1,12 +1,14 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <string>
+
 #include <functional>
+#include <string>
+
 #include "ui/UIElement.hpp"
 
 class UITextInput : public UIElement {
-private:
+ private:
   std::string m_text;
   std::string m_placeholder;
   std::string m_fontPath;
@@ -30,11 +32,10 @@ private:
   std::function<void(const std::string&)> m_onTextChanged;
   std::function<void(const std::string&)> m_onSubmit;
 
-public:
+ public:
   UITextInput(int x, int y, int w, int h,
               const std::string& placeholder = "Enter text...",
-              const std::string& fontPath = "",
-              int fontSize = 20,
+              const std::string& fontPath = "", int fontSize = 20,
               UIAnchor anchor = UIAnchor::TopLeft);
 
   virtual ~UITextInput();
@@ -76,7 +77,7 @@ public:
   void Render(SDL_Renderer* renderer, TextureManager* textures) override;
   bool HandleEvent(const SDL_Event& event) override;
 
-private:
+ private:
   bool LoadFont();
   void UpdateTextTexture(SDL_Renderer* renderer);
   void InsertChar(char c);
