@@ -3,16 +3,16 @@
 
 #include <string>
 
+#include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "graphics/AnimationManager.hpp"
 #include "graphics/RenderComponents.hpp"
 #include "graphics/RenderSystem.hpp"
 #include "graphics/TextureManager.hpp"
 #include "inputs/InputSystem.hpp"
-#include "network/NetworkManager.hpp"
-#include "components/Physics2D.hpp"
-#include "systems/PhysicsSystem.hpp"
+#include "include/NetworkManager.hpp"
 #include "scene/SceneManager.hpp"
+#include "systems/PhysicsSystem.hpp"
 
 constexpr int MAX_PLAYERS = 4;
 
