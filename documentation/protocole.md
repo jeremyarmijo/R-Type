@@ -143,8 +143,6 @@ Demande de création de nouveau compte.
 | var    | passwordLen  | uint8  | 1      | Longueur du mot de passe (max 64) |
 | var    | password     | char[] | N      | Mot de passe en UTF-8 (hashé côté client) |
 
-```
-
 ---
 
 ### 0x04 - SIGNUP_RESPONSE
@@ -518,8 +516,6 @@ Payload: 00 00 00 2A 00 00 01 F4 01 00 01
 
 | Offset | Champ           | Type   | Taille | Description |
 |--------|-----------------|--------|--------|-------------|
-| 0x00   | sequenceNum     | uint32 | 4      | Numéro de séquence (détection perte/dupliqués) |
-| 0x04   | tick            | uint32 | 4      | Tick serveur actuel |
 | 0x08   | playerCount     | uint8  | 1      | Nombre de joueurs |
 | 0x09   | players[]       | struct | N×15   | États des joueurs |
 | var    | enemyCount      | uint8  | 1      | Nombre d'ennemis |
