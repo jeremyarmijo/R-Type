@@ -1,7 +1,9 @@
 #include "scene/SceneManager.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "engine/GameEngine.hpp"
 
@@ -90,7 +92,7 @@ Scene::Scene(GameEngine* engine, SceneManager* sceneManager,
     : m_engine(engine),
       m_sceneManager(sceneManager),
       m_name(name),
-      m_uiManager(engine->GetRenderer(), &engine->GetTextureManager()) {}
+      m_uiManager(engine->GetRenderer(), &engine->GetTextureManager(), 800, 600) {}
 
 Registry& Scene::GetRegistry() { return m_engine->GetRegistry(); }
 

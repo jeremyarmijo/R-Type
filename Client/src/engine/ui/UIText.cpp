@@ -1,6 +1,7 @@
 #include "ui/UIText.hpp"
 
 #include <iostream>
+#include <string>
 
 UIText::UIText(int x, int y, const std::string& text,
                const std::string& fontPath, int fontSize, SDL_Color color,

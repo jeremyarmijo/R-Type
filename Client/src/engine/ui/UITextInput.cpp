@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <string>
 
 UITextInput::UITextInput(int x, int y, int w, int h,
                          const std::string& placeholder,
