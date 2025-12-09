@@ -18,7 +18,6 @@
    - [0x23 - BOSS_SPAWN](#0x23---boss_spawn)  
    - [0x24 - BOSS_UPDATE](#0x24---boss_update)  
    - [0x25 - ENEMY_HIT](#0x25---enemy_hit)  
-5. [Gestion de la Fiabilité UDP](#gestion-de-la-fiabilité-udp)  
 6. [Résumé des Types de Messages](#résumé-des-types-de-messages)  
 
 ---
@@ -174,7 +173,7 @@
 | Offset | Champ    | Type   | Taille | Description |
 |--------|----------|--------|--------|-------------|
 | 0x00   | playerId | uint16 | 2      | ID du joueur |
-| 0x02   | posX     | float  | 4      | Position X (IEEE 754) |
+| 0x02   | posX     | float  | 4      | Position X |
 | 0x06   | posY     | float  | 4      | Position Y |
 | 0x0A   | hp       | uint8  | 1      | Points de vie |
 | 0x0B   | shield   | uint8  | 1      | Bouclier |
@@ -192,8 +191,7 @@
 | 0x07   | posY       | float  | 4      | Position Y |
 | 0x0B   | hp         | uint8  | 1      | Points de vie |
 | 0x0C   | state      | uint8  | 1      | État (0=idle, 1=attacking, 2=dying) |
-| 0x0D   | pattern    | uint8  | 1      | Pattern de mouvement actif |
-| 0x0E   | direction  | int8   | 1      | Direction (-1, 0, 1) |
+| 0x0D   | direction  | int8   | 1      | Direction (-1, 0, 1) |
 
 **Structure Projectile State** (18 bytes) :
 
@@ -257,15 +255,6 @@
 | 0x00   | enemyId      | uint16 | 2      | ID de l’ennemi touché |
 | 0x02   | damage       | uint8  | 1      | Dégâts infligés |
 | 0x03   | hpRemaining  | uint16 | 2      | Points de vie restants de l’ennemi |
-
----
-
-## Gestion de la Fiabilité UDP
-
-- Tous les messages UDP incluent un `sequenceNum` pour :  
-  - Détecter paquets perdus  
-  - Ignorer paquets dupliqués  
-  - Réordonner les paquets  
 
 ---
 
