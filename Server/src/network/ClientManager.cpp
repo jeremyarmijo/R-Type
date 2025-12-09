@@ -1,13 +1,5 @@
 #include "network/ClientManager.hpp"
 
-#include <sstream>
-
-std::string ClientManager::EndpointToString(const asio::ip::udp::endpoint& ep) {
-  std::ostringstream oss;
-  oss << ep.address().to_string() << ":" << ep.port();
-  return oss.str();
-}
-
 ClientManager::ClientPtr ClientManager::AddClientFromTCP(
     const asio::ip::tcp::endpoint& tcp_endpoint, const std::string& username,
     uint32_t assigned_id) {
@@ -40,9 +32,6 @@ bool ClientManager::AssociateUDPEndpoint(
 
   it->second->SetUDPEndpoint(udp_endpoint);
 
-  std::string ep_str = EndpointToString(udp_endpoint);
-  endpoint_to_id_[ep_str] = client_id;
-
   return true;
 }
 
@@ -51,10 +40,6 @@ void ClientManager::RemoveClient(uint32_t client_id) {
 
   auto it = clients_.find(client_id);
   if (it != clients_.end()) {
-    if (it->second->HasUDPEndpoint()) {
-      std::string ep_str = EndpointToString(it->second->GetUDPEndpoint());
-      endpoint_to_id_.erase(ep_str);
-    }
     clients_.erase(it);
   }
 }
@@ -63,18 +48,6 @@ ClientManager::ClientPtr ClientManager::GetClient(uint32_t client_id) {
   std::lock_guard<std::mutex> lock(mutex_);
   auto it = clients_.find(client_id);
   return (it != clients_.end()) ? it->second : nullptr;
-}
-
-ClientManager::ClientPtr ClientManager::FindClientByUDPEndpoint(
-    const asio::ip::udp::endpoint& endpoint) {
-  std::lock_guard<std::mutex> lock(mutex_);
-
-  std::string ep_str = EndpointToString(endpoint);
-  auto it = endpoint_to_id_.find(ep_str);
-  if (it != endpoint_to_id_.end()) {
-    return clients_[it->second];
-  }
-  return nullptr;
 }
 
 std::vector<ClientManager::ClientPtr> ClientManager::GetAllClients() {
@@ -87,8 +60,8 @@ std::vector<ClientManager::ClientPtr> ClientManager::GetAllClients() {
   return result;
 }
 
-size_t ClientManager::GetClientCount() const {
-//   std::lock_guard<std::mutex> lock(mutex_);
+size_t ClientManager::GetClientCount() {
+  std::lock_guard<std::mutex> lock(mutex_);
   return clients_.size();
 }
 
