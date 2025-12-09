@@ -82,10 +82,11 @@ void ProcessPacketTCP::ReadHeader() {
       });
 }
 
-uint32_t ProcessPacketTCP::bytes_to_uint32(const uint8_t* data) {
-  uint32_t tmp;
-  std::memcpy(&tmp, data, sizeof(uint32_t));
-  return ntohl(tmp);
+template<typename T>
+T bytes_to_type(const uint8_t* data, std::function<T(const T)> converter) {
+  T tmp;
+  std::memcpy(&tmp, data, sizeof(T));
+  return converter(tmp);
 }
 
 void ProcessPacketTCP::push_buffer_uint32(std::vector<uint8_t>& buffer,
@@ -118,7 +119,7 @@ void ProcessPacketTCP::HandleReadHeader(const asio::error_code& error,
 
   uint8_t type = header_buffer_[0];
   uint8_t flags = header_buffer_[1];
-  uint32_t length = bytes_to_uint32(&header_buffer_[2]);
+  uint32_t length = bytes_to_type<uint32_t>(&header_buffer_[2], ntohl);
 
   std::cout << "[ProcessPacketTCP] Received header: type=0x" << std::hex
             << (int)type << " flags=0x" << (int)flags << " length=" << std::dec
@@ -157,6 +158,10 @@ void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
       ProcessLoginRequest();
       break;
 
+    case 0x15:
+      ProcessingMapRequest();
+      break;
+
     default:
       std::cerr << "[ProcessPacketTCP] Unknown message type: 0x" << std::hex
                 << (int)current_msg_type_ << std::endl;
@@ -164,6 +169,25 @@ void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
   }
 
   ReadHeader();
+}
+
+void ProcessPacketTCP::ProcessingMapRequest() {
+  size_t offset = 0;
+
+  if (payload_buffer_.size() < 5) {
+    return;
+  }
+  // // uint16_t width = bytes_to_type<uint16_t>(&payload_buffer_[offset], ntohs);
+  // offset += 2;
+  // std::cout << "[ProcessPacketTCP] Login request from '" << username_
+  //           << "' (client " << client_id_ << ")" << std::endl;
+  // authenticated_ = true;
+
+  // if (server_->login_callback_) {
+  //   server_->login_callback_(client_id_, username_, endpoint_);
+  // }
+
+  // SendLoginResponse(true, client_id_, server_->GetUDPPort());
 }
 
 void ProcessPacketTCP::ProcessLoginRequest() {
@@ -224,13 +248,13 @@ void ProcessPacketTCP::SendLoginError(uint16_t error_code,
                                       const std::string& message) {
   std::vector<uint8_t> response;
 
-  response.push_back(0x02);
-  response.push_back(0x01);
+  response.push_back(LOGIN_RESPONSE);
+  response.push_back(TCP_REQUEST_FLAG);
 
   uint32_t payload_size = 4 + message.size();
   push_buffer_uint32(response, payload_size);
 
-  response.push_back(0x00);
+  response.push_back(REQUEST_ERROR);
   push_buffer_uint16(response, error_code);
   response.push_back(static_cast<uint8_t>(message.size()));
 
