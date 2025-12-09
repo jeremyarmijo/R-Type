@@ -1,5 +1,7 @@
 #include "include/Encode.hpp"
 
+#include <arpa/inet.h>
+
 #include <vector>
 
 Encoder::Encoder() { handlers.fill(nullptr); }
@@ -9,31 +11,45 @@ void Encoder::registerHandler(ActionType type, EncodePayload f) {
 }
 
 inline uint8_t getType(const Action& a) {
-    switch (a.type) {
-        case ActionType::LOGIN_REQUEST:      return 0x01;
-        case ActionType::SIGNUP_REQUEST:     return 0x03;
-        case ActionType::LOGOUT:             return 0x05;
-        case ActionType::LOBBY_LIST_REQUEST: return 0x06;
-        case ActionType::LOBBY_JOIN:         return 0x08;
-        case ActionType::PLAYER_READY:       return 0x0A;
-        case ActionType::LOBBY_LEAVE:        return 0x0B;
-        case ActionType::PLAYER_END_LOADING: return 0x0E;
-        case ActionType::CHUNK_REQUEST:      return 0x13;
+  switch (a.type) {
+    case ActionType::LOGIN_REQUEST:
+      return 0x01;
+    case ActionType::LOGIN_RESPONSE:
+      return 0x02;
+    case ActionType::GAME_START:
+      return 0x0F;
+    case ActionType::GAME_END:
+      return 0x10;
+    case ActionType::ERROR:
+      return 0x12;
 
-        case ActionType::AUTH:                return 0x19;
-        case ActionType::UP:                  return 0x20;
-        case ActionType::DOWN:                return 0x20;
-        case ActionType::LEFT:                return 0x20;
-        case ActionType::RIGHT:               return 0x20;
-        case ActionType::SHOOT:               return 0x20;
-        case ActionType::FORCE_ATTACH:        return 0x20;
-        case ActionType::FORCE_DETACH:        return 0x20;
-        case ActionType::USE_POWERUP:         return 0x20;
+    case ActionType::UP_PRESS:
+    case ActionType::UP_RELEASE:
+    case ActionType::DOWN_PRESS:
+    case ActionType::DOWN_RELEASE:
+    case ActionType::LEFT_PRESS:
+    case ActionType::LEFT_RELEASE:
+    case ActionType::RIGHT_PRESS:
+    case ActionType::RIGHT_RELEASE:
+    case ActionType::FIRE_PRESS:
+    case ActionType::FIRE_RELEASE:
+      return 0x20;  // PLAYER_INPUT
 
-        default: return 0xFF;
-    }
+    case ActionType::GAME_STATE:
+      return 0x21;
+    case ActionType::AUTH:
+      return 0x22;
+    case ActionType::BOSS_SPAWN:
+      return 0x23;
+    case ActionType::BOSS_UPDATE:
+      return 0x24;
+    case ActionType::ENEMY_HIT:
+      return 0x25;
+
+    default:
+      return 0xFF;
+  }
 }
-
 
 std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP,
                                      uint32_t sequenceNum) {
@@ -56,16 +72,18 @@ std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP,
   if (useUDP == 2) header.flags |= 0x01;
 
   header.length = payload.size();
+
   writeHeader(packet, header);
   packet.insert(packet.end(), payload.begin(), payload.end());
+
   return packet;
 }
 
 void Encoder::writeHeader(std::vector<uint8_t>& packet, const PacketHeader& h) {
-    packet.push_back(h.type);
-    packet.push_back(h.flags);
+  packet.push_back(h.type);
+  packet.push_back(h.flags);
 
-    uint32_t length = htonl(h.length);
-    const uint8_t* ptr = reinterpret_cast<const uint8_t*>(&length);
-    packet.insert(packet.end(), ptr, ptr + 4);
+  uint32_t length = htonl(h.length);
+  const uint8_t* ptr = reinterpret_cast<const uint8_t*>(&length);
+  packet.insert(packet.end(), ptr, ptr + 4);
 }

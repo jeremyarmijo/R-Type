@@ -1,11 +1,14 @@
 #pragma once
 
-#include <asio.hpp>
+#include <cstring>
+
 #include <mutex>
 #include <queue>
 #include <string>
 #include <thread>
 #include <vector>
+
+#include <asio.hpp>
 
 #include "Action.hpp"
 #include "CircularBuffer.hpp"
