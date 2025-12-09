@@ -4,6 +4,7 @@
 #include <variant>
 
 enum class ActionType : uint8_t {
+  AUTH,
   UP,
   DOWN,
   LEFT,
@@ -22,6 +23,10 @@ enum class ActionType : uint8_t {
   LOBBY_LEAVE,
   PLAYER_END_LOADING,
   CHUNK_REQUEST
+};
+
+struct AuthUDP {
+  uint16_t playerId;
 };
 
 struct PlayerInput {
@@ -66,7 +71,7 @@ struct ChunkRequestData {
 };
 
 using ActionData =
-    std::variant<std::monostate, PlayerInput, LoginData, SignupData, LogoutData,
+    std::variant<std::monostate, AuthUDP, PlayerInput, LoginData, SignupData, LogoutData,
                  LobbyJoinData, PlayerReadyData, LobbyLeaveData,
                  PlayerEndLoadingData, ChunkRequestData>;
 
@@ -77,6 +82,7 @@ struct Action {
 
 inline size_t UseUdp(ActionType type) {
   switch (type) {
+    case ActionType::AUTH:
     case ActionType::UP:
     case ActionType::DOWN:
     case ActionType::LEFT:

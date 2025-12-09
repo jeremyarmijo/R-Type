@@ -122,6 +122,7 @@ void NetworkManager::ProcessTCPRecvBuffer() {
   while (recvTcpBuffer.size() >= 6) {
     uint32_t packetSize;
     memcpy(&packetSize, &recvTcpBuffer[2], sizeof(packetSize));
+    packetSize = ntohl(packetSize);
 
     if (recvTcpBuffer.size() < 6 + packetSize) {
       return;
@@ -177,14 +178,18 @@ void NetworkManager::SendACK(std::vector<uint8_t>& evt) {
 
   uint32_t sequenceNum;
   memcpy(&sequenceNum, &evt[6], sizeof(sequenceNum));
+  sequenceNum = ntohl(sequenceNum);
 
   std::vector<uint8_t> response(11);
   response[0] = 0x2A;
   response[1] = 0x02;
-  uint32_t payloadSize = 5;
+
+  uint32_t payloadSize = htonl(5);
   memcpy(&response[2], &payloadSize, sizeof(uint32_t));
 
-  memcpy(&response[6], &sequenceNum, sizeof(uint32_t));
+  uint32_t seqNet = htonl(sequenceNum);
+  memcpy(&response[6], &seqNet, sizeof(uint32_t));
+
   response[10] = evt[0];
 
   SendUdp(response);
