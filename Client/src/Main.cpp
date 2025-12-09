@@ -3,11 +3,13 @@
 
 #include "engine/GameEngine.hpp"
 #include "scene/SceneManager.hpp"
+#include "ui/UIButton.hpp"
+#include "ui/UIImage.hpp"
+#include "ui/UIText.hpp"
 
 class MyGameScene : public Scene {
  private:
-  std::vector<Entity> m_players;
-  std::vector<Entity> m_enemies;
+  std::vector<Entity> m_entities;
   int m_score;
   bool m_isInitialized;
 
@@ -22,20 +24,19 @@ class MyGameScene : public Scene {
 
     try {
       // Clear old data
-      m_players.clear();
-      m_enemies.clear();
+      m_entities.clear();
       m_score = 0;
       m_isInitialized = false;
 
       TextureManager& textures = GetTextures();
       AnimationManager& animations = GetAnimations();
 
+      std::cout << "Loading textures..." << std::endl;
       if (!textures.GetTexture("player")) {
-        std::cout << "Loading player texture..." << std::endl;
-        if (!textures.LoadTexture("player", "../Client/assets/player.png")) {
-          std::cerr << "ERROR: Failed to load player texture!" << std::endl;
-          return;
-        }
+        textures.LoadTexture("player", "../Client/assets/player.png");
+      }
+      if (!textures.GetTexture("background")) {
+        textures.LoadTexture("background", "../Client/assets/bg.jpg");
       }
 
       std::cout << "Creating animations..." << std::endl;
@@ -61,10 +62,13 @@ class MyGameScene : public Scene {
                                   {{32, 17, 32, 17}, 0.3f}},
                                  true);
 
+      std::cout << "Creating background..." << std::endl;
+      Entity background = m_engine->CreateSprite("background", {400, 300}, -10);
+      m_entities.push_back(background);
       std::cout << "Creating player..." << std::endl;
       Entity player =
           m_engine->CreatePlayer("player", "blue_player", {200, 300}, 250.0f);
-      m_players.push_back(player);
+      m_entities.push_back(player);
 
       if (!GetRegistry().is_entity_valid(player)) {
         std::cerr << "ERROR: Player entity is invalid after creation!"
@@ -72,24 +76,15 @@ class MyGameScene : public Scene {
         return;
       }
 
-      std::cout << "Creating enemies..." << std::endl;
-      for (int i = 0; i < 3; ++i) {
-        Entity enemy = m_engine->CreateAnimatedSprite(
-            "player", {400.0f + i * 150.0f, 200.0f}, "pink_player");
-        try {
-          GetRegistry().emplace_component<RigidBody>(enemy, 1.0f, 0.3f, false);
-          GetRegistry().emplace_component<BoxCollider>(enemy, 32.0f, 32.0f);
-          m_enemies.push_back(enemy);
-        } catch (const std::exception& e) {
-          std::cerr << "ERROR adding components to enemy: " << e.what()
-                    << std::endl;
-        }
-      }
+      auto* scoreText = GetUI().AddElement<UIText>(10, 10, "Score: 0");
+      scoreText->SetLayer(100);  // UI on top
+
+      auto* healthBar =
+          GetUI().AddElement<UIImage>(10, 50, 200, 20, "health_bar");
+      healthBar->SetLayer(100);
 
       m_isInitialized = true;
       std::cout << "Game scene initialized successfully" << std::endl;
-      std::cout << "Players: " << m_players.size() << std::endl;
-      std::cout << "Enemies: " << m_enemies.size() << std::endl;
     } catch (const std::exception& e) {
       std::cerr << "CRITICAL ERROR in OnEnter: " << e.what() << std::endl;
       m_isInitialized = false;
@@ -126,9 +121,7 @@ class MyGameScene : public Scene {
   void OnExit() override {
     std::cout << "\n=== EXITING GAME SCENE ===" << std::endl;
 
-    // DON'T manually kill entities here - SceneManager does it
-    m_players.clear();
-    m_enemies.clear();
+    m_entities.clear();
     m_isInitialized = false;
 
     std::cout << "Game scene cleanup complete" << std::endl;
@@ -140,35 +133,23 @@ class MyGameScene : public Scene {
       return;
     }
 
-    try {
-      auto& transforms = GetRegistry().get_components<Transform>();
+    auto& network = GetNetwork();
 
-      // Validate player entity before accessing
-      if (m_players.empty() || !GetRegistry().is_entity_valid(m_players[0])) {
-        std::cerr << "ERROR: Player entity is invalid!" << std::endl;
-        return;
-      }
-
-      if (m_enemies.empty()) {
-        std::cout << "YOU WIN! Score: " << m_score << std::endl;
-        ChangeScene("gameover");
-        return;
-      }
-    } catch (const std::bad_optional_access& e) {
-      std::cerr << "ERROR: Accessing invalid component (bad_optional_access)"
-                << std::endl;
-      std::cerr << "Entity doesn't have the component you're trying to access"
-                << std::endl;
-    } catch (const std::exception& e) {
-      std::cerr << "ERROR in Update: " << e.what() << std::endl;
-    }
+    network.SendAction();
   }
 
   void Render() override {
-    // Render score/UI here if needed
+    if (!m_isInitialized) return;
+
+    RenderSpritesLayered();
+    GetUI().Render();
   }
 
   void HandleEvent(SDL_Event& event) override {
+    if (GetUI().HandleEvent(event)) {
+      return;
+    }
+
     if (event.type == SDL_KEYDOWN) {
       if (event.key.keysym.sym == SDLK_r) {
         std::cout << "Restarting level..." << std::endl;
