@@ -3,11 +3,11 @@
 #include "../Physics2D.hpp"
 
 struct ProjectTile {
-    float speed;
-    Vector2 direction;
-    float timer = 0.f;
-    bool is_existing;
-    int damage;
-    bool is_player_projectTile;
-    bool active = true;
+  float speed;
+  Vector2 direction;
+  float timer = 0.f;
+  bool is_existing;
+  Uint32 damage;
+  bool is_player_projectTile;
+  bool active = true;
 };
