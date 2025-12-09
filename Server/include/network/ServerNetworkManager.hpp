@@ -37,6 +37,7 @@ public:
 private:
     void IOThreadFunc();
     void CheckClientTimeouts();
+    int CheckHeader(const std::vector<uint8_t> &data);
     void OnReceive(const std::vector<uint8_t>& data, 
                    const asio::ip::udp::endpoint& sender);
     void OnTCPLogin(uint32_t client_id, const std::string& username, 
