@@ -4,7 +4,7 @@
 #include <cstring>
 #include <vector>
 
-#include "Encode.hpp"
+#include "include/Encode.hpp"
 
 inline void htonf(float value, uint8_t* out) {
   uint32_t asInt;

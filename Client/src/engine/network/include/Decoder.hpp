@@ -5,7 +5,7 @@
 #include <functional>
 #include <vector>
 
-#include "Event.hpp"
+#include "include/Event.hpp"
 
 class Decoder {
  public:
