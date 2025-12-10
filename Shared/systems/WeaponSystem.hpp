@@ -1,6 +1,8 @@
-#pragma once
-#include "ecs/Registry.hpp"
-#include "components/Player/Weapon.hpp"
+#ifndef WEAPON_SYSTEM_HPP
+    #define WEAPON_SYSTEM_HPP
+    #pragma once
+    #include "ecs/Registry.hpp"
+    #include "components/Player/Weapon.hpp"
 
 void weapon_cooldown_system(Registry& registry,
                             SparseArray<Weapon>& weapons,
@@ -20,3 +22,5 @@ bool can_fire(const Weapon& weapon);
 void consume_ammo(Weapon& weapon);
 bool needs_reload(const Weapon& weapon);
 void start_reload(Weapon& weapon);
+
+#endif  // WEAPON_SYSTEM_HPP
