@@ -18,25 +18,22 @@ void projectile_collision_system(Registry& registry,
                                  const SparseArray<Transform>& transforms,
                                  const SparseArray<BoxCollider>& colliders,
                                  SparseArray<Projectile>& projectiles) {
-    // Parcourir tous les projectiles
     for (auto&& [projIdx, projectile, projTransform, projCollider] : 
          IndexedZipper(projectiles, transforms, colliders)) {
         
         if (!projectile.isActive) continue;
         
-        // Vérifier collision avec les ennemis/joueurs
         for (auto&& [targetIdx, targetTransform, targetCollider] :
              IndexedZipper(transforms, colliders)) {
             
-            if (projIdx == targetIdx) continue; // Éviter auto-collision
+            if (projIdx == targetIdx) continue;
             
             if (check_collision(projTransform, projCollider, 
                               targetTransform, targetCollider)) {
-                // Collision détectée !
                 projectile.isActive = false;
                 registry.kill_entity(Entity(projIdx));
                 
-                // Appliquer dégâts ici (à implémenter)
+                // TODO apply damage to target entity
                 break;
             }
         }
@@ -55,11 +52,11 @@ Entity spawn_projectile(Registry& registry,
     
     // Physics
     Vector2 velocity = direction.Normalized() * speed;
-    RigidBody rb(0.1f, 0.0f, false); // Masse faible, pas de rebond
+    RigidBody rb(0.1f, 0.0f, false);
     rb.velocity = velocity;
     registry.emplace_component<RigidBody>(projectile, std::move(rb));
     
-    // Collider (petit)
+    // Collider
     registry.emplace_component<BoxCollider>(projectile, 8.0f, 8.0f);
     
     // Projectile component
