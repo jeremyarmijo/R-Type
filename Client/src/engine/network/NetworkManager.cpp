@@ -1,11 +1,11 @@
 #include "include/NetworkManager.hpp"
 
+#include <chrono>
 #include <cstring>
 #include <iostream>
 #include <string>
 #include <thread>
 #include <vector>
-#include <chrono>
 
 #include "include/DecodFunc.hpp"
 #include "include/EncodeFunc.hpp"
@@ -70,7 +70,6 @@ int NetworkManager::ConnectTCP() {
     tcpConnected = true;
     std::cout << "Connected to TCP server!\n";
     return 0;
-
   } catch (const std::exception& error) {
     std::cerr << "TCP connection exception: " << error.what() << "\n";
     return -1;
@@ -108,7 +107,6 @@ int NetworkManager::ConnectUDP() {
     udpConnected = true;
     std::cout << "Connected to UDP server!\n";
     return 0;
-
   } catch (const std::exception& error) {
     std::cerr << "UDP connection exception: " << error.what() << "\n";
     return -1;
@@ -220,7 +218,7 @@ void NetworkManager::ReadUDP() {
 
   if (!error && bytesReceived > 0) {
     std::vector<uint8_t> packet(tempBuffer, tempBuffer + bytesReceived);
-    //SendACK(packet);
+    // SendACK(packet);
     Event evt = DecodePacket(packet);
     std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
@@ -252,7 +250,7 @@ void NetworkManager::SendUdp(std::vector<uint8_t>& packet) {
     return;
   }
   std::cout << "UDP message Send (" << sent << " bytes)\n";
-  //sequenceNumUdp++;
+  // sequenceNumUdp++;
 }
 
 void NetworkManager::SendTcp(std::vector<uint8_t>& packet) {
@@ -298,8 +296,7 @@ void NetworkManager::SendActionServer() {
 
     bool sent = false;
     if ((protocol == 0 || protocol == 1) && udpConnected) {
-      std::vector<uint8_t> packet =
-          encoder.encode(action, protocol);
+      std::vector<uint8_t> packet = encoder.encode(action, protocol);
 
       lock.unlock();
       SendUdp(packet);
@@ -307,8 +304,7 @@ void NetworkManager::SendActionServer() {
 
       sent = true;
     } else if (protocol == 2 && tcpConnected) {
-      std::vector<uint8_t> packet =
-          encoder.encode(action, protocol);
+      std::vector<uint8_t> packet = encoder.encode(action, protocol);
 
       lock.unlock();
       SendTcp(packet);
