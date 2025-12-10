@@ -47,10 +47,10 @@ struct ERROR {
 // -------------------------
 
 struct PLAYER_INPUT {
-  uint8_t up;
-  uint8_t down;
-  uint8_t left;
-  uint8_t right;
+  bool up;
+  bool down;
+  bool left;
+  bool right;
   uint8_t fire;
 };
 

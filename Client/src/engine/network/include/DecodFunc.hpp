@@ -189,10 +189,10 @@ Event DecodePLAYER_INPUT(const std::vector<uint8_t>& packet) {
     return Event{};
   }
 
-  data.up = packet[offset++];
-  data.down = packet[offset++];
-  data.left = packet[offset++];
-  data.right = packet[offset++];
+  data.up = packet[offset++] == 1;
+  data.down = packet[offset++] == 1;
+  data.left = packet[offset++] == 1;
+  data.right = packet[offset++] == 1;
   data.fire = packet[offset++];
 
   evt.data = data;
