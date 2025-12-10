@@ -3,15 +3,15 @@
 #include "Player/Boss.hpp"
 #include "./Movement.hpp"
 #include "components/Physics2D.hpp"
-#include "Player/PlayerController.hpp"
-#include "Player/Enemy.hpp"
-#include "Player/ProjectTile.hpp"
+#include "components/Player/PlayerEntity.hpp"
+#include "components/Player/Enemy.hpp"
+#include "components/Player/Projectile.hpp"
 #include "ecs/Zipper.hpp"
 #include "Movement/Movement.hpp"
 
 void player_movement_system(SparseArray<Transform>& transforms,
     SparseArray<RigidBody>& rigidbodies,
-    SparseArray<PlayerControlled>& players,
+    SparseArray<PlayerEntity>& players,
     float deltaTime
 ) {
     for (auto&& [transform, rigidbody, player] :
@@ -50,9 +50,9 @@ void enemy_movement_system(SparseArray<Transform>& transforms,
     }
 }
 
-void projectTile_movement_system(SparseArray<Transform>& transforms,
+void Projectile_movement_system(SparseArray<Transform>& transforms,
     SparseArray<RigidBody>& rigidbodies,
-    SparseArray<ProjectTile>& projectiles,
+    SparseArray<Projectile>& projectiles,
     Registry& registry,
     float deltaTime) {
 
@@ -70,10 +70,10 @@ void projectTile_movement_system(SparseArray<Transform>& transforms,
         auto& rigidbody = rigidbodies[i].value();
         auto& proj = projectiles[i].value();
 
-        proj.timer += deltaTime;
+        proj.currentLife += deltaTime;
         transform.position += rigidbody.velocity * deltaTime;
 
-        if (proj.timer > 2.f) {
+        if (proj.currentLife > 2.f) {
             // registry knows entity id : convert index -> Entity
             registry.kill_entity(registry.entity_from_index(i));
         }
