@@ -19,6 +19,7 @@ target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/Shared/systems/
     ${PROJECT_SOURCE_DIR}/Client/src/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/
+    ${PROJECT_SOURCE_DIR}/Client/src/engine/ui/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/graphics/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/inputs/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/network/

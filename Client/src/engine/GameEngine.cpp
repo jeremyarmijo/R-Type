@@ -326,12 +326,6 @@ void GameEngine::Render() {
   SDL_SetRenderDrawColor(m_renderer, 50, 50, 80, 255);
   SDL_RenderClear(m_renderer);
 
-  auto& transforms = m_registry.get_components<Transform>();
-  auto& sprites = m_registry.get_components<Sprite>();
-
-  sprite_render_system(m_registry, transforms, sprites, &m_textureManager,
-                       m_renderer, m_cameraPosition);
-
   if (m_sceneManager) {
     m_sceneManager->Render();
   }
