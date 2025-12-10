@@ -14,7 +14,7 @@ inline void htonf(float value, uint8_t* out) {
   std::memcpy(out, &asInt, sizeof(uint32_t));
 }
 
-void Auth(const Action& a, std::vector<uint8_t>& out, uint32_t) {
+void Auth(const Action& a, std::vector<uint8_t>& out) {
   const auto* auth = std::get_if<AuthUDP>(&a.data);
   if (!auth) return;
 
@@ -23,7 +23,7 @@ void Auth(const Action& a, std::vector<uint8_t>& out, uint32_t) {
   memcpy(out.data(), &playerId, sizeof(uint16_t));
 }
 
-void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
+void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* input = std::get_if<PlayerInput>(&a.data);
   if (!input) return;
 
@@ -35,7 +35,7 @@ void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
   out[4] = input->fire ? 0x01 : 0x00;
 }
 
-void LoginRequestFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
+void LoginRequestFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* login = std::get_if<LoginReq>(&a.data);
   if (!login) return;
 
@@ -58,7 +58,7 @@ void LoginRequestFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
   memcpy(out.data() + offset, login->passwordHash.data(), passwordLen);
 }
 
-void GameStateFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
+void GameStateFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* state = std::get_if<GameState>(&a.data);
   if (!state) return;
 
@@ -145,7 +145,7 @@ void GameStateFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
   }
 }
 
-void BossSpawnFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
+void BossSpawnFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* boss = std::get_if<BossSpawn>(&a.data);
   if (!boss) return;
 
@@ -165,7 +165,7 @@ void BossSpawnFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
   out[offset++] = boss->phase;
 }
 
-void BossUpdateFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
+void BossUpdateFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* boss = std::get_if<BossUpdate>(&a.data);
   if (!boss) return;
 
@@ -189,7 +189,7 @@ void BossUpdateFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
   out[offset++] = boss->action;
 }
 
-void EnemyHitFunc(const Action& a, std::vector<uint8_t>& out, uint32_t) {
+void EnemyHitFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* hit = std::get_if<EnemyHit>(&a.data);
   if (!hit) return;
 

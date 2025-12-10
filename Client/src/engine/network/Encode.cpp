@@ -51,14 +51,13 @@ inline uint8_t getType(const Action& a) {
   }
 }
 
-std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP,
-                                     uint32_t sequenceNum) {
+std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP) {
   auto& func = handlers[static_cast<uint8_t>(a.type)];
   if (!func) return {};
 
   std::vector<uint8_t> payload;
   payload.reserve(64);
-  func(a, payload, sequenceNum);
+  func(a, payload);
 
   std::vector<uint8_t> packet;
   packet.reserve(6 + payload.size());
