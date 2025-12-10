@@ -2,7 +2,7 @@
 #pragma once
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
-#include "../../components/Collision/CollisionCotroller.hpp"
+#include "components/Collision/CollisionController.hpp"
 #include "ecs/Zipper.hpp"
 
 

@@ -3,10 +3,10 @@
 #include <vector>
 #include "Collision/Collision.hpp"
 #include "systems/PhysicsSystem.hpp"
-#include "Player/PlayerController.hpp"
+#include "Player/PlayerEntity.hpp"
 #include "Player/Enemy.hpp"
-#include "Player/ProjectTile.hpp"
-#include "Collision/CollisionCotroller.hpp"
+#include "Player/Projectile.hpp"
+#include "Collision/CollisionController.hpp"
 #include "Player/Boss.hpp"
 
 void gamePlay_Collision_system(Registry& registry,
@@ -60,7 +60,7 @@ void gamePlay_Collision_system(Registry& registry,
                     registry.kill_entity(collision.It);
                 }
             }
-            if (tagger == CollisionCategory::ProjectTile) {
+            if (tagger == CollisionCategory::Projectile) {
                 registry.kill_entity(collision.tagger);
             }
         }
@@ -70,15 +70,15 @@ void gamePlay_Collision_system(Registry& registry,
 
 
 CollisionCategory get_entity_category(size_t entityId, Registry& registry) {
-    if (registry.get_components<PlayerControlled>().operator[]
+    if (registry.get_components<PlayerEntity>().operator[]
     (entityId).has_value()) {
         return CollisionCategory::Player;
     }
     if (registry.get_components<Enemy>().operator[](entityId).has_value()) {
         return CollisionCategory::Enemy;
     }
-    if (registry.get_components<ProjectTile>().operator[](entityId).has_value())
-        return CollisionCategory::ProjectTile;
+    if (registry.get_components<Projectile>().operator[](entityId).has_value())
+        return CollisionCategory::Projectile;
     if (registry.get_components<Items>().operator[](entityId).has_value())
         return CollisionCategory::Item;
     if (registry.get_components<Boss>().operator[](entityId).has_value())
@@ -94,7 +94,7 @@ int compute_damage(CollisionCategory tagger, CollisionCategory it) {
     if (tagger == CollisionCategory::Enemy && it == CollisionCategory::Player) {
         return 5;  // ennemi frappe joueur
     }
-    if (tagger == CollisionCategory::ProjectTile &&
+    if (tagger == CollisionCategory::Projectile &&
     it == CollisionCategory::Enemy) {
         return 15;  // projectile touche ennemi
     }
