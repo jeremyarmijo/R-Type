@@ -1,8 +1,9 @@
 // Copyright 2025 Dalia Guiz
 #pragma once
 #include "components/Physics2D.hpp"
+#include "components/Collision/CollisionController.hpp"
 
-struct PlayerControlled {
+struct PlayerEntity {
   int player_id;
   Vector2 input;
   float speed;
