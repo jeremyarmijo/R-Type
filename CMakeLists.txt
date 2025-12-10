@@ -25,6 +25,11 @@ target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/Client/src/engine/scene/
 )
 
+add_custom_target(clean-all
+    COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake Makefile
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 target_link_libraries(RTYPE_Client PRIVATE SDL2::SDL2 SDL2_image::SDL2_image)
