@@ -1,13 +1,13 @@
 // Copyright 2025 Dalia Guiz
-#ifndef SHARED_COMPONENTS_COLLISION_COLLISIONCOTROLLER_HPP_
-    #define  SHARED_COMPONENTS_COLLISION_COLLISIONCOTROLLER_HPP_
+#ifndef SHARED_COMPONENTS_COLLISION_COLLISIONCONTROLLER_HPP_
+    #define  SHARED_COMPONENTS_COLLISION_COLLISIONCONTROLLER_HPP_
 #include "../../ecs/Entity.hpp"
 
 enum class CollisionCategory {
     Unknown = 0,
     Player,
     Enemy,
-    ProjectTile,
+    Projectile,
     Boss,
     Item,
     scene
@@ -46,4 +46,4 @@ struct Items {
     bool picked_up;
 };
 
-#endif  // SHARED_COMPONENTS_COLLISION_COLLISIONCOTROLLER_HPP_
+#endif  // SHARED_COMPONENTS_COLLISION_COLLISIONCONTROLLER_HPP_
