@@ -6,23 +6,12 @@ struct PlayerControlled {
   int player_id;
   Vector2 input;
   float speed;
-};
-
-struct Health {
   int current;
   int max;
   bool isAlive = true;
   float invtimer;
-};
-
-struct Weapon {
   int weaponId;
   bool hasForce;
-};
-
-struct PlayerId {
-  int playerId;
-  int team;
   int score;
 };
 
