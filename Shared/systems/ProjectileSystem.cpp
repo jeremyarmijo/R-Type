@@ -1,4 +1,6 @@
 #include "ProjectileSystem.hpp"
+#include "systems/PhysicsSystem.hpp"
+#include "ecs/Zipper.hpp"
 
 void projectile_lifetime_system(Registry& registry, 
                                 SparseArray<Projectile>& projectiles,
@@ -63,7 +65,7 @@ Entity spawn_projectile(Registry& registry,
     registry.emplace_component<Projectile>(projectile, 10.0f, 3.0f, ownerId);
     
     // Sprite
-    registry.emplace_component<Sprite>(projectile, "bullet", SDL_Rect{0, 0, 8, 8});
+    // registry.emplace_component<Sprite>(projectile, "bullet", SDL_Rect{0, 0, 8, 8});
     
     return projectile;
 }

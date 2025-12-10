@@ -3,6 +3,7 @@
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "components/Collision/CollisionController.hpp"
+#include "components/Player/PlayerEntity.hpp"
 #include "ecs/Zipper.hpp"
 
 

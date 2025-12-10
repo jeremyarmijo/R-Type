@@ -1,6 +1,6 @@
 #pragma once
 #include "ecs/Registry.hpp"
-#include "components/Projectile.hpp"
+#include "components/Player/Projectile.hpp"
 #include "components/Physics2D.hpp"
 
 void projectile_lifetime_system(Registry& registry, 

@@ -1,5 +1,5 @@
 #pragma once
-#include <Projectile.hpp>
+#include "components/Player/Projectile.hpp"
 
 struct Weapon {
     Projectile projectileType = Projectile();

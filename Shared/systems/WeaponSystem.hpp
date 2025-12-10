@@ -1,5 +1,6 @@
 #pragma once
 #include "ecs/Registry.hpp"
+#include "components/Player/Weapon.hpp"
 
 void weapon_cooldown_system(Registry& registry,
                             SparseArray<Weapon>& weapons,
