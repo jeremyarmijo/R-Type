@@ -1,5 +1,6 @@
 #include "include/NetworkManager.hpp"
 
+#include <chrono>
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -69,7 +70,6 @@ int NetworkManager::ConnectTCP() {
     tcpConnected = true;
     std::cout << "Connected to TCP server!\n";
     return 0;
-
   } catch (const std::exception& error) {
     std::cerr << "TCP connection exception: " << error.what() << "\n";
     return -1;
@@ -107,7 +107,6 @@ int NetworkManager::ConnectUDP() {
     udpConnected = true;
     std::cout << "Connected to UDP server!\n";
     return 0;
-
   } catch (const std::exception& error) {
     std::cerr << "UDP connection exception: " << error.what() << "\n";
     return -1;
@@ -116,6 +115,17 @@ int NetworkManager::ConnectUDP() {
 
 Event NetworkManager::DecodePacket(std::vector<uint8_t>& packet) {
   return decoder.decode(packet);
+}
+
+void NetworkManager::AuthAction() {
+  Action ac;
+  AuthUDP authData;
+
+  ac.type = ActionType::AUTH;
+  authData.playerId = playerId;
+  ac.data = authData;
+  SendAction(ac);
+  std::cout << "AUTH UDP (playerId = " << playerId << ")\n";
 }
 
 void NetworkManager::ProcessTCPRecvBuffer() {
@@ -138,8 +148,12 @@ void NetworkManager::ProcessTCPRecvBuffer() {
     if (evt.type == EventType::LOGIN_RESPONSE) {
       const auto* input = std::get_if<LOGIN_RESPONSE>(&evt.data);
       if (!input) return;
-      udpPort = input->udpPort;
-      std::cout << "UDP Port =" << udpPort << "\n";
+      if (input->success == 1) {
+        udpPort = input->udpPort;
+        std::cout << "UDP Port =" << udpPort << "\n";
+        playerId = input->playerId;
+        AuthAction();
+      }
     }
     std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
@@ -169,7 +183,7 @@ void NetworkManager::ReadTCP() {
   }
 }
 
-void NetworkManager::SendACK(std::vector<uint8_t>& evt) {
+/*void NetworkManager::SendACK(std::vector<uint8_t>& evt) {
   if (evt.size() < 6) return;
 
   uint8_t flag;
@@ -193,7 +207,7 @@ void NetworkManager::SendACK(std::vector<uint8_t>& evt) {
   response[10] = evt[0];
 
   SendUdp(response);
-}
+}*/
 
 void NetworkManager::ReadUDP() {
   char tempBuffer[2048];
@@ -204,7 +218,7 @@ void NetworkManager::ReadUDP() {
 
   if (!error && bytesReceived > 0) {
     std::vector<uint8_t> packet(tempBuffer, tempBuffer + bytesReceived);
-    SendACK(packet);
+    // SendACK(packet);
     Event evt = DecodePacket(packet);
     std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
@@ -236,7 +250,7 @@ void NetworkManager::SendUdp(std::vector<uint8_t>& packet) {
     return;
   }
   std::cout << "UDP message Send (" << sent << " bytes)\n";
-  sequenceNumUdp++;
+  // sequenceNumUdp++;
 }
 
 void NetworkManager::SendTcp(std::vector<uint8_t>& packet) {
@@ -264,9 +278,9 @@ void NetworkManager::SendTcp(std::vector<uint8_t>& packet) {
     totalSent += sent;
   }
 
-  if (totalSent == packet.size()) {
+  /*if (totalSent == packet.size()) {
     sequenceNumTcp++;
-  }
+  }*/
 }
 
 void NetworkManager::SendActionServer() {
@@ -282,8 +296,7 @@ void NetworkManager::SendActionServer() {
 
     bool sent = false;
     if ((protocol == 0 || protocol == 1) && udpConnected) {
-      std::vector<uint8_t> packet =
-          encoder.encode(action, protocol, sequenceNumUdp);
+      std::vector<uint8_t> packet = encoder.encode(action, protocol);
 
       lock.unlock();
       SendUdp(packet);
@@ -291,8 +304,7 @@ void NetworkManager::SendActionServer() {
 
       sent = true;
     } else if (protocol == 2 && tcpConnected) {
-      std::vector<uint8_t> packet =
-          encoder.encode(action, protocol, sequenceNumTcp);
+      std::vector<uint8_t> packet = encoder.encode(action, protocol);
 
       lock.unlock();
       SendTcp(packet);
