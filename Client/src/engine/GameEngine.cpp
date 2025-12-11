@@ -92,6 +92,10 @@ void GameEngine::RegisterComponents() {
   m_registry.register_component<PlayerControlled>();
   m_registry.register_component<InputState>();
 
+  // Weapon & Projectile components
+  m_registry.register_component<Weapon>();
+  m_registry.register_component<Projectile>();
+
   // Network components
 
   std::cout << "Components registered" << std::endl;
@@ -243,6 +247,37 @@ Entity GameEngine::CreatePlayer(const std::string& textureKey,
   return player;
 }
 
+Entity GameEngine::CreateProjectile(const std::string& textureKey,
+                                     Vector2 position, Vector2 direction,
+                                     float speed, size_t ownerId) {
+  Entity projectile = m_registry.spawn_entity();
+
+  m_registry.emplace_component<Transform>(projectile, position, Vector2{1, 1},
+                                          0.0f);
+  m_registry.emplace_component<Sprite>(projectile, textureKey,
+                                       SDL_Rect{0, 0, 16, 16},
+                                       Vector2{0.5f, 0.5f}, 1);
+  m_registry.emplace_component<RigidBody>(projectile, 1.0f, 0.0f, false);
+  m_registry.emplace_component<BoxCollider>(projectile, 16.0f, 16.0f);
+  m_registry.emplace_component<Projectile>(projectile, 10.0f, speed, direction,
+                                          5.0f, ownerId);
+
+  return projectile;
+}
+
+Weapon GameEngine::CreateWeapon(float fireRate, bool isAutomatic) {
+  // Arme automatique simple avec munitions infinies
+  return Weapon(
+      fireRate,        // fireRate (projectiles par seconde)
+      isAutomatic,     // isAutomatic
+      -1,              // maxAmmo (-1 = infini)
+      -1,              // magazineSize (-1 = pas de chargeur)
+      -1.0f,           // reloadTime (-1 = pas de rechargement)
+      false,           // isBurst
+      1,               // burstCount
+      0.0f);  // burstInterval
+}
+
 void GameEngine::Run() {
   Uint32 lastTime = SDL_GetTicks();
 
@@ -308,10 +343,33 @@ void GameEngine::Update(float deltaTime) {
   auto& rigidbodies = m_registry.get_components<RigidBody>();
   auto& animations = m_registry.get_components<Animation>();
   auto& sprites = m_registry.get_components<Sprite>();
+  auto& weapons = m_registry.get_components<Weapon>();
+  auto& projectiles = m_registry.get_components<Projectile>();
 
   // call systems in order of operation
   player_input_system(m_registry, playerControlled, transforms, rigidbodies,
                       colliders, &m_inputManager);
+
+  // Weapon systems
+  weapon_cooldown_system(m_registry, weapons, deltaTime);
+  weapon_reload_system(m_registry, weapons, deltaTime);
+
+  // Weapon firing system - vérifie si le joueur appuie sur SPACE
+  weapon_firing_system(m_registry, weapons, transforms,
+  [this](size_t entityId) -> bool {
+    // Vérifie si l'entité est contrôlée par le joueur et si SPACE est pressé
+    auto& playerControlled = m_registry.get_components<PlayerControlled>();
+    if (entityId < playerControlled.size() &&
+        playerControlled[entityId].has_value()) {
+      return m_inputManager.IsKeyPressed(SDL_SCANCODE_SPACE);
+    }
+    return false;
+  }, deltaTime);
+
+  // Projectile systems
+  projectile_lifetime_system(m_registry, projectiles, deltaTime);
+  projectile_collision_system(m_registry, transforms, colliders, projectiles);
+
   animation_system(m_registry, animations, sprites, &m_animationManager,
                    deltaTime);
   physics_system(m_registry, deltaTime, m_gravity);
