@@ -32,8 +32,18 @@ class MyGameScene : public Scene {
 
       if (!textures.GetTexture("player")) {
         std::cout << "Loading player texture..." << std::endl;
-        if (!textures.LoadTexture("player", "../Client/assets/player.png")) {
+        if (!textures.LoadTexture("player", "Client/assets/player.png")) {
           std::cerr << "ERROR: Failed to load player texture!" << std::endl;
+          return;
+        }
+      }
+
+      // Charger la texture du projectile
+      if (!textures.GetTexture("projectile")) {
+        std::cout << "Loading projectile texture..." << std::endl;
+        if (!textures.LoadTexture("projectile",
+          "Client/assets/blueShoot.png")) {
+          std::cerr << "ERROR: Failed to load projectile texture!" << std::endl;
           return;
         }
       }
@@ -61,6 +71,12 @@ class MyGameScene : public Scene {
                                   {{32, 17, 32, 17}, 0.3f}},
                                  true);
 
+      // Animation du projectile (spritesheet 38x6 avec 2 frames de 19x6)
+      animations.CreateAnimation("projectile_anim", "projectile",
+                                 {{{0, 0, 19, 6}, 0.1f},    // Frame 1
+                                  {{19, 0, 19, 6}, 0.1f}},  // Frame 2
+                                 true);
+
       std::cout << "Creating player..." << std::endl;
       Entity player =
           m_engine->CreatePlayer("player", "blue_player", {200, 300}, 250.0f);
@@ -71,6 +87,12 @@ class MyGameScene : public Scene {
                   << std::endl;
         return;
       }
+
+      // Ajouter une arme automatique au joueur 5pj/s
+      std::cout << "Creating weapon for player..." << std::endl;
+      Weapon playerWeapon = m_engine->CreateWeapon(5.0f, true);
+      GetRegistry().emplace_component<Weapon>(player, playerWeapon);
+      std::cout << "Weapon added to player" << std::endl;
 
       std::cout << "Creating enemies..." << std::endl;
       for (int i = 0; i < 3; ++i) {
