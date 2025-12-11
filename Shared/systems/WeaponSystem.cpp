@@ -17,7 +17,7 @@ bool can_fire(const Weapon& weapon) {
 
 void consume_ammo(Weapon& weapon) {
     if (weapon.magazineSize != -1 && weapon.currentAmmo > 0) {
-        weapon.currentAmmo++;
+        weapon.currentAmmo--;
     }
 }
 
@@ -61,8 +61,10 @@ void weapon_firing_system(Registry& registry,
 
         if (can_fire(weapon)) {
              // Spawn projectile
+            Vector2 projectilePos = transform.position
+                                    + Vector2{3.0f, 0.0f};  // Example offset
             Vector2 projectileDir = {1.0f, 0.0f};  // Example direction
-            spawn_projectile(registry, transform.position, projectileDir,
+            spawn_projectile(registry, projectilePos, projectileDir,
                              weapon.projectileType.speed, idx);
 
             weapon.timeSinceLastShot = 0.0f;
