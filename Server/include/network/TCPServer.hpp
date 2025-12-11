@@ -6,6 +6,11 @@
 #include <unordered_map>
 #include <arpa/inet.h>
 
+#include "network/Encode.hpp"
+#include "network/Action.hpp"
+#include "network/Decoder.hpp"
+#include "network/DecodFunc.hpp"
+#include "network/Event.hpp"
 #include "include/ServerMacro.hpp"
 
 class ProcessPacketTCP;
@@ -65,7 +70,7 @@ private:
     void HandleReadPayload(const asio::error_code& error, std::size_t bytes_transferred);
     
     void ProcessLoginRequest();
-    void ProcessingMapRequest();
+    void ProcessingGameStart();
     void SendLoginResponse(bool success, uint32_t player_id, uint16_t udp_port);
     void SendLoginError(uint16_t error_code, const std::string& message);
 
