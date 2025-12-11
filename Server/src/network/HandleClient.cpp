@@ -1,4 +1,5 @@
 #include "network/HandleClient.hpp"
+#include <string>
 
 HandleClient::HandleClient(uint32_t id,
                            const asio::ip::tcp::endpoint& tcp_endpoint,

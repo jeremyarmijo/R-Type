@@ -1,6 +1,12 @@
 #include "network/TCPServer.hpp"
 
 #include <iostream>
+#include <memory>
+#include <utility>
+#include <string>
+#include <vector>
+
+#include "../../include/ServerMacro.hpp"
 
 TCPServer::TCPServer(asio::io_context& io_context, uint16_t port)
     : acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
@@ -82,7 +88,7 @@ void ProcessPacketTCP::ReadHeader() {
       });
 }
 
-template<typename T>
+template <typename T>
 T bytes_to_type(const uint8_t* data, std::function<T(const T)> converter) {
   T tmp;
   std::memcpy(&tmp, data, sizeof(T));
@@ -122,7 +128,9 @@ void ProcessPacketTCP::HandleReadHeader(const asio::error_code& error,
   uint32_t length = bytes_to_type<uint32_t>(&header_buffer_[2], ntohl);
 
   std::cout << "[ProcessPacketTCP] Received header: type=0x" << std::hex
-            << (int)type << " flags=0x" << (int)flags << " length=" << std::dec
+            << static_cast<int>(type) << " flags=0x"
+            << static_cast<int>(flags)
+            << " length=" << std::dec
             << length << std::endl;
 
   current_msg_type_ = type;
@@ -164,7 +172,7 @@ void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
 
     default:
       std::cerr << "[ProcessPacketTCP] Unknown message type: 0x" << std::hex
-                << (int)current_msg_type_ << std::endl;
+                << static_cast<int>(current_msg_type_) << std::endl;
       break;
   }
 
@@ -177,9 +185,9 @@ void ProcessPacketTCP::ProcessingMapRequest() {
   if (payload_buffer_.size() < 5) {
     return;
   }
-  // // uint16_t width = bytes_to_type<uint16_t>(&payload_buffer_[offset], ntohs);
-  // offset += 2;
-  // std::cout << "[ProcessPacketTCP] Login request from '" << username_
+  // // uint16_t width = bytes_to_type<uint16_t>(&payload_buffer_[offset],
+  // ntohs); offset += 2; std::cout << "[ProcessPacketTCP] Login request from '"
+  // << username_
   //           << "' (client " << client_id_ << ")" << std::endl;
   // authenticated_ = true;
 
@@ -214,20 +222,16 @@ void ProcessPacketTCP::ProcessLoginRequest() {
   SendLoginResponse(true, client_id_, server_->GetUDPPort());
 }
 
-void ProcessPacketTCP::SendLoginResponse(bool success, uint32_t player_id,
+void ProcessPacketTCP::SendLoginResponse(bool success, uint16_t player_id,
                                          uint16_t udp_port) {
   std::vector<uint8_t> response;
 
   response.push_back(0x02);
   response.push_back(0x01);
+  push_buffer_uint32(response, 5);
 
-  push_buffer_uint32(response, 9);
-
-  response.push_back(0x01);
-
+  response.push_back(1);
   push_buffer_uint16(response, player_id);
-  push_buffer_uint32(response, 1);
-
   push_buffer_uint16(response, udp_port);
 
   auto self = shared_from_this();
