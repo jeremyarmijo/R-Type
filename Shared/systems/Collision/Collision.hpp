@@ -9,15 +9,13 @@
 void gamePlay_Collision_system(Registry& registry,
     SparseArray<Transform>& transforms,
     SparseArray<BoxCollider>& colliders,
-    SparseArray<Health>& healths,
     SparseArray<Items>& items);
 
 CollisionCategory get_entity_category(size_t entityId, Registry& registry);
 
 void apply_damage(Registry& registry,
     const Collision& collision,
-    SparseArray<Transform>& transforms,
-    SparseArray<Health>& healthComponents);
+    SparseArray<Transform>& transforms);
 
 
 int compute_damage(CollisionCategory tagger, CollisionCategory it);

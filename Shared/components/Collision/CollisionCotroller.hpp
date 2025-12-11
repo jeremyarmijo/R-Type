@@ -14,36 +14,21 @@ enum class CollisionCategory {
 };
 
 struct Collision {
-    Entity tagger;  // celui qui touche
+    Entity tagger;  // celui qui touche source hit
     Entity It;
     CollisionCategory taggerType;
     CollisionCategory itType;
-    int damage;
+    //Uint32 damage;
     bool processed;
     Collision(Entity tagger, Entity It,
               CollisionCategory taggerType,
-              CollisionCategory itType,
-              int damage)
+              CollisionCategory itType)
         : tagger(tagger),
           It(It),
           taggerType(taggerType),
           itType(itType),
-          damage(damage),
+          //damage(damage),
           processed(false) {}
-};
-
-enum class ItemType {
-    Unknown = 0,
-    HealthPotion,
-    ManaPotion,
-    Key,
-    Coin
-};
-
-struct Items {
-    ItemType type;
-    int item_id;
-    bool picked_up;
 };
 
 #endif  // SHARED_COMPONENTS_COLLISION_COLLISIONCOTROLLER_HPP_
