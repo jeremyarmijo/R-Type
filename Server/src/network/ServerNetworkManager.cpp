@@ -68,37 +68,30 @@ void ServerNetworkManager::IOThreadFunc() {
   std::cout << "[ServerNetworkManager] IO thread stopped" << std::endl;
 }
 
-int ServerNetworkManager::CheckHeader(const std::vector<uint8_t> &data) {
-  uint8_t type = data[0];
-  uint8_t flags = data[1];
-  uint32_t length = bytes_to_type<uint32_t>(&data[2], ntohl);
-  if (type == 0x19 && flags == 0x02) {
-    return true;
-  } else {
-    std::cerr << "[ServerNetworkManager] Invalid UDP packet header" << std::endl;
-    return false;
-  }
-}
-
 void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
                                      const asio::ip::udp::endpoint &sender) {
   if (data.size() < 3) {
     std::cerr << "[ServerNetworkManager] Invalid UDP packet size" << std::endl;
     return;
   }
-  uint16_t player_id = -1;
-  if (CheckHeader(data) && data.size() >= 11) {
-    std::cout << "hello" << std::endl;
-    std::cout << "" << std::endl;
-    std::cout << "hello" << std::endl;
-       player_id = (data[10] << 8) | data[11];
+  Decoder decode;
+  SetupDecoder(decode);
 
-    player_id = bytes_to_type<uint16_t>(&data[10], ntohs);
-  } else {
-    std::cerr << "[ServerNetworkManager] UDP packet with invalid header from "
-              << sender.address().to_string() << ":" << sender.port() << std::endl;
-    return;
-  }
+  Event evt = decode.decode(data);
+    const AUTH* auth = std::get_if<AUTH>(&evt.data);
+    if (auth == nullptr) {
+        std::cerr << "[ProcessPacketTCP] Failed to decode AUTH"
+                  << std::endl;
+        return;
+    }
+  std::cout << auth->playerId << std::endl;
+  uint16_t player_id = auth->playerId;
+
+
+    std::cout << sender.address().to_string() << ":" << sender.port() << std::endl;
+
+
+  std::cout << "Received UDP packet from player ID: " << player_id << std::endl;
   for (auto byte : data) {
     std::cout << std::hex << (int)byte << " ";
   }
