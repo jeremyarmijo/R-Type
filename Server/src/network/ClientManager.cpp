@@ -1,4 +1,7 @@
 #include "network/ClientManager.hpp"
+#include <string>
+#include <memory>
+#include <vector>
 
 ClientManager::ClientPtr ClientManager::AddClientFromTCP(
     const asio::ip::tcp::endpoint& tcp_endpoint, const std::string& username,

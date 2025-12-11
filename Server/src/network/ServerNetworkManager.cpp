@@ -1,4 +1,11 @@
 #include "network/ServerNetworkManager.hpp"
+#include "network/DecodeFunc.hpp"
+#include <memory>
+#include <vector>
+#include <queue>
+#include <utility>
+#include <string>
+#include <iostream>
 
 ServerNetworkManager::ServerNetworkManager() = default;
 
@@ -39,13 +46,12 @@ bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port) {
   }
 }
 
-template<typename T>
-T bytes_to_type(const uint8_t* data, std::function<T(const T)> converter) {
+template <typename T>
+T bytes_to_type(const uint8_t *data, std::function<T(const T)> converter) {
   T tmp;
   std::memcpy(&tmp, data, sizeof(T));
   return converter(tmp);
 }
-
 
 void ServerNetworkManager::Shutdown() {
   if (work_guard_) {
@@ -70,7 +76,7 @@ void ServerNetworkManager::IOThreadFunc() {
 
 void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
                                      const asio::ip::udp::endpoint &sender) {
-  if (data.size() < 3) {
+  if (data.size() < 6) {
     std::cerr << "[ServerNetworkManager] Invalid UDP packet size" << std::endl;
     return;
   }
@@ -93,8 +99,9 @@ void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
 
   std::cout << "Received UDP packet from player ID: " << player_id << std::endl;
   for (auto byte : data) {
-    std::cout << std::hex << (int)byte << " ";
+    std::cout << std::hex << static_cast<int>(byte) << " ";
   }
+
   auto client = client_manager_.GetClient(player_id);
 
   if (!client) {
