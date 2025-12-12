@@ -160,12 +160,8 @@ bool UITextInput::LoadFont() {
 
   if (m_fontPath.empty()) {
     const char* defaultFonts[] = {
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/System/Library/Fonts/Helvetica.ttc",
-        "C:\\Windows\\Fonts\\arial.ttf",
-        "../assets/fonts/default.ttf",
-        "./assets/fonts/default.ttf",
-        "assets/fonts/default.ttf"};
+        "../Client/assets/Font.ttf"
+        };
 
     for (const char* path : defaultFonts) {
       m_font = TTF_OpenFont(path, m_fontSize);

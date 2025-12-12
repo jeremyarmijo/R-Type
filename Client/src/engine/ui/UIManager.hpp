@@ -26,7 +26,6 @@ class UIManager {
 
   ~UIManager() { Clear(); }
 
-  // Add a new UI element
   template <typename T, typename... Args>
   T* AddElement(Args&&... args) {
     auto element = std::make_unique<T>(std::forward<Args>(args)...);
@@ -35,10 +34,8 @@ class UIManager {
     return ptr;
   }
 
-  // Remove all elements
   void Clear() { m_elements.clear(); }
 
-  // Update all elements
   void Update(float deltaTime) {
     for (auto& element : m_elements) {
       if (element->IsVisible()) {
@@ -47,7 +44,6 @@ class UIManager {
     }
   }
 
-  // Render all elements (sorted by layer)
   void Render() {
     // Sort by layer before rendering
     std::sort(m_elements.begin(), m_elements.end(),
@@ -63,7 +59,6 @@ class UIManager {
     }
   }
 
-  // Handle events (returns true if event was consumed)
   bool HandleEvent(const SDL_Event& event) {
     // Process in reverse order (top layer first) for proper event handling
     for (auto it = m_elements.rbegin(); it != m_elements.rend(); ++it) {
@@ -76,16 +71,13 @@ class UIManager {
     return false;
   }
 
-  // Update screen dimensions
   void SetScreenSize(int w, int h) {
     m_screenWidth = w;
     m_screenHeight = h;
   }
 
-  // Get number of elements
   size_t GetElementCount() const { return m_elements.size(); }
 
-  // Get screen dimensions
   int GetScreenWidth() const { return m_screenWidth; }
   int GetScreenHeight() const { return m_screenHeight; }
 };
