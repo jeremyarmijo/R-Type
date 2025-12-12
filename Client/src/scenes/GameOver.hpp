@@ -1,6 +1,8 @@
 #pragma once
 #include <SDL2/SDL.h>
 
+#include <iostream>
+
 #include "scene/SceneManager.hpp"
 #include "ui/UIManager.hpp"
 

@@ -1,6 +1,7 @@
 #include "ui/UIButton.hpp"
 
 #include <iostream>
+#include <string>
 
 UIButton::~UIButton() {
   if (m_textTexture) {

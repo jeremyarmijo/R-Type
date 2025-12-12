@@ -58,9 +58,6 @@ void UIText::SetFontSize(int size) {
 void UIText::SetAlignment(TextAlign align) { m_alignment = align; }
 
 bool UIText::LoadFont() {
-  if (m_font) {
-  }
-
   if (m_fontPath.empty()) {
     const char* defaultFonts[] = {"../Client/assets/Font.ttf"};
 
