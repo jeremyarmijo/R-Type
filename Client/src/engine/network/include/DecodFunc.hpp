@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-#include "Decoder.hpp"
-#include "Event.hpp"
+#include "include/Decoder.hpp"
+#include "include/Event.hpp"
 
 bool checkHeader(const std::vector<uint8_t>& packet, size_t& offset,
                  uint32_t& payloadLength) {

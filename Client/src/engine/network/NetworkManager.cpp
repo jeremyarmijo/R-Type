@@ -70,7 +70,6 @@ int NetworkManager::ConnectTCP() {
     tcpConnected = true;
     std::cout << "Connected to TCP server!\n";
     return 0;
-
   } catch (const std::exception& error) {
     std::cerr << "TCP connection exception: " << error.what() << "\n";
     return -1;
@@ -108,7 +107,6 @@ int NetworkManager::ConnectUDP() {
     udpConnected = true;
     std::cout << "Connected to UDP server!\n";
     return 0;
-
   } catch (const std::exception& error) {
     std::cerr << "UDP connection exception: " << error.what() << "\n";
     return -1;

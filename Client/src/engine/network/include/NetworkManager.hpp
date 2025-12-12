@@ -8,11 +8,13 @@
 #include <thread>
 #include <vector>
 
-#include "Action.hpp"
-#include "CircularBuffer.hpp"
-#include "Decoder.hpp"
-#include "Encode.hpp"
-#include "Event.hpp"
+#include <asio.hpp>
+
+#include "include/Action.hpp"
+#include "include/CircularBuffer.hpp"
+#include "include/Decoder.hpp"
+#include "include/Encode.hpp"
+#include "include/Event.hpp"
 
 class NetworkManager {
  public:
