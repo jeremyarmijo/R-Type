@@ -95,7 +95,6 @@ struct EnemyState {
   float posY;
   uint8_t hp;
   uint8_t state;
-  uint8_t pattern;
   int8_t direction;
 };
 

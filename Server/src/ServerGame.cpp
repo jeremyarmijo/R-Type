@@ -119,7 +119,7 @@ void ServerGame::GameLoop() {
         std::chrono::duration<float>(currentTime - lastTime).count();
     lastTime = currentTime;
 
-    /*receive_player_inputs();      // 1. Récupérer les inputs depuis le serveur
+    /* receive_player_inputs();      // 1. Récupérer les inputs depuis le serveur
     update_game_state(deltaTime); // 2. Déplacement, ticks
     run_systems();                // 3. Collisions, IA
     cleanup_entities();           // 4. Je clean les entités mortes
@@ -134,14 +134,14 @@ void ServerGame::GameLoop() {
 }
 
 void ServerGame::SendPacket() {
-  std::queue<std::tuple<Action, uint16_t>> localQueue;
-  {
+  //std::queue<std::tuple<Action, uint16_t>> localQueue;
+  //{
     std::lock_guard<std::mutex> lock(queueMutex);
-    std::swap(localQueue, actionQueue);
-  }
-  while (!localQueue.empty()) {
-    auto ac = localQueue.front();
-    localQueue.pop();
+    //localQueue = actionQueue;
+  //}
+  while (!actionQueue.empty()) {
+    auto ac = actionQueue.front();
+    actionQueue.pop();
 
     Action action = std::get<0>(ac);
     uint16_t clientId = std::get<1>(ac);
@@ -150,10 +150,16 @@ void ServerGame::SendPacket() {
     msg.client_id = clientId;
 
     size_t protocol = UseUdp(action.type);
+    
     msg.data = encode.encode(action, protocol);
 
     std::cout << "Try SEND (clientId = " << clientId
               << ")   (protocol = " << protocol << ")" << std::endl;
+    std::cout << "Packet = ";
+    for (auto &b : msg.data) {
+      std::cout << std::hex << (int)b <<  " ";
+    }
+    std::cout << std::endl;
     if (clientId == 0) {
       if (protocol == 0) networkManager.BroadcastUDP(msg);
       if (protocol == 2) networkManager.BroadcastTCP(msg);

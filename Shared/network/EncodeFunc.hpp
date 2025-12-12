@@ -232,7 +232,7 @@ inline void GameEndFunc(const Action& a, std::vector<uint8_t>& out) {
 
   uint8_t playerCount = end->scores.size();
 
-  out.resize(playerCount * 7);
+  out.resize(2 + playerCount * 7);
   size_t offset = 0;
   out[offset++] = end->victory ? 1 : 0;
   out[offset++] = playerCount;
