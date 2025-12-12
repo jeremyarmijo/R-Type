@@ -1,7 +1,9 @@
 #include "scene/SceneManager.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "engine/GameEngine.hpp"
 
@@ -85,6 +87,14 @@ void SceneManager::HandleEvent(SDL_Event& event) {
   }
 }
 
+Scene::Scene(GameEngine* engine, SceneManager* sceneManager,
+             const std::string& name)
+    : m_engine(engine),
+      m_sceneManager(sceneManager),
+      m_name(name),
+      m_uiManager(engine->GetRenderer(), &engine->GetTextureManager(), 800,
+                  600) {}
+
 Registry& Scene::GetRegistry() { return m_engine->GetRegistry(); }
 
 TextureManager& Scene::GetTextures() { return m_engine->GetTextureManager(); }
@@ -93,10 +103,102 @@ AnimationManager& Scene::GetAnimations() {
   return m_engine->GetAnimationManager();
 }
 
+NetworkManager& Scene::GetNetwork() { return m_engine->GetNetworkManager(); }
+
+SDL_Renderer* Scene::GetRenderer() { return m_engine->GetRenderer(); }
+Vector2 Scene::GetCameraPosition() { return m_engine->GetCameraPosition(); }
+
 InputManager& Scene::GetInput() { return m_engine->GetInputManager(); }
 
 void Scene::ChangeScene(const std::string& sceneName) {
   if (m_sceneManager) {
     m_sceneManager->ChangeScene(sceneName);
+  }
+}
+
+void Scene::RenderSprites(int minLayer, int maxLayer) {
+  auto& transforms = GetRegistry().get_components<Transform>();
+  auto& sprites = GetRegistry().get_components<Sprite>();
+
+  for (auto&& [transform, sprite] : Zipper(transforms, sprites)) {
+    if (!sprite.visible) continue;
+    if (sprite.layer >= minLayer && sprite.layer <= maxLayer) {
+      SDL_Texture* texture = GetTextures().GetTexture(sprite.textureKey);
+      if (!texture) continue;
+
+      SDL_Rect sourceRect = sprite.sourceRect;
+      if (sourceRect.w == 0 || sourceRect.h == 0) {
+        int textureWidth, textureHeight;
+        GetTextures().GetTextureSize(sprite.textureKey, textureWidth,
+                                     textureHeight);
+        sourceRect = {0, 0, textureWidth, textureHeight};
+      }
+
+      Vector2 camPos = GetCameraPosition();
+      SDL_Rect destRect = {
+          static_cast<int>(transform.position.x - camPos.x -
+                           (sourceRect.w * transform.scale.x * sprite.pivot.x)),
+          static_cast<int>(transform.position.y - camPos.y -
+                           (sourceRect.h * transform.scale.y * sprite.pivot.y)),
+          static_cast<int>(sourceRect.w * transform.scale.x),
+          static_cast<int>(sourceRect.h * transform.scale.y)};
+
+      SDL_RenderCopyEx(GetRenderer(), texture, &sourceRect, &destRect,
+                       transform.rotation, nullptr, SDL_FLIP_NONE);
+    }
+  }
+}
+
+void Scene::RenderSpritesLayered() {
+  auto& transforms = GetRegistry().get_components<Transform>();
+  auto& sprites = GetRegistry().get_components<Sprite>();
+
+  struct RenderData {
+    const Transform* transform;
+    const Sprite* sprite;
+  };
+
+  std::vector<RenderData> renderList;
+  for (auto&& [transform, sprite] : Zipper(transforms, sprites)) {
+    renderList.push_back({&transform, &sprite});
+  }
+
+  std::sort(renderList.begin(), renderList.end(),
+            [](const RenderData& a, const RenderData& b) {
+              return a.sprite->layer < b.sprite->layer;
+            });
+
+  for (const auto& data : renderList) {
+    if (!data.sprite->visible) continue;
+    SDL_Texture* texture = GetTextures().GetTexture(data.sprite->textureKey);
+    if (!texture) continue;
+
+    SDL_Rect sourceRect = data.sprite->sourceRect;
+    if (sourceRect.w == 0 || sourceRect.h == 0) {
+      int textureWidth, textureHeight;
+      GetTextures().GetTextureSize(data.sprite->textureKey, textureWidth,
+                                   textureHeight);
+      sourceRect = {0, 0, textureWidth, textureHeight};
+    }
+
+    Vector2 camPos = GetCameraPosition();
+    SDL_Rect destRect = {
+        static_cast<int>(
+            data.transform->position.x - camPos.x -
+            (sourceRect.w * data.transform->scale.x * data.sprite->pivot.x)),
+        static_cast<int>(
+            data.transform->position.y - camPos.y -
+            (sourceRect.h * data.transform->scale.y * data.sprite->pivot.y)),
+        static_cast<int>(sourceRect.w * data.transform->scale.x),
+        static_cast<int>(sourceRect.h * data.transform->scale.y)};
+
+    SDL_RenderCopyEx(GetRenderer(), texture, &sourceRect, &destRect,
+                     data.transform->rotation, nullptr, SDL_FLIP_NONE);
+  }
+}
+
+void Scene::QuitGame() {
+  if (m_engine) {
+    m_engine->Stop();
   }
 }

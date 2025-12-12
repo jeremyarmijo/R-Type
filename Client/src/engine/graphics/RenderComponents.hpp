@@ -10,10 +10,15 @@ struct Sprite {
   SDL_Rect sourceRect;
   Vector2 pivot;  // 0,0 = top left, 0.5,0.5 = center
   int layer;
+  bool visible;
 
   Sprite(const std::string& key, SDL_Rect src = {0, 0, 0, 0},
-         Vector2 piv = {0.5f, 0.5f}, int lyr = 0)
-      : textureKey(key), sourceRect(src), pivot(piv), layer(lyr) {}
+         Vector2 piv = {0.5f, 0.5f}, int lyr = 0, bool visble = true)
+      : textureKey(key),
+        sourceRect(src),
+        pivot(piv),
+        layer(lyr),
+        visible(visble) {}
 };
 
 struct Animation {
