@@ -18,12 +18,11 @@ struct PacketHeader {
 class Encoder {
  public:
   using EncodePayload =
-      std::function<void(const Action&, std::vector<uint8_t>&, uint32_t)>;
+      std::function<void(const Action&, std::vector<uint8_t>&)>;
 
   Encoder();
   void registerHandler(ActionType type, EncodePayload f);
-  std::vector<uint8_t> encode(const Action& a, size_t useUDP,
-                              uint32_t sequenceNum);
+  std::vector<uint8_t> encode(const Action& a, size_t useUDP);
 
  private:
   std::array<EncodePayload, 256> handlers;

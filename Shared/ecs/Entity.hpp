@@ -5,7 +5,7 @@ class Registry;
 
 class Entity {
  public:
-  explicit Entity(size_t id) : m_id(id) {}
+  explicit Entity(size_t id = 0) : m_id(id) {}
 
   operator size_t() const { return m_id; }
 
