@@ -250,8 +250,67 @@ inline void GameEndFunc(const Action& a, std::vector<uint8_t>& out) {
   }
 }
 
+inline void ErrorFunc(const Action& a, std::vector<uint8_t>& out) {
+    const auto* err = std::get_if<ErrorMsg>(&a.data);
+    if (!err) return;
+
+    out.clear();
+    size_t offset = 0;
+
+    out.resize(offset + 2);
+    uint16_t code = htons(err->errorCode);
+    memcpy(out.data() + offset, &code, sizeof(uint16_t));
+    offset += 2;
+
+    uint8_t msgLen = static_cast<uint8_t>(err->message.size());
+    out.resize(offset + 1);
+    out[offset++] = msgLen;
+
+    out.resize(offset + msgLen);
+    memcpy(out.data() + offset, err->message.data(), msgLen);
+}
+
+inline void LoginResponseFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* resp = std::get_if<LoginResponse>(&a.data);
+  if (!resp) return;
+
+  out.clear();
+  size_t offset = 0;
+
+  out.resize(offset + 1);
+  out[offset++] = resp->success ? 1 : 0;
+
+  // SUCCESS
+  if (resp->success) {
+    out.resize(offset + 4);
+
+    uint16_t playerId = htons(resp->playerId);
+    memcpy(out.data() + offset, &playerId, 2);
+    offset += 2;
+
+    uint16_t udpPort = htons(resp->udpPort);
+    memcpy(out.data() + offset, &udpPort, 2);
+    return;
+  }
+
+  // FAILURE
+  out.resize(offset + 2);
+  uint16_t code = htons(resp->errorCode);
+  memcpy(out.data() + offset, &code, 2);
+  offset += 2;
+
+  uint8_t msgLen = static_cast<uint8_t>(resp->message.size());
+  out.resize(offset + 1);
+  out[offset++] = msgLen;
+
+  out.resize(offset + msgLen);
+  memcpy(out.data() + offset, resp->message.data(), msgLen);
+}
+
+
 inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
+  encoder.registerHandler(ActionType::ERROR, ErrorFunc);
   encoder.registerHandler(ActionType::GAME_START, GameStartFunc);
   encoder.registerHandler(ActionType::GAME_END, GameEndFunc);
   encoder.registerHandler(ActionType::UP_PRESS, PlayerInputFunc);
@@ -265,6 +324,7 @@ inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::FIRE_PRESS, PlayerInputFunc);
   encoder.registerHandler(ActionType::FIRE_RELEASE, PlayerInputFunc);
   encoder.registerHandler(ActionType::LOGIN_REQUEST, LoginRequestFunc);
+  encoder.registerHandler(ActionType::LOGIN_RESPONSE, LoginResponseFunc);
   encoder.registerHandler(ActionType::GAME_STATE, GameStateFunc);
   encoder.registerHandler(ActionType::BOSS_SPAWN, BossSpawnFunc);
   encoder.registerHandler(ActionType::BOSS_UPDATE, BossUpdateFunc);
