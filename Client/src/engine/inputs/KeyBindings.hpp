@@ -1,10 +1,11 @@
 #pragma once
 #include <SDL2/SDL.h>
+
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <fstream>
-#include <iostream>
 
 enum class GameAction {
   MOVE_LEFT,
@@ -18,14 +19,15 @@ enum class GameAction {
 };
 
 class KeyBindings {
-private:
+ private:
   std::unordered_map<GameAction, std::vector<SDL_Scancode>> m_actionBindings;
   std::unordered_map<SDL_Scancode, GameAction> m_keyToAction;
   std::string m_configFilePath;
 
-public:
-  KeyBindings(const std::string& configPath = "../Client/src/config/keybinds.cfg")
-    : m_configFilePath(configPath) {
+ public:
+  KeyBindings(
+      const std::string& configPath = "../Client/src/config/keybinds.cfg")
+      : m_configFilePath(configPath) {
     SetDefaultBindings();
   }
 
@@ -44,7 +46,7 @@ public:
 
     // Actions
     BindKey(GameAction::FIRE, SDL_SCANCODE_SPACE);
-    //BindKey(GameAction::SPECIAL, SDL_SCANCODE_F);
+    // BindKey(GameAction::SPECIAL, SDL_SCANCODE_F);
     BindKey(GameAction::PAUSE, SDL_SCANCODE_ESCAPE);
     BindKey(GameAction::PAUSE, SDL_SCANCODE_P);
   }
@@ -55,8 +57,9 @@ public:
     m_actionBindings[action].push_back(key);
 
     m_keyToAction[key] = action;
-    
-    std::cout << "Bound " << GetActionName(action) << " to " << SDL_GetScancodeName(key) << std::endl;
+
+    std::cout << "Bound " << GetActionName(action) << " to "
+              << SDL_GetScancodeName(key) << std::endl;
   }
 
   void UnbindKey(SDL_Scancode key) {
@@ -121,7 +124,7 @@ public:
     if (keys.empty()) {
       return "Unbound";
     }
-    
+
     std::string result;
     for (size_t i = 0; i < keys.size(); ++i) {
       if (i > 0) result += ", ";
@@ -132,21 +135,30 @@ public:
 
   std::string GetActionName(GameAction action) const {
     switch (action) {
-      case GameAction::MOVE_LEFT: return "Move Left";
-      case GameAction::MOVE_RIGHT: return "Move Right";
-      case GameAction::MOVE_UP: return "Move Up";
-      case GameAction::MOVE_DOWN: return "Move Down";
-      case GameAction::FIRE: return "Fire";
-      case GameAction::SPECIAL: return "Special";
-      case GameAction::PAUSE: return "Pause";
-      default: return "Unknown";
+      case GameAction::MOVE_LEFT:
+        return "Move Left";
+      case GameAction::MOVE_RIGHT:
+        return "Move Right";
+      case GameAction::MOVE_UP:
+        return "Move Up";
+      case GameAction::MOVE_DOWN:
+        return "Move Down";
+      case GameAction::FIRE:
+        return "Fire";
+      case GameAction::SPECIAL:
+        return "Special";
+      case GameAction::PAUSE:
+        return "Pause";
+      default:
+        return "Unknown";
     }
   }
 
   bool SaveToFile() const {
     std::ofstream file(m_configFilePath);
     if (!file.is_open()) {
-      std::cerr << "Failed to save keybindings to " << m_configFilePath << std::endl;
+      std::cerr << "Failed to save keybindings to " << m_configFilePath
+                << std::endl;
       return false;
     }
 

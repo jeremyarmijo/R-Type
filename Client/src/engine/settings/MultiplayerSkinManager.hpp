@@ -1,17 +1,17 @@
 #pragma once
-#include "settings/PlayerSettings.hpp"
-#include <vector>
 #include <unordered_set>
+#include <vector>
+
+#include "settings/PlayerSettings.hpp"
 
 class MultiplayerSkinManager {
-private:
+ private:
   PlayerSkin m_localPlayerSkin;
   std::vector<PlayerSkin> m_otherPlayerSkins;
   std::unordered_set<int> m_usedSkins;
 
-public:
-  MultiplayerSkinManager() 
-    : m_localPlayerSkin(PlayerSkin::BLUE) {}
+ public:
+  MultiplayerSkinManager() : m_localPlayerSkin(PlayerSkin::BLUE) {}
 
   void SetLocalPlayerSkin(PlayerSkin skin) {
     m_localPlayerSkin = skin;
@@ -28,13 +28,13 @@ public:
     if (playerIndex >= static_cast<int>(m_otherPlayerSkins.size())) {
       m_otherPlayerSkins.resize(playerIndex + 1);
     }
-    
+
     m_otherPlayerSkins[playerIndex] = assignedSkin;
     m_usedSkins.insert(static_cast<int>(assignedSkin));
-    
-    std::cout << "Assigned skin " << PlayerSettings::GetSkinName(assignedSkin) 
+
+    std::cout << "Assigned skin " << PlayerSettings::GetSkinName(assignedSkin)
               << " to player " << playerIndex << std::endl;
-    
+
     return assignedSkin;
   }
 
@@ -51,14 +51,14 @@ public:
     m_usedSkins.insert(static_cast<int>(m_localPlayerSkin));
   }
 
-private:
+ private:
   PlayerSkin FindUnusedSkin() {
     for (int i = 0; i < 5; ++i) {
       if (m_usedSkins.find(i) == m_usedSkins.end()) {
         return static_cast<PlayerSkin>(i);
       }
     }
-    
+
     // If all skins are used (more than 5 players), just cycle through
     // This shouldn't happen with 5 skins and max 4 players, but just in case
     return static_cast<PlayerSkin>(m_otherPlayerSkins.size() % 5);

@@ -1,12 +1,14 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <string>
+
 #include <functional>
+#include <string>
+
 #include "ui/UIElement.hpp"
 
 class UIButton : public UIElement {
-private:
+ private:
   std::string m_text;
   std::string m_textureKey;
   std::string m_fontPath;
@@ -26,27 +28,27 @@ private:
   int m_textWidth;
   int m_textHeight;
 
-public:
+ public:
   UIButton(int x, int y, int w, int h, const std::string& text = "",
            const std::string& fontPath = "", int fontSize = 24)
-    : UIElement(x, y, w, h),
-      m_text(text),
-      m_textureKey(""),
-      m_fontPath(fontPath),
-      m_fontSize(fontSize),
-      m_normalColor{100, 100, 100, 255},
-      m_hoverColor{150, 150, 150, 255},
-      m_pressedColor{80, 80, 80, 255},
-      m_disabledColor{60, 60, 60, 255},
-      m_textColor{255, 255, 255, 255},
-      m_textHoverColor{255, 255, 255, 255},
-      m_isHovered(false),
-      m_isPressed(false),
-      m_font(nullptr),
-      m_textTexture(nullptr),
-      m_needsTextUpdate(true),
-      m_textWidth(0),
-      m_textHeight(0) {}
+      : UIElement(x, y, w, h),
+        m_text(text),
+        m_textureKey(""),
+        m_fontPath(fontPath),
+        m_fontSize(fontSize),
+        m_normalColor{100, 100, 100, 255},
+        m_hoverColor{150, 150, 150, 255},
+        m_pressedColor{80, 80, 80, 255},
+        m_disabledColor{60, 60, 60, 255},
+        m_textColor{255, 255, 255, 255},
+        m_textHoverColor{255, 255, 255, 255},
+        m_isHovered(false),
+        m_isPressed(false),
+        m_font(nullptr),
+        m_textTexture(nullptr),
+        m_needsTextUpdate(true),
+        m_textWidth(0),
+        m_textHeight(0) {}
 
   virtual ~UIButton();
 
@@ -62,7 +64,7 @@ public:
   void SetTextColor(SDL_Color normal, SDL_Color hover);
   void SetTextColor(SDL_Color color);
   void SetFontSize(int size);
-  
+
   const std::string& GetText() const { return m_text; }
   bool IsHovered() const { return m_isHovered; }
   bool IsPressed() const { return m_isPressed; }
@@ -70,7 +72,7 @@ public:
   void Render(SDL_Renderer* renderer, TextureManager* textures) override;
   bool HandleEvent(const SDL_Event& event) override;
 
-private:
+ private:
   bool IsPointInside(int x, int y) const;
   bool LoadFont();
   void UpdateTextTexture(SDL_Renderer* renderer);

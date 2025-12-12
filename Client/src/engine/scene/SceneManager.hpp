@@ -59,7 +59,6 @@ class SceneManager {
   Scene* m_nextScene;
   Registry* m_registry;
 
-
  public:
   SceneManager()
       : m_currentScene(nullptr), m_nextScene(nullptr), m_registry(nullptr) {}

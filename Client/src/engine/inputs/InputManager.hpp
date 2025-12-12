@@ -64,10 +64,10 @@ class InputManager {
         m_moveDown(false),
         m_action1(false),
         m_action2(false) {
-          if (!m_keyBindings.LoadFromFile()) {
-            m_keyBindings.SetDefaultBindings();
-          }
-        }
+    if (!m_keyBindings.LoadFromFile()) {
+      m_keyBindings.SetDefaultBindings();
+    }
+  }
 
   void Update();
   InputState GetPlayerInput();
@@ -98,16 +98,11 @@ class InputManager {
 
   KeyBindings& GetKeyBindings() { return m_keyBindings; }
   const KeyBindings& GetKeyBindings() const { return m_keyBindings; }
-  
-  void SaveKeyBindings() {
-    m_keyBindings.SaveToFile();
-  }
-  
-  void ResetKeyBindings() {
-    m_keyBindings.SetDefaultBindings();
-  }
 
-private:
+  void SaveKeyBindings() { m_keyBindings.SaveToFile(); }
+
+  void ResetKeyBindings() { m_keyBindings.SetDefaultBindings(); }
+
+ private:
   bool IsActionPressed(GameAction action) const;
-
 };

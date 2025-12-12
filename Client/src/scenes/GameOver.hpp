@@ -1,7 +1,8 @@
 #pragma once
+#include <SDL2/SDL.h>
+
 #include "scene/SceneManager.hpp"
 #include "ui/UIManager.hpp"
-#include <SDL2/SDL.h>
 
 class GameOverScene : public Scene {
  private:

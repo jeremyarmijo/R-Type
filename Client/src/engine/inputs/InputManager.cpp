@@ -16,7 +16,7 @@ bool InputManager::IsActionPressed(GameAction action) const {
 
 void InputManager::Update() {
   m_keyboardState = SDL_GetKeyboardState(nullptr);
-  
+
   if (!m_keyboardState) return;
 
   m_prevMoveLeft = m_moveLeft;
@@ -36,7 +36,7 @@ void InputManager::Update() {
 
 InputState InputManager::GetPlayerInput() {
   InputState input;
-  
+
   input.moveLeft = m_moveLeft;
   input.moveRight = m_moveRight;
   input.moveUp = m_moveUp;

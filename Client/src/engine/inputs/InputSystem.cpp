@@ -30,7 +30,7 @@ void player_input_system(Registry& registry,
       networkManager->SendAction(action);
       std::cout << "Sent: LEFT_RELEASE" << std::endl;
     }
-    
+
     // RIGHT
     if (inputManager->WasMoveRightPressed()) {
       Action action;
@@ -46,7 +46,7 @@ void player_input_system(Registry& registry,
       networkManager->SendAction(action);
       std::cout << "Sent: RIGHT_RELEASE" << std::endl;
     }
-    
+
     // UP
     if (inputManager->WasMoveUpPressed()) {
       Action action;
@@ -62,7 +62,7 @@ void player_input_system(Registry& registry,
       networkManager->SendAction(action);
       std::cout << "Sent: UP_RELEASE" << std::endl;
     }
-    
+
     // DOWN
     if (inputManager->WasMoveDownPressed()) {
       Action action;
@@ -78,7 +78,7 @@ void player_input_system(Registry& registry,
       networkManager->SendAction(action);
       std::cout << "Sent: DOWN_RELEASE" << std::endl;
     }
-    
+
     // Action1
     if (inputManager->WasAction1Pressed()) {
       Action action;
@@ -95,7 +95,7 @@ void player_input_system(Registry& registry,
       std::cout << "Sent: FIRE_RELEASE" << std::endl;
     }
   }
-  
+
   // client side prediction
   InputState input = inputManager->GetPlayerInput();
 

@@ -1,11 +1,13 @@
 #pragma once
+#include <SDL2/SDL.h>
+
+#include <vector>
+
+#include "inputs/InputSystem.hpp"
 #include "scene/SceneManager.hpp"
+#include "settings/MultiplayerSkinManager.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
-#include "inputs/InputSystem.hpp"
-#include "settings/MultiplayerSkinManager.hpp"
-#include <SDL2/SDL.h>
-#include <vector>
 
 class MyGameScene : public Scene {
  private:
@@ -54,16 +56,20 @@ class MyGameScene : public Scene {
       std::string selectedSkinAnim = settings.GetSelectedSkinAnimation();
       m_skinManager.SetLocalPlayerSkin(settings.GetSelectedSkin());
 
-      std::cout << "Creating player with skin: " << selectedSkinAnim << std::endl;
-      m_localPlayer = m_engine->CreatePlayer("player", selectedSkinAnim, {200, 300}, 250.0f);
-      auto& transform = GetRegistry().get_components<Transform>()[m_localPlayer];
+      std::cout << "Creating player with skin: " << selectedSkinAnim
+                << std::endl;
+      m_localPlayer = m_engine->CreatePlayer("player", selectedSkinAnim,
+                                             {200, 300}, 250.0f);
+      auto& transform =
+          GetRegistry().get_components<Transform>()[m_localPlayer];
       if (transform) {
         transform->scale = {2.0f, 2.0f};
       }
       m_entities.push_back(m_localPlayer);
 
       if (!GetRegistry().is_entity_valid(m_localPlayer)) {
-        std::cerr << "ERROR: Player entity is invalid after creation!" << std::endl;
+        std::cerr << "ERROR: Player entity is invalid after creation!"
+                  << std::endl;
         return;
       }
 
@@ -71,9 +77,11 @@ class MyGameScene : public Scene {
       auto* scoreText = GetUI().AddElement<UIText>(10, 10, "Score: 0", "", 20);
       scoreText->SetLayer(100);
 
-      auto* healthBar = GetUI().AddElement<UISolidColor>(10, 40, 200, 20, (SDL_Color){200, 50, 50, 255});
+      auto* healthBar = GetUI().AddElement<UISolidColor>(
+          10, 40, 200, 20, (SDL_Color){200, 50, 50, 255});
       healthBar->SetLayer(100);
-      auto* healthBarBG = GetUI().AddElement<UISolidColor>(8, 38, 204, 24, (SDL_Color){200, 200, 200, 255});
+      auto* healthBarBG = GetUI().AddElement<UISolidColor>(
+          8, 38, 204, 24, (SDL_Color){200, 200, 200, 255});
       healthBar->SetLayer(99);
 
       m_isInitialized = true;
@@ -129,18 +137,21 @@ class MyGameScene : public Scene {
     PlayerSkin assignedSkin = m_skinManager.AssignSkinForPlayer(playerIndex);
     std::string skinAnimation = PlayerSettings::GetSkinAnimation(assignedSkin);
 
-    std::cout << "Spawning player " << playerIndex 
-              << " at (" << position.x << ", " << position.y << ")"
-              << " with skin: " << PlayerSettings::GetSkinName(assignedSkin) << std::endl;
+    std::cout << "Spawning player " << playerIndex << " at (" << position.x
+              << ", " << position.y << ")"
+              << " with skin: " << PlayerSettings::GetSkinName(assignedSkin)
+              << std::endl;
 
-    Entity otherPlayer = m_engine->CreateAnimatedSprite("player", position, skinAnimation);
+    Entity otherPlayer =
+        m_engine->CreateAnimatedSprite("player", position, skinAnimation);
     if (playerIndex >= static_cast<int>(m_otherPlayers.size())) {
       m_otherPlayers.resize(playerIndex + 1);
     }
     m_otherPlayers[playerIndex] = otherPlayer;
     m_entities.push_back(otherPlayer);
 
-    std::cout << "Other player " << playerIndex << " spawned successfully" << std::endl;
+    std::cout << "Other player " << playerIndex << " spawned successfully"
+              << std::endl;
   }
 
   void RemoveOtherPlayer(int playerIndex) {
@@ -150,10 +161,9 @@ class MyGameScene : public Scene {
       GetRegistry().kill_entity(playerEntity);
       m_skinManager.RemovePlayer(playerIndex);
       m_entities.erase(
-        std::remove(m_entities.begin(), m_entities.end(), playerEntity),
-        m_entities.end()
-      );
-      
+          std::remove(m_entities.begin(), m_entities.end(), playerEntity),
+          m_entities.end());
+
       std::cout << "Removed player " << playerIndex << std::endl;
     }
   }
@@ -162,8 +172,9 @@ class MyGameScene : public Scene {
     if (playerIndex < static_cast<int>(m_otherPlayers.size())) {
       Entity playerEntity = m_otherPlayers[playerIndex];
       auto& transforms = GetRegistry().get_components<Transform>();
-      
-      if (playerEntity < transforms.size() && transforms[playerEntity].has_value()) {
+
+      if (playerEntity < transforms.size() &&
+          transforms[playerEntity].has_value()) {
         transforms[playerEntity]->position = position;
       }
     }
@@ -173,11 +184,11 @@ class MyGameScene : public Scene {
     auto& transforms = GetRegistry().get_components<Transform>();
 
     for (auto& bg : m_backGrounds) {
-        if (bg < transforms.size() && transforms[bg].has_value()) {
-            transforms[bg]->position.x -= 80.f * deltaTime;
-            if (transforms[bg]->position.x <= -640)
-                transforms[bg]->position.x = 1920;
-        }
+      if (bg < transforms.size() && transforms[bg].has_value()) {
+        transforms[bg]->position.x -= 80.f * deltaTime;
+        if (transforms[bg]->position.x <= -640)
+          transforms[bg]->position.x = 1920;
+      }
     }
   }
 };

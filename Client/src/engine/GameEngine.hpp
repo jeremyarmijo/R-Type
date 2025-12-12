@@ -12,8 +12,8 @@
 #include "include/NetworkManager.hpp"
 #include "inputs/InputSystem.hpp"
 #include "scene/SceneManager.hpp"
-#include "systems/PhysicsSystem.hpp"
 #include "settings/PlayerSettings.hpp"
+#include "systems/PhysicsSystem.hpp"
 
 constexpr int MAX_PLAYERS = 4;
 

@@ -32,7 +32,8 @@ bool GameEngine::Initialize(const std::string& title, int width, int height) {
   }
 
   if (TTF_Init() == -1) {
-    std::cerr << "SDL_ttf initialization failed: " << TTF_GetError() << std::endl;
+    std::cerr << "SDL_ttf initialization failed: " << TTF_GetError()
+              << std::endl;
     return false;
   }
 
@@ -219,7 +220,8 @@ Entity GameEngine::CreatePhysicsObject(const std::string& textureKey,
 
 Entity GameEngine::CreateAnimatedSprite(const std::string& textureKey,
                                         Vector2 position,
-                                        const std::string& animationKey, int layer) {
+                                        const std::string& animationKey,
+                                        int layer) {
   Entity entity = CreateSprite(textureKey, position, layer);
 
   m_registry.emplace_component<Animation>(entity, animationKey, true);
@@ -325,7 +327,8 @@ void GameEngine::Update(float deltaTime) {
                       colliders, &m_inputManager, &m_networkManager);
   animation_system(m_registry, animations, sprites, &m_animationManager,
                    deltaTime);
-  physics_movement_system(m_registry, transforms, rigidbodies, deltaTime, m_gravity);
+  physics_movement_system(m_registry, transforms, rigidbodies, deltaTime,
+                          m_gravity);
 
   // UpdateCamera();
 }

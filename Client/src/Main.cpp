@@ -3,13 +3,13 @@
 
 #include "engine/GameEngine.hpp"
 #include "scene/SceneManager.hpp"
-#include "ui/UIButton.hpp"
-#include "ui/UIImage.hpp"
-#include "ui/UIText.hpp"
 #include "scenes/GameOver.hpp"
 #include "scenes/MainGame.hpp"
 #include "scenes/MainMenu.hpp"
 #include "scenes/Options.hpp"
+#include "ui/UIButton.hpp"
+#include "ui/UIImage.hpp"
+#include "ui/UIText.hpp"
 
 class MyGame {
  private:
@@ -29,10 +29,9 @@ class MyGame {
     m_sceneManager.SetRegistry(&m_engine.GetRegistry());
 
     std::cout << "Registering scenes..." << std::endl;
-    m_sceneManager.RegisterScene<MainMenu>("menu", &m_engine,
-                                                &m_sceneManager);
+    m_sceneManager.RegisterScene<MainMenu>("menu", &m_engine, &m_sceneManager);
     m_sceneManager.RegisterScene<OptionsScene>("options", &m_engine,
-                                                &m_sceneManager);
+                                               &m_sceneManager);
     m_sceneManager.RegisterScene<MyGameScene>("game", &m_engine,
                                               &m_sceneManager);
     m_sceneManager.RegisterScene<GameOverScene>("gameover", &m_engine,
@@ -45,9 +44,7 @@ class MyGame {
     return true;
   }
 
-  void Run() {
-    m_engine.Run();
-  }
+  void Run() { m_engine.Run(); }
 
   void Shutdown() {
     std::cout << "=== SHUTTING DOWN ===" << std::endl;

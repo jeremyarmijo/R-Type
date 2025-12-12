@@ -1,14 +1,12 @@
 #pragma once
 
+#include <asio.hpp>
 #include <cstring>
-
 #include <mutex>
 #include <queue>
 #include <string>
 #include <thread>
 #include <vector>
-
-#include <asio.hpp>
 
 #include "Action.hpp"
 #include "CircularBuffer.hpp"
@@ -58,7 +56,7 @@ class NetworkManager {
   void ReadUDP();
 
   void SendUdp(std::vector<uint8_t>& packet);
-  //void SendACK(std::vector<uint8_t>& evt);
+  // void SendACK(std::vector<uint8_t>& evt);
   void SendTcp(std::vector<uint8_t>& packet);
 
   void AuthAction();
@@ -74,7 +72,7 @@ class NetworkManager {
   CircularBuffer<Action> actionBuffer;
 
   Encoder encoder;
-  //uint32_t sequenceNumUdp = 0;
-  //uint32_t sequenceNumTcp = 0;
+  // uint32_t sequenceNumUdp = 0;
+  // uint32_t sequenceNumTcp = 0;
   void SendActionServer();
 };

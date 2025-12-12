@@ -1,4 +1,5 @@
 #include "ui/UIButton.hpp"
+
 #include <iostream>
 
 UIButton::~UIButton() {
@@ -54,9 +55,7 @@ bool UIButton::LoadFont() {
   }
 
   if (m_fontPath.empty()) {
-    const char* defaultFonts[] = {
-      "../Client/assets/Font.ttf"
-    };
+    const char* defaultFonts[] = {"../Client/assets/Font.ttf"};
 
     for (const char* path : defaultFonts) {
       m_font = TTF_OpenFont(path, m_fontSize);
@@ -70,7 +69,8 @@ bool UIButton::LoadFont() {
   }
 
   if (!m_font) {
-    std::cerr << "Failed to load font for button: " << TTF_GetError() << std::endl;
+    std::cerr << "Failed to load font for button: " << TTF_GetError()
+              << std::endl;
     return false;
   }
 
@@ -94,16 +94,19 @@ void UIButton::UpdateTextTexture(SDL_Renderer* renderer) {
   }
 
   SDL_Color textColor = m_isHovered ? m_textHoverColor : m_textColor;
-  
-  SDL_Surface* surface = TTF_RenderText_Blended(m_font, m_text.c_str(), textColor);
+
+  SDL_Surface* surface =
+      TTF_RenderText_Blended(m_font, m_text.c_str(), textColor);
   if (!surface) {
-    std::cerr << "Failed to render button text: " << TTF_GetError() << std::endl;
+    std::cerr << "Failed to render button text: " << TTF_GetError()
+              << std::endl;
     return;
   }
 
   m_textTexture = SDL_CreateTextureFromSurface(renderer, surface);
   if (!m_textTexture) {
-    std::cerr << "Failed to create texture from button text: " << SDL_GetError() << std::endl;
+    std::cerr << "Failed to create texture from button text: " << SDL_GetError()
+              << std::endl;
     SDL_FreeSurface(surface);
     return;
   }
@@ -116,8 +119,8 @@ void UIButton::UpdateTextTexture(SDL_Renderer* renderer) {
 }
 
 bool UIButton::IsPointInside(int x, int y) const {
-  return (x >= m_rect.x && x < m_rect.x + m_rect.w &&
-          y >= m_rect.y && y < m_rect.y + m_rect.h);
+  return (x >= m_rect.x && x < m_rect.x + m_rect.w && y >= m_rect.y &&
+          y < m_rect.y + m_rect.h);
 }
 
 void UIButton::Render(SDL_Renderer* renderer, TextureManager* textures) {
@@ -140,29 +143,36 @@ void UIButton::Render(SDL_Renderer* renderer, TextureManager* textures) {
     SDL_Texture* texture = textures->GetTexture(m_textureKey);
     if (texture) {
       if (!m_enabled) {
-        SDL_SetTextureColorMod(texture, m_disabledColor.r, m_disabledColor.g, m_disabledColor.b);
+        SDL_SetTextureColorMod(texture, m_disabledColor.r, m_disabledColor.g,
+                               m_disabledColor.b);
       } else if (m_isPressed) {
-        SDL_SetTextureColorMod(texture, m_pressedColor.r, m_pressedColor.g, m_pressedColor.b);
+        SDL_SetTextureColorMod(texture, m_pressedColor.r, m_pressedColor.g,
+                               m_pressedColor.b);
       } else if (m_isHovered) {
-        SDL_SetTextureColorMod(texture, m_hoverColor.r, m_hoverColor.g, m_hoverColor.b);
+        SDL_SetTextureColorMod(texture, m_hoverColor.r, m_hoverColor.g,
+                               m_hoverColor.b);
       } else {
         SDL_SetTextureColorMod(texture, 255, 255, 255);
       }
       SDL_RenderCopy(renderer, texture, nullptr, &m_rect);
     } else {
-      SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b, bgColor.a);
+      SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b,
+                             bgColor.a);
       SDL_RenderFillRect(renderer, &m_rect);
     }
   } else {
-    SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b, bgColor.a);
+    SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b,
+                           bgColor.a);
     SDL_RenderFillRect(renderer, &m_rect);
   }
 
-  SDL_Color borderColor = m_isHovered ? SDL_Color{255, 255, 255, 255} : SDL_Color{200, 200, 200, 255};
+  SDL_Color borderColor = m_isHovered ? SDL_Color{255, 255, 255, 255}
+                                      : SDL_Color{200, 200, 200, 255};
   if (!m_enabled) {
     borderColor = {100, 100, 100, 255};
   }
-  SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b, borderColor.a);
+  SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b,
+                         borderColor.a);
   SDL_RenderDrawRect(renderer, &m_rect);
 
   if (m_textTexture && !m_text.empty()) {
@@ -172,7 +182,7 @@ void UIButton::Render(SDL_Renderer* renderer, TextureManager* textures) {
     if (m_isPressed) {
       textY += 2;
     }
-    
+
     SDL_Rect textRect = {textX, textY, m_textWidth, m_textHeight};
 
     if (!m_enabled) {
@@ -180,44 +190,46 @@ void UIButton::Render(SDL_Renderer* renderer, TextureManager* textures) {
     } else {
       SDL_SetTextureAlphaMod(m_textTexture, 255);
     }
-    
+
     SDL_RenderCopy(renderer, m_textTexture, nullptr, &textRect);
   }
 }
 
 bool UIButton::HandleEvent(const SDL_Event& event) {
   if (!m_visible) return false;
-  
+
   if (event.type == SDL_MOUSEMOTION) {
     int x = event.motion.x;
     int y = event.motion.y;
-    
+
     bool wasHovered = m_isHovered;
     m_isHovered = IsPointInside(x, y);
 
     if (wasHovered != m_isHovered) {
       m_needsTextUpdate = true;
     }
-    
+
     return false;
   }
-  
+
   if (!m_enabled) return false;
-  
-  if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+
+  if (event.type == SDL_MOUSEBUTTONDOWN &&
+      event.button.button == SDL_BUTTON_LEFT) {
     int x = event.button.x;
     int y = event.button.y;
-    
+
     if (IsPointInside(x, y)) {
       m_isPressed = true;
       return true;
     }
   }
-  
-  if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
+
+  if (event.type == SDL_MOUSEBUTTONUP &&
+      event.button.button == SDL_BUTTON_LEFT) {
     if (m_isPressed) {
       m_isPressed = false;
-      
+
       int x = event.button.x;
       int y = event.button.y;
 
@@ -230,6 +242,6 @@ bool UIButton::HandleEvent(const SDL_Event& event) {
       }
     }
   }
-  
+
   return false;
 }

@@ -1,20 +1,22 @@
 #pragma once
-#include "scene/SceneManager.hpp"
-#include "ui/UIManager.hpp"
-#include "engine/GameEngine.hpp"
-#include "ui/UIButton.hpp"
-#include "ui/UIText.hpp"
-#include "inputs/KeyBindings.hpp"
-#include "settings/PlayerSettings.hpp"
 #include <SDL2/SDL.h>
+
 #include <vector>
 
+#include "engine/GameEngine.hpp"
+#include "inputs/KeyBindings.hpp"
+#include "scene/SceneManager.hpp"
+#include "settings/PlayerSettings.hpp"
+#include "ui/UIButton.hpp"
+#include "ui/UIManager.hpp"
+#include "ui/UIText.hpp"
+
 class OptionsScene : public Scene {
-private:
+ private:
   bool m_isInitialized;
   bool m_waitingForKey;
   GameAction m_actionToRebind;
-  
+
   UIText* m_promptText;
   UIText* m_skinTitle;
   UIText* m_skinNameText;
@@ -22,22 +24,22 @@ private:
   UIButton* m_nextSkinButton;
   Entity m_previewPlayer;
   Entity m_background;
-  
+
   struct KeyBindingRow {
     UIText* actionLabel;
     UIButton* keyButton;
     UIButton* clearButton;
     GameAction action;
   };
-  
+
   std::vector<KeyBindingRow> m_bindingRows;
   UIButton* m_resetButton;
   UIButton* m_saveButton;
   UIButton* m_backButton;
-  
+
   PlayerSkin m_currentSkin;
 
-public:
+ public:
   OptionsScene(GameEngine* engine, SceneManager* sceneManager)
       : Scene(engine, sceneManager, "options"),
         m_isInitialized(false),
@@ -67,28 +69,19 @@ public:
       m_currentSkin = settings.GetSelectedSkin();
 
       auto* titleText = GetUI().AddElement<UIText>(
-        400, 30, "OPTIONS", "", 40,
-        SDL_Color{255, 255, 255, 255}
-      );
+          400, 30, "OPTIONS", "", 40, SDL_Color{255, 255, 255, 255});
       titleText->SetAlignment(TextAlign::Center);
       titleText->SetLayer(10);
 
       // === SKIN SELECTION SECTION ===
-      m_skinTitle = GetUI().AddElement<UIText>(
-        400, 80, "PLAYER SKIN", "", 28,
-        SDL_Color{200, 200, 200, 255}
-      );
+      m_skinTitle = GetUI().AddElement<UIText>(400, 80, "PLAYER SKIN", "", 28,
+                                               SDL_Color{200, 200, 200, 255});
       m_skinTitle->SetAlignment(TextAlign::Center);
       m_skinTitle->SetLayer(10);
 
-      m_prevSkinButton = GetUI().AddElement<UIButton>(
-        250, 120, 50, 50, "<"
-      );
-      m_prevSkinButton->SetColors(
-        {70, 70, 100, 255},
-        {90, 90, 120, 255},
-        {50, 50, 80, 255}
-      );
+      m_prevSkinButton = GetUI().AddElement<UIButton>(250, 120, 50, 50, "<");
+      m_prevSkinButton->SetColors({70, 70, 100, 255}, {90, 90, 120, 255},
+                                  {50, 50, 80, 255});
       m_prevSkinButton->SetFontSize(32);
       m_prevSkinButton->SetLayer(10);
       m_prevSkinButton->SetOnClick([this]() {
@@ -96,59 +89,45 @@ public:
       });
 
       m_skinNameText = GetUI().AddElement<UIText>(
-        400, 140, PlayerSettings::GetSkinName(m_currentSkin), "", 24,
-        SDL_Color{200, 200, 200, 255}
-      );
+          400, 140, PlayerSettings::GetSkinName(m_currentSkin), "", 24,
+          SDL_Color{200, 200, 200, 255});
       m_skinNameText->SetAlignment(TextAlign::Center);
       m_skinNameText->SetLayer(10);
 
-      m_nextSkinButton = GetUI().AddElement<UIButton>(
-        500, 120, 50, 50, ">"
-      );
-      m_nextSkinButton->SetColors(
-        {70, 70, 100, 255},
-        {90, 90, 120, 255},
-        {50, 50, 80, 255}
-      );
+      m_nextSkinButton = GetUI().AddElement<UIButton>(500, 120, 50, 50, ">");
+      m_nextSkinButton->SetColors({70, 70, 100, 255}, {90, 90, 120, 255},
+                                  {50, 50, 80, 255});
       m_nextSkinButton->SetFontSize(32);
       m_nextSkinButton->SetLayer(10);
-      m_nextSkinButton->SetOnClick([this]() {
-        ChangeSkin(PlayerSettings::GetNextSkin(m_currentSkin));
-      });
+      m_nextSkinButton->SetOnClick(
+          [this]() { ChangeSkin(PlayerSettings::GetNextSkin(m_currentSkin)); });
 
       m_background = m_engine->CreateSprite("background", {400, 300}, -10);
       AnimationManager& animations = GetAnimations();
       m_previewPlayer = m_engine->CreateAnimatedSprite(
-        "player", {400, 220}, PlayerSettings::GetSkinAnimation(m_currentSkin)
-      );
-      auto& transform = GetRegistry().get_components<Transform>()[m_previewPlayer];
+          "player", {400, 220},
+          PlayerSettings::GetSkinAnimation(m_currentSkin));
+      auto& transform =
+          GetRegistry().get_components<Transform>()[m_previewPlayer];
       if (transform) {
         transform->scale = {3.0f, 3.0f};
       }
 
       // === KEY BINDINGS SECTION ===
       auto* bindingsTitle = GetUI().AddElement<UIText>(
-        400, 280, "KEY BINDINGS", "", 28,
-        SDL_Color{200, 200, 200, 255}
-      );
+          400, 280, "KEY BINDINGS", "", 28, SDL_Color{200, 200, 200, 255});
       bindingsTitle->SetAlignment(TextAlign::Center);
       bindingsTitle->SetLayer(10);
 
       m_promptText = GetUI().AddElement<UIText>(
-        400, 320, "Press any key...", "", 20,
-        SDL_Color{255, 255, 100, 255}
-      );
+          400, 320, "Press any key...", "", 20, SDL_Color{255, 255, 100, 255});
       m_promptText->SetAlignment(TextAlign::Center);
       m_promptText->SetLayer(10);
       m_promptText->SetVisible(false);
 
       std::vector<GameAction> actions = {
-        GameAction::MOVE_UP,
-        GameAction::MOVE_DOWN,
-        GameAction::MOVE_LEFT,
-        GameAction::MOVE_RIGHT,
-        GameAction::FIRE
-      };
+          GameAction::MOVE_UP, GameAction::MOVE_DOWN, GameAction::MOVE_LEFT,
+          GameAction::MOVE_RIGHT, GameAction::FIRE};
 
       int yPos = 350;
       for (GameAction action : actions) {
@@ -156,26 +135,24 @@ public:
         yPos += 45;
       }
 
-      m_resetButton = GetUI().AddElement<UIButton>(
-        150, 560, 140, 40, "Reset Keys"
-      );
-      m_resetButton->SetColors({150, 50, 50, 255}, {170, 70, 70, 255}, {130, 30, 30, 255});
+      m_resetButton =
+          GetUI().AddElement<UIButton>(150, 560, 140, 40, "Reset Keys");
+      m_resetButton->SetColors({150, 50, 50, 255}, {170, 70, 70, 255},
+                               {130, 30, 30, 255});
       m_resetButton->SetFontSize(18);
       m_resetButton->SetLayer(10);
       m_resetButton->SetOnClick([this]() { ResetToDefaults(); });
 
-      m_saveButton = GetUI().AddElement<UIButton>(
-        330, 560, 140, 40, "Save"
-      );
-      m_saveButton->SetColors({50, 150, 50, 255}, {70, 170, 70, 255}, {30, 130, 30, 255});
+      m_saveButton = GetUI().AddElement<UIButton>(330, 560, 140, 40, "Save");
+      m_saveButton->SetColors({50, 150, 50, 255}, {70, 170, 70, 255},
+                              {30, 130, 30, 255});
       m_saveButton->SetFontSize(18);
       m_saveButton->SetLayer(10);
       m_saveButton->SetOnClick([this]() { SaveSettings(); });
 
-      m_backButton = GetUI().AddElement<UIButton>(
-        510, 560, 140, 40, "Back"
-      );
-      m_backButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255}, {80, 80, 80, 255});
+      m_backButton = GetUI().AddElement<UIButton>(510, 560, 140, 40, "Back");
+      m_backButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
+                              {80, 80, 80, 255});
       m_backButton->SetFontSize(18);
       m_backButton->SetLayer(10);
       m_backButton->SetOnClick([this]() { ChangeScene("menu"); });
@@ -208,7 +185,7 @@ public:
     SDL_RenderClear(renderer);
 
     RenderSpritesLayered();
-    
+
     GetUI().Render();
   }
 
@@ -231,19 +208,22 @@ public:
     }
   }
 
-private:
+ private:
   void ChangeSkin(PlayerSkin newSkin) {
     m_currentSkin = newSkin;
     m_skinNameText->SetText(PlayerSettings::GetSkinName(newSkin));
 
     auto& animations = GetRegistry().get_components<Animation>();
-    if (m_previewPlayer < animations.size() && animations[m_previewPlayer].has_value()) {
-      animations[m_previewPlayer]->currentAnimation = PlayerSettings::GetSkinAnimation(newSkin);
+    if (m_previewPlayer < animations.size() &&
+        animations[m_previewPlayer].has_value()) {
+      animations[m_previewPlayer]->currentAnimation =
+          PlayerSettings::GetSkinAnimation(newSkin);
       animations[m_previewPlayer]->currentFrame = 0;
       animations[m_previewPlayer]->currentTime = 0;
     }
-    
-    std::cout << "Changed skin to: " << PlayerSettings::GetSkinName(newSkin) << std::endl;
+
+    std::cout << "Changed skin to: " << PlayerSettings::GetSkinName(newSkin)
+              << std::endl;
   }
 
   void SaveSettings() {
@@ -254,7 +234,7 @@ private:
     settings.SaveToFile();
 
     GetInput().SaveKeyBindings();
-    
+
     m_saveButton->SetText("Saved!");
   }
 
@@ -263,25 +243,24 @@ private:
     KeyBindingRow row;
     row.action = action;
 
-    row.actionLabel = GetUI().AddElement<UIText>(
-      150, yPos, bindings.GetActionName(action), "", 18,
-      SDL_Color{200, 200, 200, 255}
-    );
+    row.actionLabel =
+        GetUI().AddElement<UIText>(150, yPos, bindings.GetActionName(action),
+                                   "", 18, SDL_Color{200, 200, 200, 255});
     row.actionLabel->SetLayer(10);
 
     std::string keyName = bindings.GetKeyNameForAction(action);
-    row.keyButton = GetUI().AddElement<UIButton>(
-      350, yPos - 5, 150, 35, keyName
-    );
-    row.keyButton->SetColors({70, 70, 100, 255}, {90, 90, 120, 255}, {50, 50, 80, 255});
+    row.keyButton =
+        GetUI().AddElement<UIButton>(350, yPos - 5, 150, 35, keyName);
+    row.keyButton->SetColors({70, 70, 100, 255}, {90, 90, 120, 255},
+                             {50, 50, 80, 255});
     row.keyButton->SetFontSize(16);
     row.keyButton->SetLayer(10);
     row.keyButton->SetOnClick([this, action]() { StartRebind(action); });
 
-    row.clearButton = GetUI().AddElement<UIButton>(
-      520, yPos - 5, 60, 35, "Clear"
-    );
-    row.clearButton->SetColors({100, 50, 50, 255}, {120, 70, 70, 255}, {80, 30, 30, 255});
+    row.clearButton =
+        GetUI().AddElement<UIButton>(520, yPos - 5, 60, 35, "Clear");
+    row.clearButton->SetColors({100, 50, 50, 255}, {120, 70, 70, 255},
+                               {80, 30, 30, 255});
     row.clearButton->SetFontSize(14);
     row.clearButton->SetLayer(10);
     row.clearButton->SetOnClick([this, action]() { ClearBinding(action); });
@@ -292,9 +271,10 @@ private:
   void StartRebind(GameAction action) {
     m_waitingForKey = true;
     m_actionToRebind = action;
-    m_promptText->SetText("Press key for " + GetInput().GetKeyBindings().GetActionName(action));
+    m_promptText->SetText("Press key for " +
+                          GetInput().GetKeyBindings().GetActionName(action));
     m_promptText->SetVisible(true);
-    
+
     for (auto& row : m_bindingRows) {
       row.keyButton->SetEnabled(false);
       row.clearButton->SetEnabled(false);
@@ -318,9 +298,7 @@ private:
     EndRebind();
   }
 
-  void CancelRebind() {
-    EndRebind();
-  }
+  void CancelRebind() { EndRebind(); }
 
   void EndRebind() {
     m_waitingForKey = false;
