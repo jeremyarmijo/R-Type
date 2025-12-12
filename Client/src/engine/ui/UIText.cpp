@@ -58,19 +58,8 @@ void UIText::SetFontSize(int size) {
 void UIText::SetAlignment(TextAlign align) { m_alignment = align; }
 
 bool UIText::LoadFont() {
-  if (m_font) {
-    return true;  // Already loaded
-  }
-
   if (m_fontPath.empty()) {
-    // Try default font paths
-    const char* defaultFonts[] = {
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  // Linux
-        "/System/Library/Fonts/Helvetica.ttc",              // macOS
-        "C:\\Windows\\Fonts\\arial.ttf",                    // Windows
-        "../assets/fonts/default.ttf",                      // Project relative
-        "./assets/fonts/default.ttf",
-        "assets/fonts/default.ttf"};
+    const char* defaultFonts[] = {"../Client/assets/Font.ttf"};
 
     for (const char* path : defaultFonts) {
       m_font = TTF_OpenFont(path, m_fontSize);
@@ -97,7 +86,6 @@ void UIText::UpdateTextTexture(SDL_Renderer* renderer) {
     return;
   }
 
-  // Destroy old texture
   if (m_textTexture) {
     SDL_DestroyTexture(m_textTexture);
     m_textTexture = nullptr;
@@ -109,7 +97,6 @@ void UIText::UpdateTextTexture(SDL_Renderer* renderer) {
     return;
   }
 
-  // Render text to surface using blended mode for anti-aliasing
   SDL_Surface* surface =
       TTF_RenderText_Blended(m_font, m_text.c_str(), m_color);
   if (!surface) {
@@ -117,7 +104,6 @@ void UIText::UpdateTextTexture(SDL_Renderer* renderer) {
     return;
   }
 
-  // Create texture from surface
   m_textTexture = SDL_CreateTextureFromSurface(renderer, surface);
   if (!m_textTexture) {
     std::cerr << "Failed to create texture from text: " << SDL_GetError()
@@ -126,7 +112,6 @@ void UIText::UpdateTextTexture(SDL_Renderer* renderer) {
     return;
   }
 
-  // Get dimensions
   m_textWidth = surface->w;
   m_textHeight = surface->h;
 
@@ -134,10 +119,7 @@ void UIText::UpdateTextTexture(SDL_Renderer* renderer) {
   m_needsUpdate = false;
 }
 
-void UIText::Update(float deltaTime) {
-  // Can be used for text animations, blinking, etc.
-  // Currently does nothing, but available for override
-}
+void UIText::Update(float deltaTime) {}
 
 void UIText::Render(SDL_Renderer* renderer, TextureManager* textures) {
   if (!m_visible) return;
@@ -150,7 +132,6 @@ void UIText::Render(SDL_Renderer* renderer, TextureManager* textures) {
     return;
   }
 
-  // Calculate position based on alignment
   int renderX = m_rect.x;
   int renderY = m_rect.y;
 

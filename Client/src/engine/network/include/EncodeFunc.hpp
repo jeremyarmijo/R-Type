@@ -206,44 +206,6 @@ void EnemyHitFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, &hp, sizeof(uint16_t));
 }
 
-void LoginResponseFunc(const Action& a, std::vector<uint8_t>& out) {
-    const auto* login = std::get_if<LoginResponse>(&a.data);
-    if (!login) {
-        out.clear();
-        return;
-    }
-
-    out.clear();
-    size_t offset = 0;
-
-    out.resize(offset + 1);
-    out[offset++] = login->success ? 1 : 0;
-
-    out.resize(offset + 2);
-    uint16_t playerId = htons(login->playerId);
-    memcpy(out.data() + offset, &playerId, sizeof(playerId));
-    offset += 2;
-
-    out.resize(offset + 2);
-    uint16_t udpPort = htons(login->udpPort);
-    memcpy(out.data() + offset, &udpPort, sizeof(udpPort));
-    offset += 2;
-
-    out.resize(offset + 2);
-    uint16_t errorCode = htons(login->errorCode);
-    memcpy(out.data() + offset, &errorCode, sizeof(errorCode));
-    offset += 2;
-
-    uint8_t msgLen = static_cast<uint8_t>(login->message.size());
-    out.resize(offset + 1 + msgLen);
-    out[offset++] = msgLen;
-
-    if (msgLen > 0) {
-        memcpy(out.data() + offset, login->message.data(), msgLen);
-        offset += msgLen;
-    }
-}
-
 inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::UP_PRESS, PlayerInputFunc);
@@ -257,7 +219,6 @@ inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::FIRE_PRESS, PlayerInputFunc);
   encoder.registerHandler(ActionType::FIRE_RELEASE, PlayerInputFunc);
   encoder.registerHandler(ActionType::LOGIN_REQUEST, LoginRequestFunc);
-  encoder.registerHandler(ActionType::LOGIN_RESPONSE, LoginResponseFunc);
   encoder.registerHandler(ActionType::GAME_STATE, GameStateFunc);
   encoder.registerHandler(ActionType::BOSS_SPAWN, BossSpawnFunc);
   encoder.registerHandler(ActionType::BOSS_UPDATE, BossUpdateFunc);

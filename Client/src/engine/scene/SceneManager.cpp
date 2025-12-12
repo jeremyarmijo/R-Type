@@ -92,7 +92,8 @@ Scene::Scene(GameEngine* engine, SceneManager* sceneManager,
     : m_engine(engine),
       m_sceneManager(sceneManager),
       m_name(name),
-      m_uiManager(engine->GetRenderer(), &engine->GetTextureManager(), 800, 600) {}
+      m_uiManager(engine->GetRenderer(), &engine->GetTextureManager(), 800,
+                  600) {}
 
 Registry& Scene::GetRegistry() { return m_engine->GetRegistry(); }
 
@@ -120,6 +121,7 @@ void Scene::RenderSprites(int minLayer, int maxLayer) {
   auto& sprites = GetRegistry().get_components<Sprite>();
 
   for (auto&& [transform, sprite] : Zipper(transforms, sprites)) {
+    if (!sprite.visible) continue;
     if (sprite.layer >= minLayer && sprite.layer <= maxLayer) {
       SDL_Texture* texture = GetTextures().GetTexture(sprite.textureKey);
       if (!texture) continue;
@@ -167,6 +169,7 @@ void Scene::RenderSpritesLayered() {
             });
 
   for (const auto& data : renderList) {
+    if (!data.sprite->visible) continue;
     SDL_Texture* texture = GetTextures().GetTexture(data.sprite->textureKey);
     if (!texture) continue;
 
@@ -191,5 +194,11 @@ void Scene::RenderSpritesLayered() {
 
     SDL_RenderCopyEx(GetRenderer(), texture, &sourceRect, &destRect,
                      data.transform->rotation, nullptr, SDL_FLIP_NONE);
+  }
+}
+
+void Scene::QuitGame() {
+  if (m_engine) {
+    m_engine->Stop();
   }
 }

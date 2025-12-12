@@ -6,7 +6,6 @@ void UIImage::Render(SDL_Renderer* renderer, TextureManager* textures) {
   if (!m_visible) return;
 
   if (m_textureKey.empty()) {
-    // Draw placeholder
     SDL_SetRenderDrawColor(renderer, 128, 128, 128, 255);
     SDL_RenderFillRect(renderer, &m_rect);
     SDL_SetRenderDrawColor(renderer, 64, 64, 64, 255);

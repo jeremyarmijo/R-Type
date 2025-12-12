@@ -3,10 +3,8 @@
 SDL_Rect UIElement::GetScreenRect(int screenW, int screenH) const {
   SDL_Rect result = m_rect;
 
-  // Apply anchor positioning
   switch (m_anchor) {
     case UIAnchor::TopLeft:
-      // Already correct
       break;
     case UIAnchor::TopCenter:
       result.x = (screenW - m_rect.w) / 2 + m_rect.x;
