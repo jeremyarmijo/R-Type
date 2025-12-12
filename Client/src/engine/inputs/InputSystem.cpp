@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "include/Action.hpp"
+#include "network/Action.hpp"
 #include "include/NetworkManager.hpp"
 
 void player_input_system(Registry& registry,
