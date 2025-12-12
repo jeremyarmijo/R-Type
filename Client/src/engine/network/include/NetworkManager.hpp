@@ -8,8 +8,6 @@
 #include <thread>
 #include <vector>
 
-#include <asio.hpp>
-
 #include "include/Action.hpp"
 #include "include/CircularBuffer.hpp"
 #include "include/Decoder.hpp"

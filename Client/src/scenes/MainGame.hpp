@@ -10,6 +10,7 @@
 #include "settings/MultiplayerSkinManager.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
+#include "ui/UIText.hpp"
 
 class MyGameScene : public Scene {
  private:
