@@ -1,11 +1,12 @@
 #include "network/ClientManager.hpp"
-#include <string>
+
 #include <memory>
+#include <string>
 #include <vector>
 
 ClientManager::ClientPtr ClientManager::AddClientFromTCP(
     const asio::ip::tcp::endpoint& tcp_endpoint, const std::string& username,
-    uint32_t assigned_id) {
+    uint16_t assigned_id) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto it = clients_.find(assigned_id);
@@ -25,7 +26,7 @@ ClientManager::ClientPtr ClientManager::AddClientFromTCP(
 }
 
 bool ClientManager::AssociateUDPEndpoint(
-    uint32_t client_id, const asio::ip::udp::endpoint& udp_endpoint) {
+    uint16_t client_id, const asio::ip::udp::endpoint& udp_endpoint) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto it = clients_.find(client_id);
@@ -38,7 +39,7 @@ bool ClientManager::AssociateUDPEndpoint(
   return true;
 }
 
-void ClientManager::RemoveClient(uint32_t client_id) {
+void ClientManager::RemoveClient(uint16_t client_id) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto it = clients_.find(client_id);
@@ -47,7 +48,18 @@ void ClientManager::RemoveClient(uint32_t client_id) {
   }
 }
 
-ClientManager::ClientPtr ClientManager::GetClient(uint32_t client_id) {
+ClientManager::ClientPtr ClientManager::GetUDPClientByEndpoint(
+    const asio::ip::udp::endpoint& ep) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  for (auto& [id, client] : clients_) {
+    if (client->HasUDPEndpoint() && client->GetUDPEndpoint() == ep) {
+      return client;
+    }
+  }
+  return nullptr;
+}
+
+ClientManager::ClientPtr ClientManager::GetClient(uint16_t client_id) {
   std::lock_guard<std::mutex> lock(mutex_);
   auto it = clients_.find(client_id);
   return (it != clients_.end()) ? it->second : nullptr;

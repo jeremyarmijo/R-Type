@@ -1,11 +1,13 @@
 #include "network/ServerNetworkManager.hpp"
-#include "network/DecodeFunc.hpp"
-#include <memory>
-#include <vector>
-#include <queue>
-#include <utility>
-#include <string>
+
 #include <iostream>
+#include <memory>
+#include <queue>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "network/DecodeFunc.hpp"
 
 ServerNetworkManager::ServerNetworkManager() = default;
 
@@ -77,44 +79,36 @@ void ServerNetworkManager::IOThreadFunc() {
 void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
                                      const asio::ip::udp::endpoint &sender) {
   if (data.size() < 6) {
-    std::cerr << "[ServerNetworkManager] Invalid UDP packet size" << std::endl;
+    std::cerr << "[ServerNetworkManager] Invalid UDP packet size\n";
     return;
   }
-  Decoder decode;
-  SetupDecoder(decode);
 
-  Event evt = decode.decode(data);
-    const AUTH* auth = std::get_if<AUTH>(&evt.data);
-    if (auth == nullptr) {
-        std::cerr << "[ProcessPacketTCP] Failed to decode AUTH"
-                  << std::endl;
-        return;
-    }
-  std::cout << auth->playerId << std::endl;
-  uint16_t player_id = auth->playerId;
-
-
-    std::cout << sender.address().to_string() << ":" << sender.port() << std::endl;
-
-
-  std::cout << "Received UDP packet from player ID: " << player_id << std::endl;
-  for (auto byte : data) {
-    std::cout << std::hex << static_cast<int>(byte) << " ";
-  }
-
-  auto client = client_manager_.GetClient(player_id);
+  auto client = client_manager_.GetUDPClientByEndpoint(sender);
 
   if (!client) {
-    std::cerr
-        << "[ServerNetworkManager] UDP packet from unauthenticated client (ID: "
-        << player_id << ")" << std::endl;
-    return;
-  }
+    Decoder decode;
+    SetupDecoder(decode);
 
-  if (!client->HasUDPEndpoint()) {
+    Event evt = decode.decode(data);
+    const AUTH *auth = std::get_if<AUTH>(&evt.data);
+
+    if (!auth || evt.type != EventType::AUTH) {
+      std::cerr << "[ServerNetworkManager] UDP packet from unknown sender "
+                << "(cannot associate endpoint)\n";
+      return;
+    }
+
+    uint16_t player_id = auth->playerId;
+
+    client = client_manager_.GetClient(player_id);
+    if (!client) {
+      std::cerr << "[ServerNetworkManager] PlayerID for non-existing client "
+                << player_id << "\n";
+      return;
+    }
     client_manager_.AssociateUDPEndpoint(player_id, sender);
     std::cout << "[ServerNetworkManager] UDP endpoint associated for client "
-              << player_id << std::endl;
+              << player_id << "\n";
   }
 
   client->UpdateLastSeen();
@@ -124,7 +118,6 @@ void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
   msg.client_id = client->GetId();
   msg.data = data;
   msg.timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
-
   {
     std::lock_guard<std::mutex> lock(queue_mutex_);
     incoming_messages_.push(std::move(msg));
@@ -167,20 +160,35 @@ void ServerNetworkManager::Update() {
   }
 }
 
-void ServerNetworkManager::SendTo(uint32_t client_id,
-                                  const NetworkMessage &msg) {
-  auto client = client_manager_.GetClient(client_id);
-  if (client && udp_server_ && client->HasUDPEndpoint()) {
+void ServerNetworkManager::SendTo(const NetworkMessage &msg, bool sendUdp) {
+  auto client = client_manager_.GetClient(msg.client_id);
+  if (client && udp_server_ && client->HasUDPEndpoint() && sendUdp) {
     udp_server_->SendTo(msg.data, client->GetUDPEndpoint());
+    client->IncrementPacketsSent();
+    return;
+  }
+  if (client && tcp_server_ && !sendUdp) {
+    tcp_server_->SendTo(msg.data, msg.client_id);
     client->IncrementPacketsSent();
   }
 }
 
-void ServerNetworkManager::Broadcast(const NetworkMessage &msg) {
+void ServerNetworkManager::BroadcastUDP(const NetworkMessage &msg) {
   auto clients = client_manager_.GetAllClients();
   for (const auto &client : clients) {
     if (udp_server_ && client->HasUDPEndpoint()) {
       udp_server_->SendTo(msg.data, client->GetUDPEndpoint());
+      client->IncrementPacketsSent();
+    }
+  }
+}
+
+void ServerNetworkManager::BroadcastTCP(const NetworkMessage &msg) {
+  auto clients = client_manager_.GetAllClients();
+
+  for (const auto &client : clients) {
+    if (tcp_server_) {
+      tcp_server_->SendTo(msg.data, client->GetId());
       client->IncrementPacketsSent();
     }
   }

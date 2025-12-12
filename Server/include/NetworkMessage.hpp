@@ -3,7 +3,7 @@
 #include <vector>
 
 struct NetworkMessage {
-  uint32_t client_id;
+  uint16_t client_id;
   std::vector<uint8_t> data;
   uint64_t timestamp;
 

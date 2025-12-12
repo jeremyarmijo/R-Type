@@ -21,6 +21,7 @@ class ServerGame {
  private:
   ServerNetworkManager networkManager;
   Decoder decode;
+  Encoder encode;
 
   std::queue<std::tuple<Event, uint16_t>> eventQueue;
   std::queue<std::tuple<Action, uint16_t>> actionQueue;
@@ -39,7 +40,9 @@ class ServerGame {
   void StartGame();
   void InitWorld();
   void GameLoop();
-  
-  //std::optional<std::tuple<Event, uint16_t>> ServerGame::PopEvent();
-  //void SendAction(std::tuple<Action, uint16_t>);
+
+  std::optional<std::tuple<Event, uint16_t>> PopEvent();
+  void SendAction(std::tuple<Action, uint16_t>);
+
+  void SendPacket();
 };

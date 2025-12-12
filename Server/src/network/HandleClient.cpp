@@ -1,7 +1,8 @@
 #include "network/HandleClient.hpp"
+
 #include <string>
 
-HandleClient::HandleClient(uint32_t id,
+HandleClient::HandleClient(uint16_t id,
                            const asio::ip::tcp::endpoint& tcp_endpoint,
                            const std::string& username)
     : id_(id),

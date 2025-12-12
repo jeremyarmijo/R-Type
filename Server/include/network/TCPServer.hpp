@@ -1,12 +1,14 @@
 #pragma once
 #include <arpa/inet.h>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
+
 #include <asio.hpp>
+
 #include "network/DecodeFunc.hpp"
 
 class ProcessPacketTCP;
@@ -14,9 +16,9 @@ class ProcessPacketTCP;
 class TCPServer {
  public:
   using LoginCallback =
-      std::function<void(uint32_t client_id, const std::string& username,
+      std::function<void(uint16_t client_id, const std::string& username,
                          const asio::ip::tcp::endpoint& endpoint)>;
-  using DisconnectCallback = std::function<void(uint32_t client_id)>;
+  using DisconnectCallback = std::function<void(uint16_t client_id)>;
 
   TCPServer(asio::io_context& io_context, uint16_t port);
   ~TCPServer();
@@ -28,6 +30,8 @@ class TCPServer {
   uint16_t GetUDPPort() const { return udp_port_; }
   void SetUDPPort(uint16_t port) { udp_port_ = port; }
 
+  void SendTo(const std::vector<uint8_t>& data, uint16_t client_id);
+
  private:
   friend class ProcessPacketTCP;
 
@@ -37,21 +41,22 @@ class TCPServer {
   LoginCallback login_callback_;
   DisconnectCallback disconnect_callback_;
 
-  std::unordered_map<uint32_t, std::shared_ptr<ProcessPacketTCP>> sessions_;
+  std::unordered_map<uint16_t, std::shared_ptr<ProcessPacketTCP>> sessions_;
   std::mutex process_packet_mutex_;
 
-  uint32_t next_client_id_;
+  uint16_t next_client_id_;
   uint16_t udp_port_;
 };
 
 class ProcessPacketTCP : public std::enable_shared_from_this<ProcessPacketTCP> {
  public:
-  ProcessPacketTCP(asio::ip::tcp::socket socket, uint32_t client_id,
+  ProcessPacketTCP(asio::ip::tcp::socket socket, uint16_t client_id,
                    TCPServer* server);
   ~ProcessPacketTCP();
 
   void Start();
   void Close();
+  void SendPacket(const std::vector<uint8_t>& data);
 
   uint32_t GetClientId() const { return client_id_; }
   const asio::ip::tcp::endpoint& GetEndpoint() const { return endpoint_; }
@@ -73,7 +78,7 @@ class ProcessPacketTCP : public std::enable_shared_from_this<ProcessPacketTCP> {
 
   asio::ip::tcp::socket socket_;
   asio::ip::tcp::endpoint endpoint_;
-  uint32_t client_id_;
+  uint16_t client_id_;
   TCPServer* server_;
 
   std::array<uint8_t, 6> header_buffer_;

@@ -206,8 +206,54 @@ inline void EnemyHitFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, &hp, sizeof(uint16_t));
 }
 
+inline void GameStartFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* start = std::get_if<GameStart>(&a.data);
+  if (!start) return;
+
+  out.resize(12);
+  size_t offset = 0;
+
+  float playerSpawnX = start->playerSpawnX;
+  float playerSpawnY = start->playerSpawnY;
+  float scrollSpeed = start->scrollSpeed;
+
+  htonf(start->playerSpawnX, out.data() + offset);
+  offset += 4;
+
+  htonf(start->playerSpawnY, out.data() + offset);
+  offset += 4;
+
+  htonf(start->scrollSpeed, out.data() + offset);
+}
+
+inline void GameEndFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* end = std::get_if<GameEnd>(&a.data);
+  if (!end) return;
+
+  uint8_t playerCount = end->scores.size();
+
+  out.resize(playerCount * 7);
+  size_t offset = 0;
+  out[offset++] = end->victory ? 1 : 0;
+  out[offset++] = playerCount;
+
+  for (const auto& s : end->scores) {
+    uint16_t playerId = htons(s.playerId);
+    memcpy(out.data() + offset, &playerId, 2);
+    offset += 2;
+
+    uint32_t score = htonl(s.score);
+    memcpy(out.data() + offset, &score, 4);
+    offset += 4;
+
+    out[offset++] = s.rank;
+  }
+}
+
 inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
+  encoder.registerHandler(ActionType::GAME_START, GameStartFunc);
+  encoder.registerHandler(ActionType::GAME_END, GameEndFunc);
   encoder.registerHandler(ActionType::UP_PRESS, PlayerInputFunc);
   encoder.registerHandler(ActionType::UP_RELEASE, PlayerInputFunc);
   encoder.registerHandler(ActionType::DOWN_PRESS, PlayerInputFunc);

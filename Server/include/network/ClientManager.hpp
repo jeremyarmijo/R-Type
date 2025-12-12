@@ -12,13 +12,14 @@ class ClientManager {
   using ClientPtr = std::shared_ptr<HandleClient>;
 
   ClientPtr AddClientFromTCP(const asio::ip::tcp::endpoint& tcp_endpoint,
-                             const std::string& username, uint32_t assigned_id);
+                             const std::string& username, uint16_t assigned_id);
 
-  bool AssociateUDPEndpoint(uint32_t client_id,
+  bool AssociateUDPEndpoint(uint16_t client_id,
                             const asio::ip::udp::endpoint& udp_endpoint);
 
-  void RemoveClient(uint32_t client_id);
-  ClientPtr GetClient(uint32_t client_id);
+  void RemoveClient(uint16_t client_id);
+  ClientPtr GetClient(uint16_t client_id);
+  ClientPtr GetUDPClientByEndpoint(const asio::ip::udp::endpoint& ep);
 
   std::vector<ClientPtr> GetAllClients();
   size_t GetClientCount();
@@ -26,7 +27,7 @@ class ClientManager {
   std::vector<uint32_t> CheckTimeouts(std::chrono::seconds timeout);
 
  private:
-  std::unordered_map<uint32_t, ClientPtr> clients_;
+  std::unordered_map<uint16_t, ClientPtr> clients_;
   std::mutex mutex_;
-  uint32_t next_id_ = 1;
+  uint16_t next_id_ = 1;
 };

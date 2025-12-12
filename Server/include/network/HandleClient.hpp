@@ -5,12 +5,13 @@
 #include <string>
 #include <asio.hpp>
 
+
 class HandleClient {
  public:
-  HandleClient(uint32_t id, const asio::ip::tcp::endpoint& tcp_endpoint,
+  HandleClient(uint16_t id, const asio::ip::tcp::endpoint& tcp_endpoint,
                const std::string& username);
 
-  uint32_t GetId() const { return id_; }
+  uint16_t GetId() const { return id_; }
   const std::string& GetUsername() const { return username_; }
   const asio::ip::tcp::endpoint& GetTCPEndpoint() const {
     return tcp_endpoint_;
@@ -36,7 +37,7 @@ class HandleClient {
   void IncrementPacketsReceived() { ++packets_received_; }
 
  private:
-  uint32_t id_;
+  uint16_t id_;
   std::string username_;
   asio::ip::tcp::endpoint tcp_endpoint_;
   std::optional<asio::ip::udp::endpoint> udp_endpoint_;

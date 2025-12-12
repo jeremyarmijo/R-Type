@@ -16,8 +16,9 @@ class INetworkManager {
   virtual bool Initialize(uint16_t tcp_port, uint16_t udp_port) = 0;
   virtual void Shutdown() = 0;
 
-  virtual void SendTo(uint32_t client_id, const NetworkMessage& msg) = 0;
-  virtual void Broadcast(const NetworkMessage& msg) = 0;
+  virtual void SendTo(const NetworkMessage& msg, bool sendUdp) = 0;
+  virtual void BroadcastUDP(const NetworkMessage& msg) = 0;
+  virtual void BroadcastTCP(const NetworkMessage& msg) = 0;
   virtual void Update() = 0;
 
   virtual void SetMessageCallback(MessageCallback callback) = 0;

@@ -1,14 +1,14 @@
 
-#include "network/EncodeFunc.hpp"
 #include "network/TCPServer.hpp"
-
+#include <cstdio>
 #include <iostream>
 #include <memory>
-#include <utility>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "../../include/ServerMacro.hpp"
+#include "network/EncodeFunc.hpp"
 
 TCPServer::TCPServer(asio::io_context& io_context, uint16_t port)
     : acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
@@ -57,7 +57,7 @@ void TCPServer::DisconnectClient(uint32_t client_id) {
 }
 
 ProcessPacketTCP::ProcessPacketTCP(asio::ip::tcp::socket socket,
-                                   uint32_t client_id, TCPServer* server)
+                                   uint16_t client_id, TCPServer* server)
     : socket_(std::move(socket)),
       endpoint_(socket_.remote_endpoint()),
       client_id_(client_id),
@@ -130,10 +130,8 @@ void ProcessPacketTCP::HandleReadHeader(const asio::error_code& error,
   uint32_t length = bytes_to_type<uint32_t>(&header_buffer_[2], ntohl);
 
   std::cout << "[ProcessPacketTCP] Received header: type=0x" << std::hex
-            << static_cast<int>(type) << " flags=0x"
-            << static_cast<int>(flags)
-            << " length=" << std::dec
-            << length << std::endl;
+            << static_cast<int>(type) << " flags=0x" << static_cast<int>(flags)
+            << " length=" << std::dec << length << std::endl;
 
   current_msg_type_ = type;
 
@@ -182,7 +180,6 @@ void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
 }
 
 void ProcessPacketTCP::ProcessingGameStart() {
-
   std::cout << "[ProcessPacketTCP] Processing game start" << std::endl;
   Encoder encode;
   SetupEncoder(encode);
@@ -197,7 +194,7 @@ void ProcessPacketTCP::ProcessingGameStart() {
 
   std::vector<uint8_t> data = encode.encode(action, 2);
   for (auto byte : data) {
-    std::cout << std::hex << (int)byte << " ";
+    std::cout << std::hex << static_cast<int>(byte) << " ";
   }
   auto self = shared_from_this();
   asio::async_write(
@@ -233,21 +230,22 @@ void ProcessPacketTCP::ProcessLoginRequest() {
   payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[1]);
   payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[0]);
   for (auto byte : payload_buffer_) {
-    std::cout << std::hex << (int)byte << " ";
+    std::cout << std::hex << static_cast<int>(byte) << " ";
   }
   Decoder decode;
   SetupDecoder(decode);
 
   Event data = decode.decode(payload_buffer_);
-    const LOGIN_REQUEST* login = std::get_if<LOGIN_REQUEST>(&data.data);
-    if (login == nullptr) {
-        std::cerr << "[ProcessPacketTCP] Failed to decode LOGIN_REQUEST"
-                  << std::endl;
-        return;
-    }
-    std::string username = login->username;
+  const LOGIN_REQUEST* login = std::get_if<LOGIN_REQUEST>(&data.data);
+  if (login == nullptr) {
+    std::cerr << "[ProcessPacketTCP] Failed to decode LOGIN_REQUEST"
+              << std::endl;
+    return;
+  }
+  std::string username = login->username;
 
-  std::cout << "type data = " << static_cast<uint8_t>(data.type) << " data " << username << std::endl;
+  std::cout << "type data = " << static_cast<uint8_t>(data.type) << " data "
+            << username << std::endl;
   printf("$%x$", data.type);
   std::cout << "[ProcessPacketTCP] Login request from '" << username
             << "' (client " << client_id_ << ")" << std::endl;
@@ -287,8 +285,11 @@ void ProcessPacketTCP::SendLoginResponse(bool success, uint16_t player_id,
   // for (auto byte : data) {
   //   std::cout << std::hex << (int)byte << " ";
   // }
-
-
+  if (!socket_.is_open()) {
+    std::cerr << "[ProcessPacketTCP] Cannot send packet: socket closed"
+              << std::endl;
+    return;
+  }
   auto self = shared_from_this();
   asio::async_write(
       socket_, asio::buffer(response),
@@ -299,6 +300,40 @@ void ProcessPacketTCP::SendLoginResponse(bool success, uint16_t player_id,
         } else {
           std::cout << "[ProcessPacketTCP] LOGIN_RESPONSE sent to client "
                     << client_id_ << std::endl;
+        }
+      });
+}
+
+void TCPServer::SendTo(const std::vector<uint8_t>& data, uint16_t client_id) {
+  std::shared_ptr<ProcessPacketTCP> session;
+
+  {
+    std::lock_guard<std::mutex> lock(process_packet_mutex_);
+    auto it = sessions_.find(client_id);
+    if (it == sessions_.end()) {
+      std::cerr << "[TCPServer] Cannot send: unknown client " << client_id
+                << std::endl;
+      return;
+    }
+    session = it->second;
+  }
+
+  session->SendPacket(data);
+}
+
+void ProcessPacketTCP::SendPacket(const std::vector<uint8_t>& data) {
+  if (!socket_.is_open()) {
+    std::cerr << "[ProcessPacketTCP] Cannot send packet: socket closed"
+              << std::endl;
+    return;
+  }
+  auto self = shared_from_this();
+  asio::async_write(
+      socket_, asio::buffer(data),
+      [this, self](const asio::error_code& error, std::size_t bytes) {
+        if (error) {
+          std::cerr << "[ProcessPacketTCP] Send error: " << error.message()
+                    << std::endl;
         }
       });
 }
