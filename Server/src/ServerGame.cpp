@@ -134,11 +134,11 @@ void ServerGame::GameLoop() {
 }
 
 void ServerGame::SendPacket() {
-  //std::queue<std::tuple<Action, uint16_t>> localQueue;
-  //{
+  // std::queue<std::tuple<Action, uint16_t>> localQueue;
+  // {
     std::lock_guard<std::mutex> lock(queueMutex);
-    //localQueue = actionQueue;
-  //}
+    // localQueue = actionQueue;
+  // }
   while (!actionQueue.empty()) {
     auto ac = actionQueue.front();
     actionQueue.pop();
@@ -150,14 +150,14 @@ void ServerGame::SendPacket() {
     msg.client_id = clientId;
 
     size_t protocol = UseUdp(action.type);
-    
+
     msg.data = encode.encode(action, protocol);
 
     std::cout << "Try SEND (clientId = " << clientId
               << ")   (protocol = " << protocol << ")" << std::endl;
     std::cout << "Packet = ";
     for (auto &b : msg.data) {
-      std::cout << std::hex << (int)b <<  " ";
+      std::cout << std::hex << static_cast<int>(b) <<  " ";
     }
     std::cout << std::endl;
     if (clientId == 0) {
