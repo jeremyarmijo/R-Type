@@ -16,7 +16,7 @@ void enemy_movement_system(SparseArray<Transform>& transforms,
                            SparseArray<Enemy>& enemies, float deltaTime) {
   for (auto&& [transform, rigidbody, enemy] :
        Zipper(transforms, rigidbodies, enemies)) {
-    enemy.timer += deltaTime;  // l'utiliser pour le mouvement enemy
+    enemy.timer += deltaTime;
 
     switch (enemy.type) {
       case EnemyType::Basic:
