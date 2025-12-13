@@ -1,8 +1,8 @@
-#include "include/Encode.hpp"
-
 #include <arpa/inet.h>
 
 #include <vector>
+
+#include "network/Encoder.hpp"
 
 Encoder::Encoder() { handlers.fill(nullptr); }
 

@@ -7,8 +7,8 @@
 #include <thread>
 #include <vector>
 
-#include "include/DecodFunc.hpp"
-#include "include/EncodeFunc.hpp"
+#include "network/DecodeFunc.hpp"
+#include "network/EncodeFunc.hpp"
 
 NetworkManager::NetworkManager()
     : eventBuffer(50),

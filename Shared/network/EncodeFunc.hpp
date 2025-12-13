@@ -4,7 +4,7 @@
 #include <cstring>
 #include <vector>
 
-#include "include/Encode.hpp"
+#include "network/Encoder.hpp"
 
 inline void htonf(float value, uint8_t* out) {
   uint32_t asInt;
@@ -14,7 +14,7 @@ inline void htonf(float value, uint8_t* out) {
   std::memcpy(out, &asInt, sizeof(uint32_t));
 }
 
-void Auth(const Action& a, std::vector<uint8_t>& out) {
+inline void Auth(const Action& a, std::vector<uint8_t>& out) {
   const auto* auth = std::get_if<AuthUDP>(&a.data);
   if (!auth) return;
 
@@ -23,7 +23,7 @@ void Auth(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data(), &playerId, sizeof(uint16_t));
 }
 
-void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out) {
+inline void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* input = std::get_if<PlayerInput>(&a.data);
   if (!input) return;
 
@@ -35,7 +35,7 @@ void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out) {
   out[4] = input->fire ? 0x01 : 0x00;
 }
 
-void LoginRequestFunc(const Action& a, std::vector<uint8_t>& out) {
+inline void LoginRequestFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* login = std::get_if<LoginReq>(&a.data);
   if (!login) return;
 
@@ -58,7 +58,7 @@ void LoginRequestFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, login->passwordHash.data(), passwordLen);
 }
 
-void GameStateFunc(const Action& a, std::vector<uint8_t>& out) {
+inline void GameStateFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* state = std::get_if<GameState>(&a.data);
   if (!state) return;
 
@@ -145,7 +145,7 @@ void GameStateFunc(const Action& a, std::vector<uint8_t>& out) {
   }
 }
 
-void BossSpawnFunc(const Action& a, std::vector<uint8_t>& out) {
+inline void BossSpawnFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* boss = std::get_if<BossSpawn>(&a.data);
   if (!boss) return;
 
@@ -165,7 +165,7 @@ void BossSpawnFunc(const Action& a, std::vector<uint8_t>& out) {
   out[offset++] = boss->phase;
 }
 
-void BossUpdateFunc(const Action& a, std::vector<uint8_t>& out) {
+inline void BossUpdateFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* boss = std::get_if<BossUpdate>(&a.data);
   if (!boss) return;
 
@@ -189,7 +189,7 @@ void BossUpdateFunc(const Action& a, std::vector<uint8_t>& out) {
   out[offset++] = boss->action;
 }
 
-void EnemyHitFunc(const Action& a, std::vector<uint8_t>& out) {
+inline void EnemyHitFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* hit = std::get_if<EnemyHit>(&a.data);
   if (!hit) return;
 
@@ -206,8 +206,113 @@ void EnemyHitFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, &hp, sizeof(uint16_t));
 }
 
+inline void GameStartFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* start = std::get_if<GameStart>(&a.data);
+  if (!start) return;
+
+  out.resize(12);
+  size_t offset = 0;
+
+  float playerSpawnX = start->playerSpawnX;
+  float playerSpawnY = start->playerSpawnY;
+  float scrollSpeed = start->scrollSpeed;
+
+  htonf(start->playerSpawnX, out.data() + offset);
+  offset += 4;
+
+  htonf(start->playerSpawnY, out.data() + offset);
+  offset += 4;
+
+  htonf(start->scrollSpeed, out.data() + offset);
+}
+
+inline void GameEndFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* end = std::get_if<GameEnd>(&a.data);
+  if (!end) return;
+
+  uint8_t playerCount = end->scores.size();
+
+  out.resize(2 + playerCount * 7);
+  size_t offset = 0;
+  out[offset++] = end->victory ? 1 : 0;
+  out[offset++] = playerCount;
+
+  for (const auto& s : end->scores) {
+    uint16_t playerId = htons(s.playerId);
+    memcpy(out.data() + offset, &playerId, 2);
+    offset += 2;
+
+    uint32_t score = htonl(s.score);
+    memcpy(out.data() + offset, &score, 4);
+    offset += 4;
+
+    out[offset++] = s.rank;
+  }
+}
+
+inline void ErrorFunc(const Action& a, std::vector<uint8_t>& out) {
+    const auto* err = std::get_if<ErrorMsg>(&a.data);
+    if (!err) return;
+
+    out.clear();
+    size_t offset = 0;
+
+    out.resize(offset + 2);
+    uint16_t code = htons(err->errorCode);
+    memcpy(out.data() + offset, &code, sizeof(uint16_t));
+    offset += 2;
+
+    uint8_t msgLen = static_cast<uint8_t>(err->message.size());
+    out.resize(offset + 1);
+    out[offset++] = msgLen;
+
+    out.resize(offset + msgLen);
+    memcpy(out.data() + offset, err->message.data(), msgLen);
+}
+
+inline void LoginResponseFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* resp = std::get_if<LoginResponse>(&a.data);
+  if (!resp) return;
+
+  out.clear();
+  size_t offset = 0;
+
+  out.resize(offset + 1);
+  out[offset++] = resp->success ? 1 : 0;
+
+  // SUCCESS
+  if (resp->success) {
+    out.resize(offset + 4);
+
+    uint16_t playerId = htons(resp->playerId);
+    memcpy(out.data() + offset, &playerId, 2);
+    offset += 2;
+
+    uint16_t udpPort = htons(resp->udpPort);
+    memcpy(out.data() + offset, &udpPort, 2);
+    return;
+  }
+
+  // FAILURE
+  out.resize(offset + 2);
+  uint16_t code = htons(resp->errorCode);
+  memcpy(out.data() + offset, &code, 2);
+  offset += 2;
+
+  uint8_t msgLen = static_cast<uint8_t>(resp->message.size());
+  out.resize(offset + 1);
+  out[offset++] = msgLen;
+
+  out.resize(offset + msgLen);
+  memcpy(out.data() + offset, resp->message.data(), msgLen);
+}
+
+
 inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
+  encoder.registerHandler(ActionType::ERROR, ErrorFunc);
+  encoder.registerHandler(ActionType::GAME_START, GameStartFunc);
+  encoder.registerHandler(ActionType::GAME_END, GameEndFunc);
   encoder.registerHandler(ActionType::UP_PRESS, PlayerInputFunc);
   encoder.registerHandler(ActionType::UP_RELEASE, PlayerInputFunc);
   encoder.registerHandler(ActionType::DOWN_PRESS, PlayerInputFunc);
@@ -219,6 +324,7 @@ inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::FIRE_PRESS, PlayerInputFunc);
   encoder.registerHandler(ActionType::FIRE_RELEASE, PlayerInputFunc);
   encoder.registerHandler(ActionType::LOGIN_REQUEST, LoginRequestFunc);
+  encoder.registerHandler(ActionType::LOGIN_RESPONSE, LoginResponseFunc);
   encoder.registerHandler(ActionType::GAME_STATE, GameStateFunc);
   encoder.registerHandler(ActionType::BOSS_SPAWN, BossSpawnFunc);
   encoder.registerHandler(ActionType::BOSS_UPDATE, BossUpdateFunc);

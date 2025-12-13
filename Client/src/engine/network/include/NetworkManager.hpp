@@ -10,11 +10,11 @@
 
 #include <asio.hpp>
 
-#include "include/Action.hpp"
+#include "network/Action.hpp"
 #include "include/CircularBuffer.hpp"
-#include "include/Decoder.hpp"
-#include "include/Encode.hpp"
-#include "include/Event.hpp"
+#include "network/Decoder.hpp"
+#include "network/Encoder.hpp"
+#include "network/Event.hpp"
 
 class NetworkManager {
  public:

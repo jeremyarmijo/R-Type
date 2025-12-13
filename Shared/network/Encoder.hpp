@@ -7,7 +7,7 @@
 #include <functional>
 #include <vector>
 
-#include "include/Action.hpp"
+#include "network/Action.hpp"
 
 struct PacketHeader {
   uint8_t type;

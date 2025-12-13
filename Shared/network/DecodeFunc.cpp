@@ -1,14 +1,11 @@
-#pragma once
+#include "network/DecodeFunc.hpp"
+
 #include <arpa/inet.h>
 
 #include <cstring>
 #include <iostream>
-#include <ostream>
 #include <string>
 #include <vector>
-
-#include "include/Decoder.hpp"
-#include "include/Event.hpp"
 
 bool checkHeader(const std::vector<uint8_t>& packet, size_t& offset,
                  uint32_t& payloadLength) {
@@ -16,10 +13,7 @@ bool checkHeader(const std::vector<uint8_t>& packet, size_t& offset,
   payloadLength = ntohl(payloadLength);
   offset += 4;
 
-  if (payloadLength != packet.size() - 6) {
-    return false;
-  }
-  return true;
+  return payloadLength == packet.size() - 6;
 }
 
 Event DecodeLOGIN_REQUEST(const std::vector<uint8_t>& packet) {
@@ -30,9 +24,7 @@ Event DecodeLOGIN_REQUEST(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   uint8_t usernameLen = packet[offset++];
   data.username =
@@ -56,12 +48,9 @@ Event DecodeLOGIN_RESPONSE(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   data.success = packet[offset++];
-
   if (data.success == 1) {
     memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
     data.playerId = ntohs(data.playerId);
@@ -93,9 +82,7 @@ Event DecodeGAME_START(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   uint32_t temp;
   memcpy(&temp, &packet[offset], sizeof(temp));
@@ -125,9 +112,7 @@ Event DecodeGAME_END(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   data.victory = packet[offset++];
   uint8_t playerCount = packet[offset++];
@@ -144,7 +129,6 @@ Event DecodeGAME_END(const std::vector<uint8_t>& packet) {
     offset += sizeof(score.score);
 
     score.rank = packet[offset++];
-
     data.scores.push_back(score);
   }
 
@@ -160,9 +144,7 @@ Event DecodeERROR(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   memcpy(&data.errorCode, &packet[offset], sizeof(data.errorCode));
   data.errorCode = ntohs(data.errorCode);
@@ -185,9 +167,7 @@ Event DecodePLAYER_INPUT(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   data.up = packet[offset++] == 1;
   data.down = packet[offset++] == 1;
@@ -207,9 +187,7 @@ Event DecodeGAME_STATE(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   uint8_t playerCount = packet[offset++];
   data.players.reserve(playerCount);
@@ -307,7 +285,6 @@ Event DecodeGAME_STATE(const std::vector<uint8_t>& packet) {
     offset += sizeof(temp);
 
     projectile.damage = packet[offset++];
-
     data.projectiles.push_back(projectile);
   }
 
@@ -323,9 +300,7 @@ Event DecodeAUTH(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
   data.playerId = ntohs(data.playerId);
@@ -343,9 +318,7 @@ Event DecodeBOSS_SPAWN(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   memcpy(&data.bossId, &packet[offset], sizeof(data.bossId));
   data.bossId = ntohs(data.bossId);
@@ -358,7 +331,6 @@ Event DecodeBOSS_SPAWN(const std::vector<uint8_t>& packet) {
   offset += sizeof(data.maxHp);
 
   data.phase = packet[offset++];
-
   evt.data = data;
   return evt;
 }
@@ -371,9 +343,7 @@ Event DecodeBOSS_UPDATE(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   memcpy(&data.bossId, &packet[offset], sizeof(data.bossId));
   data.bossId = ntohs(data.bossId);
@@ -409,9 +379,7 @@ Event DecodeENEMY_HIT(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) {
-    return Event{};
-  }
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
   memcpy(&data.enemyId, &packet[offset], sizeof(data.enemyId));
   data.enemyId = ntohs(data.enemyId);
