@@ -1,24 +1,17 @@
 // Copyright 2025 Dalia Guiz
 #pragma once
+#include "Player/Boss.hpp"
+#include "Player/Enemy.hpp"
+#include "Player/PlayerEntity.hpp"
+#include "Player/ProjectTile.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "ecs/Zipper.hpp"
-
-void player_movement_system(Registry& registry,
-                            SparseArray<PlayerControlled>& playerControlled,
-                            SparseArray<Transform>& transforms,
-                            SparseArray<RigidBody>& rigidbodies,
-                            SparseArray<InputState>& inputStates,
-                            float deltaTime);
+#include "inputs/InputManager.hpp"
 
 void enemy_movement_system(SparseArray<Transform>& transforms,
                            SparseArray<RigidBody>& rigidbodies,
                            SparseArray<Enemy>& enemies, float deltaTime);
-
-void projectTile_movement_system(SparseArray<Transform>& transforms,
-                                 SparseArray<RigidBody>& rigidbodies,
-                                 SparseArray<ProjectTile>& projectiles,
-                                 Registry& registry, float deltaTime);
 
 void boss_movement_system(SparseArray<Transform>& transforms,
                           SparseArray<RigidBody>& rigidbodies,
