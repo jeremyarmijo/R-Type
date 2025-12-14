@@ -168,7 +168,7 @@ class OptionsScene : public Scene {
   }
 
   void OnExit() override {
-    std::cout << "Exiting options scene" << std::endl;
+    std::cout << "\n=== EXITING OPTIONS SCENE ===" << std::endl;
     m_isInitialized = false;
     m_waitingForKey = false;
     m_bindingRows.clear();
