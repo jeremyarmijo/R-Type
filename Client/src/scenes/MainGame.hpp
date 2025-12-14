@@ -344,9 +344,9 @@ class MyGameScene : public Scene {
     std::string texture = GetEnemyTexture(enemyType);
     std::string animation = GetEnemyAnimation(enemyType);
 
-    std::cout << "Spawning enemy " << enemyId << " (type " << static_cast<int>(enemyType)
-              << ") at (" << position.x << ", " << position.y << ")"
-              << std::endl;
+    std::cout << "Spawning enemy " << enemyId << " (type "
+              << static_cast<int>(enemyType) << ") at (" << position.x << ", "
+              << position.y << ")" << std::endl;
 
     Entity enemy = m_engine->CreateAnimatedSprite(texture, position, animation);
 
