@@ -1,3 +1,5 @@
+#pragma once
+
 enum class ItemType {
     Unknown = 0,
     HealthPotion,

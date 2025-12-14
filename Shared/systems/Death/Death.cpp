@@ -1,5 +1,5 @@
-#include "Death.hpp"
-#include "../../components/Player/PlayerController.hpp"
+/*#include "Death.hpp"
+#include "../../components/Player/PlayerEntity.hpp"
 #include "../../components/Collision/CollisionCotroller.hpp"
 
 void death_system(Registry& registry) {
@@ -24,4 +24,4 @@ void death_system(Registry& registry) {
 
         registry.remove_component<Death>(death.deadEntity);
     }
-}
+}*/

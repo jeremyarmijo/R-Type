@@ -31,9 +31,10 @@ int main() {
 
     return 0;
 }
- 
+
 }*/
 
 // quand cree changer et detruire les entity Event.hpp Action.hpp
 // create helper functions that automatically give entities components for you.
-// eg: createBydosSlave() -> creates entity and assigns components with predefined values. pour creation d'entités
+// eg: createBydosSlave() -> creates entity and assigns components with
+// predefined values. pour creation d'entités

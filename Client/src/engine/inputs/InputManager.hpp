@@ -6,12 +6,13 @@
 #include "ecs/Zipper.hpp"
 #include "graphics/RenderComponents.hpp"
 #include "inputs/KeyBindings.hpp"
+#include "Player/PlayerEntity.hpp"
 
-struct PlayerControlled {
+/*struct PlayerControlled {
   float moveSpeed;
 
   explicit PlayerControlled(float speed = 200.0f) : moveSpeed(speed) {}
-};
+};*/
 
 struct InputState {
   bool moveLeft;

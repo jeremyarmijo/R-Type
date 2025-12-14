@@ -3,7 +3,14 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+#include <SDL2/SDL_ttf.h>
+#include "Player/Enemy.hpp"
+#include "Player/Boss.hpp"
+#include "Player/ProjectTile.hpp"
+#include "Player/EnemySpawn.hpp"
 #include <iostream>
+#include "Collision/Items.hpp"
+#include "Collision/CollisionCotroller.hpp"
 #include <string>
 
 /**
@@ -99,7 +106,15 @@ void GameEngine::RegisterComponents() {
   m_registry.register_component<PlayerControlled>();
   m_registry.register_component<InputState>();
 
+  // Enemy / Gameplay
+  m_registry.register_component<Enemy>();
+  m_registry.register_component<Boss>(); 
+  m_registry.register_component<ProjectTile>();
+  m_registry.register_component<EnemySpawning>(); 
+  m_registry.register_component<Death>();            // 
   // Network components
+  m_registry.register_component<Items>();
+  m_registry.register_component<Collision>();
 
   std::cout << "Components registered" << std::endl;
 }

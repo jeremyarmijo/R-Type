@@ -17,5 +17,6 @@ struct Enemy {
     float timer = 0.f;
     int scoreValue;
     int weaponId;
+    int current = 200;
 };
 

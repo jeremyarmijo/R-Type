@@ -4,13 +4,19 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
+#include "Helpers/EntityHelper.hpp"
 #include "inputs/InputSystem.hpp"
 #include "scene/SceneManager.hpp"
 #include "settings/MultiplayerSkinManager.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
+#include "Player/Enemy.hpp"
+#include "Movement/Movement.hpp"
+#include "Player/Boss.hpp"
+#include "SpawnEnemy/Spawn.hpp"
+#include "Collision/Collision.hpp"
+
 
 class MyGameScene : public Scene {
  private:
@@ -68,7 +74,28 @@ class MyGameScene : public Scene {
       if (transform) {
         transform->scale = {2.0f, 2.0f};
       }
+      /*std::vector<Vector2> points = {
+        {900.f, 200.f},
+        {900.f, 300.f},
+        {900.f, 400.f}
+    };*/
+
+    /*createEnemySpawner(
+        GetRegistry(),
+        points,
+        2.0f,            // toutes les 2 secondes
+        5,               // max 5 ennemis
+        EnemyType::Wave
+    );*/
+      //SpawnTestEnemy();
+      //TestSpawnEnemy(registery);
+      //SpawnTestBoss();
       m_entities.push_back(m_localPlayer);
+      Entity player = createPlayer(GetRegistry(), {400.f, 300.f});
+      Entity enemy  = createEnemy(GetRegistry(), EnemyType::Basic, {420.f, 300.f});
+
+      std::cout << "[TEST COLLISION] player=" << player
+                << " enemy=" << enemy << std::endl;
 
       if (!GetRegistry().is_entity_valid(m_localPlayer)) {
         std::cerr << "ERROR: Player entity is invalid after creation!"
@@ -107,11 +134,51 @@ class MyGameScene : public Scene {
     std::cout << "==============================\n" << std::endl;
   }
 
-  void Update(float deltaTime) override {
-    if (!m_isInitialized) return;
+  /*void SpawnTestEnemy() {
+    Entity testEnemy = createEnemy(
+        GetRegistry(),
+        EnemyType::Wave,
+        Vector2{900.f, 300.f}
+    );
 
-    MoveBackground(deltaTime);
+    std::cout << "[TEST] Enemy created id=" << testEnemy << std::endl;
+}*/
+/*void SpawnTestBoss() {
+    Entity boss = createBoss(
+        GetRegistry(),
+        BossType::BigShip,
+        Vector2{900.f, 200.f} // position initiale
+    );
+    std::cout << "[TEST] Boss created id=" << boss << std::endl;
+}*/
+
+void TestSpawnEnemy(Registry& registry) {
+    static float timer = 0.f;
+    timer += 0.016f; // simule deltaTime ~60FPS
+
+    if (timer >= 2.f) { // toutes les 2 secondes
+        Vector2 spawnPos = {900.f, 300.f};
+        Entity e = createEnemy(registry, EnemyType::Wave, spawnPos);
+        std::cout << "[TEST] Enemy spawned id=" << e 
+                  << " at " << spawnPos.x << ", " << spawnPos.y << std::endl;
+        timer = 0.f;
+    }
   }
+  
+  void Update(float deltaTime) override {
+    gamePlay_Collision_system(
+        GetRegistry(),
+        GetRegistry().get_components<Transform>(),
+        GetRegistry().get_components<BoxCollider>(),
+        GetRegistry().get_components<PlayerControlled>(),
+        GetRegistry().get_components<Enemy>(), 
+        GetRegistry().get_components<Boss>(),     
+        GetRegistry().get_components<Items>(),     
+        GetRegistry().get_components<ProjectTile>() 
+    );
+}
+
+
 
   void Render() override {
     if (!m_isInitialized) return;
