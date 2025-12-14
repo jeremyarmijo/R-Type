@@ -7,6 +7,7 @@
 #include "scenes/MainGame.hpp"
 #include "scenes/MainMenu.hpp"
 #include "scenes/Options.hpp"
+#include "scenes/WaitLobby.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIImage.hpp"
 #include "ui/UIText.hpp"
@@ -36,7 +37,8 @@ class MyGame {
                                               &m_sceneManager);
     m_sceneManager.RegisterScene<GameOverScene>("gameover", &m_engine,
                                                 &m_sceneManager);
-
+    m_sceneManager.RegisterScene<WaitLobby>("wait", &m_engine,
+                                                &m_sceneManager);
     std::cout << "Starting initial scene..." << std::endl;
     m_sceneManager.ChangeScene("menu");
 
