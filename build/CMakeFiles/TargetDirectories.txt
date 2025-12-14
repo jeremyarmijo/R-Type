@@ -1,0 +1,3 @@
+/home/daliaguiz/R-Type/build/CMakeFiles/RTYPE_Client.dir
+/home/daliaguiz/R-Type/build/CMakeFiles/edit_cache.dir
+/home/daliaguiz/R-Type/build/CMakeFiles/rebuild_cache.dir
