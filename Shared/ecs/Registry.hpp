@@ -234,6 +234,24 @@ class Registry {
 
     std::cout << "All entities cleared" << std::endl;
   }
+  template <typename Component>
+  bool has_component(const Entity& e) const {
+    std::type_index type_idx(typeid(Component));
+    auto it = m_components_arrays.find(type_idx);
+    if (it == m_components_arrays.end()) {
+      return false;  // le composant n'est même pas enregistré
+    }
+
+    try {
+      const auto& arr =
+          std::any_cast<const SparseArray<Component>&>(it->second);
+      return arr[e].has_value();  // renvoie vrai si l'entité a ce composant
+    } catch (const std::bad_any_cast& ex) {
+      std::cerr << "ERROR: Bad component cast for has_component: "
+                << typeid(Component).name() << std::endl;
+      return false;
+    }
+  }
 
   void print_debug_info() const {
     std::cout << "\n=== Registry Debug Info ===" << std::endl;

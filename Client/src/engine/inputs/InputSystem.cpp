@@ -2,8 +2,9 @@
 
 #include <iostream>
 
-#include "network/Action.hpp"
+#include "Player/PlayerEntity.hpp"
 #include "include/NetworkManager.hpp"
+#include "network/Action.hpp"
 
 void player_input_system(Registry& registry,
                          SparseArray<PlayerControlled>& playerControlled,
@@ -106,19 +107,19 @@ void player_input_system(Registry& registry,
     // Horizontal movement
     rigidbody.velocity.x = 0;
     if (input.moveLeft) {
-      rigidbody.velocity.x = -playerComp.moveSpeed;
+      rigidbody.velocity.x = -playerComp.speed;
     }
     if (input.moveRight) {
-      rigidbody.velocity.x = playerComp.moveSpeed;
+      rigidbody.velocity.x = playerComp.speed;
     }
 
-    // Vertical movement
+    //  Vertical movement
     rigidbody.velocity.y = 0;
     if (input.moveUp) {
-      rigidbody.velocity.y = -playerComp.moveSpeed;
+      rigidbody.velocity.y = -playerComp.speed;
     }
     if (input.moveDown) {
-      rigidbody.velocity.y = playerComp.moveSpeed;
+      rigidbody.velocity.y = playerComp.speed;
     }
   }
 }

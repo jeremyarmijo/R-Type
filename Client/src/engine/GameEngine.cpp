@@ -6,6 +6,12 @@
 #include <iostream>
 #include <string>
 
+#include "Collision/CollisionController.hpp"
+#include "Collision/Items.hpp"
+#include "Player/Boss.hpp"
+#include "Player/Enemy.hpp"
+#include "Player/EnemySpawn.hpp"
+#include "Player/ProjectTile.hpp"
 /**
  * @brief Creates of the SDL window, intializes the TextureManager class and
  * registers game components in the ECS registry
@@ -98,6 +104,14 @@ void GameEngine::RegisterComponents() {
   // Player components
   m_registry.register_component<PlayerControlled>();
   m_registry.register_component<InputState>();
+
+  // Enemy / Gameplay
+  m_registry.register_component<Enemy>();
+  m_registry.register_component<Boss>();
+  m_registry.register_component<ProjectTile>();
+  m_registry.register_component<Items>();
+  m_registry.register_component<Collision>();
+  m_registry.register_component<EnemySpawning>();
 
   // Network components
 

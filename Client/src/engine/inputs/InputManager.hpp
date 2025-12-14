@@ -7,12 +7,6 @@
 #include "graphics/RenderComponents.hpp"
 #include "inputs/KeyBindings.hpp"
 
-struct PlayerControlled {
-  float moveSpeed;
-
-  explicit PlayerControlled(float speed = 200.0f) : moveSpeed(speed) {}
-};
-
 struct InputState {
   bool moveLeft;
   bool moveRight;
