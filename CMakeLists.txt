@@ -16,6 +16,7 @@ target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/Shared/
     ${PROJECT_SOURCE_DIR}/Shared/ecs/
     ${PROJECT_SOURCE_DIR}/Shared/components/
+    ${PROJECT_SOURCE_DIR}/Shared/network/
     ${PROJECT_SOURCE_DIR}/Shared/systems/
     ${PROJECT_SOURCE_DIR}/Client/src/
     ${PROJECT_SOURCE_DIR}/Client/src/scenes/
