@@ -6,4 +6,4 @@ struct Items {
   ItemType type;
   int item_id;
   bool picked_up;
-};
+};  // fix cpplint
