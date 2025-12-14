@@ -16,7 +16,6 @@
 struct pair_hash {
   inline std::size_t operator()(
       const std::pair<size_t, size_t>& v) const noexcept {
-    // mix simple ; évite collisions symétriques, on stocke (min,max)
     return v.first * 73856093u ^ v.second * 19349663u;
   }
 };
