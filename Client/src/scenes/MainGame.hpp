@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "Player/PlayerEntity.hpp"
@@ -342,7 +344,7 @@ class MyGameScene : public Scene {
     std::string texture = GetEnemyTexture(enemyType);
     std::string animation = GetEnemyAnimation(enemyType);
 
-    std::cout << "Spawning enemy " << enemyId << " (type " << (int)enemyType
+    std::cout << "Spawning enemy " << enemyId << " (type " << static_cast<int>(enemyType)
               << ") at (" << position.x << ", " << position.y << ")"
               << std::endl;
 
