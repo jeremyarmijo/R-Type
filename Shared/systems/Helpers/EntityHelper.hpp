@@ -27,17 +27,7 @@ inline Entity createPlayer(Registry& registry, const Vector2& startPos,
   registry.add_component<BoxCollider>(
       player, BoxCollider(PLAYER_SIZE.x, PLAYER_SIZE.y));
   registry.add_component<PlayerControlled>(
-      player, PlayerControlled{
-                  playerId, Vector2{0.f, 0.f},  // input initial
-                  200.f,                        // speed
-                  100,                          // current
-                  100,                          // max
-                  true,                         // isAlive
-                  0.f,                          // invtimer
-                  0,                            // weaponId
-                  false,                        // hasForce
-                  0                             // score
-              });
+      player, PlayerControlled(playerId, 200.f, 100, 100));
 
   return player;
 }
@@ -66,7 +56,7 @@ inline Entity createBoss(Registry& registry, BossType type,
   registry.add_component<RigidBody>(boss, RigidBody{});
   registry.add_component<BoxCollider>(
       boss, BoxCollider(ENEMY_BOSS_SIZE.x, ENEMY_BOSS_SIZE.y));
-  registry.add_component<Boss>(boss, Boss{type});
+  registry.add_component<Boss>(boss, Boss(type));
   return boss;
 }
 
@@ -78,16 +68,9 @@ inline Entity createProjectile(Registry& registry, const Vector2& startPos,
   registry.add_component<Transform>(projectile, Transform(startPos));
   registry.add_component<RigidBody>(projectile, RigidBody());
   registry.add_component<BoxCollider>(projectile, BoxCollider(10.f, 10.f));
-  registry.add_component<ProjectTile>(projectile,
-                                      ProjectTile{
-                                          speed,                   // speed
-                                          direction.Normalized(),  // direction
-                                          0.f,                     // timer
-                                          true,        // is_existing
-                                          damage,      // damage
-                                          fromPlayer,  // is_player_projectTile
-                                          true         // active
-                                      });
+  registry.add_component<ProjectTile>(
+      projectile,
+      ProjectTile(speed, direction.Normalized(), damage, fromPlayer));
 
   return projectile;
 }
@@ -97,8 +80,8 @@ inline Entity createEnemySpawner(Registry& registry,
                                  int maxEnemies, EnemyType type) {
   Entity spawner = registry.spawn_entity();
 
-  EnemySpawning es{std::move(points), interval, 0.0f, maxEnemies, type};
+  registry.add_component<EnemySpawning>(
+      spawner, EnemySpawning(std::move(points), interval, maxEnemies, type));
 
-  registry.add_component<EnemySpawning>(spawner, std::move(es));
   return spawner;
 }
