@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 
+#include <any>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -16,6 +17,42 @@
 
 class GameEngine;
 class SceneManager;
+
+class SceneData {
+private:
+    std::unordered_map<std::string, std::any> m_data;
+
+public:
+    template<typename T>
+    void Set(const std::string& key, const T& value) {
+        m_data[key] = value;
+    }
+
+    template<typename T>
+    T Get(const std::string& key, const T& defaultValue = T()) const {
+        auto it = m_data.find(key);
+        if (it != m_data.end()) {
+            try {
+                return std::any_cast<T>(it->second);
+            } catch (const std::bad_any_cast&) {
+                std::cerr << "SceneData: Type mismatch for key '" << key << "'" << std::endl;
+            }
+        }
+        return defaultValue;
+    }
+
+    bool Has(const std::string& key) const {
+        return m_data.find(key) != m_data.end();
+    }
+
+    void Clear() {
+        m_data.clear();
+    }
+
+    void Remove(const std::string& key) {
+        m_data.erase(key);
+    }
+};
 
 class Scene {
  protected:
@@ -46,6 +83,7 @@ class Scene {
   SDL_Renderer* GetRenderer();
   Vector2 GetCameraPosition();
   UIManager& GetUI() { return m_uiManager; }
+  SceneData& GetSceneData();
 
   void RenderSprites(int minLayer = 0, int maxLayer = 16);
   void RenderSpritesLayered();
@@ -58,6 +96,7 @@ class SceneManager {
   Scene* m_currentScene;
   Scene* m_nextScene;
   Registry* m_registry;
+  SceneData m_sceneData;
 
  public:
   SceneManager()
@@ -91,6 +130,8 @@ class SceneManager {
   void HandleEvent(SDL_Event& event);
 
   Scene* GetCurrentScene() { return m_currentScene; }
+  SceneData& GetSceneData() { return m_sceneData; }
+
   const std::string& GetCurrentSceneName() const {
     static const std::string none = "None";
     return m_currentScene ? m_currentScene->GetName() : none;
