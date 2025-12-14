@@ -1,6 +1,7 @@
 #pragma once
 #include "components/Physics2D.hpp"
 #include "inputs/InputManager.hpp"
+#include "Player/PlayerEntity.hpp"
 
 class NetworkManager;
 
