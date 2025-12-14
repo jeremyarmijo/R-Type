@@ -10,4 +10,4 @@ struct ProjectTile {
   Uint32 damage;
   bool is_player_projectTile;
   bool active = true;
-};
+};  // cpplint fix
