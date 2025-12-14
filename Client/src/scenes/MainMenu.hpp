@@ -164,7 +164,8 @@ class MainMenu : public Scene {
         }
 
         GetNetwork().Connect(serverIP, 4242);
-        Action loginRequest{ActionType::LOGIN_REQUEST, LoginReq{username, "hashedpassword"}};
+        Action loginRequest{ActionType::LOGIN_REQUEST,
+                            LoginReq{username, "hashedpassword"}};
         GetNetwork().SendAction(loginRequest);
       });
       m_joinButton->SetColors({50, 150, 50, 255}, {70, 170, 70, 255},

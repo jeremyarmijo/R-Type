@@ -2,28 +2,29 @@
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
+
 #include "settings/PlayerSettings.hpp"
 
 class MultiplayerSkinManager {
-private:
+ private:
   PlayerSkin m_localPlayerSkin;
   uint16_t m_localPlayerId;
   std::unordered_map<uint16_t, PlayerSkin> m_playerSkins;
   std::unordered_set<int> m_usedSkins;
 
-public:
-  MultiplayerSkinManager() 
-    : m_localPlayerSkin(PlayerSkin::BLUE),
-      m_localPlayerId(0) {}
+ public:
+  MultiplayerSkinManager()
+      : m_localPlayerSkin(PlayerSkin::BLUE), m_localPlayerId(0) {}
 
   void SetLocalPlayerSkin(PlayerSkin skin, uint16_t playerId) {
     m_localPlayerSkin = skin;
     m_localPlayerId = playerId;
     m_usedSkins.clear();
     m_usedSkins.insert(static_cast<int>(skin));
-    
-    std::cout << "Local player (ID: " << playerId << ") using skin: " 
-              << PlayerSettings::GetSkinName(skin) << std::endl;
+
+    std::cout << "Local player (ID: " << playerId
+              << ") using skin: " << PlayerSettings::GetSkinName(skin)
+              << std::endl;
   }
 
   PlayerSkin AssignSkinForPlayer(uint16_t playerId) {
@@ -70,8 +71,8 @@ public:
       m_usedSkins.erase(skinInt);
       m_playerSkins.erase(it);
 
-      std::cout << "Removed player ID " << playerId 
-                << ", freed skin for reuse" << std::endl;
+      std::cout << "Removed player ID " << playerId << ", freed skin for reuse"
+                << std::endl;
     }
   }
 
@@ -83,23 +84,22 @@ public:
     std::cout << "Cleared all player skin assignments" << std::endl;
   }
 
-  size_t GetPlayerCount() const {
-    return m_playerSkins.size();
-  }
+  size_t GetPlayerCount() const { return m_playerSkins.size(); }
 
   void PrintDebug() const {
     std::cout << "\n=== Skin Manager Debug ===" << std::endl;
-    std::cout << "Local Player (ID: " << m_localPlayerId << "): " 
-              << PlayerSettings::GetSkinName(m_localPlayerSkin) << std::endl;
+    std::cout << "Local Player (ID: " << m_localPlayerId
+              << "): " << PlayerSettings::GetSkinName(m_localPlayerSkin)
+              << std::endl;
     std::cout << "Other Players:" << std::endl;
     for (const auto& [playerId, skin] : m_playerSkins) {
-      std::cout << "  Player " << playerId << ": " 
+      std::cout << "  Player " << playerId << ": "
                 << PlayerSettings::GetSkinName(skin) << std::endl;
     }
     std::cout << "========================\n" << std::endl;
   }
 
-private:
+ private:
   PlayerSkin FindUnusedSkin() {
     for (int i = 0; i < 5; ++i) {
       if (m_usedSkins.find(i) == m_usedSkins.end()) {

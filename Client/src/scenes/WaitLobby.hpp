@@ -20,8 +20,7 @@ class WaitLobby : public Scene {
 
  public:
   WaitLobby(GameEngine* engine, SceneManager* sceneManager)
-      : Scene(engine, sceneManager, "wait"),
-        m_isInitialized(false) {}
+      : Scene(engine, sceneManager, "wait"), m_isInitialized(false) {}
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING WAITING SCENE ===" << std::endl;
@@ -39,8 +38,9 @@ class WaitLobby : public Scene {
       m_entities.push_back(background);
 
       std::cout << "Creating UI Elements..." << std::endl;
-      auto* text = GetUI().AddElement<UIText>(70, 250, "Waiting for game start...", "", 50,
-                                              SDL_Color{255, 255, 255, 255});
+      auto* text =
+          GetUI().AddElement<UIText>(70, 250, "Waiting for game start...", "",
+                                     50, SDL_Color{255, 255, 255, 255});
       text->SetVisible(true);
       text->SetLayer(10);
 
@@ -69,10 +69,10 @@ class WaitLobby : public Scene {
 
     Event e = GetNetwork().PopEvent();
     if (e.type == EventType::GAME_START) {
-        const auto* data = std::get_if<GAME_START>(&e.data);
-        GetSceneData().Set("posX", data->playerSpawnX);
-        GetSceneData().Set("posY", data->playerSpawnY);
-        ChangeScene("game");
+      const auto* data = std::get_if<GAME_START>(&e.data);
+      GetSceneData().Set("posX", data->playerSpawnX);
+      GetSceneData().Set("posY", data->playerSpawnY);
+      ChangeScene("game");
     }
   }
 
@@ -88,5 +88,4 @@ class WaitLobby : public Scene {
       return;
     }
   }
-
 };

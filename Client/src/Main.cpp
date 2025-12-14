@@ -37,8 +37,7 @@ class MyGame {
                                               &m_sceneManager);
     m_sceneManager.RegisterScene<GameOverScene>("gameover", &m_engine,
                                                 &m_sceneManager);
-    m_sceneManager.RegisterScene<WaitLobby>("wait", &m_engine,
-                                                &m_sceneManager);
+    m_sceneManager.RegisterScene<WaitLobby>("wait", &m_engine, &m_sceneManager);
     std::cout << "Starting initial scene..." << std::endl;
     m_sceneManager.ChangeScene("menu");
 

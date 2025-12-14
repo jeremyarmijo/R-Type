@@ -5,13 +5,13 @@
 #include <string>
 #include <vector>
 
+#include "Player/PlayerEntity.hpp"
 #include "inputs/InputSystem.hpp"
 #include "scene/SceneManager.hpp"
 #include "settings/MultiplayerSkinManager.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
-#include "Player/PlayerEntity.hpp"
 
 class MyGameScene : public Scene {
  private:
@@ -62,11 +62,12 @@ class MyGameScene : public Scene {
 
       PlayerSettings& settings = m_engine->GetPlayerSettings();
       m_localPlayerId = GetSceneData().Get<uint16_t>("playerId", 0);
-      
-      std::string selectedSkinAnim = settings.GetSelectedSkinAnimation();
-      m_skinManager.SetLocalPlayerSkin(settings.GetSelectedSkin(), m_localPlayerId);
 
-      std::cout << "Creating local player (ID: " << m_localPlayerId 
+      std::string selectedSkinAnim = settings.GetSelectedSkinAnimation();
+      m_skinManager.SetLocalPlayerSkin(settings.GetSelectedSkin(),
+                                       m_localPlayerId);
+
+      std::cout << "Creating local player (ID: " << m_localPlayerId
                 << ") with skin: " << selectedSkinAnim << std::endl;
 
       float posX = GetSceneData().Get<float>("posX", 200.0f);
@@ -74,8 +75,9 @@ class MyGameScene : public Scene {
 
       m_localPlayer = m_engine->CreatePlayer("player", selectedSkinAnim,
                                              {posX, posY}, 250.0f);
-      
-      auto& transform = GetRegistry().get_components<Transform>()[m_localPlayer];
+
+      auto& transform =
+          GetRegistry().get_components<Transform>()[m_localPlayer];
       if (transform) {
         transform->scale = {2.0f, 2.0f};
       }
@@ -162,7 +164,7 @@ class MyGameScene : public Scene {
     if (!textures.GetTexture("player")) {
       textures.LoadTexture("player", "../Client/assets/player.png");
     }
-    
+
     if (!textures.GetTexture("background")) {
       textures.LoadTexture("background", "../Client/assets/bg.jpg");
     }
@@ -178,10 +180,12 @@ class MyGameScene : public Scene {
     }
 
     if (!textures.GetTexture("projectile_player")) {
-      textures.LoadTexture("projectile_player", "../Client/assets/projectile_player.png");
+      textures.LoadTexture("projectile_player",
+                           "../Client/assets/projectile_player.png");
     }
     if (!textures.GetTexture("projectile_enemy")) {
-      textures.LoadTexture("projectile_enemy", "../Client/assets/projectile_enemy.png");
+      textures.LoadTexture("projectile_enemy",
+                           "../Client/assets/projectile_enemy.png");
     }
   }
 
@@ -192,10 +196,9 @@ class MyGameScene : public Scene {
                                 {{64, 0, 32, 32}, 0.1f}},
                                true);
 
-    animations.CreateAnimation("enemy2_anim", "enemy2",
-                               {{{0, 0, 48, 48}, 0.15f},
-                                {{48, 0, 48, 48}, 0.15f}},
-                               true);
+    animations.CreateAnimation(
+        "enemy2_anim", "enemy2",
+        {{{0, 0, 48, 48}, 0.15f}, {{48, 0, 48, 48}, 0.15f}}, true);
 
     animations.CreateAnimation("enemy3_anim", "enemy3",
                                {{{0, 0, 64, 64}, 0.2f},
@@ -203,48 +206,60 @@ class MyGameScene : public Scene {
                                 {{128, 0, 64, 64}, 0.2f}},
                                true);
 
-    animations.CreateAnimation("projectile_player_anim", "projectile_player",
-                               {{{0, 0, 16, 16}, 0.05f},
-                                {{16, 0, 16, 16}, 0.05f}},
-                               true);
+    animations.CreateAnimation(
+        "projectile_player_anim", "projectile_player",
+        {{{0, 0, 16, 16}, 0.05f}, {{16, 0, 16, 16}, 0.05f}}, true);
 
-    animations.CreateAnimation("projectile_enemy_anim", "projectile_enemy",
-                               {{{0, 0, 12, 12}, 0.1f},
-                                {{12, 0, 12, 12}, 0.1f}},
-                               true);
+    animations.CreateAnimation(
+        "projectile_enemy_anim", "projectile_enemy",
+        {{{0, 0, 12, 12}, 0.1f}, {{12, 0, 12, 12}, 0.1f}}, true);
   }
 
   std::string GetEnemyTexture(uint8_t enemyType) const {
     switch (enemyType) {
-      case 0: return "enemy1";
-      case 1: return "enemy2";
-      case 2: return "enemy3";
-      default: return "enemy1";
+      case 0:
+        return "enemy1";
+      case 1:
+        return "enemy2";
+      case 2:
+        return "enemy3";
+      default:
+        return "enemy1";
     }
   }
 
   std::string GetEnemyAnimation(uint8_t enemyType) const {
     switch (enemyType) {
-      case 0: return "enemy1_anim";
-      case 1: return "enemy2_anim";
-      case 2: return "enemy3_anim";
-      default: return "enemy1_anim";
+      case 0:
+        return "enemy1_anim";
+      case 1:
+        return "enemy2_anim";
+      case 2:
+        return "enemy3_anim";
+      default:
+        return "enemy1_anim";
     }
   }
 
   std::string GetProjectileTexture(uint8_t projectileType) const {
     switch (projectileType) {
-      case 0: return "projectile_player";
-      case 1: return "projectile_enemy";
-      default: return "projectile_player";
+      case 0:
+        return "projectile_player";
+      case 1:
+        return "projectile_enemy";
+      default:
+        return "projectile_player";
     }
   }
 
   std::string GetProjectileAnimation(uint8_t projectileType) const {
     switch (projectileType) {
-      case 0: return "projectile_player_anim";
-      case 1: return "projectile_enemy_anim";
-      default: return "projectile_player_anim";
+      case 0:
+        return "projectile_player_anim";
+      case 1:
+        return "projectile_enemy_anim";
+      default:
+        return "projectile_player_anim";
     }
   }
 
@@ -255,19 +270,21 @@ class MyGameScene : public Scene {
 
     // If player already exists, don't spawn again
     if (m_otherPlayers.find(playerId) != m_otherPlayers.end()) {
-      std::cout << "Player " << playerId << " already spawned, skipping" << std::endl;
+      std::cout << "Player " << playerId << " already spawned, skipping"
+                << std::endl;
       return;
     }
 
     PlayerSkin assignedSkin = m_skinManager.AssignSkinForPlayer(playerId);
     std::string skinAnimation = PlayerSettings::GetSkinAnimation(assignedSkin);
 
-    std::cout << "Spawning player " << playerId << " at (" << position.x
-              << ", " << position.y << ")"
+    std::cout << "Spawning player " << playerId << " at (" << position.x << ", "
+              << position.y << ")"
               << " with skin: " << PlayerSettings::GetSkinName(assignedSkin)
               << std::endl;
 
-    Entity otherPlayer = m_engine->CreateAnimatedSprite("player", position, skinAnimation);
+    Entity otherPlayer =
+        m_engine->CreateAnimatedSprite("player", position, skinAnimation);
 
     auto& transform = GetRegistry().get_components<Transform>()[otherPlayer];
     if (transform) {
@@ -290,13 +307,13 @@ class MyGameScene : public Scene {
       m_skinManager.RemovePlayer(playerId);
       m_entities.erase(
           std::remove(m_entities.begin(), m_entities.end(), playerEntity),
-          m_entities.end()
-      );
+          m_entities.end());
       m_otherPlayers.erase(it);
 
       std::cout << "Removed player " << playerId << std::endl;
     } else {
-      std::cout << "Attempted to remove non-existent player " << playerId << std::endl;
+      std::cout << "Attempted to remove non-existent player " << playerId
+                << std::endl;
     }
   }
 
@@ -306,11 +323,13 @@ class MyGameScene : public Scene {
       Entity playerEntity = it->second;
       auto& transforms = GetRegistry().get_components<Transform>();
 
-      if (playerEntity < transforms.size() && transforms[playerEntity].has_value()) {
+      if (playerEntity < transforms.size() &&
+          transforms[playerEntity].has_value()) {
         transforms[playerEntity]->position = position;
       }
     } else {
-      std::cout << "Player " << playerId << " not found, spawning..." << std::endl;
+      std::cout << "Player " << playerId << " not found, spawning..."
+                << std::endl;
       SpawnOtherPlayer(playerId, position);
     }
   }
@@ -323,11 +342,12 @@ class MyGameScene : public Scene {
     std::string texture = GetEnemyTexture(enemyType);
     std::string animation = GetEnemyAnimation(enemyType);
 
-    std::cout << "Spawning enemy " << enemyId << " (type " << (int)enemyType 
-              << ") at (" << position.x << ", " << position.y << ")" << std::endl;
+    std::cout << "Spawning enemy " << enemyId << " (type " << (int)enemyType
+              << ") at (" << position.x << ", " << position.y << ")"
+              << std::endl;
 
     Entity enemy = m_engine->CreateAnimatedSprite(texture, position, animation);
-    
+
     auto& transform = GetRegistry().get_components<Transform>()[enemy];
     if (transform) {
       transform->scale = {2.0f, 2.0f};
@@ -346,8 +366,7 @@ class MyGameScene : public Scene {
       GetRegistry().kill_entity(enemyEntity);
       m_entities.erase(
           std::remove(m_entities.begin(), m_entities.end(), enemyEntity),
-          m_entities.end()
-      );
+          m_entities.end());
       m_enemies.erase(it);
       std::cout << "Removed enemy " << enemyId << std::endl;
     }
@@ -359,13 +378,15 @@ class MyGameScene : public Scene {
       Entity enemyEntity = it->second;
       auto& transforms = GetRegistry().get_components<Transform>();
 
-      if (enemyEntity < transforms.size() && transforms[enemyEntity].has_value()) {
+      if (enemyEntity < transforms.size() &&
+          transforms[enemyEntity].has_value()) {
         transforms[enemyEntity]->position = position;
       }
     }
   }
 
-  void SpawnProjectile(uint16_t projectileId, uint8_t projectileType, Vector2 position) {
+  void SpawnProjectile(uint16_t projectileId, uint8_t projectileType,
+                       Vector2 position) {
     if (m_projectiles.find(projectileId) != m_projectiles.end()) {
       return;
     }
@@ -373,8 +394,9 @@ class MyGameScene : public Scene {
     std::string texture = GetProjectileTexture(projectileType);
     std::string animation = GetProjectileAnimation(projectileType);
 
-    Entity projectile = m_engine->CreateAnimatedSprite(texture, position, animation);
-    
+    Entity projectile =
+        m_engine->CreateAnimatedSprite(texture, position, animation);
+
     auto& transform = GetRegistry().get_components<Transform>()[projectile];
     if (transform) {
       transform->scale = {1.5f, 1.5f};
@@ -391,8 +413,7 @@ class MyGameScene : public Scene {
       GetRegistry().kill_entity(projectileEntity);
       m_entities.erase(
           std::remove(m_entities.begin(), m_entities.end(), projectileEntity),
-          m_entities.end()
-      );
+          m_entities.end());
       m_projectiles.erase(it);
     }
   }
@@ -403,7 +424,8 @@ class MyGameScene : public Scene {
       Entity projectileEntity = it->second;
       auto& transforms = GetRegistry().get_components<Transform>();
 
-      if (projectileEntity < transforms.size() && transforms[projectileEntity].has_value()) {
+      if (projectileEntity < transforms.size() &&
+          transforms[projectileEntity].has_value()) {
         transforms[projectileEntity]->position = position;
       }
     }
@@ -421,7 +443,8 @@ class MyGameScene : public Scene {
     }
   }
 
-  void UpdatePlayers(const std::vector<GAME_STATE::PlayerState> &playerStates, float dt) {
+  void UpdatePlayers(const std::vector<GAME_STATE::PlayerState>& playerStates,
+                     float dt) {
     auto& transforms = GetRegistry().get_components<Transform>();
     auto& playerComponents = GetRegistry().get_components<PlayerControlled>();
 
@@ -429,21 +452,24 @@ class MyGameScene : public Scene {
       uint16_t playerId = playerState.playerId;
 
       if (playerId == m_localPlayerId) {
-        if (m_localPlayer < transforms.size() && transforms[m_localPlayer].has_value()) {
+        if (m_localPlayer < transforms.size() &&
+            transforms[m_localPlayer].has_value()) {
           transforms[m_localPlayer]->position.x = playerState.posX;
           transforms[m_localPlayer]->position.y = playerState.posY;
         }
 
-        if (m_localPlayer < playerComponents.size() && 
+        if (m_localPlayer < playerComponents.size() &&
             playerComponents[m_localPlayer].has_value()) {
-          playerComponents[m_localPlayer]->current = static_cast<int>(playerState.hp);
+          playerComponents[m_localPlayer]->current =
+              static_cast<int>(playerState.hp);
         }
       } else {
         auto it = m_otherPlayers.find(playerId);
         if (it == m_otherPlayers.end()) {
           SpawnOtherPlayer(playerId, {playerState.posX, playerState.posY});
         } else {
-          UpdateOtherPlayerPosition(playerId, {playerState.posX, playerState.posY});
+          UpdateOtherPlayerPosition(playerId,
+                                    {playerState.posX, playerState.posY});
         }
       }
     }
@@ -469,7 +495,8 @@ class MyGameScene : public Scene {
     m_firstState = true;
   }
 
-  void UpdateEnemies(const std::vector<GAME_STATE::EnemyState>& enemies, float dt) {
+  void UpdateEnemies(const std::vector<GAME_STATE::EnemyState>& enemies,
+                     float dt) {
     std::unordered_set<uint16_t> activeEnemyIds;
 
     for (const auto& enemyState : enemies) {
@@ -478,7 +505,8 @@ class MyGameScene : public Scene {
 
       auto it = m_enemies.find(enemyId);
       if (it == m_enemies.end()) {
-        SpawnEnemy(enemyId, enemyState.enemyType, {enemyState.posX, enemyState.posY});
+        SpawnEnemy(enemyId, enemyState.enemyType,
+                   {enemyState.posX, enemyState.posY});
       } else {
         UpdateEnemyPosition(enemyId, {enemyState.posX, enemyState.posY});
       }
@@ -496,7 +524,8 @@ class MyGameScene : public Scene {
     }
   }
 
-  void UpdateProjectiles(const std::vector<GAME_STATE::ProjectileState>& projectiles, float dt) {
+  void UpdateProjectiles(
+      const std::vector<GAME_STATE::ProjectileState>& projectiles, float dt) {
     std::unordered_set<uint16_t> activeProjectileIds;
 
     for (const auto& projectileState : projectiles) {
@@ -505,10 +534,11 @@ class MyGameScene : public Scene {
 
       auto it = m_projectiles.find(projectileId);
       if (it == m_projectiles.end()) {
-        SpawnProjectile(projectileId, projectileState.type, 
-                       {projectileState.posX, projectileState.posY});
+        SpawnProjectile(projectileId, projectileState.type,
+                        {projectileState.posX, projectileState.posY});
       } else {
-        UpdateProjectilePosition(projectileId, {projectileState.posX, projectileState.posY});
+        UpdateProjectilePosition(projectileId,
+                                 {projectileState.posX, projectileState.posY});
       }
     }
 
@@ -526,19 +556,21 @@ class MyGameScene : public Scene {
 
   void GetEvents(float dt) {
     Event e = GetNetwork().PopEvent();
-    
-    std::visit([&](auto&& payload) {
-        using T = std::decay_t<decltype(payload)>;
 
-        if constexpr (std::is_same_v<T, GAME_STATE>) {
+    std::visit(
+        [&](auto&& payload) {
+          using T = std::decay_t<decltype(payload)>;
+
+          if constexpr (std::is_same_v<T, GAME_STATE>) {
             UpdatePlayers(payload.players, dt);
             UpdateEnemies(payload.enemies, dt);
             UpdateProjectiles(payload.projectiles, dt);
-        } else if constexpr (std::is_same_v<T, BOSS_SPAWN>) {
-        } else if constexpr (!std::is_same_v<T, BOSS_UPDATE>) {
-        } else if constexpr (!std::is_same_v<T, GAME_END>) {
-        } else if constexpr (!std::is_same_v<T, ENEMY_HIT>) {
-        }
-    }, e.data);
+          } else if constexpr (std::is_same_v<T, BOSS_SPAWN>) {
+          } else if constexpr (!std::is_same_v<T, BOSS_UPDATE>) {
+          } else if constexpr (!std::is_same_v<T, GAME_END>) {
+          } else if constexpr (!std::is_same_v<T, ENEMY_HIT>) {
+          }
+        },
+        e.data);
   }
 };
