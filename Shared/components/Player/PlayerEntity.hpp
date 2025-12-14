@@ -1,6 +1,6 @@
 // Copyright 2025 Dalia Guiz
 #pragma once
-#include "Collision/CollisionCotroller.hpp"
+#include "Collision/CollisionController.hpp"
 #include "components/Physics2D.hpp"
 
 struct PlayerControlled {
