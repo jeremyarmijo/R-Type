@@ -10,6 +10,7 @@
 #include "Collision/Items.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
+#include "Player/EnemySpawn.hpp"
 #include "Player/ProjectTile.hpp"
 /**
  * @brief Creates of the SDL window, intializes the TextureManager class and
@@ -110,6 +111,8 @@ void GameEngine::RegisterComponents() {
   m_registry.register_component<ProjectTile>();
   m_registry.register_component<Items>();
   m_registry.register_component<Collision>();
+  m_registry.register_component<EnemySpawning>();
+
   // Network components
 
   std::cout << "Components registered" << std::endl;
