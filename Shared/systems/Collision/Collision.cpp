@@ -31,7 +31,6 @@ void gamePlay_Collision_system(
     SparseArray<BoxCollider>& colliders, SparseArray<PlayerControlled>& players,
     SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses,
     SparseArray<Items>& items, SparseArray<ProjectTile>& projectiles) {
-  // construire les des paires en collision de cette frame
   std::unordered_set<std::pair<size_t, size_t>, pair_hash> collisions_now;
   std::vector<size_t> colli_entities;
   for (auto&& [ix, transform, collider] :
