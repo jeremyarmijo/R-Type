@@ -113,7 +113,7 @@ void player_input_system(Registry& registry,
       rigidbody.velocity.x = playerComp.speed;
     }
 
-    // Vertical movement
+    //  Vertical movement
     rigidbody.velocity.y = 0;
     if (input.moveUp) {
       rigidbody.velocity.y = -playerComp.speed;
