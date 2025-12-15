@@ -3,15 +3,15 @@
 #include <iostream>
 #include <queue>
 #include <utility>
-#include "Player/Enemy.hpp"
-#include "Player/Boss.hpp"
-#include "Helpers/EntityHelper.hpp"
-#include "ecs/Registry.hpp"
-#include "ServerGame.hpp"
-#include "Movement/Movement.hpp"
+#include <vector>
 #include "Collision/Collision.hpp"
 #include "Collision/CollisionController.hpp"
 #include "Collision/Items.hpp"
+#include "Helpers/EntityHelper.hpp"
+#include "Movement/Movement.hpp"
+#include "Player/Boss.hpp"
+#include "Player/Enemy.hpp"
+#include "Server/ServerGame.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/PhysicsSystem.hpp"
 
@@ -74,22 +74,25 @@ bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort) {
 
 void ServerGame::InitWorld() {
   Vector2 playerStartPos1{100.f, 200.f};
-    Vector2 playerStartPos2{100.f, 300.f}; // si 2 joueurs
-    Entity player1 = createPlayer(registry, playerStartPos1, 0);
-    Entity player2 = createPlayer(registry, playerStartPos2, 1);
+  Vector2 playerStartPos2{100.f, 300.f};  // si 2 joueurs
+  Entity player1 = createPlayer(registry, playerStartPos1, 0);
+  Entity player2 = createPlayer(registry, playerStartPos2, 1);
 
-    Vector2 enemyPos1{400.f, 150.f};
-    Vector2 enemyPos2{500.f, 250.f};
-    Entity enemy1 = createEnemy(registry, EnemyType::Basic, enemyPos1);
-    Entity enemy2 = createEnemy(registry, EnemyType::Zigzag, enemyPos2);
+  Vector2 enemyPos1{400.f, 150.f};
+  Vector2 enemyPos2{500.f, 250.f};
+  Entity enemy1 = createEnemy(registry, EnemyType::Basic, enemyPos1);
+  Entity enemy2 = createEnemy(registry, EnemyType::Zigzag, enemyPos2);
 
-    Vector2 bossPos{800.f, 100.f};
-    Entity boss = createBoss(registry, BossType::BigShip, bossPos, BossPhase::Phase1, 500);
+  Vector2 bossPos{800.f, 100.f};
+  Entity boss =
+      createBoss(registry, BossType::BigShip, bossPos, BossPhase::Phase1, 500);
 
-    std::vector<Vector2> spawnPoints = {{600.f, 100.f}, {600.f, 200.f}};
-    Entity spawner = createEnemySpawner(registry, spawnPoints, 5.f, 3, EnemyType::Basic);
+  std::vector<Vector2> spawnPoints = {{600.f, 100.f}, {600.f, 200.f}};
+  Entity spawner =
+      createEnemySpawner(registry, spawnPoints, 5.f, 3, EnemyType::Basic);
 
-    std::cout << "World initialized with players, enemies, and boss." << std::endl;
+  std::cout << "World initialized with players, enemies, and boss."
+            << std::endl;
 }
 
 void ServerGame::StartGame() {
@@ -138,15 +141,13 @@ void ServerGame::GameLoop() {
 
     ReceivePlayerInputs();
     UpdateGameState(deltaTime);
-    SendWorldStateToClients(
-        false,              // victory
-        0,        // scores
-        0,                  // bossId
-        0,                  // bossType
-        0,                  // maxHp
-        0,                  // phase
-        emptyBossUpdates    // boss updates
-    );
+    SendWorldStateToClients(false,            // victory
+                            0,                // scores
+                            0,                // bossId
+                            0,                // bossType
+                            0,                // maxHp
+                            0,                // phase
+                            emptyBossUpdates);
 
     auto frameTime = std::chrono::steady_clock::now() - currentTime;
     if (frameTime < frameDuration) {
@@ -159,8 +160,8 @@ void ServerGame::GameLoop() {
 void ServerGame::SendPacket() {
   // std::queue<std::tuple<Action, uint16_t>> localQueue;
   // {
-    std::lock_guard<std::mutex> lock(queueMutex);
-    // localQueue = actionQueue;
+  std::lock_guard<std::mutex> lock(queueMutex);
+  // localQueue = actionQueue;
   // }
   while (!actionQueue.empty()) {
     auto ac = actionQueue.front();
@@ -179,8 +180,8 @@ void ServerGame::SendPacket() {
     std::cout << "Try SEND (clientId = " << clientId
               << ")   (protocol = " << protocol << ")" << std::endl;
     std::cout << "Packet = ";
-    for (auto &b : msg.data) {
-      std::cout << std::hex << static_cast<int>(b) <<  " ";
+    for (auto& b : msg.data) {
+      std::cout << std::hex << static_cast<int>(b) << " ";
     }
     std::cout << std::endl;
     if (clientId == 0) {
@@ -212,57 +213,62 @@ void ServerGame::Shutdown() {
   if (gameThread.joinable()) gameThread.join();
 
   networkManager.Shutdown();
-
 }
 void ServerGame::ReceivePlayerInputs() {
-    while (auto evOpt = PopEvent()) {
-        auto [event, playerId] = evOpt.value();
+  while (auto evOpt = PopEvent()) {
+    auto [event, playerId] = evOpt.value();
 
-        switch (event.type) {
+    switch (event.type) {
+      case EventType::PLAYER_INPUT: {
+        const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
 
-            case EventType::PLAYER_INPUT: {
-                const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
+        auto& players = registry.get_components<PlayerControlled>();
+        auto& rigidbodies = registry.get_components<RigidBody>();
 
-                auto& players     = registry.get_components<PlayerControlled>();
-                auto& rigidbodies = registry.get_components<RigidBody>();
+        for (auto&& [player, rb] : Zipper(players, rigidbodies)) {
+          if (player.player_id != playerId) continue;
 
-                for (auto&& [player, rb] : Zipper(players, rigidbodies)) {
-                    if (player.player_id != playerId) continue;
-
-                    rb.velocity = {0.f, 0.f};
-                    if (input.left)  rb.velocity.x = -player.speed;
-                    if (input.right) rb.velocity.x =  player.speed;
-                    if (input.up)    rb.velocity.y =  player.speed;
-                    if (input.down)  rb.velocity.y = -player.speed;
-                    break;
-                }
-                break;
-            }
-
-            case EventType::AUTH: {
-                const AUTH& auth = std::get<AUTH>(event.data);
-
-                auto& players = registry.get_components<PlayerControlled>();
-
-                if (players.size() >= 4)
-                    break;
-
-                Vector2 spawnPos;
-                switch (players.size()) {
-                    case 0: spawnPos = {100.f, 200.f}; break;
-                    case 1: spawnPos = {100.f, 300.f}; break;
-                    case 2: spawnPos = {100.f, 400.f}; break;
-                    case 3: spawnPos = {100.f, 500.f}; break;
-                }
-
-                createPlayer(registry, spawnPos, auth.playerId);
-                break;
-            }
-
-            default:
-                break;
+          rb.velocity = {0.f, 0.f};
+          if (input.left) rb.velocity.x = -player.speed;
+          if (input.right) rb.velocity.x = player.speed;
+          if (input.up) rb.velocity.y = player.speed;
+          if (input.down) rb.velocity.y = -player.speed;
+          break;
         }
+        break;
+      }
+
+      case EventType::AUTH: {
+        const AUTH& auth = std::get<AUTH>(event.data);
+
+        auto& players = registry.get_components<PlayerControlled>();
+
+        if (players.size() >= 4) break;
+
+        Vector2 spawnPos;
+        switch (players.size()) {
+          case 0:
+            spawnPos = {100.f, 200.f};
+            break;
+          case 1:
+            spawnPos = {100.f, 300.f};
+            break;
+          case 2:
+            spawnPos = {100.f, 400.f};
+            break;
+          case 3:
+            spawnPos = {100.f, 500.f};
+            break;
+        }
+
+        createPlayer(registry, spawnPos, auth.playerId);
+        break;
+      }
+
+      default:
+        break;
     }
+  }
 }
 
 void ServerGame::UpdateGameState(float deltaTime) {
@@ -274,70 +280,70 @@ void ServerGame::UpdateGameState(float deltaTime) {
   auto& colliders = registry.get_components<BoxCollider>();
   auto& projectiles = registry.get_components<ProjectTile>();
 
-  physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0,0});
+  physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
   enemy_movement_system(transforms, rigidbodies, enemies, deltaTime);
   boss_movement_system(transforms, rigidbodies, bosses, deltaTime);
-  //projectile_system(transforms, rigidbodies, projectiles, deltaTime);
-  gamePlay_Collision_system(registry, transforms, colliders, players, enemies, bosses, /*items*/ registry.get_components<Items>(), projectiles);
+  // projectile_system(transforms, rigidbodies, projectiles, deltaTime);
+  gamePlay_Collision_system(registry, transforms, colliders, players, enemies,
+                            bosses, /*items*/ registry.get_components<Items>(),
+                            projectiles);
 }
 
+void ServerGame::SendWorldStateToClients() {
+  auto& transforms = registry.get_components<Transform>();
+  auto& players = registry.get_components<PlayerControlled>();
+  auto& enemies = registry.get_components<Enemy>();
+  auto& bosses = registry.get_components<Boss>();
+  auto& projectiles = registry.get_components<ProjectTile>();
 
-void ServerGame::SendWorldStateToClients() 
-{
-    auto& transforms  = registry.get_components<Transform>();
-    auto& players     = registry.get_components<PlayerControlled>();
-    auto& enemies     = registry.get_components<Enemy>();
-    auto& bosses      = registry.get_components<Boss>();
-    auto& projectiles = registry.get_components<ProjectTile>();
+  GameState gs;
 
-    GameState gs; 
+  for (auto&& [player, transform] : Zipper(players, transforms)) {
+    PlayerState ps;
+    ps.playerId = player.player_id;
+    ps.posX = transform.position.x;
+    ps.posY = transform.position.y;
+    ps.hp = static_cast<uint8_t>(player.current);
+    ps.weapon = static_cast<uint8_t>(player.weaponId);
+    ps.state = player.isAlive ? 1 : 0;
+    gs.players.push_back(ps);
+  }
 
-    for (auto&& [player, transform] : Zipper(players, transforms)) {
-        PlayerState ps;
-        ps.playerId = player.player_id;
-        ps.posX     = transform.position.x;
-        ps.posY     = transform.position.y;
-        ps.hp       = static_cast<uint8_t>(player.current);
-        ps.weapon   = static_cast<uint8_t>(player.weaponId);
-        ps.state    = player.isAlive ? 1 : 0;
-        gs.players.push_back(ps);
-    }
+  for (auto&& [enemy, transform] : Zipper(enemies, transforms)) {
+    EnemyState es;
+    // es.enemyId   = static_cast<uint16_t>(&enemy - &enemies[0]);
+    es.enemyType = static_cast<uint8_t>(enemy.type);
+    es.posX = transform.position.x;
+    es.posY = transform.position.y;
+    es.hp = static_cast<uint8_t>(enemy.current);
+    es.state = 1;
+    es.direction = 0;
+    gs.enemies.push_back(es);
+  }
 
-    for (auto&& [enemy, transform] : Zipper(enemies, transforms)) {
-        EnemyState es;
-        //es.enemyId   = static_cast<uint16_t>(&enemy - &enemies[0]);
-        es.enemyType = static_cast<uint8_t>(enemy.type);
-        es.posX      = transform.position.x;
-        es.posY      = transform.position.y;
-        es.hp        = static_cast<uint8_t>(enemy.current);
-        es.state     = 1;
-        es.direction = 0;
-        gs.enemies.push_back(es);
-    }
+  for (auto&& [boss, transform] : Zipper(bosses, transforms)) {
+    EnemyState bs;
+    // bs.enemyId   = static_cast<uint16_t>(&boss - &bosses[0]);
+    bs.enemyType = static_cast<uint8_t>(boss.type);
+    bs.posX = transform.position.x;
+    bs.posY = transform.position.y;
+    bs.hp = static_cast<uint8_t>(boss.current);
+    bs.state = 1;
+    bs.direction = 0;
+    gs.enemies.push_back(bs);
+  }
 
-    for (auto&& [boss, transform] : Zipper(bosses, transforms)) {
-        EnemyState bs;
-        //bs.enemyId   = static_cast<uint16_t>(&boss - &bosses[0]);
-        bs.enemyType = static_cast<uint8_t>(boss.type);
-        bs.posX      = transform.position.x;
-        bs.posY      = transform.position.y;
-        bs.hp        = static_cast<uint8_t>(boss.current);
-        bs.state     = 1;
-        bs.direction = 0;
-        gs.enemies.push_back(bs);
-    }
+  for (auto&& [proj, transform] : Zipper(projectiles, transforms)) {
+    ProjectileState ps;
+    // ps.projectileId = static_cast<uint16_t>(&proj - &projectiles[0]);
+    ps.ownerId = proj.is_player_projectTile ? 1 : 0;
+    ps.posX = transform.position.x;
+    ps.posY = transform.position.y;
+    ps.velX = proj.direction.x * proj.speed;
+    ps.velY = proj.direction.y * proj.speed;
+    ps.damage = static_cast<uint8_t>(proj.damage);
+    gs.projectiles.push_back(ps);
+  }
 
-    for (auto&& [proj, transform] : Zipper(projectiles, transforms)) {
-        ProjectileState ps;
-        //ps.projectileId = static_cast<uint16_t>(&proj - &projectiles[0]);
-        ps.ownerId      = proj.is_player_projectTile ? 1 : 0;
-        ps.posX         = transform.position.x;
-        ps.posY         = transform.position.y;
-        ps.velX         = proj.direction.x * proj.speed;
-        ps.velY         = proj.direction.y * proj.speed;
-        ps.damage       = static_cast<uint8_t>(proj.damage);
-        gs.projectiles.push_back(ps);
-    }
-
-    SendAction(std::make_tuple(Action{ ActionType::GAME_STATE, gs }, 0));
+  SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0));
 }
