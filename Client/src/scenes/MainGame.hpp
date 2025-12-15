@@ -50,6 +50,18 @@ class MyGameScene : public Scene {
       if (!textures.GetTexture("background")) {
         textures.LoadTexture("background", "Client/assets/bg.jpg");
       }
+      if (!textures.GetTexture("boss")) {
+        textures.LoadTexture("boss", "Client/assets/boss1.png");
+      }
+      if (!textures.GetTexture("projectile")) {
+        textures.LoadTexture("projectile", "Client/assets/blueShoot.png");
+      }
+
+      std::cout << "Creating animations..." << std::endl;
+      animations.CreateAnimation("projectile_anim", "projectile",
+                                {{SDL_Rect{0, 0, 19, 6}, 0.1f},
+                                 {SDL_Rect{19, 0, 19, 6}, 0.1f}},
+                                true);
 
       std::cout << "Creating background..." << std::endl;
       Entity bg1 = m_engine->CreateSprite("background", {640, 360}, -10);

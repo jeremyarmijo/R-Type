@@ -51,13 +51,13 @@ class MainMenu : public Scene {
 
       std::cout << "Loading textures..." << std::endl;
       if (!textures.GetTexture("player")) {
-        textures.LoadTexture("player", "../Client/assets/player.png");
+        textures.LoadTexture("player", "Client/assets/player.png");
       }
       if (!textures.GetTexture("boss")) {
-        textures.LoadTexture("boss", "../Client/assets/boss1.png");
+        textures.LoadTexture("boss", "Client/assets/boss1.png");
       }
       if (!textures.GetTexture("background")) {
-        textures.LoadTexture("background", "../Client/assets/bg.jpg");
+        textures.LoadTexture("background", "Client/assets/bg.jpg");
       }
 
       std::cout << "Creating animations..." << std::endl;
