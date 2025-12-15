@@ -7,11 +7,6 @@
 #include "ecs/Registry.hpp"
 #include "ecs/Zipper.hpp"
 
-void player_movement_system(SparseArray<Transform>& transforms,
-    SparseArray<RigidBody>& rigidbodies,
-    SparseArray<PlayerEntity>& players,
-    float deltaTime);
-
 void enemy_movement_system(SparseArray<Transform>& transforms,
     SparseArray<RigidBody>& rigidbodies,
     SparseArray<Enemy>& enemies,

@@ -1,10 +1,17 @@
 #include "engine/GameEngine.hpp"
 
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <iostream>
 #include <string>
 
+#include "Collision/CollisionController.hpp"
+#include "Collision/Items.hpp"
+#include "Player/Boss.hpp"
+#include "Player/Enemy.hpp"
+#include "Player/EnemySpawn.hpp"
+#include "Player/Projectile.hpp"
 /**
  * @brief Creates of the SDL window, intializes the TextureManager class and
  * registers game components in the ECS registry
@@ -26,6 +33,12 @@ bool GameEngine::Initialize(const std::string& title, int width, int height) {
 
   if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
     std::cerr << "SDL_image initialization failed: " << IMG_GetError()
+              << std::endl;
+    return false;
+  }
+
+  if (TTF_Init() == -1) {
+    std::cerr << "SDL_ttf initialization failed: " << TTF_GetError()
               << std::endl;
     return false;
   }
@@ -92,6 +105,13 @@ void GameEngine::RegisterComponents() {
   m_registry.register_component<PlayerControlled>();
   m_registry.register_component<InputState>();
 
+  // Enemy / Gameplay
+  m_registry.register_component<Enemy>();
+  m_registry.register_component<Boss>();
+  m_registry.register_component<Items>();
+  m_registry.register_component<Collision>();
+  m_registry.register_component<EnemySpawning>();
+
   // Weapon & Projectile components
   m_registry.register_component<Weapon>();
   m_registry.register_component<Projectile>();
@@ -155,6 +175,10 @@ void GameEngine::RegisterSystems() {
  *
  */
 void GameEngine::Shutdown() {
+  if (m_sceneManager) {
+    m_sceneManager->ClearAllScenes();
+  }
+
   if (m_renderer) {
     SDL_DestroyRenderer(m_renderer);
     m_renderer = nullptr;
@@ -166,6 +190,7 @@ void GameEngine::Shutdown() {
   }
 
   IMG_Quit();
+  TTF_Quit();
   SDL_Quit();
 
   std::cout << "Engine shutdown complete" << std::endl;
@@ -212,8 +237,9 @@ Entity GameEngine::CreatePhysicsObject(const std::string& textureKey,
 
 Entity GameEngine::CreateAnimatedSprite(const std::string& textureKey,
                                         Vector2 position,
-                                        const std::string& animationKey) {
-  Entity entity = CreateSprite(textureKey, position);
+                                        const std::string& animationKey,
+                                        int layer) {
+  Entity entity = CreateSprite(textureKey, position, layer);
 
   m_registry.emplace_component<Animation>(entity, animationKey, true);
   auto& sprite = m_registry.get_components<Sprite>()[entity];
@@ -285,19 +311,19 @@ void GameEngine::Run() {
 
   while (m_running) {
     Uint32 currentTime = SDL_GetTicks();
-    float deltaTime = (currentTime - lastTime) / 1000.0f;
+    m_deltaTime = (currentTime - lastTime) / 1000.0f;
     lastTime = currentTime;
 
-    if (deltaTime > 0.05f) {
-      deltaTime = 0.05f;
+    if (m_deltaTime > 0.05f) {
+      m_deltaTime = 0.05f;
     }
 
     m_inputManager.Update();
     HandleEvents();
+    Update(m_deltaTime);
     if (m_sceneManager) {
       m_sceneManager->Update(m_deltaTime);
     }
-    Update(deltaTime);
     Render();
   }
 
@@ -348,32 +374,11 @@ void GameEngine::Update(float deltaTime) {
 
   // call systems in order of operation
   player_input_system(m_registry, playerControlled, transforms, rigidbodies,
-                      colliders, &m_inputManager);
-
-  // Weapon systems
-  weapon_cooldown_system(m_registry, weapons, deltaTime);
-  weapon_reload_system(m_registry, weapons, deltaTime);
-
-  // Weapon firing system - vérifie si le joueur appuie sur SPACE
-  weapon_firing_system(m_registry, weapons, transforms,
-  [this](size_t entityId) -> bool {
-    // Vérifie si l'entité est contrôlée par le joueur et si SPACE est pressé
-    auto& playerControlled = m_registry.get_components<PlayerControlled>();
-    if (entityId < playerControlled.size() &&
-        playerControlled[entityId].has_value()) {
-      return m_inputManager.IsKeyPressed(SDL_SCANCODE_SPACE);
-    }
-    return false;
-  }, deltaTime);
-
-  // Projectile systems
-  projectile_lifetime_system(m_registry, projectiles, deltaTime);
-  projectile_collision_system(m_registry, transforms, colliders, projectiles);
-
+                      colliders, &m_inputManager, &m_networkManager);
   animation_system(m_registry, animations, sprites, &m_animationManager,
                    deltaTime);
-  physics_system(m_registry, deltaTime, m_gravity);
-  collision_detection_system(m_registry, transforms, colliders, rigidbodies);
+  physics_movement_system(m_registry, transforms, rigidbodies, deltaTime,
+                          m_gravity);
 
   // UpdateCamera();
 }
@@ -383,12 +388,6 @@ void GameEngine::UpdateCamera() {}
 void GameEngine::Render() {
   SDL_SetRenderDrawColor(m_renderer, 50, 50, 80, 255);
   SDL_RenderClear(m_renderer);
-
-  auto& transforms = m_registry.get_components<Transform>();
-  auto& sprites = m_registry.get_components<Sprite>();
-
-  sprite_render_system(m_registry, transforms, sprites, &m_textureManager,
-                       m_renderer, m_cameraPosition);
 
   if (m_sceneManager) {
     m_sceneManager->Render();

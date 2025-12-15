@@ -3,20 +3,21 @@
 
 #include <string>
 
+#include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "graphics/AnimationManager.hpp"
 #include "graphics/RenderComponents.hpp"
 #include "graphics/RenderSystem.hpp"
 #include "graphics/TextureManager.hpp"
+#include "include/NetworkManager.hpp"
 #include "inputs/InputSystem.hpp"
+#include "scene/SceneManager.hpp"
+#include "settings/PlayerSettings.hpp"
 #include "network/NetworkManager.hpp"
 #include "components/Physics2D.hpp"
 #include "components/Player/Projectile.hpp"
 #include "components/Player/Weapon.hpp"
 #include "systems/PhysicsSystem.hpp"
-#include "systems/ProjectileSystem.hpp"
-#include "systems/WeaponSystem.hpp"
-#include "scene/SceneManager.hpp"
 
 constexpr int MAX_PLAYERS = 4;
 
@@ -34,6 +35,7 @@ class GameEngine {
   AnimationManager m_animationManager;
   NetworkManager m_networkManager;
   InputManager m_inputManager;
+  PlayerSettings m_playerSettings;
   SceneManager* m_sceneManager;
 
   Vector2 m_cameraPosition;
@@ -62,6 +64,7 @@ class GameEngine {
   bool ConnectToServer(const std::string& serverIP, int port);
   void RegisterComponents();
   void RegisterSystems();
+  void Stop() { m_running = false; }
   void Shutdown();
   void Run();
 
@@ -74,7 +77,7 @@ class GameEngine {
   Entity CreatePhysicsObject(const std::string& textureKey, Vector2 position,
                              Vector2 size, bool isStatic = false);
   Entity CreateAnimatedSprite(const std::string& textureKey, Vector2 position,
-                              const std::string& animationKey);
+                              const std::string& animationKey, int layer = 0);
   Entity CreatePlayer(const std::string& textureKey,
                       const std::string& animationKey, Vector2 position,
                       float moveSpeed);
@@ -87,6 +90,7 @@ class GameEngine {
   Registry& GetRegistry() { return m_registry; }
   NetworkManager& GetNetworkManager() { return m_networkManager; }
   InputManager& GetInputManager() { return m_inputManager; }
+  PlayerSettings& GetPlayerSettings() { return m_playerSettings; }
   SDL_Renderer* GetRenderer() { return m_renderer; }
 
   Vector2 GetCameraPosition() const { return m_cameraPosition; }

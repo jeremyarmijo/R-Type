@@ -18,11 +18,14 @@ target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/Shared/components/
     ${PROJECT_SOURCE_DIR}/Shared/systems/
     ${PROJECT_SOURCE_DIR}/Client/src/
+    ${PROJECT_SOURCE_DIR}/Client/src/scenes/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/
+    ${PROJECT_SOURCE_DIR}/Client/src/engine/ui/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/graphics/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/inputs/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/network/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/scene/
+    ${PROJECT_SOURCE_DIR}/Client/src/engine/settings/
 )
 
 add_custom_target(clean-all
@@ -32,6 +35,7 @@ add_custom_target(clean-all
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
-target_link_libraries(RTYPE_Client PRIVATE SDL2::SDL2 SDL2_image::SDL2_image)
+find_package(SDL2_ttf REQUIRED)
+target_link_libraries(RTYPE_Client PRIVATE SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf)
 
 target_compile_options(RTYPE_Client PRIVATE -Wall -Wextra)
