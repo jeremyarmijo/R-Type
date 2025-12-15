@@ -1,7 +1,9 @@
 // Copyright 2025 Dalia Guiz
 #include "./Movement.hpp"
+
 #include <algorithm>
 #include <iostream>
+
 #include "Movement/Movement.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
@@ -37,33 +39,28 @@ void enemy_movement_system(SparseArray<Transform>& transforms,
 }
 
 void Projectile_movement_system(SparseArray<Transform>& transforms,
-    SparseArray<RigidBody>& rigidbodies,
-    SparseArray<Projectile>& projectiles,
-    Registry& registry,
-    float deltaTime) {
+                                SparseArray<RigidBody>& rigidbodies,
+                                SparseArray<Projectile>& projectiles,
+                                Registry& registry, float deltaTime) {
+  size_t max =
+      std::max({transforms.size(), rigidbodies.size(), projectiles.size()});
+  for (size_t i = 0; i < max; ++i) {
+    if (!projectiles[i].has_value()) continue;
+    if (!transforms[i].has_value()) continue;
+    if (!rigidbodies[i].has_value()) continue;
 
-    size_t max = std::max({transforms.size(), rigidbodies.size(),
-    projectiles.size()});
-    for (size_t i = 0; i < max; ++i) {
-        if (!projectiles[i].has_value())
-            continue;
-        if (!transforms[i].has_value())
-            continue;
-        if (!rigidbodies[i].has_value())
-            continue;
+    auto& transform = transforms[i].value();
+    auto& rigidbody = rigidbodies[i].value();
+    auto& proj = projectiles[i].value();
 
-        auto& transform = transforms[i].value();
-        auto& rigidbody = rigidbodies[i].value();
-        auto& proj = projectiles[i].value();
+    proj.currentLife += deltaTime;
+    transform.position += rigidbody.velocity * deltaTime;
 
-        proj.currentLife += deltaTime;
-        transform.position += rigidbody.velocity * deltaTime;
-
-        if (proj.currentLife > 2.f) {
-            // registry knows entity id : convert index -> Entity
-            registry.kill_entity(registry.entity_from_index(i));
-        }
+    if (proj.currentLife > 2.f) {
+      // registry knows entity id : convert index -> Entity
+      registry.kill_entity(registry.entity_from_index(i));
     }
+  }
 }
 
 void boss_movement_system(SparseArray<Transform>& transforms,

@@ -1,9 +1,10 @@
 // Copyright 2025 Dalia Guiz
 #pragma once
 #include <algorithm>
+
 #include "Collision/CollisionController.hpp"
-#include "components/Physics2D.hpp"
 #include "Player/Weapon.hpp"
+#include "components/Physics2D.hpp"
 
 struct PlayerEntity {
   int player_id;
@@ -17,9 +18,9 @@ struct PlayerEntity {
   bool hasForce;
   int score;
 
-  PlayerEntity(int id = 0, float s = 100.f, int cur = 100, int mx = 100,
-                   bool alive = true, float inv = 0.f, Weapon weapon = Weapon(),
-                   bool force = false, int sc = 0)
+  PlayerEntity(int id = 0, float s = 150.f, int cur = 100, int mx = 100,
+               bool alive = true, float inv = 0.f, Weapon weapon = Weapon(),
+               bool force = false, int sc = 0)
 
       : player_id(id),
         speed(s),

@@ -4,6 +4,8 @@
 #include <string>
 
 #include "components/Physics2D.hpp"
+#include "components/Player/Projectile.hpp"
+#include "components/Player/Weapon.hpp"
 #include "ecs/Registry.hpp"
 #include "graphics/AnimationManager.hpp"
 #include "graphics/RenderComponents.hpp"
@@ -11,11 +13,9 @@
 #include "graphics/TextureManager.hpp"
 #include "include/NetworkManager.hpp"
 #include "inputs/InputSystem.hpp"
+#include "network/include/NetworkManager.hpp"
 #include "scene/SceneManager.hpp"
 #include "settings/PlayerSettings.hpp"
-#include "network/include/NetworkManager.hpp"
-#include "components/Player/Projectile.hpp"
-#include "components/Player/Weapon.hpp"
 #include "systems/PhysicsSystem.hpp"
 
 constexpr int MAX_PLAYERS = 4;

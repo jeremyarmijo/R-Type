@@ -11,11 +11,11 @@
 #include "inputs/InputSystem.hpp"
 #include "scene/SceneManager.hpp"
 #include "settings/MultiplayerSkinManager.hpp"
+#include "systems/ProjectileSystem.hpp"
+#include "systems/WeaponSystem.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
-#include "systems/WeaponSystem.hpp"
-#include "systems/ProjectileSystem.hpp"
 
 class MyGameScene : public Scene {
  private:
@@ -57,24 +57,6 @@ class MyGameScene : public Scene {
       std::cout << "Loading textures..." << std::endl;
       LoadGameTextures(textures);
       CreateGameAnimations(animations);
-      if (!textures.GetTexture("player")) {
-        textures.LoadTexture("player", "../Client/assets/player.png");
-      }
-      if (!textures.GetTexture("background")) {
-        textures.LoadTexture("background", "../Client/assets/bg.jpg");
-      }
-      if (!textures.GetTexture("boss")) {
-        textures.LoadTexture("boss", "../Client/assets/boss1.png");
-      }
-      if (!textures.GetTexture("projectile")) {
-        textures.LoadTexture("projectile", "../Client/assets/blueShoot.png");
-      }
-
-      std::cout << "Creating animations..." << std::endl;
-      animations.CreateAnimation("projectile_anim", "projectile",
-                                {{SDL_Rect{0, 0, 19, 6}, 0.1f},
-                                 {SDL_Rect{19, 0, 19, 6}, 0.1f}},
-                                true);
 
       std::cout << "Creating background..." << std::endl;
       Entity bg1 = m_engine->CreateSprite("background", {640, 360}, -10);
@@ -105,7 +87,7 @@ class MyGameScene : public Scene {
       }
 
       auto& playerComponent =
-          GetRegistry().get_components<PlayerControlled>()[m_localPlayer];
+          GetRegistry().get_components<PlayerEntity>()[m_localPlayer];
       if (playerComponent) {
         playerComponent->player_id = m_localPlayerId;
         playerComponent->current = 100;
@@ -165,20 +147,22 @@ class MyGameScene : public Scene {
     weapon_reload_system(GetRegistry(), weapons, deltaTime);
 
     // Weapon firing system - vérifie si le joueur appuie sur SPACE
-    weapon_firing_system(GetRegistry(), weapons, transforms,
-    [this](size_t entityId) -> bool {
-      auto& playerEntity = GetRegistry().get_components<PlayerEntity>();
-      if (entityId < playerEntity.size() &&
-          playerEntity[entityId].has_value()) {
-        return GetInput().IsKeyPressed(SDL_SCANCODE_SPACE);
-      }
-      return false;
-    }, deltaTime);
+    weapon_firing_system(
+        GetRegistry(), weapons, transforms,
+        [this](size_t entityId) -> bool {
+          auto& playerEntity = GetRegistry().get_components<PlayerEntity>();
+          if (entityId < playerEntity.size() &&
+              playerEntity[entityId].has_value()) {
+            return GetInput().WasAction1Pressed();
+          }
+          return false;
+        },
+        deltaTime);
 
     // Projectile systems
     projectile_lifetime_system(GetRegistry(), projectiles, deltaTime);
     projectile_collision_system(GetRegistry(), transforms, colliders,
-      projectiles);
+                                projectiles);
 
     MoveBackground(deltaTime);
     GetEvents(deltaTime);
@@ -228,7 +212,7 @@ class MyGameScene : public Scene {
 
     if (!textures.GetTexture("projectile_player")) {
       textures.LoadTexture("projectile_player",
-                           "../Client/assets/projectile_player.png");
+                           "../Client/assets/blueShoot.png");
     }
     if (!textures.GetTexture("projectile_enemy")) {
       textures.LoadTexture("projectile_enemy",
@@ -253,9 +237,9 @@ class MyGameScene : public Scene {
                                 {{128, 0, 64, 64}, 0.2f}},
                                true);
 
-    animations.CreateAnimation(
-        "projectile_player_anim", "projectile_player",
-        {{{0, 0, 16, 16}, 0.05f}, {{16, 0, 16, 16}, 0.05f}}, true);
+    animations.CreateAnimation("projectile_player_anim", "projectile_player",
+                               {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
+                               true);
 
     animations.CreateAnimation(
         "projectile_enemy_anim", "projectile_enemy",
@@ -493,7 +477,7 @@ class MyGameScene : public Scene {
   void UpdatePlayers(const std::vector<GAME_STATE::PlayerState>& playerStates,
                      float dt) {
     auto& transforms = GetRegistry().get_components<Transform>();
-    auto& playerComponents = GetRegistry().get_components<PlayerControlled>();
+    auto& playerComponents = GetRegistry().get_components<PlayerEntity>();
 
     for (const auto& playerState : playerStates) {
       uint16_t playerId = playerState.playerId;
