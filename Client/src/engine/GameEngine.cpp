@@ -11,7 +11,7 @@
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
 #include "Player/EnemySpawn.hpp"
-#include "Player/ProjectTile.hpp"
+#include "Player/Projectile.hpp"
 /**
  * @brief Creates of the SDL window, intializes the TextureManager class and
  * registers game components in the ECS registry
@@ -102,16 +102,19 @@ void GameEngine::RegisterComponents() {
   m_registry.register_component<Camera>();
 
   // Player components
-  m_registry.register_component<PlayerControlled>();
+  m_registry.register_component<PlayerEntity>();
   m_registry.register_component<InputState>();
 
   // Enemy / Gameplay
   m_registry.register_component<Enemy>();
   m_registry.register_component<Boss>();
-  m_registry.register_component<ProjectTile>();
   m_registry.register_component<Items>();
   m_registry.register_component<Collision>();
   m_registry.register_component<EnemySpawning>();
+
+  // Weapon & Projectile components
+  m_registry.register_component<Weapon>();
+  m_registry.register_component<Projectile>();
 
   // Network components
 
@@ -129,13 +132,13 @@ void GameEngine::RegisterSystems() {
   // add in order of operation
 
   /*
-  m_registry.add_system<PlayerControlled, Transform, RigidBody>(
+  m_registry.add_system<PlayerEntity, Transform, RigidBody>(
       [this](Registry& reg,
-             SparseArray<PlayerControlled>& playerControlled,
+             SparseArray<PlayerEntity>& PlayerEntity
              SparseArray<Transform>& transforms,
              SparseArray<RigidBody>& rigidbodies) {
           auto& colliders = reg.get_components<BoxCollider>();
-          player_input_system(reg, playerControlled, transforms, rigidbodies,
+          player_input_system(reg, PlayerEntity, transforms, rigidbodies,
                             colliders, &m_inputManager);
       }
   );
@@ -265,9 +268,44 @@ Entity GameEngine::CreatePlayer(const std::string& textureKey,
 
   m_registry.emplace_component<RigidBody>(player, 1.0f, 0.5f, false);
   m_registry.emplace_component<BoxCollider>(player, 60.0f, 32.0f);
-  m_registry.emplace_component<PlayerControlled>(player, moveSpeed);
+  m_registry.emplace_component<PlayerEntity>(player, moveSpeed);
+
+  // Add weapon component so player can shoot
+  Weapon playerWeapon = CreateWeapon(5.0f, true);
+  m_registry.emplace_component<Weapon>(player, playerWeapon);
 
   return player;
+}
+
+Entity GameEngine::CreateProjectile(const std::string& textureKey,
+                                     Vector2 position, Vector2 direction,
+                                     float speed, size_t ownerId) {
+  Entity projectile = m_registry.spawn_entity();
+
+  m_registry.emplace_component<Transform>(projectile, position, Vector2{1, 1},
+                                          0.0f);
+  m_registry.emplace_component<Sprite>(projectile, textureKey,
+                                       SDL_Rect{0, 0, 16, 16},
+                                       Vector2{0.5f, 0.5f}, 1);
+  m_registry.emplace_component<RigidBody>(projectile, 1.0f, 0.0f, false);
+  m_registry.emplace_component<BoxCollider>(projectile, 16.0f, 16.0f);
+  m_registry.emplace_component<Projectile>(projectile, 10.0f, speed, direction,
+                                          5.0f, ownerId);
+
+  return projectile;
+}
+
+Weapon GameEngine::CreateWeapon(float fireRate, bool isAutomatic) {
+  // Arme automatique simple avec munitions infinies
+  return Weapon(
+      fireRate,        // fireRate (projectiles par seconde)
+      isAutomatic,     // isAutomatic
+      -1,              // maxAmmo (-1 = infini)
+      -1,              // magazineSize (-1 = pas de chargeur)
+      -1.0f,           // reloadTime (-1 = pas de rechargement)
+      false,           // isBurst
+      1,               // burstCount
+      0.0f);  // burstInterval
 }
 
 void GameEngine::Run() {
@@ -330,14 +368,16 @@ void GameEngine::Update(float deltaTime) {
   // m_registry.run_systems(); currently broken
 
   auto& colliders = m_registry.get_components<BoxCollider>();
-  auto& playerControlled = m_registry.get_components<PlayerControlled>();
+  auto& playerEntity = m_registry.get_components<PlayerEntity>();
   auto& transforms = m_registry.get_components<Transform>();
   auto& rigidbodies = m_registry.get_components<RigidBody>();
   auto& animations = m_registry.get_components<Animation>();
   auto& sprites = m_registry.get_components<Sprite>();
+  auto& weapons = m_registry.get_components<Weapon>();
+  auto& projectiles = m_registry.get_components<Projectile>();
 
   // call systems in order of operation
-  player_input_system(m_registry, playerControlled, transforms, rigidbodies,
+  player_input_system(m_registry, playerEntity, transforms, rigidbodies,
                       colliders, &m_inputManager, &m_networkManager);
   animation_system(m_registry, animations, sprites, &m_animationManager,
                    deltaTime);
