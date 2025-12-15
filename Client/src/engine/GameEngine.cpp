@@ -102,7 +102,7 @@ void GameEngine::RegisterComponents() {
   m_registry.register_component<Camera>();
 
   // Player components
-  m_registry.register_component<PlayerControlled>();
+  m_registry.register_component<PlayerEntity>();
   m_registry.register_component<InputState>();
 
   // Enemy / Gameplay
@@ -132,13 +132,13 @@ void GameEngine::RegisterSystems() {
   // add in order of operation
 
   /*
-  m_registry.add_system<PlayerControlled, Transform, RigidBody>(
+  m_registry.add_system<PlayerEntity, Transform, RigidBody>(
       [this](Registry& reg,
-             SparseArray<PlayerControlled>& playerControlled,
+             SparseArray<PlayerEntity>& PlayerEntity
              SparseArray<Transform>& transforms,
              SparseArray<RigidBody>& rigidbodies) {
           auto& colliders = reg.get_components<BoxCollider>();
-          player_input_system(reg, playerControlled, transforms, rigidbodies,
+          player_input_system(reg, PlayerEntity, transforms, rigidbodies,
                             colliders, &m_inputManager);
       }
   );
@@ -268,7 +268,7 @@ Entity GameEngine::CreatePlayer(const std::string& textureKey,
 
   m_registry.emplace_component<RigidBody>(player, 1.0f, 0.5f, false);
   m_registry.emplace_component<BoxCollider>(player, 60.0f, 32.0f);
-  m_registry.emplace_component<PlayerControlled>(player, moveSpeed);
+  m_registry.emplace_component<PlayerEntity>(player, moveSpeed);
 
   return player;
 }
@@ -364,7 +364,7 @@ void GameEngine::Update(float deltaTime) {
   // m_registry.run_systems(); currently broken
 
   auto& colliders = m_registry.get_components<BoxCollider>();
-  auto& playerControlled = m_registry.get_components<PlayerControlled>();
+  auto& playerEntity = m_registry.get_components<PlayerEntity>();
   auto& transforms = m_registry.get_components<Transform>();
   auto& rigidbodies = m_registry.get_components<RigidBody>();
   auto& animations = m_registry.get_components<Animation>();
@@ -373,7 +373,7 @@ void GameEngine::Update(float deltaTime) {
   auto& projectiles = m_registry.get_components<Projectile>();
 
   // call systems in order of operation
-  player_input_system(m_registry, playerControlled, transforms, rigidbodies,
+  player_input_system(m_registry, playerEntity, transforms, rigidbodies,
                       colliders, &m_inputManager, &m_networkManager);
   animation_system(m_registry, animations, sprites, &m_animationManager,
                    deltaTime);
