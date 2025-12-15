@@ -27,12 +27,12 @@ NetworkManager::~NetworkManager() {
 }
 
 bool NetworkManager::Connect(const std::string& ip, int port) {
-  if (running) {
-    std::cerr << "Already try connect to TCP Server\n";
-    return false;
-  }
   serverIP = ip;
   tcpPort = port;
+  if (running) {
+    std::cerr << "Try connect to TCP Server with IP(" << serverIP << ")" << std::endl;
+    return false;
+  }
   running = true;
   networkThread = std::thread(&NetworkManager::ThreadLoop, this);
   return true;
