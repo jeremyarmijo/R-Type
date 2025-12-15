@@ -324,7 +324,10 @@ void NetworkManager::SendActionServer() {
 void NetworkManager::ThreadLoop() {
   while (running) {
     if (!tcpConnected) {
-      ConnectTCP();
+      if (ConnectTCP() == -1) {
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::cout << "[TCP] try to reconnect in 10 seconds\n";
+      }
     }
     if (!udpConnected && udpPort != -1) {
       ConnectUDP();
