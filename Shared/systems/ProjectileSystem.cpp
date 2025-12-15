@@ -5,6 +5,7 @@
 
 #include "systems/ProjectileSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
+#include "systems/Collision/Collision.hpp"
 #include "ecs/Zipper.hpp"
 
 // Forward declarations - les vraies structures sont dans le moteur

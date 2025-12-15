@@ -6,7 +6,7 @@
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
 #include "Player/PlayerEntity.hpp"
-#include "Player/ProjectTile.hpp"
+#include "Player/Projectile.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Zipper.hpp"
 #include "inputs/InputManager.hpp"
