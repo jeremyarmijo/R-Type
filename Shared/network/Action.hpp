@@ -45,6 +45,8 @@ struct PlayerInput {
   bool left;
   bool right;
   uint8_t fire;
+
+  PlayerInput() : up(false), down(false), left(false), right(false), fire(0) {}
 };
 
 struct LoginResponse {
