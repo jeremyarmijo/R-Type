@@ -27,6 +27,10 @@ NetworkManager::~NetworkManager() {
 }
 
 bool NetworkManager::Connect(const std::string& ip, int port) {
+  if (running) {
+    std::cerr << "Already try connect to TCP Server\n";
+    return false;
+  }
   serverIP = ip;
   tcpPort = port;
   running = true;
@@ -38,12 +42,13 @@ void NetworkManager::Disconnect() {
   running = false;
 
   asio::error_code ec;
-  if (tcpSocket.is_open()) {
+  if (tcpSocket.is_open())
     tcpSocket.close(ec);
-  }
-  if (udpSocket.is_open()) {
+  if (udpSocket.is_open())
     udpSocket.close(ec);
-  }
+
+  tcpConnected = false;
+  udpConnected = false;
 }
 
 int NetworkManager::ConnectTCP() {
