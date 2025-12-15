@@ -34,7 +34,7 @@ void enemy_movement_system(SparseArray<Transform>& transforms,
         rigidbody.velocity.y = std::cos(enemy.timer * 2.f) * enemy.amplitude;
         break;
     }
-    transform.position += rigidbody.velocity * deltaTime;
+    // transform.position += rigidbody.velocity * deltaTime;
   }
 }
 
@@ -124,7 +124,7 @@ void boss_movement_system(SparseArray<Transform>& transforms,
         }
       } break;
     }
-    transform.position += rigidbody.velocity * deltaTime;
+    // transform.position += rigidbody.velocity * deltaTime;
     if (boss.type == BossType::BigShip) {
       if (boss.timer > 10.f && boss.phase == BossPhase::Phase1)
         boss.phase = BossPhase::Phase2;
