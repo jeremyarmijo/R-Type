@@ -116,6 +116,8 @@ void Scene::ChangeScene(const std::string& sceneName) {
   }
 }
 
+SceneData& Scene::GetSceneData() { return m_sceneManager->GetSceneData(); }
+
 void Scene::RenderSprites(int minLayer, int maxLayer) {
   auto& transforms = GetRegistry().get_components<Transform>();
   auto& sprites = GetRegistry().get_components<Sprite>();

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstring>
-
 #include <mutex>
 #include <queue>
 #include <string>
@@ -10,8 +9,8 @@
 
 #include <asio.hpp>
 
-#include "network/Action.hpp"
 #include "include/CircularBuffer.hpp"
+#include "network/Action.hpp"
 #include "network/Decoder.hpp"
 #include "network/Encoder.hpp"
 #include "network/Event.hpp"
