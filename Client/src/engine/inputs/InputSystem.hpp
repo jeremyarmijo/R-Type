@@ -6,7 +6,7 @@
 class NetworkManager;
 
 void player_input_system(Registry& registry,
-                         SparseArray<PlayerControlled>& playerControlled,
+                         SparseArray<PlayerEntity>& playerEntity,
                          SparseArray<Transform>& transforms,
                          SparseArray<RigidBody>& rigidbodies,
                          const SparseArray<BoxCollider>& colliders,

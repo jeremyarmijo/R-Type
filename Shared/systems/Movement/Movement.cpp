@@ -6,7 +6,7 @@
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
 #include "Player/PlayerEntity.hpp"
-#include "Player/ProjectTile.hpp"
+#include "Player/Projectile.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Zipper.hpp"
 #include "inputs/InputManager.hpp"
@@ -34,6 +34,36 @@ void enemy_movement_system(SparseArray<Transform>& transforms,
     }
     transform.position += rigidbody.velocity * deltaTime;
   }
+}
+
+void Projectile_movement_system(SparseArray<Transform>& transforms,
+    SparseArray<RigidBody>& rigidbodies,
+    SparseArray<Projectile>& projectiles,
+    Registry& registry,
+    float deltaTime) {
+
+    size_t max = std::max({transforms.size(), rigidbodies.size(),
+    projectiles.size()});
+    for (size_t i = 0; i < max; ++i) {
+        if (!projectiles[i].has_value())
+            continue;
+        if (!transforms[i].has_value())
+            continue;
+        if (!rigidbodies[i].has_value())
+            continue;
+
+        auto& transform = transforms[i].value();
+        auto& rigidbody = rigidbodies[i].value();
+        auto& proj = projectiles[i].value();
+
+        proj.currentLife += deltaTime;
+        transform.position += rigidbody.velocity * deltaTime;
+
+        if (proj.currentLife > 2.f) {
+            // registry knows entity id : convert index -> Entity
+            registry.kill_entity(registry.entity_from_index(i));
+        }
+    }
 }
 
 void boss_movement_system(SparseArray<Transform>& transforms,
