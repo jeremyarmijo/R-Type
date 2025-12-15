@@ -269,7 +269,7 @@ Entity GameEngine::CreatePlayer(const std::string& textureKey,
   m_registry.emplace_component<RigidBody>(player, 1.0f, 0.5f, false);
   m_registry.emplace_component<BoxCollider>(player, 60.0f, 32.0f);
   m_registry.emplace_component<PlayerEntity>(player, moveSpeed);
-  
+
   // Add weapon component so player can shoot
   Weapon playerWeapon = CreateWeapon(5.0f, true);
   m_registry.emplace_component<Weapon>(player, playerWeapon);
