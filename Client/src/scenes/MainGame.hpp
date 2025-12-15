@@ -222,19 +222,25 @@ class MyGameScene : public Scene {
 
   void CreateGameAnimations(AnimationManager& animations) {
     animations.CreateAnimation("enemy1_anim", "enemy1",
-                               {{{0, 0, 32, 32}, 0.1f},
-                                {{32, 0, 32, 32}, 0.1f},
-                                {{64, 0, 32, 32}, 0.1f}},
+                               {{{5, 6, 20, 23}, 0.1f},
+                                {{38, 6, 20, 23}, 0.1f},
+                                {{71, 6, 20, 23}, 0.1f},
+                                {{104, 6, 20, 23}, 0.1f},
+                                {{137, 6, 20, 23}, 0.1f},
+                                {{170, 6, 20, 23}, 0.1f},
+                                {{203, 6, 20, 23}, 0.1f},
+                                {{236, 6, 20, 23}, 0.1f}},
                                true);
 
     animations.CreateAnimation(
         "enemy2_anim", "enemy2",
-        {{{0, 0, 48, 48}, 0.15f}, {{48, 0, 48, 48}, 0.15f}}, true);
+        {{{34, 34, 31, 31}, 0.15f}, {{69, 34, 31, 31}, 0.15f}}, true);
 
     animations.CreateAnimation("enemy3_anim", "enemy3",
-                               {{{0, 0, 64, 64}, 0.2f},
-                                {{64, 0, 64, 64}, 0.2f},
-                                {{128, 0, 64, 64}, 0.2f}},
+                               {{{2, 67, 29, 31}, 0.2f},
+                                {{35, 67, 29, 31}, 0.2f},
+                                {{68, 67, 29, 31}, 0.2f},
+                                {{101, 67, 29, 31}, 0.2f}},
                                true);
 
     animations.CreateAnimation("projectile_player_anim", "projectile_player",
