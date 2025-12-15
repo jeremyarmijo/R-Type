@@ -1,0 +1,6 @@
+{
+  "name": "R-Type-server",
+  "dependencies": [
+    "asio"
+  ]
+}
