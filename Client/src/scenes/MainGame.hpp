@@ -11,6 +11,8 @@
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
+#include "systems/WeaponSystem.hpp"
+#include "systems/ProjectileSystem.hpp"
 
 class MyGameScene : public Scene {
  private:
@@ -43,10 +45,10 @@ class MyGameScene : public Scene {
 
       std::cout << "Loading textures..." << std::endl;
       if (!textures.GetTexture("player")) {
-        textures.LoadTexture("player", "../Client/assets/player.png");
+        textures.LoadTexture("player", "Client/assets/player.png");
       }
       if (!textures.GetTexture("background")) {
-        textures.LoadTexture("background", "../Client/assets/bg.jpg");
+        textures.LoadTexture("background", "Client/assets/bg.jpg");
       }
 
       std::cout << "Creating background..." << std::endl;
@@ -109,25 +111,31 @@ class MyGameScene : public Scene {
 
   void Update(float deltaTime) override {
     if (!m_isInitialized) return;
+
+    auto& weapons = GetRegistry().get_components<Weapon>();
+    auto& transforms = GetRegistry().get_components<Transform>();
+    auto& projectiles = GetRegistry().get_components<Projectile>();
+    auto& colliders = GetRegistry().get_components<BoxCollider>();
+
     // Weapon systems
-    weapon_cooldown_system(m_registry, weapons, deltaTime);
-    weapon_reload_system(m_registry, weapons, deltaTime);
+    weapon_cooldown_system(GetRegistry(), weapons, deltaTime);
+    weapon_reload_system(GetRegistry(), weapons, deltaTime);
 
     // Weapon firing system - vérifie si le joueur appuie sur SPACE
-    weapon_firing_system(m_registry, weapons, transforms,
+    weapon_firing_system(GetRegistry(), weapons, transforms,
     [this](size_t entityId) -> bool {
-      // Vérifie si l'entité est contrôlée par le joueur et si SPACE est pressé
-      auto& playerControlled = m_registry.get_components<PlayerControlled>();
-      if (entityId < playerControlled.size() &&
-          playerControlled[entityId].has_value()) {
-        return m_inputManager.IsKeyPressed(SDL_SCANCODE_SPACE);
+      auto& playerEntity = GetRegistry().get_components<PlayerEntity>();
+      if (entityId < playerEntity.size() &&
+          playerEntity[entityId].has_value()) {
+        return GetInput().IsKeyPressed(SDL_SCANCODE_SPACE);
       }
       return false;
     }, deltaTime);
 
     // Projectile systems
-    projectile_lifetime_system(m_registry, projectiles, deltaTime);
-    projectile_collision_system(m_registry, transforms, colliders, projectiles);
+    projectile_lifetime_system(GetRegistry(), projectiles, deltaTime);
+    projectile_collision_system(GetRegistry(), transforms, colliders,
+      projectiles);
 
     MoveBackground(deltaTime);
   }
