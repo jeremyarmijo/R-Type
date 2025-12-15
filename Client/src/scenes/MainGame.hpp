@@ -168,39 +168,6 @@ class MyGameScene : public Scene {
     GetEvents(deltaTime);
   }
 
-  Entity spawn_projectile(Registry& registry, Vector2 position,
-                          Vector2 direction, float speed, size_t ownerId) {
-    Entity projectile = registry.spawn_entity();
-
-    // Transform
-    registry.emplace_component<Transform>(projectile, position,
-                                          (Vector2){2.f, 2.f});
-
-    // Sprite avec la texture du projectile (blueShoot.png)
-    registry.emplace_component<Sprite>(projectile, "projectile_player",
-                                       SDL_Rect{0, 0, 19, 6},
-                                       Vector2{0.5f, 0.5f}, 2);
-
-    // Animation pour animer entre les deux frames
-    registry.emplace_component<Animation>(
-        projectile, Animation("projectile_player_anim", true));
-
-    // Physics - projectile avec vélocité fixe
-    Vector2 velocity = direction.Normalized() * speed * 2;
-    RigidBody rb(0.0f, 0.0f, false);  // mass=0, restitution=0, isStatic=false
-    rb.velocity = velocity;
-    registry.emplace_component<RigidBody>(projectile, std::move(rb));
-
-    // Collider adapté à la taille du sprite (19x6)
-    registry.emplace_component<BoxCollider>(projectile, 19.0f, 6.0f);
-
-    // Projectile component
-    registry.emplace_component<Projectile>(projectile, 10.0f, speed, direction,
-                                           3.0f, ownerId);
-
-    return projectile;
-  }
-
   void Render() override {
     if (!m_isInitialized) return;
 
@@ -213,17 +180,15 @@ class MyGameScene : public Scene {
       return;
     }
 
-    if (event.type == SDL_KEYDOWN) {
-      if (event.key.keysym.sym == SDLK_r) {
-        std::cout << "Restarting level..." << std::endl;
-        ChangeScene("game");
-      } else if (event.key.keysym.sym == SDLK_x) {
-        std::cout << "Quitting to Main Menu..." << std::endl;
-        ChangeScene("menu");
-      }
-      if (event.key.keysym.sym == SDLK_p)
-        spawn_projectile(GetRegistry(), {200, 300}, {0, 0}, 0, 1);
-    }
+    // if (event.type == SDL_KEYDOWN) {
+    //   if (event.key.keysym.sym == SDLK_r) {
+    //     std::cout << "Restarting level..." << std::endl;
+    //     ChangeScene("game");
+    //   } else if (event.key.keysym.sym == SDLK_x) {
+    //     std::cout << "Quitting to Main Menu..." << std::endl;
+    //     ChangeScene("menu");
+    //   }
+    // }
   }
 
   void LoadGameTextures(TextureManager& textures) {
