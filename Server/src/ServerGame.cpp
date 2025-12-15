@@ -4,6 +4,7 @@
 #include <queue>
 #include <utility>
 #include <vector>
+
 #include "Collision/Collision.hpp"
 #include "Collision/CollisionController.hpp"
 #include "Collision/Items.hpp"
@@ -11,7 +12,7 @@
 #include "Movement/Movement.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
-#include "Server/ServerGame.hpp"
+#include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/PhysicsSystem.hpp"
 
@@ -73,6 +74,27 @@ bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort) {
 }
 
 void ServerGame::InitWorld() {
+  // Physics components
+  registry.register_component<Transform>();
+  registry.register_component<RigidBody>();
+  registry.register_component<BoxCollider>();
+
+  // Player components
+  registry.register_component<PlayerEntity>();
+
+  // Enemy / Gameplay
+  registry.register_component<Enemy>();
+  registry.register_component<Boss>();
+  registry.register_component<Items>();
+  registry.register_component<Collision>();
+  registry.register_component<EnemySpawning>();
+
+  // Weapon & Projectile components
+  registry.register_component<Weapon>();
+  registry.register_component<Projectile>();
+
+  std::cout << "Components registered" << std::endl;
+
   Vector2 playerStartPos1{100.f, 200.f};
   Vector2 playerStartPos2{100.f, 300.f};  // si 2 joueurs
   Entity player1 = createPlayer(registry, playerStartPos1, 0);
@@ -141,13 +163,7 @@ void ServerGame::GameLoop() {
 
     ReceivePlayerInputs();
     UpdateGameState(deltaTime);
-    SendWorldStateToClients(false,            // victory
-                            0,                // scores
-                            0,                // bossId
-                            0,                // bossType
-                            0,                // maxHp
-                            0,                // phase
-                            emptyBossUpdates);
+    SendWorldStateToClients();
 
     auto frameTime = std::chrono::steady_clock::now() - currentTime;
     if (frameTime < frameDuration) {
@@ -222,7 +238,7 @@ void ServerGame::ReceivePlayerInputs() {
       case EventType::PLAYER_INPUT: {
         const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
 
-        auto& players = registry.get_components<PlayerControlled>();
+        auto& players = registry.get_components<PlayerEntity>();
         auto& rigidbodies = registry.get_components<RigidBody>();
 
         for (auto&& [player, rb] : Zipper(players, rigidbodies)) {
@@ -241,7 +257,7 @@ void ServerGame::ReceivePlayerInputs() {
       case EventType::AUTH: {
         const AUTH& auth = std::get<AUTH>(event.data);
 
-        auto& players = registry.get_components<PlayerControlled>();
+        auto& players = registry.get_components<PlayerEntity>();
 
         if (players.size() >= 4) break;
 
@@ -274,11 +290,11 @@ void ServerGame::ReceivePlayerInputs() {
 void ServerGame::UpdateGameState(float deltaTime) {
   auto& transforms = registry.get_components<Transform>();
   auto& rigidbodies = registry.get_components<RigidBody>();
-  auto& players = registry.get_components<PlayerControlled>();
+  auto& players = registry.get_components<PlayerEntity>();
   auto& enemies = registry.get_components<Enemy>();
   auto& bosses = registry.get_components<Boss>();
   auto& colliders = registry.get_components<BoxCollider>();
-  auto& projectiles = registry.get_components<ProjectTile>();
+  auto& projectiles = registry.get_components<Projectile>();
 
   physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
   enemy_movement_system(transforms, rigidbodies, enemies, deltaTime);
@@ -291,10 +307,10 @@ void ServerGame::UpdateGameState(float deltaTime) {
 
 void ServerGame::SendWorldStateToClients() {
   auto& transforms = registry.get_components<Transform>();
-  auto& players = registry.get_components<PlayerControlled>();
+  auto& players = registry.get_components<PlayerEntity>();
   auto& enemies = registry.get_components<Enemy>();
   auto& bosses = registry.get_components<Boss>();
-  auto& projectiles = registry.get_components<ProjectTile>();
+  auto& projectiles = registry.get_components<Projectile>();
 
   GameState gs;
 
@@ -304,7 +320,7 @@ void ServerGame::SendWorldStateToClients() {
     ps.posX = transform.position.x;
     ps.posY = transform.position.y;
     ps.hp = static_cast<uint8_t>(player.current);
-    ps.weapon = static_cast<uint8_t>(player.weaponId);
+    ps.weapon = static_cast<uint8_t>(0);
     ps.state = player.isAlive ? 1 : 0;
     gs.players.push_back(ps);
   }
@@ -336,7 +352,7 @@ void ServerGame::SendWorldStateToClients() {
   for (auto&& [proj, transform] : Zipper(projectiles, transforms)) {
     ProjectileState ps;
     // ps.projectileId = static_cast<uint16_t>(&proj - &projectiles[0]);
-    ps.ownerId = proj.is_player_projectTile ? 1 : 0;
+    // ps.ownerId = proj.is_player_projectTile ? 1 : 0;
     ps.posX = transform.position.x;
     ps.posY = transform.position.y;
     ps.velX = proj.direction.x * proj.speed;
