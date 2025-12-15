@@ -1,10 +1,12 @@
 // Copyright 2025 Dalia Guiz
 #pragma once
 #include <algorithm>
+
 #include "Collision/CollisionController.hpp"
+#include "Player/Weapon.hpp"
 #include "components/Physics2D.hpp"
 
-struct PlayerControlled {
+struct PlayerEntity {
   int player_id;
   Vector2 input;
   float speed;
@@ -12,20 +14,21 @@ struct PlayerControlled {
   int max;
   bool isAlive;
   float invtimer;
-  int weaponId;
+  Weapon weapon;
   bool hasForce;
   int score;
 
-  PlayerControlled(int id = 0, float s = 100.f, int cur = 100, int mx = 100,
-                   bool alive = true, float inv = 0.f, int weapon = 0,
-                   bool force = false, int sc = 0)
+  PlayerEntity(int id = 0, float s = 150.f, int cur = 100, int mx = 100,
+               bool alive = true, float inv = 0.f, Weapon weapon = Weapon(),
+               bool force = false, int sc = 0)
+
       : player_id(id),
         speed(s),
         current(cur),
         max(mx),
         isAlive(alive),
         invtimer(inv),
-        weaponId(weapon),
+        weapon(weapon),
         hasForce(force),
         score(sc) {}
 };

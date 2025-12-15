@@ -10,6 +10,7 @@
 #include "Collision/Items.hpp"
 #include "Player/Enemy.hpp"
 #include "Player/PlayerEntity.hpp"
+#include "Player/Projectile.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/PhysicsSystem.hpp"
 
@@ -27,9 +28,9 @@ static inline std::pair<size_t, size_t> ordered_pair(size_t a, size_t b) {
 
 void gamePlay_Collision_system(
     Registry& registry, SparseArray<Transform>& transforms,
-    SparseArray<BoxCollider>& colliders, SparseArray<PlayerControlled>& players,
+    SparseArray<BoxCollider>& colliders, SparseArray<PlayerEntity>& players,
     SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses,
-    SparseArray<Items>& items, SparseArray<ProjectTile>& projectiles) {
+    SparseArray<Items>& items, SparseArray<Projectile>& projectiles) {
   std::unordered_set<std::pair<size_t, size_t>, pair_hash> collisions_now;
   std::vector<size_t> colli_entities;
   for (auto&& [ix, transform, collider] :
@@ -86,7 +87,7 @@ void gamePlay_Collision_system(
         }
       }
 
-      if (tagger == CollisionCategory::ProjectTile) {
+      if (tagger == CollisionCategory::Projectile) {
         registry.kill_entity(collision.tagger);
       }
 
@@ -125,12 +126,12 @@ void gamePlay_Collision_system(
 }
 
 CollisionCategory get_entity_category(size_t entityId, Registry& registry) {
-  if (registry.get_components<PlayerControlled>()[entityId].has_value())
+  if (registry.get_components<PlayerEntity>()[entityId].has_value())
     return CollisionCategory::Player;
   if (registry.get_components<Enemy>()[entityId].has_value())
     return CollisionCategory::Enemy;
-  if (registry.get_components<ProjectTile>()[entityId].has_value())
-    return CollisionCategory::ProjectTile;
+  if (registry.get_components<Projectile>()[entityId].has_value())
+    return CollisionCategory::Projectile;
   if (registry.get_components<Items>()[entityId].has_value())
     return CollisionCategory::Item;
   if (registry.get_components<Boss>()[entityId].has_value())
@@ -139,19 +140,19 @@ CollisionCategory get_entity_category(size_t entityId, Registry& registry) {
   return CollisionCategory::Unknown;
 }
 
-// Application des dégâts avec PlayerControlled
+// Application des dégâts avec PlayerEntity
 void apply_damage(Registry& registry, const Collision& collision,
                   SparseArray<Transform>& transforms,
-                  SparseArray<PlayerControlled>& players,
+                  SparseArray<PlayerEntity>& players,
                   SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses,
-                  SparseArray<ProjectTile>& projectiles) {
+                  SparseArray<Projectile>& projectiles) {
   if (!players[collision.It].has_value()) return;
 
   auto& target = players[collision.It].value();
 
   int damage = 0;
 
-  if (collision.taggerType == CollisionCategory::ProjectTile &&
+  if (collision.taggerType == CollisionCategory::Projectile &&
       projectiles[collision.tagger].has_value()) {
     damage = projectiles[collision.tagger]->damage;
   }

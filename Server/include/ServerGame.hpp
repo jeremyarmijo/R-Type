@@ -6,7 +6,7 @@
 #include <thread>
 #include <tuple>
 #include <vector>
-
+#include "ecs/Registry.hpp"
 #include "network/DecodeFunc.hpp"
 #include "network/EncodeFunc.hpp"
 #include "network/ServerNetworkManager.hpp"
@@ -22,10 +22,13 @@ class ServerGame {
   ServerNetworkManager networkManager;
   Decoder decode;
   Encoder encode;
-
+  Registry registry;
   std::queue<std::tuple<Event, uint16_t>> eventQueue;
   std::queue<std::tuple<Action, uint16_t>> actionQueue;
   std::mutex queueMutex;
+  void ReceivePlayerInputs();
+  void UpdateGameState(float deltaTime);
+  void SendWorldStateToClients();
 
   std::vector<uint16_t> lobbyPlayers;
   std::mutex lobbyMutex;
@@ -40,6 +43,7 @@ class ServerGame {
   void StartGame();
   void InitWorld();
   void GameLoop();
+
 
   std::optional<std::tuple<Event, uint16_t>> PopEvent();
   void SendAction(std::tuple<Action, uint16_t>);

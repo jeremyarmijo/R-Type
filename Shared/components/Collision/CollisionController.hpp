@@ -8,7 +8,7 @@ enum class CollisionCategory {
   Unknown = 0,
   Player,
   Enemy,
-  ProjectTile,
+  Projectile,
   Boss,
   Item,
   scene

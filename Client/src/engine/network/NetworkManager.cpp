@@ -11,10 +11,10 @@
 #include "network/EncodeFunc.hpp"
 
 NetworkManager::NetworkManager()
-    : eventBuffer(50),
-      actionBuffer(50),
-      tcpSocket(ioContext),
-      udpSocket(ioContext) {
+    : tcpSocket(ioContext),
+      udpSocket(ioContext),
+      eventBuffer(50),
+      actionBuffer(50) {
   SetupDecoder(decoder);
   SetupEncoder(encoder);
 }
@@ -29,6 +29,11 @@ NetworkManager::~NetworkManager() {
 bool NetworkManager::Connect(const std::string& ip, int port) {
   serverIP = ip;
   tcpPort = port;
+  if (running) {
+    std::cerr << "Try connect to TCP Server with IP("
+      << serverIP << ")" << std::endl;
+    return false;
+  }
   running = true;
   networkThread = std::thread(&NetworkManager::ThreadLoop, this);
   return true;
@@ -38,18 +43,18 @@ void NetworkManager::Disconnect() {
   running = false;
 
   asio::error_code ec;
-  if (tcpSocket.is_open()) {
+  if (tcpSocket.is_open())
     tcpSocket.close(ec);
-  }
-  if (udpSocket.is_open()) {
+  if (udpSocket.is_open())
     udpSocket.close(ec);
-  }
+
+  tcpConnected = false;
+  udpConnected = false;
 }
 
 int NetworkManager::ConnectTCP() {
   try {
-    asio::ip::tcp::endpoint endpoint(asio::ip::address::from_string(serverIP),
-                                     tcpPort);
+    asio::ip::tcp::endpoint endpoint(asio::ip::make_address(serverIP), tcpPort);
 
     asio::error_code error;
     tcpSocket.connect(endpoint, error);
@@ -78,8 +83,8 @@ int NetworkManager::ConnectTCP() {
 
 int NetworkManager::ConnectUDP() {
   try {
-    udpEndpoint = asio::ip::udp::endpoint(
-        asio::ip::address::from_string(serverIP), udpPort);
+    udpEndpoint =
+        asio::ip::udp::endpoint(asio::ip::make_address(serverIP), udpPort);
 
     asio::error_code error;
     udpSocket.open(asio::ip::udp::v4(), error);
@@ -324,7 +329,10 @@ void NetworkManager::SendActionServer() {
 void NetworkManager::ThreadLoop() {
   while (running) {
     if (!tcpConnected) {
-      ConnectTCP();
+      if (ConnectTCP() == -1) {
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::cout << "[TCP] try to reconnect in 10 seconds\n";
+      }
     }
     if (!udpConnected && udpPort != -1) {
       ConnectUDP();

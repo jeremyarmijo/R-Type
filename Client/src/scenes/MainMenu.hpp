@@ -150,16 +150,23 @@ class MainMenu : public Scene {
       m_joinButton->SetLayer(9);
       m_joinButton->SetOnClick([this]() {
         std::string serverIP = m_serverInput->GetText();
+        std::string username = m_usernameInput->GetText();
 
         if (serverIP.empty()) {
           std::cout << "ERROR: Please enter a server IP!" << std::endl;
           m_serverInput->Focus();
           return;
         }
+        if (username.empty()) {
+          std::cout << "ERROR: Please enter a username!" << std::endl;
+          m_usernameInput->Focus();
+          return;
+        }
 
-        // GetNetwork().Connect(serverIP, 4242);
-
-        ChangeScene("game");
+        GetNetwork().Connect(serverIP, 4242);
+        Action loginRequest{ActionType::LOGIN_REQUEST,
+                            LoginReq{username, "hashedpassword"}};
+        GetNetwork().SendAction(loginRequest);
       });
       m_joinButton->SetColors({50, 150, 50, 255}, {70, 170, 70, 255},
                               {30, 130, 30, 255});
@@ -243,17 +250,25 @@ class MainMenu : public Scene {
                                true);
   }
   void OnExit() override {
-    std::cout << "\n=== EXITING GAME SCENE ===" << std::endl;
+    std::cout << "\n=== EXITING MENU SCENE ===" << std::endl;
 
     m_entities.clear();
     m_isInitialized = false;
 
-    std::cout << "Game scene cleanup complete" << std::endl;
+    std::cout << "Menu cleanup complete" << std::endl;
     std::cout << "==============================\n" << std::endl;
   }
 
   void Update(float deltaTime) override {
     if (!m_isInitialized) return;
+
+    Event e = GetNetwork().PopEvent();
+    if (e.type == EventType::LOGIN_RESPONSE) {
+      const auto* data = std::get_if<LOGIN_RESPONSE>(&e.data);
+      if (data->success == 0) return;
+      GetSceneData().Set("playerId", data->playerId);
+      ChangeScene("wait");
+    }
   }
 
   void Render() override {

@@ -7,7 +7,7 @@
 #include "Player/Enemy.hpp"
 #include "Player/EnemySpawn.hpp"
 #include "Player/PlayerEntity.hpp"
-#include "Player/ProjectTile.hpp"
+#include "Player/Projectile.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 
@@ -26,8 +26,8 @@ inline Entity createPlayer(Registry& registry, const Vector2& startPos,
   registry.add_component<RigidBody>(player, RigidBody{});
   registry.add_component<BoxCollider>(
       player, BoxCollider(PLAYER_SIZE.x, PLAYER_SIZE.y));
-  registry.add_component<PlayerControlled>(
-      player, PlayerControlled(playerId, 200.f, 100, 100));
+  registry.add_component<PlayerEntity>(player,
+                                       PlayerEntity(playerId, 200.f, 100, 100));
 
   return player;
 }
@@ -48,17 +48,18 @@ inline Entity createEnemy(Registry& registry, EnemyType type,
 
 // Helper pour créer un boss
 inline Entity createBoss(Registry& registry, BossType type,
-                         const Vector2& startPos) {
-  static int bossIdCounter = 0;
-  Entity boss = registry.spawn_entity();
-
-  registry.add_component<Transform>(boss, Transform{startPos});
-  registry.add_component<RigidBody>(boss, RigidBody{});
-  registry.add_component<BoxCollider>(
-      boss, BoxCollider(ENEMY_BOSS_SIZE.x, ENEMY_BOSS_SIZE.y));
-  registry.add_component<Boss>(boss, Boss(type));
-  return boss;
+                        const Vector2& startPos,
+                        BossPhase phase, int maxHp) {
+    Entity boss = registry.spawn_entity();
+    registry.add_component<Transform>(boss, Transform{startPos});
+    registry.add_component<RigidBody>(boss, RigidBody{});
+    registry.add_component<BoxCollider>(boss, BoxCollider(ENEMY_BOSS_SIZE.x,
+    ENEMY_BOSS_SIZE.y));
+    registry.add_component<Boss>(boss, Boss(type, phase, 100.f, {0, 0}
+    , 40.f, maxHp));
+    return boss;
 }
+
 
 inline Entity createProjectile(Registry& registry, const Vector2& startPos,
                                const Vector2& direction, float speed,
@@ -68,9 +69,9 @@ inline Entity createProjectile(Registry& registry, const Vector2& startPos,
   registry.add_component<Transform>(projectile, Transform(startPos));
   registry.add_component<RigidBody>(projectile, RigidBody());
   registry.add_component<BoxCollider>(projectile, BoxCollider(10.f, 10.f));
-  registry.add_component<ProjectTile>(
-      projectile,
-      ProjectTile(speed, direction.Normalized(), damage, fromPlayer));
+  registry.add_component<Projectile>(
+      projectile, Projectile(damage, speed, direction.Normalized(), 5.0f,
+                             fromPlayer ? 1 : 0));
 
   return projectile;
 }

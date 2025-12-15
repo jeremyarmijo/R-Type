@@ -16,6 +16,7 @@ target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/Shared/
     ${PROJECT_SOURCE_DIR}/Shared/ecs/
     ${PROJECT_SOURCE_DIR}/Shared/components/
+    ${PROJECT_SOURCE_DIR}/Shared/network/
     ${PROJECT_SOURCE_DIR}/Shared/systems/
     ${PROJECT_SOURCE_DIR}/Client/src/
     ${PROJECT_SOURCE_DIR}/Client/src/scenes/
@@ -26,6 +27,11 @@ target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/Client/src/engine/network/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/scene/
     ${PROJECT_SOURCE_DIR}/Client/src/engine/settings/
+)
+
+add_custom_target(clean-all
+    COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake Makefile
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 find_package(SDL2 REQUIRED)
