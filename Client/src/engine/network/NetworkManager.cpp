@@ -30,7 +30,8 @@ bool NetworkManager::Connect(const std::string& ip, int port) {
   serverIP = ip;
   tcpPort = port;
   if (running) {
-    std::cerr << "Try connect to TCP Server with IP(" << serverIP << ")" << std::endl;
+    std::cerr << "Try connect to TCP Server with IP("
+      << serverIP << ")" << std::endl;
     return false;
   }
   running = true;
