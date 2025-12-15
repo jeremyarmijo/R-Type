@@ -48,8 +48,7 @@ void NetworkManager::Disconnect() {
 
 int NetworkManager::ConnectTCP() {
   try {
-    asio::ip::tcp::endpoint endpoint(asio::ip::make_address(serverIP),
-                                     tcpPort);
+    asio::ip::tcp::endpoint endpoint(asio::ip::make_address(serverIP), tcpPort);
 
     asio::error_code error;
     tcpSocket.connect(endpoint, error);
@@ -78,8 +77,8 @@ int NetworkManager::ConnectTCP() {
 
 int NetworkManager::ConnectUDP() {
   try {
-    udpEndpoint = asio::ip::udp::endpoint(
-        asio::ip::make_address(serverIP), udpPort);
+    udpEndpoint =
+        asio::ip::udp::endpoint(asio::ip::make_address(serverIP), udpPort);
 
     asio::error_code error;
     udpSocket.open(asio::ip::udp::v4(), error);

@@ -11,11 +11,11 @@
 #include "inputs/InputSystem.hpp"
 #include "scene/SceneManager.hpp"
 #include "settings/MultiplayerSkinManager.hpp"
+#include "systems/ProjectileSystem.hpp"
+#include "systems/WeaponSystem.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
-#include "systems/WeaponSystem.hpp"
-#include "systems/ProjectileSystem.hpp"
 
 class MyGameScene : public Scene {
  private:
@@ -147,34 +147,34 @@ class MyGameScene : public Scene {
     weapon_reload_system(GetRegistry(), weapons, deltaTime);
 
     // Weapon firing system - vérifie si le joueur appuie sur SPACE
-    weapon_firing_system(GetRegistry(), weapons, transforms,
-    [this](size_t entityId) -> bool {
-      auto& playerEntity = GetRegistry().get_components<PlayerEntity>();
-      if (entityId < playerEntity.size() &&
-          playerEntity[entityId].has_value()) {
-        return GetInput().WasAction1Pressed();
-      }
-      return false;
-    }, deltaTime);
+    weapon_firing_system(
+        GetRegistry(), weapons, transforms,
+        [this](size_t entityId) -> bool {
+          auto& playerEntity = GetRegistry().get_components<PlayerEntity>();
+          if (entityId < playerEntity.size() &&
+              playerEntity[entityId].has_value()) {
+            return GetInput().WasAction1Pressed();
+          }
+          return false;
+        },
+        deltaTime);
 
     // Projectile systems
     projectile_lifetime_system(GetRegistry(), projectiles, deltaTime);
     projectile_collision_system(GetRegistry(), transforms, colliders,
-      projectiles);
+                                projectiles);
 
     MoveBackground(deltaTime);
     GetEvents(deltaTime);
   }
 
-  Entity spawn_projectile(Registry& registry,
-                       Vector2 position,
-                       Vector2 direction,
-                       float speed,
-                       size_t ownerId) {
+  Entity spawn_projectile(Registry& registry, Vector2 position,
+                          Vector2 direction, float speed, size_t ownerId) {
     Entity projectile = registry.spawn_entity();
 
     // Transform
-    registry.emplace_component<Transform>(projectile, position, (Vector2){2.f, 2.f});
+    registry.emplace_component<Transform>(projectile, position,
+                                          (Vector2){2.f, 2.f});
 
     // Sprite avec la texture du projectile (blueShoot.png)
     registry.emplace_component<Sprite>(projectile, "projectile_player",
@@ -182,8 +182,8 @@ class MyGameScene : public Scene {
                                        Vector2{0.5f, 0.5f}, 2);
 
     // Animation pour animer entre les deux frames
-    registry.emplace_component<Animation>(projectile,
-                                        Animation("projectile_player_anim", true));
+    registry.emplace_component<Animation>(
+        projectile, Animation("projectile_player_anim", true));
 
     // Physics - projectile avec vélocité fixe
     Vector2 velocity = direction.Normalized() * speed * 2;
@@ -272,9 +272,9 @@ class MyGameScene : public Scene {
                                 {{128, 0, 64, 64}, 0.2f}},
                                true);
 
-    animations.CreateAnimation(
-        "projectile_player_anim", "projectile_player",
-        {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}}, true);
+    animations.CreateAnimation("projectile_player_anim", "projectile_player",
+                               {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
+                               true);
 
     animations.CreateAnimation(
         "projectile_enemy_anim", "projectile_enemy",

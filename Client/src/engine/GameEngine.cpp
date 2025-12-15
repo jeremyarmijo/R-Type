@@ -278,34 +278,32 @@ Entity GameEngine::CreatePlayer(const std::string& textureKey,
 }
 
 Entity GameEngine::CreateProjectile(const std::string& textureKey,
-                                     Vector2 position, Vector2 direction,
-                                     float speed, size_t ownerId) {
+                                    Vector2 position, Vector2 direction,
+                                    float speed, size_t ownerId) {
   Entity projectile = m_registry.spawn_entity();
 
   m_registry.emplace_component<Transform>(projectile, position, Vector2{1, 1},
                                           0.0f);
-  m_registry.emplace_component<Sprite>(projectile, textureKey,
-                                       SDL_Rect{0, 0, 16, 16},
-                                       Vector2{0.5f, 0.5f}, 1);
+  m_registry.emplace_component<Sprite>(
+      projectile, textureKey, SDL_Rect{0, 0, 16, 16}, Vector2{0.5f, 0.5f}, 1);
   m_registry.emplace_component<RigidBody>(projectile, 1.0f, 0.0f, false);
   m_registry.emplace_component<BoxCollider>(projectile, 16.0f, 16.0f);
   m_registry.emplace_component<Projectile>(projectile, 10.0f, speed, direction,
-                                          5.0f, ownerId);
+                                           5.0f, ownerId);
 
   return projectile;
 }
 
 Weapon GameEngine::CreateWeapon(float fireRate, bool isAutomatic) {
   // Arme automatique simple avec munitions infinies
-  return Weapon(
-      fireRate,        // fireRate (projectiles par seconde)
-      isAutomatic,     // isAutomatic
-      -1,              // maxAmmo (-1 = infini)
-      -1,              // magazineSize (-1 = pas de chargeur)
-      -1.0f,           // reloadTime (-1 = pas de rechargement)
-      false,           // isBurst
-      1,               // burstCount
-      0.0f);  // burstInterval
+  return Weapon(fireRate,     // fireRate (projectiles par seconde)
+                isAutomatic,  // isAutomatic
+                -1,           // maxAmmo (-1 = infini)
+                -1,           // magazineSize (-1 = pas de chargeur)
+                -1.0f,        // reloadTime (-1 = pas de rechargement)
+                false,        // isBurst
+                1,            // burstCount
+                0.0f);        // burstInterval
 }
 
 void GameEngine::Run() {

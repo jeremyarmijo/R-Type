@@ -10,9 +10,9 @@
 #include "Collision/Items.hpp"
 #include "Player/Enemy.hpp"
 #include "Player/PlayerEntity.hpp"
+#include "Player/Projectile.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/PhysicsSystem.hpp"
-#include "Player/Projectile.hpp"
 
 struct pair_hash {
   inline std::size_t operator()(
