@@ -14,6 +14,8 @@
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
+#include "systems/WeaponSystem.hpp"
+#include "systems/ProjectileSystem.hpp"
 
 class MyGameScene : public Scene {
  private:
@@ -85,7 +87,7 @@ class MyGameScene : public Scene {
       }
 
       auto& playerComponent =
-          GetRegistry().get_components<PlayerControlled>()[m_localPlayer];
+          GetRegistry().get_components<PlayerEntity>()[m_localPlayer];
       if (playerComponent) {
         playerComponent->player_id = m_localPlayerId;
         playerComponent->current = 100;
@@ -135,8 +137,68 @@ class MyGameScene : public Scene {
   void Update(float deltaTime) override {
     if (!m_isInitialized) return;
 
+    auto& weapons = GetRegistry().get_components<Weapon>();
+    auto& transforms = GetRegistry().get_components<Transform>();
+    auto& projectiles = GetRegistry().get_components<Projectile>();
+    auto& colliders = GetRegistry().get_components<BoxCollider>();
+
+    // Weapon systems
+    weapon_cooldown_system(GetRegistry(), weapons, deltaTime);
+    weapon_reload_system(GetRegistry(), weapons, deltaTime);
+
+    // Weapon firing system - vérifie si le joueur appuie sur SPACE
+    weapon_firing_system(GetRegistry(), weapons, transforms,
+    [this](size_t entityId) -> bool {
+      auto& playerEntity = GetRegistry().get_components<PlayerEntity>();
+      if (entityId < playerEntity.size() &&
+          playerEntity[entityId].has_value()) {
+        return GetInput().WasAction1Pressed();
+      }
+      return false;
+    }, deltaTime);
+
+    // Projectile systems
+    projectile_lifetime_system(GetRegistry(), projectiles, deltaTime);
+    projectile_collision_system(GetRegistry(), transforms, colliders,
+      projectiles);
+
     MoveBackground(deltaTime);
     GetEvents(deltaTime);
+  }
+
+  Entity spawn_projectile(Registry& registry,
+                       Vector2 position,
+                       Vector2 direction,
+                       float speed,
+                       size_t ownerId) {
+    Entity projectile = registry.spawn_entity();
+
+    // Transform
+    registry.emplace_component<Transform>(projectile, position, (Vector2){2.f, 2.f});
+
+    // Sprite avec la texture du projectile (blueShoot.png)
+    registry.emplace_component<Sprite>(projectile, "projectile_player",
+                                       SDL_Rect{0, 0, 19, 6},
+                                       Vector2{0.5f, 0.5f}, 2);
+
+    // Animation pour animer entre les deux frames
+    registry.emplace_component<Animation>(projectile,
+                                        Animation("projectile_player_anim", true));
+
+    // Physics - projectile avec vélocité fixe
+    Vector2 velocity = direction.Normalized() * speed * 2;
+    RigidBody rb(0.0f, 0.0f, false);  // mass=0, restitution=0, isStatic=false
+    rb.velocity = velocity;
+    registry.emplace_component<RigidBody>(projectile, std::move(rb));
+
+    // Collider adapté à la taille du sprite (19x6)
+    registry.emplace_component<BoxCollider>(projectile, 19.0f, 6.0f);
+
+    // Projectile component
+    registry.emplace_component<Projectile>(projectile, 10.0f, speed, direction,
+                                           3.0f, ownerId);
+
+    return projectile;
   }
 
   void Render() override {
@@ -151,15 +213,17 @@ class MyGameScene : public Scene {
       return;
     }
 
-    // if (event.type == SDL_KEYDOWN) {
-    //   if (event.key.keysym.sym == SDLK_r) {
-    //     std::cout << "Restarting level..." << std::endl;
-    //     ChangeScene("game");
-    //   } else if (event.key.keysym.sym == SDLK_x) {
-    //     std::cout << "Quitting to Main Menu..." << std::endl;
-    //     ChangeScene("menu");
-    //   }
-    // }
+    if (event.type == SDL_KEYDOWN) {
+      if (event.key.keysym.sym == SDLK_r) {
+        std::cout << "Restarting level..." << std::endl;
+        ChangeScene("game");
+      } else if (event.key.keysym.sym == SDLK_x) {
+        std::cout << "Quitting to Main Menu..." << std::endl;
+        ChangeScene("menu");
+      }
+      if (event.key.keysym.sym == SDLK_p)
+        spawn_projectile(GetRegistry(), {200, 300}, {0, 0}, 0, 1);
+    }
   }
 
   void LoadGameTextures(TextureManager& textures) {
@@ -183,7 +247,7 @@ class MyGameScene : public Scene {
 
     if (!textures.GetTexture("projectile_player")) {
       textures.LoadTexture("projectile_player",
-                           "../Client/assets/projectile_player.png");
+                           "../Client/assets/blueShoot.png");
     }
     if (!textures.GetTexture("projectile_enemy")) {
       textures.LoadTexture("projectile_enemy",
@@ -210,7 +274,7 @@ class MyGameScene : public Scene {
 
     animations.CreateAnimation(
         "projectile_player_anim", "projectile_player",
-        {{{0, 0, 16, 16}, 0.05f}, {{16, 0, 16, 16}, 0.05f}}, true);
+        {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}}, true);
 
     animations.CreateAnimation(
         "projectile_enemy_anim", "projectile_enemy",
@@ -448,7 +512,7 @@ class MyGameScene : public Scene {
   void UpdatePlayers(const std::vector<GAME_STATE::PlayerState>& playerStates,
                      float dt) {
     auto& transforms = GetRegistry().get_components<Transform>();
-    auto& playerComponents = GetRegistry().get_components<PlayerControlled>();
+    auto& playerComponents = GetRegistry().get_components<PlayerEntity>();
 
     for (const auto& playerState : playerStates) {
       uint16_t playerId = playerState.playerId;

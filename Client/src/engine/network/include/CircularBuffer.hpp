@@ -13,7 +13,7 @@ class CircularBuffer {
 
  public:
   explicit CircularBuffer(size_t capacity)
-      : m_maxItem(capacity), m_buffer(capacity) {}
+      : m_buffer(capacity), m_maxItem(capacity) {}
 
   size_t size() { return m_nbItem; }
 

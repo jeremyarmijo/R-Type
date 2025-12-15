@@ -11,10 +11,10 @@
 #include "network/EncodeFunc.hpp"
 
 NetworkManager::NetworkManager()
-    : eventBuffer(50),
-      actionBuffer(50),
-      tcpSocket(ioContext),
-      udpSocket(ioContext) {
+    : tcpSocket(ioContext),
+      udpSocket(ioContext),
+      eventBuffer(50),
+      actionBuffer(50) {
   SetupDecoder(decoder);
   SetupEncoder(encoder);
 }
@@ -48,7 +48,7 @@ void NetworkManager::Disconnect() {
 
 int NetworkManager::ConnectTCP() {
   try {
-    asio::ip::tcp::endpoint endpoint(asio::ip::address::from_string(serverIP),
+    asio::ip::tcp::endpoint endpoint(asio::ip::make_address(serverIP),
                                      tcpPort);
 
     asio::error_code error;
@@ -79,7 +79,7 @@ int NetworkManager::ConnectTCP() {
 int NetworkManager::ConnectUDP() {
   try {
     udpEndpoint = asio::ip::udp::endpoint(
-        asio::ip::address::from_string(serverIP), udpPort);
+        asio::ip::make_address(serverIP), udpPort);
 
     asio::error_code error;
     udpSocket.open(asio::ip::udp::v4(), error);

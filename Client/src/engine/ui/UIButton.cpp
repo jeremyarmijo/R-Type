@@ -56,7 +56,8 @@ bool UIButton::LoadFont() {
   }
 
   if (m_fontPath.empty()) {
-    const char* defaultFonts[] = {"../Client/assets/Font.ttf"};
+    const char* defaultFonts[] = {"../Client/assets/Font.ttf",
+                                  "Client/assets/Font.ttf"};
 
     for (const char* path : defaultFonts) {
       m_font = TTF_OpenFont(path, m_fontSize);

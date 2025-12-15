@@ -7,7 +7,7 @@
 #include "network/Action.hpp"
 
 void player_input_system(Registry& registry,
-                         SparseArray<PlayerControlled>& playerControlled,
+                         SparseArray<PlayerEntity>& playerEntity,
                          SparseArray<Transform>& transforms,
                          SparseArray<RigidBody>& rigidbodies,
                          const SparseArray<BoxCollider>& colliders,
@@ -101,7 +101,7 @@ void player_input_system(Registry& registry,
   InputState input = inputManager->GetPlayerInput();
 
   for (auto&& [playerComp, transform, rigidbody] :
-       Zipper(playerControlled, transforms, rigidbodies)) {
+       Zipper(playerEntity, transforms, rigidbodies)) {
     if (rigidbody.isStatic) continue;
 
     // Horizontal movement
