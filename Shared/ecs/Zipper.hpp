@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <tuple>
 #include <utility>
+#include <functional>
 
 #include "ecs/Zipper.hpp"
 
