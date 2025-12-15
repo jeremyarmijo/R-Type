@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "" FORCE)
+
 project(RTYPE_Client VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -34,9 +36,18 @@ add_custom_target(clean-all
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
-find_package(SDL2_ttf REQUIRED)
-target_link_libraries(RTYPE_Client PRIVATE SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf)
+find_package(asio CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2_image CONFIG REQUIRED)
+find_package(SDL2_ttf CONFIG REQUIRED)
+
+
+target_link_libraries(RTYPE_Client PRIVATE 
+    asio::asio
+    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
+    $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
+)
 
 target_compile_options(RTYPE_Client PRIVATE -Wall -Wextra)
