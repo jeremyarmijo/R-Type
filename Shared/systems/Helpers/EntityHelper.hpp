@@ -10,6 +10,7 @@
 #include "Player/Projectile.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
+#include "inputs/InputManager.hpp"
 
 static const Vector2 PLAYER_SIZE{32.f, 32.f};
 static const Vector2 ENEMY_BASIC_SIZE{32.f, 32.f};
@@ -24,6 +25,7 @@ inline Entity createPlayer(Registry& registry, const Vector2& startPos,
 
   registry.add_component<Transform>(player, Transform{startPos});
   registry.add_component<RigidBody>(player, RigidBody{});
+  registry.add_component<InputState>(player, InputState());
   registry.add_component<BoxCollider>(
       player, BoxCollider(PLAYER_SIZE.x, PLAYER_SIZE.y));
   registry.add_component<PlayerEntity>(player,
