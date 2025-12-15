@@ -13,6 +13,25 @@
 #include "ecs/Zipper.hpp"
 #include "inputs/InputManager.hpp"
 
+void player_movement_system(Registry& registry) {
+    auto& rigidbodies = registry.get_components<RigidBody>();
+    auto& players = registry.get_components<PlayerEntity>();
+    auto& states = registry.get_components<InputState>();
+
+    for (auto&& [state, rb, player] : Zipper(states,
+    rigidbodies, players)) {
+        rb.velocity = {0.f, 0.f};
+        if (state.moveLeft) {
+          std::cout << "moving left" << std::endl;
+          rb.velocity.x = -player.speed;
+        }
+        if (state.moveRight) rb.velocity.x = player.speed;
+        if (state.moveUp) rb.velocity.y = -player.speed;
+        if (state.moveDown) rb.velocity.y = player.speed;
+
+    }
+}
+
 void enemy_movement_system(SparseArray<Transform>& transforms,
                            SparseArray<RigidBody>& rigidbodies,
                            SparseArray<Enemy>& enemies, float deltaTime) {
