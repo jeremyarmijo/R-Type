@@ -26,6 +26,9 @@ void ServerGame::HandleAuth(uint16_t playerId) {
       lobbyPlayers.end())
     return;
 
+
+  float posY = 200.f + ((playerId - 1) % 4) * 100.f;
+  Entity player = createPlayer(registry, {200, posY}, playerId);
   lobbyPlayers.push_back(playerId);
   std::cout << "Player " << playerId << " joined the lobby ("
             << lobbyPlayers.size() << "/4)" << std::endl;
@@ -69,18 +72,14 @@ bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
   }
-  SetupNetworkCallbacks();
-  return true;
-}
-
-void ServerGame::InitWorld() {
-  // Physics components
+    // Physics components
   registry.register_component<Transform>();
   registry.register_component<RigidBody>();
   registry.register_component<BoxCollider>();
 
   // Player components
   registry.register_component<PlayerEntity>();
+  registry.register_component<InputState>();
 
   // Enemy / Gameplay
   registry.register_component<Enemy>();
@@ -94,27 +93,32 @@ void ServerGame::InitWorld() {
   registry.register_component<Projectile>();
 
   std::cout << "Components registered" << std::endl;
+  SetupNetworkCallbacks();
+  return true;
+}
 
-  Vector2 playerStartPos1{100.f, 200.f};
-  Vector2 playerStartPos2{100.f, 300.f};  // si 2 joueurs
-  Entity player1 = createPlayer(registry, playerStartPos1, 0);
-  Entity player2 = createPlayer(registry, playerStartPos2, 1);
+void ServerGame::InitWorld() {
 
-  Vector2 enemyPos1{400.f, 150.f};
-  Vector2 enemyPos2{500.f, 250.f};
-  Entity enemy1 = createEnemy(registry, EnemyType::Basic, enemyPos1);
-  Entity enemy2 = createEnemy(registry, EnemyType::Zigzag, enemyPos2);
+  // Vector2 playerStartPos1{100.f, 200.f};
+  // Vector2 playerStartPos2{100.f, 300.f};  // si 2 joueurs
+  // Entity player1 = createPlayer(registry, playerStartPos1, 0);
+  // Entity player2 = createPlayer(registry, playerStartPos2, 1);
 
-  Vector2 bossPos{800.f, 100.f};
-  Entity boss =
-      createBoss(registry, BossType::BigShip, bossPos, BossPhase::Phase1, 500);
+  // Vector2 enemyPos1{400.f, 150.f};
+  // Vector2 enemyPos2{500.f, 250.f};
+  // Entity enemy1 = createEnemy(registry, EnemyType::Basic, enemyPos1);
+  // Entity enemy2 = createEnemy(registry, EnemyType::Zigzag, enemyPos2);
 
-  std::vector<Vector2> spawnPoints = {{600.f, 100.f}, {600.f, 200.f}};
-  Entity spawner =
-      createEnemySpawner(registry, spawnPoints, 5.f, 3, EnemyType::Basic);
+  // Vector2 bossPos{800.f, 100.f};
+  // Entity boss =
+  //     createBoss(registry, BossType::BigShip, bossPos, BossPhase::Phase1, 500);
 
-  std::cout << "World initialized with players, enemies, and boss."
-            << std::endl;
+  // std::vector<Vector2> spawnPoints = {{600.f, 100.f}, {600.f, 200.f}};
+  // Entity spawner =
+  //     createEnemySpawner(registry, spawnPoints, 5.f, 3, EnemyType::Basic);
+
+  // std::cout << "World initialized with players, enemies, and boss."
+  //           << std::endl;
 }
 
 void ServerGame::StartGame() {
@@ -174,14 +178,14 @@ void ServerGame::GameLoop() {
 }
 
 void ServerGame::SendPacket() {
-  // std::queue<std::tuple<Action, uint16_t>> localQueue;
-  // {
-  std::lock_guard<std::mutex> lock(queueMutex);
-  // localQueue = actionQueue;
-  // }
-  while (!actionQueue.empty()) {
-    auto ac = actionQueue.front();
-    actionQueue.pop();
+  std::queue<std::tuple<Action, uint16_t>> localQueue;
+  {
+    std::lock_guard<std::mutex> lock(queueMutex);
+    localQueue.swap(actionQueue);
+  }
+  while (!localQueue.empty()) {
+    auto ac = localQueue.front();
+    localQueue.pop();
 
     Action action = std::get<0>(ac);
     uint16_t clientId = std::get<1>(ac);
@@ -196,22 +200,22 @@ void ServerGame::SendPacket() {
     std::cout << "Try SEND (clientId = " << clientId
               << ")   (protocol = " << protocol << ")" << std::endl;
     std::cout << "Packet = ";
-    for (auto& b : msg.data) {
-      std::cout << std::hex << static_cast<int>(b) << " ";
+    for (auto &b : msg.data) {
+      std::cout << std::hex << static_cast<int>(b) <<  " ";
     }
     std::cout << std::endl;
     if (clientId == 0) {
       if (protocol == 0) networkManager.BroadcastUDP(msg);
       if (protocol == 2) networkManager.BroadcastTCP(msg);
-      return;
+      continue;
     }
     if (protocol == 0) {
       networkManager.SendTo(msg, true);
-      return;
+      continue;
     }
     if (protocol == 2) {
       networkManager.SendTo(msg, false);
-      return;
+      continue;
     }
   }
 }
@@ -230,6 +234,7 @@ void ServerGame::Shutdown() {
 
   networkManager.Shutdown();
 }
+
 void ServerGame::ReceivePlayerInputs() {
   while (auto evOpt = PopEvent()) {
     auto [event, playerId] = evOpt.value();
@@ -239,45 +244,18 @@ void ServerGame::ReceivePlayerInputs() {
         const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
 
         auto& players = registry.get_components<PlayerEntity>();
-        auto& rigidbodies = registry.get_components<RigidBody>();
+        auto& states = registry.get_components<InputState>();
 
-        for (auto&& [player, rb] : Zipper(players, rigidbodies)) {
+        for (auto&& [player, state] : Zipper(players, states)) {
           if (player.player_id != playerId) continue;
 
-          rb.velocity = {0.f, 0.f};
-          if (input.left) rb.velocity.x = -player.speed;
-          if (input.right) rb.velocity.x = player.speed;
-          if (input.up) rb.velocity.y = player.speed;
-          if (input.down) rb.velocity.y = -player.speed;
+          state.moveLeft = input.left;
+          state.moveRight = input.right;
+          state.moveDown = input.down;
+          state.moveUp = input.up;
+          state.action1 = input.fire;
           break;
         }
-        break;
-      }
-
-      case EventType::AUTH: {
-        const AUTH& auth = std::get<AUTH>(event.data);
-
-        auto& players = registry.get_components<PlayerEntity>();
-
-        if (players.size() >= 4) break;
-
-        Vector2 spawnPos;
-        switch (players.size()) {
-          case 0:
-            spawnPos = {100.f, 200.f};
-            break;
-          case 1:
-            spawnPos = {100.f, 300.f};
-            break;
-          case 2:
-            spawnPos = {100.f, 400.f};
-            break;
-          case 3:
-            spawnPos = {100.f, 500.f};
-            break;
-        }
-
-        createPlayer(registry, spawnPos, auth.playerId);
         break;
       }
 
@@ -296,6 +274,7 @@ void ServerGame::UpdateGameState(float deltaTime) {
   auto& colliders = registry.get_components<BoxCollider>();
   auto& projectiles = registry.get_components<Projectile>();
 
+  player_movement_system(registry);
   physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
   enemy_movement_system(transforms, rigidbodies, enemies, deltaTime);
   boss_movement_system(transforms, rigidbodies, bosses, deltaTime);
