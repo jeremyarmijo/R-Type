@@ -8,3 +8,4 @@
 #define TCP_REQUEST_FLAG 0x01
 #define REQUEST_SUCCESS 0x01
 #define REQUEST_ERROR 0x00
+#define HEADER_SIZE 6

@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <asio.hpp>
-
+#include "include/ServerMacro.hpp"
 #include "network/DecodeFunc.hpp"
 
 class ProcessPacketTCP;
@@ -63,25 +63,21 @@ class ProcessPacketTCP : public std::enable_shared_from_this<ProcessPacketTCP> {
 
  private:
   void ReadHeader();
-  void push_buffer_uint16(std::vector<uint8_t>& buffer, uint16_t value);
-  void push_buffer_uint32(std::vector<uint8_t>& buffer, uint32_t value);
   void HandleReadHeader(const asio::error_code& error,
                         std::size_t bytes_transferred);
   void ReadPayload(uint16_t payload_size);
   void HandleReadPayload(const asio::error_code& error,
                          std::size_t bytes_transferred);
-
   void ProcessLoginRequest();
   void ProcessingGameStart();
   void SendLoginResponse(bool success, uint16_t player_id, uint16_t udp_port);
-  void SendLoginError(uint16_t error_code, const std::string& message);
 
   asio::ip::tcp::socket socket_;
   asio::ip::tcp::endpoint endpoint_;
   uint16_t client_id_;
   TCPServer* server_;
 
-  std::array<uint8_t, 6> header_buffer_;
+  std::array<uint8_t, HEADER_SIZE> header_buffer_;
   std::vector<uint8_t> payload_buffer_;
   uint8_t current_msg_type_ = 0;
 

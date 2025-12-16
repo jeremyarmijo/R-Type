@@ -98,23 +98,9 @@ T bytes_to_type(const uint8_t* data, std::function<T(const T)> converter) {
   return converter(tmp);
 }
 
-void ProcessPacketTCP::push_buffer_uint32(std::vector<uint8_t>& buffer,
-                                          uint32_t value) {
-  buffer.push_back((value >> 24) & 0xFF);
-  buffer.push_back((value >> 16) & 0xFF);
-  buffer.push_back((value >> 8) & 0xFF);
-  buffer.push_back(value & 0xFF);
-}
-
-void ProcessPacketTCP::push_buffer_uint16(std::vector<uint8_t>& buffer,
-                                          uint16_t value) {
-  buffer.push_back((value >> 8) & 0xFF);
-  buffer.push_back(value & 0xFF);
-}
-
 void ProcessPacketTCP::HandleReadHeader(const asio::error_code& error,
                                         std::size_t bytes_transferred) {
-  if (error) {
+  if (error || bytes_transferred != HEADER_SIZE) {
     if (error != asio::error::eof && error != asio::error::operation_aborted) {
       std::cerr << "[ProcessPacketTCP] Header read error: " << error.message()
                 << std::endl;
@@ -137,6 +123,7 @@ void ProcessPacketTCP::HandleReadHeader(const asio::error_code& error,
   current_msg_type_ = type;
 
   if (length > 0) {
+    std::cout << "read payload of length " << length << std::endl;
     ReadPayload(length);
   } else {
     ReadHeader();
@@ -165,10 +152,6 @@ void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
   switch (current_msg_type_) {
     case 0x01:
       ProcessLoginRequest();
-      break;
-
-    case 0x0F:
-      ProcessingGameStart();
       break;
 
     default:
@@ -212,25 +195,11 @@ void ProcessPacketTCP::ProcessingGameStart() {
 }
 
 void ProcessPacketTCP::ProcessLoginRequest() {
-  // size_t offset = 0;
 
-  // uint8_t username_len = payload_buffer_[offset++];
-  // if (offset + username_len > payload_buffer_.size()) {
-  //   SendLoginError(0x1004, "Invalid username length");
-  //   return;
-  // }
-
-  // username_ = std::string(reinterpret_cast<char*>(&payload_buffer_[offset]),
-  //                         username_len);
-  // offset += username_len;
-
-  payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[5]);
-  payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[4]);
-  payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[3]);
-  payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[2]);
-  payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[1]);
-  payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[0]);
-  for (auto byte : payload_buffer_) {
+  for (int i = HEADER_SIZE - 1; i >= 0; i--) {
+    payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[i]);
+  }
+ for (auto byte : payload_buffer_) {
     std::cout << std::hex << static_cast<int>(byte) << " ";
   }
   Decoder decode;
@@ -261,31 +230,18 @@ void ProcessPacketTCP::ProcessLoginRequest() {
 
 void ProcessPacketTCP::SendLoginResponse(bool success, uint16_t player_id,
                                          uint16_t udp_port) {
-  std::vector<uint8_t> response;
+  Encoder encode;
+  SetupEncoder(encode);
 
-  response.push_back(0x02);
-  response.push_back(0x01);
-  push_buffer_uint32(response, 5);
+  Action action;
+  action.type = ActionType::LOGIN_RESPONSE;
+  LoginResponse loginResponse;
+  loginResponse.success = 1;
+  loginResponse.playerId = client_id_;
+  loginResponse.udpPort = udp_port;
+  action.data = loginResponse;
+  std::vector<uint8_t> data = encode.encode(action, 2);
 
-  response.push_back(1);
-  push_buffer_uint16(response, player_id);
-  push_buffer_uint16(response, udp_port);
-
-  // Encoder encode;
-  // SetupEncoder(encode);
-
-  // Action action;
-  // action.type = ActionType::LOGIN_RESPONSE;
-  // LoginResponse loginResponse;
-  // loginResponse.success = 1;
-  // loginResponse.playerId = 1;
-  // loginResponse.udpPort = udp_port;
-  // action.data = loginResponse;
-
-  // std::vector<uint8_t> data = encode.encode(action, 2);
-  // for (auto byte : data) {
-  //   std::cout << std::hex << (int)byte << " ";
-  // }
   if (!socket_.is_open()) {
     std::cerr << "[ProcessPacketTCP] Cannot send packet: socket closed"
               << std::endl;
@@ -293,7 +249,7 @@ void ProcessPacketTCP::SendLoginResponse(bool success, uint16_t player_id,
   }
   auto self = shared_from_this();
   asio::async_write(
-      socket_, asio::buffer(response),
+      socket_, asio::buffer(data),
       [this, self](const asio::error_code& error, std::size_t bytes) {
         if (error) {
           std::cerr << "[ProcessPacketTCP] Send error: " << error.message()
@@ -338,33 +294,3 @@ void ProcessPacketTCP::SendPacket(const std::vector<uint8_t>& data) {
         }
       });
 }
-
-// void ProcessPacketTCP::SendLoginError(uint16_t error_code,
-//                                       const std::string& message) {
-//   std::vector<uint8_t> response;
-
-//   response.push_back(LOGIN_RESPONSE);
-//   response.push_back(TCP_REQUEST_FLAG);
-
-//   uint32_t payload_size = 4 + message.size();
-//   push_buffer_uint32(response, payload_size);
-
-//   response.push_back(REQUEST_ERROR);
-//   push_buffer_uint16(response, error_code);
-//   response.push_back(static_cast<uint8_t>(message.size()));
-
-//   for (char c : message) {
-//     response.push_back(static_cast<uint8_t>(c));
-//   }
-
-//   auto self = shared_from_this();
-//   asio::async_write(
-//       socket_, asio::buffer(response),
-//       [this, self](const asio::error_code& error, std::size_t bytes) {
-//         if (!error) {
-//           std::cout << "[ProcessPacketTCP] LOGIN_ERROR sent to client "
-//                     << client_id_ << std::endl;
-//         }
-//         Close();
-//       });
-// }
