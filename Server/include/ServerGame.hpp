@@ -46,7 +46,7 @@ class ServerGame {
   void StartGame();
   void InitWorld();
   void GameLoop();
-  bool CheckGameEnded();
+  void CheckGameEnded();
   void EndGame();
 
   std::optional<std::tuple<Event, uint16_t>> PopEvent();

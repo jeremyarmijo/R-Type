@@ -38,7 +38,7 @@ void ServerGame::HandleAuth(uint16_t playerId) {
   std::cout << "Player " << playerId << " joined the lobby ("
             << lobbyPlayers.size() << "/2)" << std::endl;
 
-  if (lobbyPlayers.size() == 2 && !gameStarted) {
+  if (lobbyPlayers.size() == 1 && !gameStarted) {
     StartGame();
   }
 }
@@ -165,11 +165,17 @@ void ServerGame::EndGame() {
 
   SendAction(std::make_tuple(ac, 0));
   gameStarted = false;
+  std::cout << "game ended!!" << std::endl;
 }
 
-bool ServerGame::CheckGameEnded() {
-  auto playerArray = registry.get_components<PlayerEntity>();
-  if (playerArray.size() <= 0) {
+void ServerGame::CheckGameEnded() {
+  int validPlayers = 0;
+  for (auto& [id, entity] : m_players) {
+    if (registry.is_entity_valid(entity)) {
+      validPlayers += 1;
+    }
+  }
+  if (validPlayers <= 0) {
     EndGame();
   }
 }
