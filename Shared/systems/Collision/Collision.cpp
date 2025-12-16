@@ -78,7 +78,7 @@ void gamePlay_Collision_system(
            it == CollisionCategory::Boss)) {
         if (projectiles[entityA].has_value()) {
           float damage = projectiles[entityA]->damage;
-          apply_damage_to_entity(registry, entityB, damage);
+          apply_damage_to_entity(registry, entityB, damage, entityA);
           registry.kill_entity(Entity(entityA));
         }
       } else if (it == CollisionCategory::Projectile &&
@@ -87,7 +87,7 @@ void gamePlay_Collision_system(
                   tagger == CollisionCategory::Boss)) {
         if (projectiles[entityB].has_value()) {
           float damage = projectiles[entityB]->damage;
-          apply_damage_to_entity(registry, entityA, damage);
+          apply_damage_to_entity(registry, entityA, damage, entityB);
           registry.kill_entity(Entity(entityB));
         }
       }
@@ -108,7 +108,7 @@ void gamePlay_Collision_system(
                 ? bosses[entityA]->contact_damage
                 : 0;
         if (damage_A_to_B > 0) {
-          apply_damage_to_entity(registry, entityB, damage_A_to_B);
+          apply_damage_to_entity(registry, entityB, damage_A_to_B, entityA);
         }
 
         // B deals damage to A
@@ -119,7 +119,7 @@ void gamePlay_Collision_system(
                 ? bosses[entityB]->contact_damage
                 : 0;
         if (damage_B_to_A > 0) {
-          apply_damage_to_entity(registry, entityA, damage_B_to_A);
+          apply_damage_to_entity(registry, entityA, damage_B_to_A, entityB);
         }
       }
 
@@ -177,14 +177,16 @@ CollisionCategory get_entity_category(size_t entityId, Registry& registry) {
   return CollisionCategory::Unknown;
 }
 
-void apply_damage_to_entity(Registry& registry, size_t targetId, float damage) {
+void apply_damage_to_entity(Registry& registry, size_t targetId, float damage,
+                            size_t attackerId) {
   auto& players = registry.get_components<PlayerEntity>();
+  auto& enemies = registry.get_components<Enemy>();
+  auto& bosses = registry.get_components<Boss>();
+
   if (targetId < players.size() && players[targetId].has_value()) {
     auto& player = players[targetId].value();
-
     if (player.invtimer <= 0.0f) {
       player.current -= static_cast<int>(damage);
-
       if (player.current <= 0) {
         player.isAlive = false;
         registry.kill_entity(Entity(targetId));
@@ -195,28 +197,32 @@ void apply_damage_to_entity(Registry& registry, size_t targetId, float damage) {
     return;
   }
 
-  auto& enemies = registry.get_components<Enemy>();
+  // Si c'est un ennemi qui reçoit les dégâts
   if (targetId < enemies.size() && enemies[targetId].has_value()) {
     auto& enemy = enemies[targetId].value();
-
     enemy.current -= static_cast<int>(damage);
 
     if (enemy.current <= 0) {
+      // Ajouter le score au joueur attaquant
+      if (attackerId < players.size() && players[attackerId].has_value()) {
+        players[attackerId]->score += enemy.scoreValue;
+      }
       registry.kill_entity(Entity(targetId));
     }
     return;
   }
 
-  auto& bosses = registry.get_components<Boss>();
   if (targetId < bosses.size() && bosses[targetId].has_value()) {
     auto& boss = bosses[targetId].value();
-
     boss.current -= static_cast<int>(damage);
 
     std::cout << "Boss " << targetId << " hit. Health: " << boss.current
               << std::endl;
 
     if (boss.current <= 0) {
+      // if (attackerId < players.size() && players[attackerId].has_value()) {
+      // players[attackerId]->score += boss.scoreValue;
+      //}
       registry.kill_entity(Entity(targetId));
     }
     return;
