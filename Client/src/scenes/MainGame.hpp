@@ -146,24 +146,6 @@ class MyGameScene : public Scene {
     weapon_cooldown_system(GetRegistry(), weapons, deltaTime);
     weapon_reload_system(GetRegistry(), weapons, deltaTime);
 
-    // Weapon firing system - vérifie si le joueur appuie sur SPACE
-    weapon_firing_system(
-        GetRegistry(), weapons, transforms,
-        [this](size_t entityId) -> bool {
-          auto& playerEntity = GetRegistry().get_components<PlayerEntity>();
-          if (entityId < playerEntity.size() &&
-              playerEntity[entityId].has_value()) {
-            return GetInput().WasAction1Pressed();
-          }
-          return false;
-        },
-        deltaTime);
-
-    // Projectile systems
-    projectile_lifetime_system(GetRegistry(), projectiles, deltaTime);
-    projectile_collision_system(GetRegistry(), transforms, colliders,
-                                projectiles);
-
     MoveBackground(deltaTime);
     GetEvents(deltaTime);
   }
