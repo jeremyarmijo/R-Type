@@ -1,280 +1,556 @@
-# Architecture Réseau Client R-Type
+# Documentation du Client Réseau R-Type - Structure Actualisée
 
 ## Structure du Projet
 
 ```
+Shared/
+├── Action.hpp           # Actions client → serveur
+├── Event.hpp           # Événements serveur → client
+├── Encoder.hpp         # Interface d'encodage
+├── Encoder.cpp         # Implémentation encodeur
+├── EncodeFunc.hpp      # Handlers d'encodage spécifiques
+├── Decoder.hpp         # Interface de décodage
+├── Decoder.cpp         # Implémentation décodeur
+├── DecodeFunc.hpp      # Handlers de décodage spécifiques
+├── DecodeFunc.cpp      # Implémentation des décodeurs
+
 Network/
 ├── include/
-│   ├── Action.hpp          # Actions client → serveur (mouvements, requêtes)
-│   ├── Event.hpp           # Événements serveur → client (réponses, états)
-│   ├── Encoder.hpp         # Interface d'encodage Actions → paquets binaires
-│   ├── Decoder.hpp         # Interface de décodage paquets → Events
-│   ├── EncodeFunc.hpp      # Handlers d'encodage par type d'action
-│   ├── DecodFunc.hpp       # Handlers de décodage par type d'événement
-│   ├── NetworkManager.hpp  # Orchestrateur TCP/UDP + threading + buffers
-│   └── CircularBuffer.hpp  # Buffer circulaire thread-safe générique
-└── src/
-    ├── Encoder.cpp         # Implémentation encodeur + registry handlers
-    ├── Decoder.cpp         # Implémentation décodeur + registry handlers
-    └── NetworkManager.cpp  # Gestion connexions, I/O réseau, threading
+│   ├── NetworkManager.hpp  # Gestionnaire réseau principal
+│   └── CircularBuffer.hpp  # Buffer circulaire thread-safe
+└── NetworkManager.cpp      # Implémentation du gestionnaire
 ```
-
-**Vue d'ensemble** : Architecture client réseau modulaire avec séparation stricte des responsabilités. `NetworkManager` centralise la logique réseau, `Encoder/Decoder` gèrent la sérialisation, `CircularBuffer` assure la communication thread-safe. Les handlers sont découplés du code central via un pattern Registry.
 
 ---
 
-## 1. Architecture Double Canal TCP/UDP
+## 1. Architecture Client-Serveur
 
-Le système maintient deux connexions simultanées : TCP pour fiabilité (authentification, lobbies, chunks), UDP pour latence minimale (inputs, états temps-réel). La séparation garantit que le gameplay n'est jamais bloqué par des transferts lourds.
+### 1.1 Vision d'Ensemble
+Le client réseau utilise une architecture **double-protocole** :
+- **TCP** (fiable) : Authentification, état jeu, messages système
+- **UDP** (rapide) : Entrées joueur, mises à jour temps-réel
 
-**Séquence de connexion** :
-```cpp
-// NetworkManager.cpp - ThreadLoop()
-while (running) {
-  if (!tcpConnected) {
-    ConnectTCP();  // Première connexion
-  }
-  if (!udpConnected && udpPort != -1) {
-    ConnectUDP();  // Après réception udpPort dans LOGIN_RESPONSE
-  }
-  // ...
-}
+```
+Thread Principal
+    ↓
+NetworkManager (thread dédié)
+    ├── TCP Socket ←→ Décoder → Événements
+    └── UDP Socket ←→ Encoder → Actions
 ```
 
-Chaque action possède un protocole prédéfini via `UseUdp()` :
+### 1.2 Séquence de Connexion
+1. Connexion TCP au serveur
+2. Envoi LOGIN_REQUEST via TCP
+3. Réception LOGIN_RESPONSE avec playerId + udpPort
+4. Connexion UDP sur le port spécifié
+5. Envoi AUTH via UDP pour validation
+6. Communication jeu normale
+
+---
+
+## 2. Structures de Données Clés
+
+### 2.1 Action.hpp - Messages Client → Serveur
+
 ```cpp
-// Action.hpp
+// Enumération des types d'actions
+enum class ActionType : uint8_t {
+  // Authentification
+  AUTH,                   // UDP - Validation de connexion
+  LOGIN_REQUEST,          // TCP - Requête de connexion
+  
+  // Entrées joueur (UDP)
+  UP_PRESS, 
+  UP_RELEASE, 
+  //...
+
+  // Messages serveur → client (utilisés pour l'encodage des réponses)
+  LOGIN_RESPONSE, 
+  GAME_START,
+  //...
+};
+
+// Structure pour les entrées joueur
+struct PlayerInput {
+  bool up, down, left, right;
+  uint8_t fire;  // 0 = pas de tir, 1 = tir
+};
+
+// Variant contenant tous les types de données
+using ActionData = std::variant<std::monostate, 
+                               AuthUDP, LoginReq, PlayerInput,
+                               LoginResponse, GameStart, GameEnd,
+                               ErrorMsg, GameState, BossSpawn,
+                               BossUpdate, EnemyHit>;
+
+// Conteneur principal
+struct Action {
+  ActionType type;
+  ActionData data;
+};
+
+// Détermine si une action utilise UDP ou TCP
 inline size_t UseUdp(ActionType type) {
   switch (type) {
-    case ActionType::UP:
-    case ActionType::SHOOT:
-      return 0;  // UDP sans ACK
+    case ActionType::AUTH:
+    case ActionType::UP_PRESS:  // et toutes les autres entrées
+    case ActionType::GAME_STATE:
+    case ActionType::BOSS_SPAWN:
+    case ActionType::BOSS_UPDATE:
+    case ActionType::ENEMY_HIT:
+      return 0;  // UDP
+      
     case ActionType::LOGIN_REQUEST:
+    case ActionType::LOGIN_RESPONSE:
+    case ActionType::GAME_START:
+    case ActionType::GAME_END:
+    case ActionType::ERROR:
       return 2;  // TCP
+      
     default:
       return 3;  // Invalide
   }
 }
 ```
 
-Le serveur transmet le port UDP dans `LOGIN_RESPONSE.udpPort`, déclenchant automatiquement la connexion UDP.
+### 2.2 Event.hpp - Messages Serveur → Client
+
+```cpp
+// Enumération des types d'événements
+enum class EventType : uint8_t {
+  LOGIN_REQUEST = 0x01,
+  GAME_START = 0x0F,
+  ERROR = 0x12,
+  GAME_STATE = 0x21,
+  BOSS_SPAWN = 0x23,
+  ENEMY_HIT = 0x25,
+  // ...
+};
+
+// Exemple de structure de données
+struct LOGIN_RESPONSE {
+  uint8_t success;        // 1 = succès, 0 = échec
+  uint16_t playerId;      // ID unique assigné
+  uint16_t udpPort;       // Port UDP pour le jeu
+  uint16_t errorCode;     // Code d'erreur si échec
+  std::string message;    // Message d'erreur/succès
+};
+
+// Variant pour tous les événements
+using EventData = std::variant<std::monostate,
+                              LOGIN_REQUEST, LOGIN_RESPONSE,
+                              GAME_START, GAME_END, ERROR,
+                              PLAYER_INPUT, GAME_STATE, AUTH,
+                              BOSS_SPAWN, BOSS_UPDATE, ENEMY_HIT>;
+
+struct Event {
+  EventType type;
+  EventData data;
+};
+```
 
 ---
 
-## 2. Threading et Synchronisation
+### 3.2 Encoder - Client → Serveur
 
-Un thread dédié isole les opérations I/O du thread principal, évitant les blocages sur lecture/écriture réseau. Communication via `CircularBuffer` protégé par mutex pour garantir la cohérence des données.
+**Encoder.hpp** :
+```cpp
+struct PacketHeader {
+  uint8_t type;
+  uint8_t flags;
+  uint32_t length;  // network byte order
+};
 
-**Architecture des threads** :
+class Encoder {
+public:
+  using EncodePayload = std::function<void(const Action&, std::vector<uint8_t>&)>;
+  
+  Encoder();
+  void registerHandler(ActionType type, EncodePayload f);
+  std::vector<uint8_t> encode(const Action& a, size_t useUDP);
+  
+private:
+  std::array<EncodePayload, 256> handlers;
+  void writeHeader(std::vector<uint8_t>& packet, const PacketHeader& h);
+};
 ```
-Thread Principal              Thread Réseau (networkThread)
-     │                                 │
-     ├─ SendAction(action) ────────►  ├─ actionBuffer.pop()
-     │                                 ├─ Encoder.encode()
-     │                                 ├─ SendUdp() / SendTcp()
-     │                                 │
-     ├◄──── PopEvent() ───────────────┤
-                                       ├─ ReadTCP() / ReadUDP()
-                                       ├─ Decoder.decode()
-                                       └─ eventBuffer.push()
+
+**EncodeFunc.hpp - Exemple de handler** :
+```cpp
+inline void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* input = std::get_if<PlayerInput>(&a.data);
+  if (!input) return;
+  
+  out.resize(5);
+  out[0] = input->up ? 1 : 0;
+  out[1] = input->down ? 1 : 0;
+  out[2] = input->left ? 1 : 0;
+  out[3] = input->right ? 1 : 0;
+  out[4] = input->fire ? 0x01 : 0x00;
+}
 ```
 
-**Boucle réseau** :
+**Encoder.cpp - Mapping types → IDs** :
+```cpp
+inline uint8_t getType(const Action& a) {
+  switch (a.type) {
+    case ActionType::LOGIN_REQUEST:  return 0x01;
+    case ActionType::LOGIN_RESPONSE: return 0x02;
+    case ActionType::GAME_START:     return 0x0F;
+    case ActionType::GAME_END:       return 0x10;
+    case ActionType::ERROR:          return 0x12;
+    case ActionType::UP_PRESS:       // Tous les PLAYER_INPUT
+    case ActionType::UP_RELEASE:     // ...
+      return 0x20;
+    case ActionType::GAME_STATE:     return 0x21;
+    case ActionType::AUTH:           return 0x22;
+    case ActionType::BOSS_SPAWN:     return 0x23;
+    case ActionType::BOSS_UPDATE:    return 0x24;
+    case ActionType::ENEMY_HIT:      return 0x25;
+    default:                         return 0xFF;
+  }
+}
+```
+
+### 3.3 Decoder - Serveur → Client
+
+**Decoder.hpp** :
+```cpp
+class Decoder {
+public:
+  using DecodeFunc = std::function<Event(const std::vector<uint8_t>&)>;
+  
+  Decoder();
+  void registerHandler(uint8_t packetType, DecodeFunc func);
+  Event decode(const std::vector<uint8_t>& packet);
+  
+private:
+  std::array<DecodeFunc, 256> handlers;
+};
+```
+
+**DecodeFunc.cpp - Exemple de décodage** :
+```cpp
+Event DecodeLOGIN_RESPONSE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LOGIN_RESPONSE;
+  
+  LOGIN_RESPONSE data;
+  size_t offset = 2;  // Après type+flags
+  
+  uint32_t payloadLength = 0;
+  if (!checkHeader(packet, offset, payloadLength)) 
+    return Event{};
+  
+  data.success = packet[offset++];
+  
+  if (data.success == 1) {
+    // Succès: récupère playerId et udpPort
+    memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
+    data.playerId = ntohs(data.playerId);
+    offset += sizeof(data.playerId);
+    
+    memcpy(&data.udpPort, &packet[offset], sizeof(data.udpPort));
+    data.udpPort = ntohs(data.udpPort);
+  } else {
+    // Échec: récupère errorCode et message
+    memcpy(&data.errorCode, &packet[offset], sizeof(data.errorCode));
+    data.errorCode = ntohs(data.errorCode);
+    offset += sizeof(data.errorCode);
+    
+    uint8_t msgLen = packet[offset++];
+    data.message = std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
+  }
+  
+  evt.data = data;
+  return evt;
+}
+```
+
+**Fonction utilitaire de vérification** :
+```cpp
+bool checkHeader(const std::vector<uint8_t>& packet, size_t& offset,
+                 uint32_t& payloadLength) {
+  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
+  payloadLength = ntohl(payloadLength);
+  offset += 4;
+  
+  return payloadLength == packet.size() - 6;
+}
+```
+
+### 3.4 Enregistrement des Handlers
+
+**EncodeFunc.hpp** :
+```cpp
+inline void SetupEncoder(Encoder& encoder) {
+  encoder.registerHandler(ActionType::AUTH, Auth);
+  encoder.registerHandler(ActionType::UP_PRESS, PlayerInputFunc);
+  encoder.registerHandler(ActionType::UP_RELEASE, PlayerInputFunc);
+  // ... tous les handlers d'entrée
+  encoder.registerHandler(ActionType::LOGIN_REQUEST, LoginRequestFunc);
+  encoder.registerHandler(ActionType::LOGIN_RESPONSE, LoginResponseFunc);
+  // ... autres handlers
+}
+```
+
+**DecodeFunc.cpp** :
+```cpp
+void SetupDecoder(Decoder& decoder) {
+  decoder.registerHandler(0x01, DecodeLOGIN_REQUEST);
+  decoder.registerHandler(0x02, DecodeLOGIN_RESPONSE);
+  decoder.registerHandler(0x0F, DecodeGAME_START);
+  decoder.registerHandler(0x10, DecodeGAME_END);
+  decoder.registerHandler(0x12, DecodeERROR);
+  decoder.registerHandler(0x20, DecodePLAYER_INPUT);
+  decoder.registerHandler(0x21, DecodeGAME_STATE);
+  decoder.registerHandler(0x22, DecodeAUTH);
+  decoder.registerHandler(0x23, DecodeBOSS_SPAWN);
+  decoder.registerHandler(0x24, DecodeBOSS_UPDATE);
+  decoder.registerHandler(0x25, DecodeENEMY_HIT);
+}
+```
+
+---
+
+## 4. Network Manager
+
+### 4.1 Interface Publique
+
+**NetworkManager.hpp** :
+```cpp
+class NetworkManager {
+public:
+  NetworkManager();
+  ~NetworkManager();
+  
+  // Connexion/Déconnexion
+  bool Connect(const std::string& ip, int port);
+  void Disconnect();
+  bool IsConnected() const { return tcpConnected; }
+  
+  // Communication
+  void SendAction(Action action);
+  Event PopEvent();
+  
+private:
+  // État
+  std::mutex mut;
+  bool tcpConnected = false;
+  bool udpConnected = false;
+  bool running = false;
+  uint16_t playerId = 0;
+  int udpPort = -1;
+  
+  // Réseau (ASIO)
+  asio::io_context ioContext;
+  asio::ip::tcp::socket tcpSocket;
+  asio::ip::udp::socket udpSocket;
+  asio::ip::udp::endpoint udpEndpoint;
+  
+  // Threading
+  std::thread networkThread;
+  
+  // Buffers circulaires
+  CircularBuffer<Event> eventBuffer;
+  CircularBuffer<Action> actionBuffer;
+  
+  // Composants
+  Decoder decoder;
+  Encoder encoder;
+  std::vector<uint8_t> recvTcpBuffer;
+  
+  // Méthodes internes
+  void ThreadLoop();
+  int ConnectTCP();
+  int ConnectUDP();
+  void ReadTCP();
+  void ReadUDP();
+  void ProcessTCPRecvBuffer();
+  void SendActionServer();
+  Event DecodePacket(std::vector<uint8_t>& packet);
+  void AuthAction();
+  void SendUdp(std::vector<uint8_t>& packet);
+  void SendTcp(std::vector<uint8_t>& packet);
+};
+```
+
+### 4.2 Cycle de Vie
+
+**Initialisation** :
+```cpp
+NetworkManager::NetworkManager()
+    : eventBuffer(50), actionBuffer(50),
+      tcpSocket(ioContext), udpSocket(ioContext) {
+  SetupDecoder(decoder);
+  SetupEncoder(encoder);
+}
+```
+
+**Connexion** :
+```cpp
+bool NetworkManager::Connect(const std::string& ip, int port) {
+  serverIP = ip;
+  tcpPort = port;
+  
+  if (running) return false;
+  
+  running = true;
+  networkThread = std::thread(&NetworkManager::ThreadLoop, this);
+  return true;
+}
+```
+
+**Boucle réseau principale** :
 ```cpp
 void NetworkManager::ThreadLoop() {
   while (running) {
+    // Connexion/reconnexion TCP
+    if (!tcpConnected) {
+      if (ConnectTCP() == -1) {
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        continue;
+      }
+    }
+    
+    // Connexion UDP si port disponible
+    if (!udpConnected && udpPort != -1) {
+      ConnectUDP();
+    }
+    
+    // Lecture réseau
     if (tcpConnected) ReadTCP();
-    if (udpConnected) ReadUDP();
-    SendActionServer();  // Vide actionBuffer
+    if (udpConnected && udpPort != -1) ReadUDP();
+    
+    // Envoi des actions en attente
+    SendActionServer();
+    
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
 ```
 
-**Interface thread-safe** :
-```cpp
-void NetworkManager::SendAction(Action action) {
-  std::lock_guard<std::mutex> lock(mut);
-  actionBuffer.push(action);  // Thread-safe
-}
+### 4.3 Lecture TCP et Reconstruction
 
-Event NetworkManager::PopEvent() {
-  std::lock_guard<std::mutex> lock(mut);
-  auto res = eventBuffer.pop();
-  return res.has_value() ? res.value() : Event{EventType::UNKNOWN};
-}
-```
-
----
-
-## 3. Système de Sérialisation Pattern Registry
-
-Encoder et Decoder utilisent des tables de handlers indexées par type de message, permettant l'ajout dynamique de nouveaux types sans modifier le code central.
-
-**Enregistrement des handlers** :
-```cpp
-// EncodeFunc.hpp - SetupEncoder()
-void SetupEncoder(Encoder& encoder) {
-  encoder.registerHandler(ActionType::UP, Player_Up);
-  encoder.registerHandler(ActionType::SHOOT, Player_Shoot);
-  encoder.registerHandler(ActionType::LOGIN_REQUEST, LoginRequest);
-  // ...
-}
-
-// DecodFunc.hpp - SetupDecoder()
-void SetupDecoder(Decoder& decoder) {
-  decoder.registerHandler(0x02, DecodeLOGIN_RESPONSE);
-  decoder.registerHandler(0x07, DecodeLOBBY_LIST_RESPONSE);
-  // ...
-}
-```
-
-**Mécanisme d'encodage** :
-```cpp
-// Encoder.cpp
-std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP, uint32_t sequenceNum) {
-  auto& func = handlers[static_cast<uint8_t>(a.type)];
-  if (!func) return {};
-  
-  std::vector<uint8_t> payload;
-  func(a, payload, sequenceNum);  // Handler spécifique
-  
-  // Ajout header
-  PacketHeader header;
-  header.type = static_cast<uint8_t>(a.type);
-  header.flags = (useUDP == 0) ? 0x02 : 0x01;
-  header.length = payload.size();
-  
-  std::vector<uint8_t> packet;
-  writeHeader(packet, header);
-  packet.insert(packet.end(), payload.begin(), payload.end());
-  return packet;
-}
-```
-
-**Exemple de handler d'encodage** :
-```cpp
-void Player_Up(const Action& a, std::vector<uint8_t>& out, uint32_t sequenceNum) {
-  const auto* input = std::get_if<PlayerInput>(&a.data);
-  if (!input) return;
-  
-  out.resize(11);
-  size_t offset = 0;
-  
-  memcpy(out.data() + offset, &sequenceNum, sizeof(uint32_t));
-  offset += sizeof(uint32_t);
-  memcpy(out.data() + offset, &input->tick, sizeof(uint32_t));
-  offset += sizeof(uint32_t);
-  
-  int8_t mx = 0, my = -1;
-  memcpy(out.data() + offset, &mx, sizeof(int8_t));
-  offset += sizeof(int8_t);
-  memcpy(out.data() + offset, &my, sizeof(int8_t));
-  offset += sizeof(int8_t);
-  
-  uint8_t actions = 0;
-  memcpy(out.data() + offset, &actions, sizeof(uint8_t));
-}
-```
-
----
-
-## 4. Format des Paquets et Sérialisation Binaire
-
-Tous les paquets suivent un format unifié : header 6 bytes + payload variable. Sérialisation via `memcpy` pour performance maximale sans overhead de streams.
-
-**Structure header** :
-```cpp
-struct PacketHeader {
-  uint8_t type;      // Type de message (0x01-0x2D)
-  uint8_t flags;     // 0x01=TCP, 0x02=UDP, 0x08=RequiresACK
-  uint32_t length;   // Taille payload (little-endian)
-};
-```
-
-**Écriture header** :
-```cpp
-void Encoder::writeHeader(std::vector<uint8_t>& packet, const PacketHeader& h) {
-  packet.push_back(h.type);
-  packet.push_back(h.flags);
-  const uint8_t* ptr = reinterpret_cast<const uint8_t*>(&h.length);
-  packet.insert(packet.end(), ptr, ptr + 4);
-}
-```
-
-Les tailles fixes (ex: `PLAYER_INPUT` = 11 bytes) permettent des optimisations d'allocation. Les strings utilisent un préfixe de longueur (uint8/uint16).
-
----
-
-## 5. Gestion des Connexions et Reconnexion
-
-Sockets configurés en mode non-bloquant pour éviter les blocages du thread réseau. Reconnexion automatique TCP si déconnexion détectée. UDP ne se connecte qu'après réception du port dans `LOGIN_RESPONSE`.
-
-**Connexion TCP non-bloquante** :
-```cpp
-int NetworkManager::ConnectTCP() {
-  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  // ... configuration adresse ...
-  
-  if (connect(sockfd, ...) < 0) {
-    std::cerr << "Connexion TCP error\n";
-    return -1;
-  }
-  
-  tcpSocket = sockfd;
-  int flags = fcntl(tcpSocket, F_GETFL, 0);
-  fcntl(tcpSocket, F_SETFL, flags | O_NONBLOCK);  // Non-bloquant
-  
-  tcpConnected = true;
-  return 0;
-}
-```
-
-**Gestion erreurs lecture** :
 ```cpp
 void NetworkManager::ReadTCP() {
   char tempBuffer[1024];
-  int bytesReceived = recv(tcpSocket, tempBuffer, sizeof(tempBuffer), 0);
+  asio::error_code error;
   
-  if (bytesReceived > 0) {
-    recvTcpBuffer.insert(recvTcpBuffer.end(), tempBuffer, tempBuffer + bytesReceived);
+  size_t bytesReceived = tcpSocket.read_some(
+    asio::buffer(tempBuffer, sizeof(tempBuffer)), error);
+  
+  if (!error && bytesReceived > 0) {
+    recvTcpBuffer.insert(recvTcpBuffer.end(), 
+                        tempBuffer, tempBuffer + bytesReceived);
     ProcessTCPRecvBuffer();
-  } else if (bytesReceived == 0) {
-    tcpConnected = false;  // Déconnexion propre
-  } else {
-    if (errno == EAGAIN || errno == EWOULDBLOCK) {
-      return;  // Normal pour non-bloquant
-    }
-    tcpConnected = false;  // Erreur réseau
+  } else if (error == asio::error::eof) {
+    tcpConnected = false;  // Déconnexion
   }
+  // ... gestion autres erreurs
 }
-```
 
-**Reconstruction paquets TCP** :
-```cpp
 void NetworkManager::ProcessTCPRecvBuffer() {
   while (recvTcpBuffer.size() >= 6) {
+    // Lit la taille du payload
     uint32_t packetSize;
     memcpy(&packetSize, &recvTcpBuffer[2], sizeof(packetSize));
+    packetSize = ntohl(packetSize);
     
-    if (recvTcpBuffer.size() < 6 + packetSize) return;  // Paquet incomplet
+    // Vérifie si paquet complet
+    if (recvTcpBuffer.size() < 6 + packetSize) return;
     
-    std::vector<uint8_t> packet(recvTcpBuffer.begin(), recvTcpBuffer.begin() + 6 + packetSize);
-    recvTcpBuffer.erase(recvTcpBuffer.begin(), recvTcpBuffer.begin() + 6 + packetSize);
+    // Extrait le paquet
+    std::vector<uint8_t> packet(recvTcpBuffer.begin(),
+                                recvTcpBuffer.begin() + 6 + packetSize);
+    recvTcpBuffer.erase(recvTcpBuffer.begin(),
+                        recvTcpBuffer.begin() + 6 + packetSize);
     
+    // Décodage
     Event evt = DecodePacket(packet);
+    
+    // Traitement spécial LOGIN_RESPONSE
+    if (evt.type == EventType::LOGIN_RESPONSE) {
+      const auto* resp = std::get_if<LOGIN_RESPONSE>(&evt.data);
+      if (resp && resp->success == 1) {
+        udpPort = resp->udpPort;     // Sauvegarde port UDP
+        playerId = resp->playerId;   // Sauvegarde ID joueur
+        AuthAction();                // Envoi AUTH UDP automatique
+      }
+    }
+    
+    // Ajout au buffer d'événements
+    std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
   }
 }
 ```
 
+### 4.4 Envoi d'Actions
+
+```cpp
+void NetworkManager::SendAction(Action action) {
+  std::lock_guard<std::mutex> lock(mut);
+  actionBuffer.push(action);  // Ajout thread-safe au buffer
+}
+
+void NetworkManager::SendActionServer() {
+  std::unique_lock<std::mutex> lock(mut);
+  size_t bufferSize = actionBuffer.size();
+  
+  for (size_t i = 0; i < bufferSize; ++i) {
+    auto opt = actionBuffer.peek();
+    if (!opt.has_value()) break;
+    
+    const Action& action = opt.value();
+    size_t protocol = UseUdp(action.type);
+    
+    bool sent = false;
+    std::vector<uint8_t> packet;
+    
+    if ((protocol == 0 || protocol == 1) && udpConnected) {
+      packet = encoder.encode(action, protocol);
+      lock.unlock();
+      SendUdp(packet);    // Envoi UDP
+      lock.lock();
+      sent = true;
+    } else if (protocol == 2 && tcpConnected) {
+      packet = encoder.encode(action, protocol);
+      lock.unlock();
+      SendTcp(packet);    // Envoi TCP
+      lock.lock();
+      sent = true;
+    }
+    
+    if (sent) {
+      actionBuffer.pop();  // Retire uniquement si envoyé
+    } else {
+      break;  // Arrête si échec d'envoi
+    }
+  }
+}
+```
+
+### 4.5 Authentification UDP Automatique
+
+```cpp
+void NetworkManager::AuthAction() {
+  Action ac;
+  ac.type = ActionType::AUTH;
+  
+  AuthUDP authData;
+  authData.playerId = playerId;  // ID reçu du serveur
+  
+  ac.data = authData;
+  SendAction(ac);  // Envoi via le système normal
+}
+```
+
 ---
 
-## 6. CircularBuffer Thread-Safe Optimisé
+## 5. Buffer Circulaire Thread-Safe
 
-Buffer de taille fixe avec indices circulaires évitant les allocations dynamiques. Écrasement automatique des anciennes données si plein, garantissant que les nouvelles données critiques passent toujours.
-
-**Implémentation** :
+**CircularBuffer.hpp** :
 ```cpp
 template <typename T>
 class CircularBuffer {
@@ -286,7 +562,8 @@ private:
   size_t m_nbItem = 0;
 
 public:
-  explicit CircularBuffer(size_t capacity) : m_maxItem(capacity), m_buffer(capacity) {}
+  explicit CircularBuffer(size_t capacity)
+      : m_buffer(capacity), m_maxItem(capacity) {}
   
   void push(const T& item) {
     m_buffer[m_lastItemIndex] = item;
@@ -295,7 +572,7 @@ public:
     if (m_nbItem < m_maxItem) {
       m_nbItem++;
     } else {
-      m_firstItemIndex = (m_firstItemIndex + 1) % m_maxItem;  // Écrase ancien
+      m_firstItemIndex = (m_firstItemIndex + 1) % m_maxItem; // Écrase
     }
   }
   
@@ -307,154 +584,182 @@ public:
     m_nbItem--;
     return item;
   }
-};
-```
-
-**Utilisation dans NetworkManager** :
-```cpp
-class NetworkManager {
-  CircularBuffer<Event> eventBuffer{50};   // 50 événements max
-  CircularBuffer<Action> actionBuffer{50}; // 50 actions max
-  std::mutex mut;  // Protège les deux buffers
+  
+  std::optional<T> peek() {
+    if (m_nbItem == 0) return std::nullopt;
+    return m_buffer[m_firstItemIndex];
+  }
+  
+  size_t size() const { return m_nbItem; }
+  bool isEmpty() const { return m_nbItem == 0; }
+  bool isFull() const { return m_nbItem == m_maxItem; }
 };
 ```
 
 ---
 
-## 7. Variants
+## 6. Utilisation du Client
 
-`std::variant` remplace les unions C pour représenter des données hétérogènes avec vérification de type à la compilation. `std::get_if` permet l'extraction sûre avec fallback si mauvais type.
+### 6.1 Exemple Minimal
 
-**Définitions** :
 ```cpp
+#include "NetworkManager.hpp"
+#include <iostream>
+
+int main() {
+  NetworkManager network;
+  
+  // Connexion
+  if (!network.Connect("127.0.0.1", 8080)) {
+    std::cerr << "Échec démarrage connexion" << std::endl;
+    return 1;
+  }
+  
+  // Attente connexion
+  while (!network.IsConnected()) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+  
+  // Envoi login
+  Action loginAction;
+  loginAction.type = ActionType::LOGIN_REQUEST;
+  
+  LoginReq loginData{"joueur1", "hash_mdp"};
+  loginAction.data = loginData;
+  network.SendAction(loginAction);
+  
+  // Boucle principale ...
+  
+    // Envoi entrées (exemple)
+    Action inputAction;
+    inputAction.type = ActionType::UP_PRESS;
+    
+    PlayerInput input{true, false, false, false, 0};
+    inputAction.data = input;
+    network.SendAction(inputAction);
+  // Boucle principale Fin...
+
+  
+  network.Disconnect();
+  return 0;
+}
+```
+
+### 6.2 Points d'Attention
+
+1. **Thread-safety** : `SendAction()` et `PopEvent()` sont thread-safe
+2. **Buffer overflow** : Les buffers circulaires écrasent les anciennes données
+3. **Reconnexion** : Automatique pour TCP, manuelle pour UDP
+
+---
+
+## 7. Extension du Système
+
+### 7.1 Ajout d'un Nouveau Message - Guide en 5 Étapes
+
+**Étape 1 : Définir dans Action.hpp**
+```cpp
+// 1. Ajouter à l'enum
+enum class ActionType : uint8_t {
+  // ...
+  PLAYER_CHAT = 0x30,
+};
+
+// 2. Créer structure
+struct PlayerChat {
+  std::string message;
+  uint8_t channel;
+};
+
+// 3. Ajouter au variant
+using ActionData = std::variant<std::monostate,
+  // ...
+  PlayerChat>;  // AJOUT
+```
+
+**Étape 2 : Ajouter dans Event.hpp si réponse**
+```cpp
+enum class EventType : uint8_t {
+  // ...
+  CHAT_MESSAGE = 0x31,
+};
+
+struct CHAT_MESSAGE {
+  uint16_t senderId;
+  std::string message;
+  uint8_t channel;
+};
+
+using EventData = std::variant<std::monostate,
+  // ...
+  CHAT_MESSAGE>;  // AJOUT
+```
+
+**Étape 3 : Implémenter encodage (EncodeFunc.hpp)**
+```cpp
+inline void PlayerChatFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* chat = std::get_if<PlayerChat>(&a.data);
+  if (!chat) return;
+  
+  out.clear();
+  out.push_back(chat->channel);
+  //...
+  out.push_back(msgLen);
+}
+```
+
+**Étape 4 : Implémenter décodage (DecodeFunc.cpp)**
+```cpp
+Event DecodeCHAT_MESSAGE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::CHAT_MESSAGE;
+  
+  CHAT_MESSAGE data;
+  //..
+  evt.data = data;
+  return evt;
+}
+```
+
+**Étape 5 : Enregistrer et configurer**
+```cpp
+// EncodeFunc.hpp
+inline void SetupEncoder(Encoder& encoder) {
+  // ... existants
+  encoder.registerHandler(ActionType::PLAYER_CHAT, PlayerChatFunc);
+}
+
+// DecodeFunc.cpp
+void SetupDecoder(Decoder& decoder) {
+  // ... existants
+  decoder.registerHandler(0x31, DecodeCHAT_MESSAGE);
+}
+
 // Action.hpp
-using ActionData = std::variant
-  std::monostate,
-  PlayerInput,
-  LoginData,
-  SignupData,
-  LogoutData,
-  // ...
->;
-
-struct Action {
-  ActionType type;
-  ActionData data;
-};
-
-// Event.hpp
-using EventData = std::variant
-  std::monostate,
-  LOGIN_RESPONSE,
-  LOBBY_LIST_RESPONSE,
-  GAME_STATE,
-  // ...
->;
-
-struct Event {
-  EventType type;
-  EventData data;
-};
-```
-
-**Extraction type-safe** :
-```cpp
-void Player_Up(const Action& a, std::vector<uint8_t>& out, uint32_t sequenceNum) {
-  const auto* input = std::get_if<PlayerInput>(&a.data);
-  if (!input) return;  // Protection si mauvais type
-  
-  // Utilisation sûre de input->tick, etc.
-}
-```
-
----
-
-## 8. Mécanisme d'ACK UDP pour Messages Critiques
-
-Certains messages UDP portent le flag `0x08` (RequiresACK), déclenchant l'envoi automatique d'un accusé de réception. Le serveur peut ainsi détecter les pertes sans implémenter une fiabilité complète sur UDP.
-
-**Envoi automatique d'ACK** :
-```cpp
-void NetworkManager::SendACK(std::vector<uint8_t>& evt) {
-  if (evt.size() < 6) return;
-  
-  uint8_t flag;
-  memcpy(&flag, &evt[1], sizeof(flag));
-  if (flag != 0x08) return;  // Pas besoin d'ACK
-  
-  uint32_t sequenceNum;
-  memcpy(&sequenceNum, &evt[6], sizeof(sequenceNum));
-  
-  std::vector<uint8_t> response(11);
-  response[0] = 0x2A;  // Type ACK
-  response[1] = 0x02;  // Flag UDP
-  uint32_t payloadSize = 5;
-  memcpy(&response[2], &payloadSize, sizeof(uint32_t));
-  memcpy(&response[6], &sequenceNum, sizeof(uint32_t));
-  response[10] = evt[0];  // Type message original
-  
-  SendUdp(response);
+inline size_t UseUdp(ActionType type) {
+  switch (type) {
+    // ...
+    case ActionType::PLAYER_CHAT:
+      return 0;  // UDP
+  }
 }
 
-void NetworkManager::ReadUDP() {
-  char tempBuffer[2048];
-  int bytesReceived = recv(udpSocket, tempBuffer, sizeof(tempBuffer), 0);
-  
-  if (bytesReceived > 0) {
-    std::vector<uint8_t> packet(tempBuffer, tempBuffer + bytesReceived);
-    SendACK(packet);  // ACK automatique si nécessaire
-    Event evt = DecodePacket(packet);
-    eventBuffer.push(evt);
+// Encoder.cpp
+inline uint8_t getType(const Action& a) {
+  switch (a.type) {
+    // ...
+    case ActionType::PLAYER_CHAT:
+      return 0x30;
   }
 }
 ```
 
 ---
 
-## 9. Extensibilité et Ajout de Nouveaux Messages
+## 9. Points Clés de l'Architecture
 
-L'architecture découplée facilite l'ajout de nouveaux types de messages en 4 étapes simples :
-
-**1. Définir l'enum** :
-```cpp
-// Action.hpp ou Event.hpp
-enum class ActionType : uint8_t {
-  // ...
-  NEW_ACTION = 0x30,
-};
-```
-
-**2. Créer la structure de données** :
-```cpp
-struct NewActionData {
-  uint32_t field1;
-  std::string field2;
-};
-
-// Ajouter au variant
-using ActionData = std::variant
-  // ...
-  NewActionData
->;
-```
-
-**3. Implémenter le handler** :
-```cpp
-void EncodeNewAction(const Action& a, std::vector<uint8_t>& out, uint32_t seq) {
-  const auto* data = std::get_if<NewActionData>(&a.data);
-  if (!data) return;
-  
-  size_t offset = 0;
-  // Sérialisation...
-}
-```
-
-**4. Enregistrer** :
-```cpp
-void SetupEncoder(Encoder& encoder) {
-  // ...
-  encoder.registerHandler(ActionType::NEW_ACTION, EncodeNewAction);
-}
-```
-
-Le système de flags permet également d'ajouter des fonctionnalités (compression, chiffrement) sans casser la compatibilité.
+1. **Découplage** : Encodeur/Décodeur indépendants du transport
+2. **Thread-safety** : Buffers circulaires avec mutex
+3. **Performance** : Sockets non-bloquants, buffers fixes
+4. **Fiabilité** : TCP pour messages critiques, UDP pour temps-réel
+5. **Automatisation** : Connexion UDP automatique après login
