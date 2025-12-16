@@ -142,7 +142,7 @@ void ProcessPacketTCP::ReadPayload(uint16_t payload_size) {
 }
 
 void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
-                                         std::size_t bytes_transferred) {
+                                         std::size_t) {
   if (error && error != asio::error::eof) {
     std::cerr << "[ProcessPacketTCP] Payload read error: " << error.message()
               << std::endl;
@@ -183,7 +183,7 @@ void ProcessPacketTCP::ProcessingGameStart() {
   auto self = shared_from_this();
   asio::async_write(
       socket_, asio::buffer(data),
-      [this, self](const asio::error_code& error, std::size_t bytes) {
+      [this, self](const asio::error_code& error, std::size_t) {
         if (error) {
           std::cerr << "[ProcessPacketTCP] Send error: " << error.message()
                     << std::endl;
@@ -216,7 +216,6 @@ void ProcessPacketTCP::ProcessLoginRequest() {
 
   std::cout << "type data = " << static_cast<uint8_t>(data.type) << " data "
             << username << std::endl;
-  printf("$%x$", data.type);
   std::cout << "[ProcessPacketTCP] Login request from '" << username
             << "' (client " << client_id_ << ")" << std::endl;
   authenticated_ = true;
@@ -228,7 +227,7 @@ void ProcessPacketTCP::ProcessLoginRequest() {
   SendLoginResponse(true, client_id_, server_->GetUDPPort());
 }
 
-void ProcessPacketTCP::SendLoginResponse(bool success, uint16_t player_id,
+void ProcessPacketTCP::SendLoginResponse(bool, uint16_t,
                                          uint16_t udp_port) {
   Encoder encode;
   SetupEncoder(encode);
@@ -250,7 +249,7 @@ void ProcessPacketTCP::SendLoginResponse(bool success, uint16_t player_id,
   auto self = shared_from_this();
   asio::async_write(
       socket_, asio::buffer(data),
-      [this, self](const asio::error_code& error, std::size_t bytes) {
+      [this, self](const asio::error_code& error, std::size_t) {
         if (error) {
           std::cerr << "[ProcessPacketTCP] Send error: " << error.message()
                     << std::endl;
@@ -287,7 +286,7 @@ void ProcessPacketTCP::SendPacket(const std::vector<uint8_t>& data) {
   auto self = shared_from_this();
   asio::async_write(
       socket_, asio::buffer(data),
-      [this, self](const asio::error_code& error, std::size_t bytes) {
+      [this, self](const asio::error_code& error, std::size_t) {
         if (error) {
           std::cerr << "[ProcessPacketTCP] Send error: " << error.message()
                     << std::endl;

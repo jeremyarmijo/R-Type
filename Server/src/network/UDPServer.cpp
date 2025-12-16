@@ -46,7 +46,7 @@ void UDPServer::SendTo(const std::vector<uint8_t>& data,
   if (!socket_.is_open()) return;
 
   socket_.async_send_to(asio::buffer(data), endpoint,
-                        [](const asio::error_code& error, std::size_t bytes) {
+                        [](const asio::error_code& error, std::size_t) {
                           if (error) {
                             std::cerr
                                 << "[UDPServer] Send error: " << error.message()
