@@ -22,15 +22,17 @@ struct Boss {
   float amplitude;
   int current;
   int hp;
+  int contact_damage;
   Boss(BossType t, BossPhase p = BossPhase::Phase1, float spd = 100.f,
-       Vector2 dir = {0.f, 0.f}, float amp = 40.f, int cur = 500)
+       Vector2 dir = {0.f, 0.f}, float amp = 40.f, int cur = 500, int dmg = 10)
       : type(t),
         phase(p),
         direction(dir),
         timer(0.f),
         speed(spd),
         amplitude(amp),
-        current(cur) {}
+        current(cur),
+        contact_damage(dmg) {}
 };
 
 #endif  // SHARED_COMPONENTS_PLAYER_BOSS_HPP_
