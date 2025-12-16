@@ -1,7 +1,7 @@
 #include "systems/ProjectileSystem.hpp"
 
 #include <SDL2/SDL.h>
-
+#include <vector>
 #include <string>
 #include <utility>
 
@@ -91,6 +91,7 @@ void projectile_collision_system(Registry& registry,
   auto& enemies = registry.get_components<Enemy>();
   auto& players = registry.get_components<PlayerEntity>();
   auto& bosses = registry.get_components<Boss>();
+  std::vector<size_t> toKill;
 
   auto get_owner_type = [&](size_t ownerId) -> std::optional<std::string> {
     if (ownerId < players.size() && players[ownerId].has_value()) {
@@ -109,42 +110,46 @@ void projectile_collision_system(Registry& registry,
        IndexedZipper(projectiles, transforms, colliders)) {
     if (!projectile.isActive) continue;
 
+    std::optional<std::string> ownerType = get_owner_type(projectile.ownerId);
+    if (!ownerType.has_value()) continue;
+
     for (auto&& [targetIdx, targetTransform, targetCollider] :
          IndexedZipper(transforms, colliders)) {
-      std::optional<std::string> ownerType = get_owner_type(projectile.ownerId);
-      if (!ownerType.has_value()) continue;
+      if (projIdx == targetIdx) continue;
+      if (targetIdx == projectile.ownerId) continue;
 
-      for (auto&& [targetIdx, targetTransform, targetCollider] :
-           IndexedZipper(transforms, colliders)) {
-        if (projIdx == targetIdx) continue;
-        if (targetIdx == projectile.ownerId) continue;
+      bool isTargetPlayer =
+          (targetIdx < players.size() && players[targetIdx].has_value());
+      bool isTargetEnemy =
+          (targetIdx < enemies.size() && enemies[targetIdx].has_value());
+      bool isTargetBoss =
+          (targetIdx < bosses.size() && bosses[targetIdx].has_value());
 
-        bool isTargetPlayer =
-            (targetIdx < players.size() && players[targetIdx].has_value());
-        bool isTargetEnemy =
-            (targetIdx < enemies.size() && enemies[targetIdx].has_value());
-        bool isTargetBoss =
-            (targetIdx < bosses.size() && bosses[targetIdx].has_value());
+      bool validCollision = false;
 
-        bool validCollision = false;
-
-        if (*ownerType == "Player" && isTargetEnemy) {
-          validCollision = true;
-        } else if (*ownerType == "Enemy" && isTargetPlayer) {
-          validCollision = true;
-        } else if (*ownerType == "Player" && isTargetBoss) {
-          validCollision = true;
-        }
-
-        if (validCollision &&
-            check_collision(projTransform, projCollider, targetTransform,
-                            targetCollider)) {
-          projectile.isActive = false;
-          registry.kill_entity(Entity(projIdx));
-          apply_projectile_damage(registry, targetIdx, projectile.damage);
-          break;
-        }
+      if (*ownerType == "Player" && isTargetEnemy) {
+        validCollision = true;
+      } else if (*ownerType == "Enemy" && isTargetPlayer) {
+        validCollision = true;
+      } else if (*ownerType == "Player" && isTargetBoss) {
+        validCollision = true;
       }
+
+      if (validCollision && check_collision(projTransform, projCollider,
+                                            targetTransform, targetCollider)) {
+        projectile.isActive = false;
+        apply_projectile_damage(registry, targetIdx, projectile.damage);
+        toKill.push_back(projIdx);
+        break;
+      }
+    }
+  }
+
+  // Supprime tous les projectiles touchés **après** avoir appliqué tous les
+  // dégâts
+  for (size_t e : toKill) {
+    if (e < projectiles.size()) {
+      registry.kill_entity(Entity(e));
     }
   }
 }
