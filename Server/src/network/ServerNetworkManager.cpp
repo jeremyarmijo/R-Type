@@ -13,10 +13,10 @@ ServerNetworkManager::ServerNetworkManager() = default;
 
 ServerNetworkManager::~ServerNetworkManager() { Shutdown(); }
 
-bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port) {
+bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port, const std::string& host) {
   try {
     work_guard_ = std::make_unique<asio::io_context::work>(io_context_);
-    tcp_server_ = std::make_unique<TCPServer>(io_context_, tcp_port);
+    tcp_server_ = std::make_unique<TCPServer>(io_context_, tcp_port, host);
     tcp_server_->SetUDPPort(udp_port);
     tcp_server_->SetLoginCallback(
         [this](uint32_t client_id, const std::string &username,
@@ -26,7 +26,7 @@ bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port) {
     tcp_server_->SetDisconnectCallback(
         [this](uint32_t client_id) { OnTCPDisconnect(client_id); });
 
-    udp_server_ = std::make_unique<UDPServer>(io_context_, udp_port);
+    udp_server_ = std::make_unique<UDPServer>(io_context_, udp_port, host);
 
     udp_server_->SetReceiveCallback(
         [this](const auto &data, const auto &endpoint) {
