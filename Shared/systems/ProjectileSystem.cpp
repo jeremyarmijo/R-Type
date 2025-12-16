@@ -145,8 +145,6 @@ void projectile_collision_system(Registry& registry,
     }
   }
 
-  // Supprime tous les projectiles touchés **après** avoir appliqué tous les
-  // dégâts
   for (size_t e : toKill) {
     if (e < projectiles.size()) {
       registry.kill_entity(Entity(e));
