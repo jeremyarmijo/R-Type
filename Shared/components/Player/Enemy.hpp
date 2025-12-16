@@ -17,7 +17,7 @@ struct Enemy {
   int contact_damage;
 
   Enemy(EnemyType t, float spd, Vector2 dir = {0.f, 0.f}, float amp = 20.f,
-        int cur = 200, int score = 0, int weapon = 0, int dmg = 10)
+        int cur = 50, int score = 0, int weapon = 0, int dmg = 10)
       : type(t),
         speed(spd),
         direction(dir),
