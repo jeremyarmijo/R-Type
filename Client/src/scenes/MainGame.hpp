@@ -140,6 +140,7 @@ class MyGameScene : public Scene {
     m_otherPlayers.clear();
     m_enemies.clear();
     m_projectiles.clear();
+    m_explosions.clear();
     m_skinManager.Clear();
     m_isInitialized = false;
     m_firstState = false;
@@ -553,6 +554,7 @@ class MyGameScene : public Scene {
       if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() && m_isAlive) {
         CreateExplosion(m_localPlayer);
         GetAudio().PlaySound("explosion");
+        m_healthText->SetText("Health: 0");
         GetRegistry().kill_entity(m_localPlayer);
         m_entities.erase(
         std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
@@ -642,7 +644,9 @@ class MyGameScene : public Scene {
             UpdateProjectiles(payload.projectiles, dt);
           } else if constexpr (std::is_same_v<T, BOSS_SPAWN>) {
           } else if constexpr (!std::is_same_v<T, BOSS_UPDATE>) {
-          } else if constexpr (!std::is_same_v<T, GAME_END>) {
+          } else if constexpr (std::is_same_v<T, GAME_END>) {
+            std::cout << "game ended!" << std::endl;
+            ChangeScene("gameover");
           } else if constexpr (!std::is_same_v<T, ENEMY_HIT>) {
           }
         },

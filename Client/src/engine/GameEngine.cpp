@@ -195,6 +195,8 @@ void GameEngine::Shutdown() {
 
   m_audioManager.Shutdown();
 
+  m_networkManager.Disconnect();
+
   IMG_Quit();
   TTF_Quit();
   SDL_Quit();
