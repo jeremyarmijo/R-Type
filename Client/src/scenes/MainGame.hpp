@@ -53,6 +53,7 @@ class MyGameScene : public Scene {
 
       TextureManager& textures = GetTextures();
       AnimationManager& animations = GetAnimations();
+      GetAudio().PlayMusic("game_music");
 
       std::cout << "Loading textures..." << std::endl;
       LoadGameTextures(textures);
@@ -321,7 +322,7 @@ class MyGameScene : public Scene {
     auto it = m_otherPlayers.find(playerId);
     if (it != m_otherPlayers.end()) {
       Entity playerEntity = it->second;
-
+      GetAudio().PlaySound("explosion");
       GetRegistry().kill_entity(playerEntity);
       m_skinManager.RemovePlayer(playerId);
       m_entities.erase(
@@ -383,6 +384,7 @@ class MyGameScene : public Scene {
     if (it != m_enemies.end()) {
       Entity enemyEntity = it->second;
       GetRegistry().kill_entity(enemyEntity);
+      GetAudio().PlaySound("explosion");
       m_entities.erase(
           std::remove(m_entities.begin(), m_entities.end(), enemyEntity),
           m_entities.end());
@@ -415,7 +417,7 @@ class MyGameScene : public Scene {
 
     Entity projectile =
         m_engine->CreateAnimatedSprite(texture, position, animation);
-
+    GetAudio().PlaySound("shoot");
     auto& transform = GetRegistry().get_components<Transform>()[projectile];
     if (transform) {
       transform->scale = {1.5f, 1.5f};
