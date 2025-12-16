@@ -1,10 +1,12 @@
 #include "systems/BoundsSystem.hpp"
+#include "Player/PlayerEntity.hpp"
 
 void bounds_check_system(Registry& registry, SparseArray<Transform>& transforms,
                          SparseArray<BoxCollider>& colliders,
                          SparseArray<RigidBody>& rigidbodies) {
-  for (auto&& [entityId, transform, collider] :
-       IndexedZipper(transforms, colliders)) {
+  auto& players = registry.get_components<PlayerEntity>();
+  for (auto&& [entityId, transform, collider, player] :
+       IndexedZipper(transforms, colliders, players)) {
     float halfWidth = collider.width / 2.0f;
     float halfHeight = collider.height / 2.0f;
 
