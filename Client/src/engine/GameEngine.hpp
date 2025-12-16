@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "audio/AudioManager.hpp"
 #include "components/Physics2D.hpp"
 #include "components/Player/Projectile.hpp"
 #include "components/Player/Weapon.hpp"
@@ -36,6 +37,7 @@ class GameEngine {
   InputManager m_inputManager;
   PlayerSettings m_playerSettings;
   SceneManager* m_sceneManager;
+  AudioManager m_audioManager;
 
   Vector2 m_cameraPosition;
   Vector2 m_gravity;
@@ -91,6 +93,7 @@ class GameEngine {
   InputManager& GetInputManager() { return m_inputManager; }
   PlayerSettings& GetPlayerSettings() { return m_playerSettings; }
   SDL_Renderer* GetRenderer() { return m_renderer; }
+  AudioManager& GetAudioManager() { return m_audioManager; }
 
   Vector2 GetCameraPosition() const { return m_cameraPosition; }
   void SetCameraPosition(Vector2 pos) { m_cameraPosition = pos; }

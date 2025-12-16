@@ -43,6 +43,10 @@ bool GameEngine::Initialize(const std::string& title, int width, int height) {
     return false;
   }
 
+  if (!m_audioManager.Initialize()) {
+    std::cerr << "Failed to initialize audio!" << std::endl;
+  }
+
   m_window =
       SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
                        SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
@@ -188,6 +192,8 @@ void GameEngine::Shutdown() {
     SDL_DestroyWindow(m_window);
     m_window = nullptr;
   }
+
+  m_audioManager.Shutdown();
 
   IMG_Quit();
   TTF_Quit();

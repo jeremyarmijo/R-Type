@@ -14,6 +14,7 @@
 #include "include/NetworkManager.hpp"
 #include "inputs/InputManager.hpp"
 #include "ui/UIManager.hpp"
+#include "audio/AudioManager.hpp"
 
 class GameEngine;
 class SceneManager;
@@ -77,6 +78,7 @@ class Scene {
   AnimationManager& GetAnimations();
   InputManager& GetInput();
   NetworkManager& GetNetwork();
+  AudioManager& GetAudio();
   SDL_Renderer* GetRenderer();
   Vector2 GetCameraPosition();
   UIManager& GetUI() { return m_uiManager; }
