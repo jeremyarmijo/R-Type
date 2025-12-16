@@ -4,7 +4,7 @@
 #include "Player/Enemy.hpp"
 #include "ecs/Registry.hpp"
 
-void weapon_cooldown_system(Registry& registry, SparseArray<Enemy>& weapons,
-                            float deltaTime);
+void enemy_wave_system(Registry& registry, SparseArray<Enemy>& weapons,
+                            float deltaTime, int nbWave, int difficulty);
 
 #endif  // WEAPON_SYSTEM_HPP

@@ -8,20 +8,28 @@
 Vector2 get_random_pos() {
   Vector2 pos;
 
-  pos.x = rand() % (750-500 + 1) + 500;
+  pos.x = 750;
   pos.y = rand() % (550-30 + 1) + 30;
   return pos;
 }
 
+Vector2 get_boss_spawn_pos() {
+    return {700.0f, 300.0f}; 
+}
+
 bool checkWaveEnd(Registry& registry, SparseArray<Enemy>& enemies) {
-    if (enemies.size() == 0)
-      return true;
-    return false;
+    int active_enemies = 0;
+    for (const auto& enemy : enemies) {
+        if (enemy.has_value()) {
+            active_enemies++;
+        }
+    }
+    return active_enemies == 0;
 }
 
 void create_multiples_enemies(Registry& registry, EnemyType type, int nbEnemies) {
 
-    for (int i = 0; i <= nbEnemies; i++) {
+    for (int i = 0; i < nbEnemies; i++) { 
       Vector2 pos = get_random_pos();
       createEnemy(registry, type, pos);
     }
@@ -29,24 +37,61 @@ void create_multiples_enemies(Registry& registry, EnemyType type, int nbEnemies)
 
 void enemy_wave_system(Registry& registry, SparseArray<Enemy>& enemies,
                             float deltaTime, int nbWave, int difficulty) {
-    int i = 0;
-    bool waveEnded = false;
+    static bool waveOn = false;
+    static int currentWave = 0;
+    static float waveDelayTimer = 3.0f;
+    const float TIME_BETWEEN_WAVES = 3.0f;
+    static bool bossSpawned = false;
 
+    if (waveOn) {
+        if (checkWaveEnd(registry, enemies)) {
+            std::cout << "Wave " << currentWave << " ended. Starting delay." << std::endl;
+            if (currentWave == 5 && !bossSpawned) {
+                std::cout << "BOSS WAVE TRIGGERED!" << std::endl;
+                Vector2 bossPos = get_boss_spawn_pos();
+                createBoss(registry, BossType::FinalBoss, bossPos, BossPhase::Phase1, 500);
+                
+                bossSpawned = true;
+                waveOn = true;
+                return;
+            }
+            waveOn = false;
+            waveDelayTimer = TIME_BETWEEN_WAVES; 
+        }
+        return;
+    }
 
-    while (i <= nbWave) {
-      int nbBasic = ((3 + i) / 2) * difficulty;
-      int nbZigzag = ((2 + i) / 2) * difficulty;
-      int nbWave = ((1 + i) / 2) * difficulty;
+    if (bossSpawned) {
+        if (checkWaveEnd(registry, enemies)) {
+            std::cout << "Boss defeated! Resuming waves." << std::endl;
+            bossSpawned = false;
+            waveDelayTimer = TIME_BETWEEN_WAVES;
+        }
+        return;
+    }
 
-      std::vector<Vector2> pos;
-      
+    if (waveDelayTimer > 0.0f) {
+        waveDelayTimer -= deltaTime;
+        std::cout << "Wave delay: " << waveDelayTimer << "s remaining." << std::endl;
+
+        if (waveDelayTimer > 0.0f) {
+            return;
+        }
+    }
+
+    if (!waveOn) {
+      std::cout << "Spawning Wave " << currentWave + 1 << "!" << std::endl;
+
+      int nbBasic = ((3 + currentWave) / 2) * difficulty;
+      int nbZigzag = ((2 + currentWave) / 2) * difficulty;
+      int nbChaseEnemies = ((1 + currentWave) / 2) * difficulty;
+
       create_multiples_enemies(registry, EnemyType::Basic, nbBasic);
       create_multiples_enemies(registry, EnemyType::Zigzag, nbZigzag);
-      create_multiples_enemies(registry, EnemyType::Wave, nbWave);
+      create_multiples_enemies(registry, EnemyType::Chase, nbChaseEnemies);
 
-      waveEnded = checkWaveEnd(registry, enemies);
-
-      if (waveEnded)
-        i++;
+      currentWave++;
+      waveOn = true;
+      waveDelayTimer = 0.0f; 
     }
 }
