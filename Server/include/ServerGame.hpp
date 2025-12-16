@@ -14,7 +14,7 @@
 class ServerGame {
  public:
   ServerGame();
-  bool Initialize(uint16_t tcpPort, uint16_t udpPort);
+  bool Initialize(uint16_t tcpPort, uint16_t udpPort, int diff);
   void Run();
   void Shutdown();
 
@@ -25,6 +25,8 @@ class ServerGame {
   Registry registry;
   std::queue<std::tuple<Event, uint16_t>> eventQueue;
   std::queue<std::tuple<Action, uint16_t>> actionQueue;
+  std::unordered_map<uint16_t, Entity> m_players;
+  int difficulty;
   std::mutex queueMutex;
   void ReceivePlayerInputs();
   void UpdateGameState(float deltaTime);

@@ -15,8 +15,11 @@
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/PhysicsSystem.hpp"
+#include "systems/ProjectileSystem.hpp"
+#include "systems/WeaponSystem.hpp"
+#include "systems/WaveSystem.hpp"
 
-ServerGame::ServerGame() : serverRunning(true), gameStarted(false) {
+ServerGame::ServerGame() : serverRunning(true), gameStarted(false), difficulty(1) {
   SetupDecoder(decode);
   SetupEncoder(encode);
 }
@@ -29,11 +32,12 @@ void ServerGame::HandleAuth(uint16_t playerId) {
 
   float posY = 200.f + ((playerId - 1) % 4) * 100.f;
   Entity player = createPlayer(registry, {200, posY}, playerId);
+  m_players[playerId] = player;
   lobbyPlayers.push_back(playerId);
   std::cout << "Player " << playerId << " joined the lobby ("
             << lobbyPlayers.size() << "/4)" << std::endl;
 
-  if (lobbyPlayers.size() == 4 && !gameStarted) {
+  if (lobbyPlayers.size() == 2 && !gameStarted) {
     StartGame();
   }
 }
@@ -61,17 +65,24 @@ void ServerGame::SetupNetworkCallbacks() {
   networkManager.SetDisconnectionCallback([this](uint16_t client_id) {
     std::cout << "Client " << client_id << " disconnected!" << std::endl;
     std::lock_guard<std::mutex> lock(lobbyMutex);
+    auto it = m_players.find(client_id);
+    if (it != m_players.end()) {
+      Entity playerEntity = it->second;
+      registry.kill_entity(playerEntity);
+      m_players.erase(it);
+    }
     lobbyPlayers.erase(
         std::remove(lobbyPlayers.begin(), lobbyPlayers.end(), client_id),
         lobbyPlayers.end());
   });
 }
 
-bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort) {
+bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff) {
   if (!networkManager.Initialize(tcpPort, udpPort)) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
   }
+  difficulty = diff;
     // Physics components
   registry.register_component<Transform>();
   registry.register_component<RigidBody>();
@@ -104,8 +115,8 @@ void ServerGame::InitWorld() {
   // Entity player1 = createPlayer(registry, playerStartPos1, 0);
   // Entity player2 = createPlayer(registry, playerStartPos2, 1);
 
-  // Vector2 enemyPos1{400.f, 150.f};
-  // Vector2 enemyPos2{500.f, 250.f};
+  // Vector2 enemyPos1{800.f, 150.f};
+  // Vector2 enemyPos2{800.f, 250.f};
   // Entity enemy1 = createEnemy(registry, EnemyType::Basic, enemyPos1);
   // Entity enemy2 = createEnemy(registry, EnemyType::Zigzag, enemyPos2);
 
@@ -159,7 +170,7 @@ void ServerGame::GameLoop() {
 
   SendAction(std::make_tuple(ac, 0));
 
-  while (serverRunning) {
+  while (gameStarted) {
     auto currentTime = std::chrono::steady_clock::now();
     float deltaTime =
         std::chrono::duration<float>(currentTime - lastTime).count();
@@ -197,13 +208,13 @@ void ServerGame::SendPacket() {
 
     msg.data = encode.encode(action, protocol);
 
-    std::cout << "Try SEND (clientId = " << clientId
+    /*std::cout << "Try SEND (clientId = " << clientId
               << ")   (protocol = " << protocol << ")" << std::endl;
     std::cout << "Packet = ";
     for (auto &b : msg.data) {
       std::cout << std::hex << static_cast<int>(b) <<  " ";
     }
-    std::cout << std::endl;
+    std::cout << std::endl;*/
     if (clientId == 0) {
       if (protocol == 0) networkManager.BroadcastUDP(msg);
       if (protocol == 2) networkManager.BroadcastTCP(msg);
@@ -273,15 +284,37 @@ void ServerGame::UpdateGameState(float deltaTime) {
   auto& bosses = registry.get_components<Boss>();
   auto& colliders = registry.get_components<BoxCollider>();
   auto& projectiles = registry.get_components<Projectile>();
+  auto& weapons = registry.get_components<Weapon>();
 
   player_movement_system(registry);
   physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
   enemy_movement_system(transforms, rigidbodies, enemies, deltaTime);
   boss_movement_system(transforms, rigidbodies, bosses, deltaTime);
-  // projectile_system(transforms, rigidbodies, projectiles, deltaTime);
-  gamePlay_Collision_system(registry, transforms, colliders, players, enemies,
-                            bosses, /*items*/ registry.get_components<Items>(),
-                            projectiles);
+  // Weapon systems
+  weapon_cooldown_system(registry, weapons, deltaTime);
+  weapon_reload_system(registry, weapons, deltaTime);
+
+  weapon_firing_system(
+      registry, weapons, transforms,
+      [this](size_t entityId) -> bool {
+        auto& playerEntity = registry.get_components<PlayerEntity>();
+        if (entityId < playerEntity.size() &&
+            playerEntity[entityId].has_value()) {
+          auto& state = registry.get_components<InputState>()[entityId];
+          //std::cout << "entity = " << entityId << " fire state = " <<  state->action1 << std::endl;
+          return state->action1;
+        }
+        return false;
+      },
+      deltaTime);
+  // Projectile systems
+  projectile_lifetime_system(registry, projectiles, deltaTime);
+  projectile_collision_system(registry, transforms, colliders,
+                             projectiles);
+  //gamePlay_Collision_system(registry, transforms, colliders, players, enemies,
+  //                          bosses, /*items*/ registry.get_components<Items>(),
+  //                          projectiles);
+  enemy_wave_system(registry, enemies, deltaTime, 5, difficulty);
 }
 
 void ServerGame::SendWorldStateToClients() {
@@ -304,9 +337,9 @@ void ServerGame::SendWorldStateToClients() {
     gs.players.push_back(ps);
   }
 
-  for (auto&& [enemy, transform] : Zipper(enemies, transforms)) {
+  for (auto&& [idx, enemy, transform] : IndexedZipper(enemies, transforms)) {
     EnemyState es;
-    // es.enemyId   = static_cast<uint16_t>(&enemy - &enemies[0]);
+    es.enemyId   = static_cast<uint16_t>(idx);
     es.enemyType = static_cast<uint8_t>(enemy.type);
     es.posX = transform.position.x;
     es.posY = transform.position.y;
@@ -316,9 +349,9 @@ void ServerGame::SendWorldStateToClients() {
     gs.enemies.push_back(es);
   }
 
-  for (auto&& [boss, transform] : Zipper(bosses, transforms)) {
+  for (auto&& [idx, boss, transform] : IndexedZipper(bosses, transforms)) {
     EnemyState bs;
-    // bs.enemyId   = static_cast<uint16_t>(&boss - &bosses[0]);
+    bs.enemyId   = static_cast<uint16_t>(idx);
     bs.enemyType = static_cast<uint8_t>(boss.type);
     bs.posX = transform.position.x;
     bs.posY = transform.position.y;
@@ -328,10 +361,10 @@ void ServerGame::SendWorldStateToClients() {
     gs.enemies.push_back(bs);
   }
 
-  for (auto&& [proj, transform] : Zipper(projectiles, transforms)) {
+  for (auto&& [idx, proj, transform] : IndexedZipper(projectiles, transforms)) {
     ProjectileState ps;
-    // ps.projectileId = static_cast<uint16_t>(&proj - &projectiles[0]);
-    // ps.ownerId = proj.is_player_projectTile ? 1 : 0;
+    ps.projectileId = static_cast<uint16_t>(idx);
+    ps.ownerId = proj.ownerId;
     ps.posX = transform.position.x;
     ps.posY = transform.position.y;
     ps.velX = proj.direction.x * proj.speed;
