@@ -216,7 +216,6 @@ void ProcessPacketTCP::ProcessLoginRequest() {
 
   std::cout << "type data = " << static_cast<uint8_t>(data.type) << " data "
             << username << std::endl;
-  printf("$%x$", data.type);
   std::cout << "[ProcessPacketTCP] Login request from '" << username
             << "' (client " << client_id_ << ")" << std::endl;
   authenticated_ = true;

@@ -117,7 +117,6 @@ void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
   NetworkMessage msg;
   msg.client_id = client->GetId();
   msg.data = data;
-  msg.timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
   {
     std::lock_guard<std::mutex> lock(queue_mutex_);
     incoming_messages_.push(std::move(msg));

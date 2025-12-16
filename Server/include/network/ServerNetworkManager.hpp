@@ -15,8 +15,6 @@
 #include "network/TCPServer.hpp"
 #include "network/UDPServer.hpp"
 
-class TCPServer;
-
 struct ConnectionEvent {
   enum Type { CONNECTED, DISCONNECTED };
   Type type;
