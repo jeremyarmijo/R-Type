@@ -353,10 +353,8 @@ void ServerGame::UpdateGameState(float deltaTime) {
   // Projectile systems
   projectile_collision_system(registry, transforms, colliders, projectiles);
   projectile_lifetime_system(registry, projectiles, deltaTime);
-  // gamePlay_Collision_system(registry, transforms, colliders, players,
-  // enemies,
-  //                           bosses, /*items*/
-  //                           registry.get_components<Items>(), projectiles);
+  gamePlay_Collision_system(registry, transforms, colliders, players,
+  enemies, bosses);
   enemy_wave_system(registry, enemies, deltaTime, 5, difficulty);
   bounds_check_system(registry, transforms, colliders, rigidbodies);
 }
