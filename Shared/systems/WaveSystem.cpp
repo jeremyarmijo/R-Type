@@ -36,6 +36,7 @@ void enemy_wave_system(Registry& registry, SparseArray<Enemy>& enemies,
                        float deltaTime, int nbWave, int difficulty) {
   static bool waveOn = false;
   static int currentWave = 0;
+  static int level = 0;
   static float waveDelayTimer = 3.0f;
   const float TIME_BETWEEN_WAVES = 3.0f;
   static bool bossSpawned = false;
@@ -64,6 +65,8 @@ void enemy_wave_system(Registry& registry, SparseArray<Enemy>& enemies,
     if (checkWaveEnd(registry, enemies)) {
       std::cout << "Boss defeated! Resuming waves." << std::endl;
       bossSpawned = false;
+      currentWave = 0;
+      level += 1;
       waveDelayTimer = TIME_BETWEEN_WAVES;
     }
     return;
@@ -82,9 +85,9 @@ void enemy_wave_system(Registry& registry, SparseArray<Enemy>& enemies,
   if (!waveOn && !bossSpawned) {
     std::cout << "Spawning Wave " << currentWave + 1 << "!" << std::endl;
 
-    int nbBasic = ((2 + currentWave) / 2) * difficulty;
-    int nbZigzag = ((2 + currentWave) / 2) * difficulty;
-    int nbChaseEnemies = ((1 + currentWave) / 2) * difficulty;
+    int nbBasic = ((2 + currentWave) / 2) * (difficulty + level);
+    int nbZigzag = ((2 + currentWave) / 2) * (difficulty + level);
+    int nbChaseEnemies = ((1 + currentWave) / 2) * (difficulty + level);
 
     create_multiples_enemies(registry, EnemyType::Basic, nbBasic);
     create_multiples_enemies(registry, EnemyType::Zigzag, nbZigzag);

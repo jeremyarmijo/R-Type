@@ -36,9 +36,9 @@ void ServerGame::HandleAuth(uint16_t playerId) {
   m_players[playerId] = player;
   lobbyPlayers.push_back(playerId);
   std::cout << "Player " << playerId << " joined the lobby ("
-            << lobbyPlayers.size() << "/2)" << std::endl;
+            << lobbyPlayers.size() << "/4)" << std::endl;
 
-  if (lobbyPlayers.size() == 1 && !gameStarted) {
+  if (lobbyPlayers.size() == 4 && !gameStarted) {
     StartGame();
   }
 }
