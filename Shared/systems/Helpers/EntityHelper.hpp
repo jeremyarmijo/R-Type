@@ -51,18 +51,16 @@ inline Entity createEnemy(Registry& registry, EnemyType type,
 
 // Helper pour créer un boss
 inline Entity createBoss(Registry& registry, BossType type,
-                        const Vector2& startPos,
-                        BossPhase phase, int maxHp) {
-    Entity boss = registry.spawn_entity();
-    registry.add_component<Transform>(boss, Transform{startPos});
-    registry.add_component<RigidBody>(boss, RigidBody{});
-    registry.add_component<BoxCollider>(boss, BoxCollider(ENEMY_BOSS_SIZE.x,
-    ENEMY_BOSS_SIZE.y));
-    registry.add_component<Boss>(boss, Boss(type, phase, 100.f, {0, 0}
-    , 40.f, maxHp));
-    return boss;
+                         const Vector2& startPos, BossPhase phase, int maxHp) {
+  Entity boss = registry.spawn_entity();
+  registry.add_component<Transform>(boss, Transform{startPos});
+  registry.add_component<RigidBody>(boss, RigidBody{});
+  registry.add_component<BoxCollider>(
+      boss, BoxCollider(ENEMY_BOSS_SIZE.x, ENEMY_BOSS_SIZE.y));
+  registry.add_component<Boss>(boss,
+                               Boss(type, phase, 100.f, {0, 0}, 40.f, maxHp));
+  return boss;
 }
-
 
 inline Entity createProjectile(Registry& registry, const Vector2& startPos,
                                const Vector2& direction, float speed,

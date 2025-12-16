@@ -6,6 +6,7 @@
 #include <thread>
 #include <tuple>
 #include <vector>
+
 #include "ecs/Registry.hpp"
 #include "network/DecodeFunc.hpp"
 #include "network/EncodeFunc.hpp"
@@ -45,7 +46,6 @@ class ServerGame {
   void StartGame();
   void InitWorld();
   void GameLoop();
-
 
   std::optional<std::tuple<Event, uint16_t>> PopEvent();
   void SendAction(std::tuple<Action, uint16_t>);

@@ -14,8 +14,7 @@ void enemy_movement_system(Registry& registry,
                            SparseArray<Transform>& transforms,
                            SparseArray<RigidBody>& rigidbodies,
                            SparseArray<Enemy>& enemies,
-                           SparseArray<PlayerEntity>& players,
-                           float deltaTime);
+                           SparseArray<PlayerEntity>& players, float deltaTime);
 
 void Projectile_movement_system(SparseArray<Transform>& transforms,
                                 SparseArray<RigidBody>& rigidbodies,
@@ -25,5 +24,4 @@ void Projectile_movement_system(SparseArray<Transform>& transforms,
 void boss_movement_system(Registry& registry,
                           SparseArray<Transform>& transforms,
                           SparseArray<RigidBody>& rigidbodies,
-                          SparseArray<Boss>& bosses,
-                          float deltaTime);
+                          SparseArray<Boss>& bosses, float deltaTime);

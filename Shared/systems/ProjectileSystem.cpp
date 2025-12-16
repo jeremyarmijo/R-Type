@@ -5,11 +5,11 @@
 #include <string>
 #include <utility>
 
+#include "Player/Enemy.hpp"
 #include "ecs/Zipper.hpp"
 #include "graphics/RenderComponents.hpp"
 #include "systems/Collision/Collision.hpp"
 #include "systems/PhysicsSystem.hpp"
-#include "Player/Enemy.hpp"
 
 // Forward declarations - les vraies structures sont dans le moteur
 // struct Sprite {
@@ -47,10 +47,11 @@ void projectile_lifetime_system(Registry& registry,
   }
 }
 
-void apply_projectile_damage(Registry& registry, size_t targetId, float damage) {
+void apply_projectile_damage(Registry& registry, size_t targetId,
+                             float damage) {
   auto& players = registry.get_components<PlayerEntity>();
   auto& enemies = registry.get_components<Enemy>();
-  auto& bosses  = registry.get_components<Boss>();
+  auto& bosses = registry.get_components<Boss>();
 
   if (targetId < players.size() && players[targetId].has_value()) {
     auto& player = players[targetId].value();
@@ -110,32 +111,34 @@ void projectile_collision_system(Registry& registry,
 
     for (auto&& [targetIdx, targetTransform, targetCollider] :
          IndexedZipper(transforms, colliders)) {
-
       std::optional<std::string> ownerType = get_owner_type(projectile.ownerId);
       if (!ownerType.has_value()) continue;
 
       for (auto&& [targetIdx, targetTransform, targetCollider] :
-         IndexedZipper(transforms, colliders)) {
+           IndexedZipper(transforms, colliders)) {
         if (projIdx == targetIdx) continue;
         if (targetIdx == projectile.ownerId) continue;
 
-        bool isTargetPlayer = (targetIdx < players.size() && players[targetIdx].has_value());
-        bool isTargetEnemy  = (targetIdx < enemies.size() && enemies[targetIdx].has_value());
-        bool isTargetBoss  = (targetIdx < bosses.size() && bosses[targetIdx].has_value());
+        bool isTargetPlayer =
+            (targetIdx < players.size() && players[targetIdx].has_value());
+        bool isTargetEnemy =
+            (targetIdx < enemies.size() && enemies[targetIdx].has_value());
+        bool isTargetBoss =
+            (targetIdx < bosses.size() && bosses[targetIdx].has_value());
 
         bool validCollision = false;
-      
+
         if (*ownerType == "Player" && isTargetEnemy) {
           validCollision = true;
         } else if (*ownerType == "Enemy" && isTargetPlayer) {
           validCollision = true;
         } else if (*ownerType == "Player" && isTargetBoss) {
           validCollision = true;
-        } 
-      
-        if (validCollision && 
-          check_collision(projTransform, projCollider, targetTransform, targetCollider)) 
-        {
+        }
+
+        if (validCollision &&
+            check_collision(projTransform, projCollider, targetTransform,
+                            targetCollider)) {
           projectile.isActive = false;
           registry.kill_entity(Entity(projIdx));
           apply_projectile_damage(registry, targetIdx, projectile.damage);
@@ -155,8 +158,8 @@ Entity spawn_projectile(Registry& registry, Vector2 position, Vector2 direction,
 
   // // Sprite avec la texture du projectile (blueShoot.png)
   // registry.emplace_component<Sprite>(projectile, "projectile_player",
-  //                                    SDL_Rect{0, 0, 19, 6}, Vector2{0.5f, 0.5f},
-  //                                    2);
+  //                                    SDL_Rect{0, 0, 19, 6}, Vector2{0.5f,
+  //                                    0.5f}, 2);
 
   // // Animation pour animer entre les deux frames
   // registry.emplace_component<Animation>(projectile, "projectile_player_anim",

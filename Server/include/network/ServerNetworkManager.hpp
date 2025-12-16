@@ -40,7 +40,7 @@ class ServerNetworkManager : public INetworkManager {
   void SetMessageCallback(MessageCallback callback) override;
   void SetConnectionCallback(ConnectionCallback callback) override;
   void SetDisconnectionCallback(DisconnectionCallback callback) override;
-  void SetGameStarted(bool strated){GameStarted = strated;}
+  void SetGameStarted(bool strated) { GameStarted = strated; }
 
  private:
   void IOThreadFunc();

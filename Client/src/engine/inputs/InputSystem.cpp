@@ -17,23 +17,22 @@ void player_input_system(Registry& registry,
 
   if (networkManager) {
     PlayerInput currentInputState;
-    currentInputState.left    = inputManager->IsMoveLeftHeld();
-    currentInputState.right   = inputManager->IsMoveRightHeld();
-    currentInputState.up      = inputManager->IsMoveUpHeld();
-    currentInputState.down    = inputManager->IsMoveDownHeld();
-    currentInputState.fire    = inputManager->IsAction1Held();
+    currentInputState.left = inputManager->IsMoveLeftHeld();
+    currentInputState.right = inputManager->IsMoveRightHeld();
+    currentInputState.up = inputManager->IsMoveUpHeld();
+    currentInputState.down = inputManager->IsMoveDownHeld();
+    currentInputState.fire = inputManager->IsAction1Held();
 
-    if (inputManager->m_moveLeft    != inputManager->m_prevMoveLeft    ||
-        inputManager->m_moveRight   != inputManager->m_prevMoveRight   ||
-        inputManager->m_moveUp      != inputManager->m_prevMoveUp      ||
-        inputManager->m_moveDown    != inputManager->m_prevMoveDown    ||
-        inputManager->m_action1 != inputManager->m_prevAction1) 
-    {
-        Action action;
-        action.type = ActionType::DOWN_PRESS;
-        action.data = currentInputState;
-        std::cout << "sending input" << std::endl;
-        networkManager->SendAction(action);
+    if (inputManager->m_moveLeft != inputManager->m_prevMoveLeft ||
+        inputManager->m_moveRight != inputManager->m_prevMoveRight ||
+        inputManager->m_moveUp != inputManager->m_prevMoveUp ||
+        inputManager->m_moveDown != inputManager->m_prevMoveDown ||
+        inputManager->m_action1 != inputManager->m_prevAction1) {
+      Action action;
+      action.type = ActionType::DOWN_PRESS;
+      action.data = currentInputState;
+      std::cout << "sending input" << std::endl;
+      networkManager->SendAction(action);
     }
   }
 

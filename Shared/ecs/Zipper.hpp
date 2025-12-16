@@ -1,8 +1,8 @@
 #pragma once
 #include <algorithm>
+#include <functional>
 #include <tuple>
 #include <utility>
-#include <functional>
 
 #include "ecs/Zipper.hpp"
 

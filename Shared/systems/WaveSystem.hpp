@@ -5,6 +5,6 @@
 #include "ecs/Registry.hpp"
 
 void enemy_wave_system(Registry& registry, SparseArray<Enemy>& weapons,
-                            float deltaTime, int nbWave, int difficulty);
+                       float deltaTime, int nbWave, int difficulty);
 
 #endif  // WEAPON_SYSTEM_HPP

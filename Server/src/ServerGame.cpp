@@ -14,13 +14,14 @@
 #include "Player/Enemy.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
+#include "systems/BoundsSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
-#include "systems/WeaponSystem.hpp"
 #include "systems/WaveSystem.hpp"
-#include "systems/BoundsSystem.hpp"
+#include "systems/WeaponSystem.hpp"
 
-ServerGame::ServerGame() : serverRunning(true), gameStarted(false), difficulty(1) {
+ServerGame::ServerGame()
+    : serverRunning(true), gameStarted(false), difficulty(1) {
   SetupDecoder(decode);
   SetupEncoder(encode);
 }
@@ -29,7 +30,6 @@ void ServerGame::HandleAuth(uint16_t playerId) {
   if (std::find(lobbyPlayers.begin(), lobbyPlayers.end(), playerId) !=
       lobbyPlayers.end())
     return;
-
 
   float posY = 200.f + ((playerId - 1) % 4) * 100.f;
   Entity player = createPlayer(registry, {200, posY}, playerId);
@@ -84,7 +84,7 @@ bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff) {
     return false;
   }
   difficulty = diff;
-    // Physics components
+  // Physics components
   registry.register_component<Transform>();
   registry.register_component<RigidBody>();
   registry.register_component<BoxCollider>();
@@ -110,7 +110,6 @@ bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff) {
 }
 
 void ServerGame::InitWorld() {
-
   // Vector2 playerStartPos1{100.f, 200.f};
   // Vector2 playerStartPos2{100.f, 300.f};  // si 2 joueurs
   // Entity player1 = createPlayer(registry, playerStartPos1, 0);
@@ -123,7 +122,8 @@ void ServerGame::InitWorld() {
 
   // Vector2 bossPos{800.f, 100.f};
   // Entity boss =
-  //     createBoss(registry, BossType::BigShip, bossPos, BossPhase::Phase1, 500);
+  //     createBoss(registry, BossType::BigShip, bossPos, BossPhase::Phase1,
+  //     500);
 
   // std::vector<Vector2> spawnPoints = {{600.f, 100.f}, {600.f, 200.f}};
   // Entity spawner =
@@ -290,7 +290,8 @@ void ServerGame::UpdateGameState(float deltaTime) {
 
   player_movement_system(registry);
   physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
-  enemy_movement_system(registry, transforms, rigidbodies, enemies, players, deltaTime);
+  enemy_movement_system(registry, transforms, rigidbodies, enemies, players,
+                        deltaTime);
   boss_movement_system(registry, transforms, rigidbodies, bosses, deltaTime);
   // Weapon systems
   weapon_cooldown_system(registry, weapons, deltaTime);
@@ -303,7 +304,8 @@ void ServerGame::UpdateGameState(float deltaTime) {
         if (entityId < playerEntity.size() &&
             playerEntity[entityId].has_value()) {
           auto& state = registry.get_components<InputState>()[entityId];
-          //std::cout << "entity = " << entityId << " fire state = " <<  state->action1 << std::endl;
+          // std::cout << "entity = " << entityId << " fire state = " <<
+          // state->action1 << std::endl;
           return state->action1;
         }
         return false;
@@ -311,11 +313,11 @@ void ServerGame::UpdateGameState(float deltaTime) {
       deltaTime);
   // Projectile systems
   projectile_lifetime_system(registry, projectiles, deltaTime);
-  projectile_collision_system(registry, transforms, colliders,
-                             projectiles);
-  //gamePlay_Collision_system(registry, transforms, colliders, players, enemies,
-  //                          bosses, /*items*/ registry.get_components<Items>(),
-  //                          projectiles);
+  projectile_collision_system(registry, transforms, colliders, projectiles);
+  // gamePlay_Collision_system(registry, transforms, colliders, players,
+  // enemies,
+  //                           bosses, /*items*/
+  //                           registry.get_components<Items>(), projectiles);
   enemy_wave_system(registry, enemies, deltaTime, 5, difficulty);
   bounds_check_system(registry, transforms, colliders, rigidbodies);
 }
@@ -342,7 +344,7 @@ void ServerGame::SendWorldStateToClients() {
 
   for (auto&& [idx, enemy, transform] : IndexedZipper(enemies, transforms)) {
     EnemyState es;
-    es.enemyId   = static_cast<uint16_t>(idx);
+    es.enemyId = static_cast<uint16_t>(idx);
     es.enemyType = static_cast<uint8_t>(enemy.type);
     es.posX = transform.position.x;
     es.posY = transform.position.y;
@@ -354,7 +356,7 @@ void ServerGame::SendWorldStateToClients() {
 
   for (auto&& [idx, boss, transform] : IndexedZipper(bosses, transforms)) {
     EnemyState bs;
-    bs.enemyId   = static_cast<uint16_t>(idx);
+    bs.enemyId = static_cast<uint16_t>(idx);
     bs.enemyType = static_cast<uint8_t>(boss.type);
     bs.posX = transform.position.x;
     bs.posY = transform.position.y;
