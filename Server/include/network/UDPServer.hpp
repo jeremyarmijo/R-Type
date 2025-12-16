@@ -11,7 +11,7 @@ class UDPServer {
   using ReceiveCallback = std::function<void(const std::vector<uint8_t>&,
                                              const asio::ip::udp::endpoint&)>;
 
-  UDPServer(asio::io_context& io_context, uint16_t port);
+  UDPServer(asio::io_context& io_context, uint16_t port, const std::string& host = "0.0.0.0");
   ~UDPServer();
 
   void SetReceiveCallback(ReceiveCallback callback);

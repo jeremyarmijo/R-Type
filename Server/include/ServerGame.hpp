@@ -15,7 +15,7 @@
 class ServerGame {
  public:
   ServerGame();
-  bool Initialize(uint16_t tcpPort, uint16_t udpPort, int diff);
+  bool Initialize(uint16_t tcpPort, uint16_t udpPort, int diff, const std::string& host = "0.0.0.0");
   void Run();
   void Shutdown();
 
