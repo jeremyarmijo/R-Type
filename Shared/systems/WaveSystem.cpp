@@ -8,7 +8,7 @@ Vector2 get_random_pos() {
   Vector2 pos;
 
   pos.x = 750;
-  pos.y = rand() % (550 - 30 + 1) + 30;
+  pos.y = rand() % (500 - 50 + 1) + 50;
   return pos;
 }
 
@@ -44,7 +44,7 @@ void enemy_wave_system(Registry& registry, SparseArray<Enemy>& enemies,
     if (checkWaveEnd(registry, enemies)) {
       std::cout << "Wave " << currentWave << " ended. Starting delay."
                 << std::endl;
-      if (currentWave == 5 && !bossSpawned) {
+      if (currentWave == 4 && !bossSpawned) {
         std::cout << "BOSS WAVE TRIGGERED!" << std::endl;
         Vector2 bossPos = get_boss_spawn_pos();
         createBoss(registry, BossType::FinalBoss, bossPos, BossPhase::Phase1,
@@ -79,10 +79,10 @@ void enemy_wave_system(Registry& registry, SparseArray<Enemy>& enemies,
     }
   }
 
-  if (!waveOn) {
+  if (!waveOn && !bossSpawned) {
     std::cout << "Spawning Wave " << currentWave + 1 << "!" << std::endl;
 
-    int nbBasic = ((3 + currentWave) / 2) * difficulty;
+    int nbBasic = ((2 + currentWave) / 2) * difficulty;
     int nbZigzag = ((2 + currentWave) / 2) * difficulty;
     int nbChaseEnemies = ((1 + currentWave) / 2) * difficulty;
 

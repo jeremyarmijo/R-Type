@@ -198,7 +198,7 @@ void boss_movement_system(Registry& registry,
         float timeMod = fmod(boss.timer, PROJECTILE_FIRE_INTERVAL);
 
         if (timeMod < 0.1f && timeMod > 0.0f) {
-          const float Y_OFFSET_RANGE = 40.0f;
+          const float Y_OFFSET_RANGE = 70.0f;
           float y1 = transform.position.y - Y_OFFSET_RANGE;
           spawn_boss_projectile(registry, {transform.position.x, y1}, entityId);
           float y2 = transform.position.y;

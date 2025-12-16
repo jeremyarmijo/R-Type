@@ -141,8 +141,8 @@ class Registry {
       auto& arr = get_components<Component>();
       auto& result = arr.insert_at(to, std::forward<Component>(c));
 
-      std::cout << "Added component " << typeid(Component).name()
-                << " to entity " << static_cast<size_t>(to) << std::endl;
+      // std::cout << "Added component " << typeid(Component).name()
+      //           << " to entity " << static_cast<size_t>(to) << std::endl;
 
       return result;
     } catch (const std::exception& e) {
@@ -164,8 +164,8 @@ class Registry {
       auto& arr = get_components<Component>();
       auto& result = arr.emplace_at(to, std::forward<Params>(params)...);
 
-      std::cout << "Emplaced component " << typeid(Component).name()
-                << " to entity " << static_cast<size_t>(to) << std::endl;
+      // std::cout << "Emplaced component " << typeid(Component).name()
+      //           << " to entity " << static_cast<size_t>(to) << std::endl;
 
       return result;
     } catch (const std::exception& e) {
