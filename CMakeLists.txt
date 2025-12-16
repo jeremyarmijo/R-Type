@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
+include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake OPTIONAL)
+
 project(RTYPE_Client VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -34,9 +36,11 @@ add_custom_target(clean-all
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
+find_package(asio REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
-target_link_libraries(RTYPE_Client PRIVATE SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf)
+
+target_link_libraries(RTYPE_Client PRIVATE  asio::asio SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf)
 
 target_compile_options(RTYPE_Client PRIVATE -Wall -Wextra)
