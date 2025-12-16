@@ -13,6 +13,9 @@
 #include "inputs/InputSystem.hpp"
 #include "scene/SceneManager.hpp"
 #include "settings/PlayerSettings.hpp"
+#include "network/include/NetworkManager.hpp"
+#include "components/Player/Projectile.hpp"
+#include "components/Player/Weapon.hpp"
 #include "systems/PhysicsSystem.hpp"
 
 constexpr int MAX_PLAYERS = 4;
@@ -77,6 +80,9 @@ class GameEngine {
   Entity CreatePlayer(const std::string& textureKey,
                       const std::string& animationKey, Vector2 position,
                       float moveSpeed);
+  Entity CreateProjectile(const std::string& textureKey, Vector2 position,
+                          Vector2 direction, float speed, size_t ownerId);
+  Weapon CreateWeapon(float fireRate = 5.0f, bool isAutomatic = true);
 
   TextureManager& GetTextureManager() { return m_textureManager; }
   AnimationManager& GetAnimationManager() { return m_animationManager; }

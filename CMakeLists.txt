@@ -29,6 +29,11 @@ target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/Client/src/engine/settings/
 )
 
+add_custom_target(clean-all
+    COMMAND rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake Makefile
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
