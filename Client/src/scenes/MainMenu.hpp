@@ -48,6 +48,15 @@ class MainMenu : public Scene {
 
       TextureManager& textures = GetTextures();
       AnimationManager& animations = GetAnimations();
+      AudioManager& audio = GetAudio();
+
+      audio.LoadMusic("menu_music", "../Client/assets/menu_music.ogg");
+      audio.LoadMusic("game_music", "../Client/assets/rtype_music.ogg");
+      audio.LoadSound("explosion", "../Client/assets/explosion.wav");
+      audio.LoadSound("button", "../Client/assets/button.wav");
+      audio.LoadSound("shoot", "../Client/assets/shoot.wav");
+
+      audio.PlayMusic("menu_music");
 
       std::cout << "Loading textures..." << std::endl;
       if (!textures.GetTexture("player")) {
@@ -103,6 +112,7 @@ class MainMenu : public Scene {
       m_playButton->SetOnClick([this]() {
         std::cout << "Play button clicked - transitioning to join screen..."
                   << std::endl;
+        GetAudio().PlaySound("button");
         PlayTransition();
       });
       m_playButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
@@ -113,6 +123,7 @@ class MainMenu : public Scene {
       m_settingsButton->SetLayer(9);
       m_settingsButton->SetOnClick([this]() {
         std::cout << "Options button clicked!" << std::endl;
+        GetAudio().PlaySound("button");
         ChangeScene("options");
       });
       m_settingsButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
@@ -149,6 +160,7 @@ class MainMenu : public Scene {
           GetUI().AddElement<UIButton>(70, 275, 200, 50, "Join Game");
       m_joinButton->SetLayer(9);
       m_joinButton->SetOnClick([this]() {
+        GetAudio().PlaySound("button");
         std::string serverIP = m_serverInput->GetText();
         std::string username = m_usernameInput->GetText();
 
@@ -175,6 +187,7 @@ class MainMenu : public Scene {
       m_backButton = GetUI().AddElement<UIButton>(70, 350, 200, 50, "Back");
       m_backButton->SetLayer(9);
       m_backButton->SetOnClick([this]() {
+        GetAudio().PlaySound("button");
         std::cout << "Back to main menu..." << std::endl;
         BackToMainMenu();
       });

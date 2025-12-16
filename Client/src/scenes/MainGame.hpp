@@ -53,6 +53,7 @@ class MyGameScene : public Scene {
 
       TextureManager& textures = GetTextures();
       AnimationManager& animations = GetAnimations();
+      GetAudio().PlayMusic("game_music");
 
       std::cout << "Loading textures..." << std::endl;
       LoadGameTextures(textures);
@@ -145,24 +146,6 @@ class MyGameScene : public Scene {
     // Weapon systems
     weapon_cooldown_system(GetRegistry(), weapons, deltaTime);
     weapon_reload_system(GetRegistry(), weapons, deltaTime);
-
-    // Weapon firing system - vérifie si le joueur appuie sur SPACE
-    weapon_firing_system(
-        GetRegistry(), weapons, transforms,
-        [this](size_t entityId) -> bool {
-          auto& playerEntity = GetRegistry().get_components<PlayerEntity>();
-          if (entityId < playerEntity.size() &&
-              playerEntity[entityId].has_value()) {
-            return GetInput().WasAction1Pressed();
-          }
-          return false;
-        },
-        deltaTime);
-
-    // Projectile systems
-    projectile_lifetime_system(GetRegistry(), projectiles, deltaTime);
-    projectile_collision_system(GetRegistry(), transforms, colliders,
-                                projectiles);
 
     MoveBackground(deltaTime);
     GetEvents(deltaTime);
@@ -339,7 +322,7 @@ class MyGameScene : public Scene {
     auto it = m_otherPlayers.find(playerId);
     if (it != m_otherPlayers.end()) {
       Entity playerEntity = it->second;
-
+      GetAudio().PlaySound("explosion");
       GetRegistry().kill_entity(playerEntity);
       m_skinManager.RemovePlayer(playerId);
       m_entities.erase(
@@ -401,6 +384,7 @@ class MyGameScene : public Scene {
     if (it != m_enemies.end()) {
       Entity enemyEntity = it->second;
       GetRegistry().kill_entity(enemyEntity);
+      GetAudio().PlaySound("explosion");
       m_entities.erase(
           std::remove(m_entities.begin(), m_entities.end(), enemyEntity),
           m_entities.end());
@@ -433,7 +417,7 @@ class MyGameScene : public Scene {
 
     Entity projectile =
         m_engine->CreateAnimatedSprite(texture, position, animation);
-
+    GetAudio().PlaySound("shoot");
     auto& transform = GetRegistry().get_components<Transform>()[projectile];
     if (transform) {
       transform->scale = {1.5f, 1.5f};

@@ -18,11 +18,7 @@ void gamePlay_Collision_system(
 
 CollisionCategory get_entity_category(size_t entityId, Registry& registry);
 
-void apply_damage(Registry& registry, const Collision& collision,
-                  SparseArray<Transform>& transforms,
-                  SparseArray<PlayerEntity>& players,
-                  SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses,
-                  SparseArray<Projectile>& projectiles);
+void apply_damage_to_entity(Registry& registry, size_t targetId, float damage);
 
 inline bool check_collision(const Transform& t1, const BoxCollider& c1,
                             const Transform& t2, const BoxCollider& c2) {

@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "audio/AudioManager.hpp"
 #include "ecs/Registry.hpp"
 #include "graphics/AnimationManager.hpp"
 #include "graphics/TextureManager.hpp"
@@ -77,6 +78,7 @@ class Scene {
   AnimationManager& GetAnimations();
   InputManager& GetInput();
   NetworkManager& GetNetwork();
+  AudioManager& GetAudio();
   SDL_Renderer* GetRenderer();
   Vector2 GetCameraPosition();
   UIManager& GetUI() { return m_uiManager; }

@@ -29,6 +29,7 @@ class InputManager {
   const Uint8* m_keyboardState;
   KeyBindings m_keyBindings;
 
+ public:
   bool m_prevMoveLeft;
   bool m_prevMoveRight;
   bool m_prevMoveUp;

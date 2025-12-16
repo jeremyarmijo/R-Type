@@ -34,7 +34,7 @@ bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port) {
         });
 
     timeout_timer_ = std::make_unique<asio::steady_timer>(io_context_);
-    CheckClientTimeouts();
+    // CheckClientTimeouts();
 
     io_thread_ = std::thread([this]() { IOThreadFunc(); });
 
@@ -197,14 +197,17 @@ void ServerNetworkManager::BroadcastTCP(const NetworkMessage &msg) {
 void ServerNetworkManager::CheckClientTimeouts() {
   auto timed_out = client_manager_.CheckTimeouts(CLIENT_TIMEOUT);
 
+  if (GameStarted == false) {
+    timeout_timer_->expires_after(std::chrono::seconds(1));
+    timeout_timer_->async_wait(
+        [this](const asio::error_code &) { CheckClientTimeouts(); });
+    return;
+  }
   for (uint32_t client_id : timed_out) {
     std::cout << "[ServerNetworkManager] Client " << client_id << " timed out"
               << std::endl;
-
-    if (tcp_server_) {
+    if (tcp_server_)
       tcp_server_->DisconnectClient(client_id);
-    }
-
     client_manager_.RemoveClient(client_id);
   }
 

@@ -17,7 +17,7 @@ struct Weapon {
   float timeSinceLastShot;
   int currentAmmo;
 
-  explicit Weapon(float rate = 1.0f, bool automatic = false, int ammo = -1,
+  explicit Weapon(float rate = 3.0f, bool automatic = false, int ammo = -1,
                   int magSize = -1, float reload = -1.0f, bool burst = false,
                   size_t bCount = 3, float bInterval = 0.1f)
       : fireRate(rate),
