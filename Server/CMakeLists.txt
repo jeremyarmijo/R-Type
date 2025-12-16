@@ -27,8 +27,4 @@ target_include_directories(RTYPE_Server PRIVATE
     ${PROJECT_SOURCE_DIR}/
 )
 
-find_package(asio REQUIRED)
-
-target_link_libraries(RTYPE_Server PRIVATE asio::asio)
-
 target_compile_options(RTYPE_Server PRIVATE -Wall -Wextra)

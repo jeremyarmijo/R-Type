@@ -36,7 +36,6 @@ add_custom_target(clean-all
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
-find_package(asio REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
