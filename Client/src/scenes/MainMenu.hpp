@@ -113,7 +113,7 @@ class MainMenu : public Scene {
         std::cout << "Play button clicked - transitioning to join screen..."
                   << std::endl;
         GetAudio().PlaySound("button");
-        PlayTransition();
+        ChangeScene("join");
       });
       m_playButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
                               {80, 80, 80, 255});
@@ -134,66 +134,6 @@ class MainMenu : public Scene {
       m_quitButton->SetOnClick([this]() { QuitGame(); });
       m_quitButton->SetColors({150, 50, 50, 255}, {170, 70, 70, 255},
                               {130, 30, 30, 255});
-
-      m_usernameInput = GetUI().AddElement<UITextInput>(
-          70, 125, 300, 50, "Username (e.g., Space Cowboy)");
-      m_usernameInput->SetMaxLength(50);
-      m_usernameInput->SetText("Space Cowboy");
-      m_usernameInput->SetTextColor({255, 255, 255, 255});
-      m_usernameInput->SetBackgroundColor({40, 40, 50, 255});
-      m_usernameInput->SetBorderColor({100, 100, 120, 255},
-                                      {100, 150, 255, 255});
-      m_usernameInput->SetLayer(9);
-      m_usernameInput->SetVisible(false);
-
-      m_serverInput = GetUI().AddElement<UITextInput>(
-          70, 200, 300, 50, "Server IP (e.g., 127.0.0.1)");
-      m_serverInput->SetMaxLength(50);
-      m_serverInput->SetText("127.0.0.1");
-      m_serverInput->SetTextColor({255, 255, 255, 255});
-      m_serverInput->SetBackgroundColor({40, 40, 50, 255});
-      m_serverInput->SetBorderColor({100, 100, 120, 255}, {100, 150, 255, 255});
-      m_serverInput->SetLayer(9);
-      m_serverInput->SetVisible(false);
-
-      m_joinButton =
-          GetUI().AddElement<UIButton>(70, 275, 200, 50, "Join Game");
-      m_joinButton->SetLayer(9);
-      m_joinButton->SetOnClick([this]() {
-        GetAudio().PlaySound("button");
-        std::string serverIP = m_serverInput->GetText();
-        std::string username = m_usernameInput->GetText();
-
-        if (serverIP.empty()) {
-          std::cout << "ERROR: Please enter a server IP!" << std::endl;
-          m_serverInput->Focus();
-          return;
-        }
-        if (username.empty()) {
-          std::cout << "ERROR: Please enter a username!" << std::endl;
-          m_usernameInput->Focus();
-          return;
-        }
-
-        GetNetwork().Connect(serverIP, 4242);
-        Action loginRequest{ActionType::LOGIN_REQUEST,
-                            LoginReq{username, "hashedpassword"}};
-        GetNetwork().SendAction(loginRequest);
-      });
-      m_joinButton->SetColors({50, 150, 50, 255}, {70, 170, 70, 255},
-                              {30, 130, 30, 255});
-      m_joinButton->SetVisible(false);
-
-      m_backButton = GetUI().AddElement<UIButton>(70, 350, 200, 50, "Back");
-      m_backButton->SetLayer(9);
-      m_backButton->SetOnClick([this]() {
-        GetAudio().PlaySound("button");
-        std::cout << "Back to main menu..." << std::endl;
-        BackToMainMenu();
-      });
-      m_backButton->SetColors({150, 50, 50, 255}, {170, 70, 70, 255},
-                              {130, 30, 30, 255});
-      m_backButton->SetVisible(false);
 
       m_isInitialized = true;
       std::cout << "Game scene initialized successfully" << std::endl;
@@ -274,14 +214,6 @@ class MainMenu : public Scene {
 
   void Update(float deltaTime) override {
     if (!m_isInitialized) return;
-
-    Event e = GetNetwork().PopEvent();
-    if (e.type == EventType::LOGIN_RESPONSE) {
-      const auto* data = std::get_if<LOGIN_RESPONSE>(&e.data);
-      if (data->success == 0) return;
-      GetSceneData().Set("playerId", data->playerId);
-      ChangeScene("wait");
-    }
   }
 
   void Render() override {
@@ -305,41 +237,5 @@ class MainMenu : public Scene {
         ChangeScene("gameover");
       }
     }
-  }
-
-  void PlayTransition() {
-    std::cout << "=== TRANSITIONING TO JOIN GAME SCREEN ===" << std::endl;
-
-    m_playButton->SetVisible(false);
-    m_settingsButton->SetVisible(false);
-    m_quitButton->SetVisible(false);
-
-    m_usernameInput->SetVisible(true);
-    m_serverInput->SetVisible(true);
-    m_joinButton->SetVisible(true);
-    m_backButton->SetVisible(true);
-
-    m_serverInput->Focus();
-
-    std::cout << "Join game screen active" << std::endl;
-  }
-
-  void BackToMainMenu() {
-    std::cout << "=== RETURNING TO MAIN MENU ===" << std::endl;
-
-    if (m_serverInput->IsFocused()) {
-      m_serverInput->Unfocus();
-    }
-
-    m_playButton->SetVisible(true);
-    m_settingsButton->SetVisible(true);
-    m_quitButton->SetVisible(true);
-
-    m_usernameInput->SetVisible(false);
-    m_serverInput->SetVisible(false);
-    m_joinButton->SetVisible(false);
-    m_backButton->SetVisible(false);
-
-    std::cout << "Main menu active" << std::endl;
   }
 };

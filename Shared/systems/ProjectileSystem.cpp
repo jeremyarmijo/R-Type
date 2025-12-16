@@ -1,7 +1,7 @@
 #include "systems/ProjectileSystem.hpp"
 
 #include <SDL2/SDL.h>
-
+#include <vector>
 #include <string>
 #include <utility>
 
@@ -91,6 +91,7 @@ void projectile_collision_system(Registry& registry,
   auto& enemies = registry.get_components<Enemy>();
   auto& players = registry.get_components<PlayerEntity>();
   auto& bosses = registry.get_components<Boss>();
+  std::vector<size_t> toKill;
 
   auto get_owner_type = [&](size_t ownerId) -> std::string {
     if (ownerId < players.size() && players[ownerId].has_value()) {

@@ -634,6 +634,8 @@ class MyGameScene : public Scene {
   void GetEvents(float dt) {
     Event e = GetNetwork().PopEvent();
 
+    if (e.type == EventType::GAME_END)
+      ChangeScene("gameover");
     std::visit(
         [&](auto&& payload) {
           using T = std::decay_t<decltype(payload)>;
@@ -642,12 +644,6 @@ class MyGameScene : public Scene {
             UpdatePlayers(payload.players, dt);
             UpdateEnemies(payload.enemies, dt);
             UpdateProjectiles(payload.projectiles, dt);
-          } else if constexpr (std::is_same_v<T, BOSS_SPAWN>) {
-          } else if constexpr (!std::is_same_v<T, BOSS_UPDATE>) {
-          } else if constexpr (std::is_same_v<T, GAME_END>) {
-            std::cout << "game ended!" << std::endl;
-            ChangeScene("gameover");
-          } else if constexpr (!std::is_same_v<T, ENEMY_HIT>) {
           }
         },
         e.data);

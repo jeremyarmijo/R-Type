@@ -4,6 +4,7 @@
 #include "engine/GameEngine.hpp"
 #include "scene/SceneManager.hpp"
 #include "scenes/GameOver.hpp"
+#include "scenes/JoinGame.hpp"
 #include "scenes/MainGame.hpp"
 #include "scenes/MainMenu.hpp"
 #include "scenes/Options.hpp"
@@ -30,6 +31,7 @@ class MyGame {
     m_sceneManager.SetRegistry(&m_engine.GetRegistry());
 
     std::cout << "Registering scenes..." << std::endl;
+    m_sceneManager.RegisterScene<JoinGame>("join", &m_engine, &m_sceneManager);
     m_sceneManager.RegisterScene<MainMenu>("menu", &m_engine, &m_sceneManager);
     m_sceneManager.RegisterScene<OptionsScene>("options", &m_engine,
                                                &m_sceneManager);
