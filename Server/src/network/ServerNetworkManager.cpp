@@ -196,15 +196,13 @@ void ServerNetworkManager::BroadcastTCP(const NetworkMessage &msg) {
 
 void ServerNetworkManager::CheckClientTimeouts() {
   auto timed_out = client_manager_.CheckTimeouts(CLIENT_TIMEOUT);
-
+  if (!tcp_server_ || GameStarted == false) {
+    return;
+  }
   for (uint32_t client_id : timed_out) {
     std::cout << "[ServerNetworkManager] Client " << client_id << " timed out"
               << std::endl;
-
-    if (tcp_server_) {
-      tcp_server_->DisconnectClient(client_id);
-    }
-
+    tcp_server_->DisconnectClient(client_id);
     client_manager_.RemoveClient(client_id);
   }
 

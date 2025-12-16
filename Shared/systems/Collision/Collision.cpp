@@ -73,11 +73,54 @@ void gamePlay_Collision_system(
 
       std::cout << "[DEBUG][ENTER] Collision detected between " << entityA
                 << " and " << entityB << std::endl;
+      if (tagger == CollisionCategory::Projectile &&
+          (it == CollisionCategory::Player || it == CollisionCategory::Enemy ||
+           it == CollisionCategory::Boss)) {
+        if (projectiles[entityA].has_value()) {
+          float damage = projectiles[entityA]->damage;
+          apply_damage_to_entity(registry, entityB, damage);
+          registry.kill_entity(Entity(entityA));
+        }
+      } else if (it == CollisionCategory::Projectile &&
+                 (tagger == CollisionCategory::Player ||
+                  tagger == CollisionCategory::Enemy ||
+                  tagger == CollisionCategory::Boss)) {
+        if (projectiles[entityB].has_value()) {
+          float damage = projectiles[entityB]->damage;
+          apply_damage_to_entity(registry, entityA, damage);
+          registry.kill_entity(Entity(entityB));
+        }
+      }
 
-      if (it == CollisionCategory::Player || it == CollisionCategory::Enemy ||
-          it == CollisionCategory::Boss) {
-        apply_damage(registry, collision, transforms, players, enemies, bosses,
-                     projectiles);
+      else if ((tagger == CollisionCategory::Player &&
+                it == CollisionCategory::Enemy) ||
+               (tagger == CollisionCategory::Enemy &&
+                it == CollisionCategory::Player) ||
+               (tagger == CollisionCategory::Player &&
+                it == CollisionCategory::Boss) ||
+               (tagger == CollisionCategory::Boss &&
+                it == CollisionCategory::Player)) {
+        // A deals damage to B
+        int damage_A_to_B =
+            (tagger == CollisionCategory::Enemy && enemies[entityA].has_value())
+                ? enemies[entityA]->contact_damage
+            : (tagger == CollisionCategory::Boss && bosses[entityA].has_value())
+                ? bosses[entityA]->contact_damage
+                : 0;
+        if (damage_A_to_B > 0) {
+          apply_damage_to_entity(registry, entityB, damage_A_to_B);
+        }
+
+        // B deals damage to A
+        int damage_B_to_A =
+            (it == CollisionCategory::Enemy && enemies[entityB].has_value())
+                ? enemies[entityB]->contact_damage
+            : (it == CollisionCategory::Boss && bosses[entityB].has_value())
+                ? bosses[entityB]->contact_damage
+                : 0;
+        if (damage_B_to_A > 0) {
+          apply_damage_to_entity(registry, entityA, damage_B_to_A);
+        }
       }
 
       if (it == CollisionCategory::Item) {
@@ -86,12 +129,6 @@ void gamePlay_Collision_system(
           registry.kill_entity(collision.It);
         }
       }
-
-      if (tagger == CollisionCategory::Projectile) {
-        registry.kill_entity(collision.tagger);
-      }
-
-      // ajouter le composant Collision uniquement si pas déjà présent
       if (!registry.has_component<Collision>(Entity(collision.It))) {
         registry.add_component<Collision>(Entity(collision.It),
                                           std::move(collision));
@@ -140,38 +177,48 @@ CollisionCategory get_entity_category(size_t entityId, Registry& registry) {
   return CollisionCategory::Unknown;
 }
 
-// Application des dégâts avec PlayerEntity
-void apply_damage(Registry& registry, const Collision& collision,
-                  SparseArray<Transform>& transforms,
-                  SparseArray<PlayerEntity>& players,
-                  SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses,
-                  SparseArray<Projectile>& projectiles) {
-  if (!players[collision.It].has_value()) return;
+void apply_damage_to_entity(Registry& registry, size_t targetId, float damage) {
+  auto& players = registry.get_components<PlayerEntity>();
+  if (targetId < players.size() && players[targetId].has_value()) {
+    auto& player = players[targetId].value();
 
-  auto& target = players[collision.It].value();
+    if (player.invtimer <= 0.0f) {
+      player.current -= static_cast<int>(damage);
 
-  int damage = 0;
-
-  if (collision.taggerType == CollisionCategory::Projectile &&
-      projectiles[collision.tagger].has_value()) {
-    damage = projectiles[collision.tagger]->damage;
+      if (player.current <= 0) {
+        player.isAlive = false;
+        registry.kill_entity(Entity(targetId));
+      } else {
+        player.invtimer = 0.5f;
+      }
+    }
+    return;
   }
 
-  if (players[collision.It].has_value()) {
-    players[collision.It]->current -= damage;
-    if (players[collision.It]->current <= 0) {
-      players[collision.It]->isAlive = false;
-      registry.kill_entity(collision.It);
+  auto& enemies = registry.get_components<Enemy>();
+  if (targetId < enemies.size() && enemies[targetId].has_value()) {
+    auto& enemy = enemies[targetId].value();
+
+    enemy.current -= static_cast<int>(damage);
+
+    if (enemy.current <= 0) {
+      registry.kill_entity(Entity(targetId));
     }
-  } else if (enemies[collision.It].has_value()) {
-    enemies[collision.It]->current -= damage;
-    if (enemies[collision.It]->current <= 0) {
-      registry.kill_entity(collision.It);
+    return;
+  }
+
+  auto& bosses = registry.get_components<Boss>();
+  if (targetId < bosses.size() && bosses[targetId].has_value()) {
+    auto& boss = bosses[targetId].value();
+
+    boss.current -= static_cast<int>(damage);
+
+    std::cout << "Boss " << targetId << " hit. Health: " << boss.current
+              << std::endl;
+
+    if (boss.current <= 0) {
+      registry.kill_entity(Entity(targetId));
     }
-  } else if (bosses[collision.It].has_value()) {
-    bosses[collision.It]->current -= damage;
-    if (bosses[collision.It]->current <= 0) {
-      registry.kill_entity(collision.It);
-    }
+    return;
   }
 }

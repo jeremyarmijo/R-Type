@@ -9,14 +9,19 @@ file(GLOB_RECURSE SOURCES
     ${PROJECT_SOURCE_DIR}/src/*.cpp
     ${PROJECT_SOURCE_DIR}/src/network/*.cpp
     ${PROJECT_SOURCE_DIR}/../Shared/network/*.cpp
+    ${PROJECT_SOURCE_DIR}/../Shared/systems/*.cpp
+
 )
 
 add_executable(RTYPE_Server ${SOURCES})
 
 target_include_directories(RTYPE_Server PRIVATE
     ${PROJECT_SOURCE_DIR}/../Shared
+    ${PROJECT_SOURCE_DIR}/../Shared/components
     ${PROJECT_SOURCE_DIR}/include/network
     ${PROJECT_SOURCE_DIR}/include/
+    ${PROJECT_SOURCE_DIR}/../Client/src/engine/
+    ${PROJECT_SOURCE_DIR}/../Shared/systems/
     ${PROJECT_SOURCE_DIR}/
 )
 
