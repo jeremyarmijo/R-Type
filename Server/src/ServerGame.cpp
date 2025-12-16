@@ -18,6 +18,7 @@
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WeaponSystem.hpp"
 #include "systems/WaveSystem.hpp"
+#include "systems/BoundsSystem.hpp"
 
 ServerGame::ServerGame() : serverRunning(true), gameStarted(false), difficulty(1) {
   SetupDecoder(decode);
@@ -289,8 +290,8 @@ void ServerGame::UpdateGameState(float deltaTime) {
 
   player_movement_system(registry);
   physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
-  enemy_movement_system(transforms, rigidbodies, enemies, deltaTime);
-  boss_movement_system(transforms, rigidbodies, bosses, deltaTime);
+  enemy_movement_system(registry, transforms, rigidbodies, enemies, players, deltaTime);
+  boss_movement_system(registry, transforms, rigidbodies, bosses, deltaTime);
   // Weapon systems
   weapon_cooldown_system(registry, weapons, deltaTime);
   weapon_reload_system(registry, weapons, deltaTime);
@@ -316,6 +317,7 @@ void ServerGame::UpdateGameState(float deltaTime) {
   //                          bosses, /*items*/ registry.get_components<Items>(),
   //                          projectiles);
   enemy_wave_system(registry, enemies, deltaTime, 5, difficulty);
+  bounds_check_system(registry, transforms, colliders, rigidbodies);
 }
 
 void ServerGame::SendWorldStateToClients() {
