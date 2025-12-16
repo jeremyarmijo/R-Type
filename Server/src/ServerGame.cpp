@@ -288,6 +288,15 @@ void ServerGame::UpdateGameState(float deltaTime) {
   auto& projectiles = registry.get_components<Projectile>();
   auto& weapons = registry.get_components<Weapon>();
 
+  for (auto&& [player] : Zipper(players)) {
+    if (player.invtimer > 0.0f) {
+      player.invtimer -= deltaTime;
+      if (player.invtimer < 0.0f) {
+        player.invtimer = 0.0f;
+      }
+    }
+  }
+
   player_movement_system(registry);
   physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
   enemy_movement_system(registry, transforms, rigidbodies, enemies, players,
@@ -312,8 +321,8 @@ void ServerGame::UpdateGameState(float deltaTime) {
       },
       deltaTime);
   // Projectile systems
-  projectile_lifetime_system(registry, projectiles, deltaTime);
   projectile_collision_system(registry, transforms, colliders, projectiles);
+  projectile_lifetime_system(registry, projectiles, deltaTime);
   // gamePlay_Collision_system(registry, transforms, colliders, players,
   // enemies,
   //                           bosses, /*items*/
