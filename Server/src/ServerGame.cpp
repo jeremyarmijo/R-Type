@@ -155,6 +155,25 @@ void ServerGame::SendAction(std::tuple<Action, uint16_t> ac) {
   actionQueue.push(std::move(ac));
 }
 
+void ServerGame::EndGame() {
+
+  Action ac;
+  GameEnd g;
+  g.victory = false;
+  ac.type = ActionType::GAME_END;
+  ac.data = g;
+
+  SendAction(std::make_tuple(ac, 0));
+  gameStarted = false;
+}
+
+bool ServerGame::CheckGameEnded() {
+  auto playerArray = registry.get_components<PlayerEntity>();
+  if (playerArray.size() <= 0) {
+    EndGame();
+  }
+}
+
 void ServerGame::GameLoop() {
   InitWorld();
 
@@ -181,6 +200,7 @@ void ServerGame::GameLoop() {
     ReceivePlayerInputs();
     UpdateGameState(deltaTime);
     SendWorldStateToClients();
+    CheckGameEnded();
 
     auto frameTime = std::chrono::steady_clock::now() - currentTime;
     if (frameTime < frameDuration) {
@@ -236,8 +256,12 @@ void ServerGame::SendPacket() {
 void ServerGame::Run() {
   while (serverRunning) {
     networkManager.Update();
-    std::this_thread::sleep_for(std::chrono::milliseconds(16));
     SendPacket();
+    if (!gameStarted && gameThread.joinable()) {
+      gameThread.join();
+      lobbyPlayers.clear();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
 }
 
