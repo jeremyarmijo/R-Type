@@ -205,6 +205,4 @@ void Scene::QuitGame() {
   }
 }
 
-AudioManager& Scene::GetAudio() { 
-  return m_engine->GetAudioManager(); 
-}
+AudioManager& Scene::GetAudio() { return m_engine->GetAudioManager(); }

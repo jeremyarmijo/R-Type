@@ -8,13 +8,13 @@
 #include <unordered_map>
 #include <utility>
 
+#include "audio/AudioManager.hpp"
 #include "ecs/Registry.hpp"
 #include "graphics/AnimationManager.hpp"
 #include "graphics/TextureManager.hpp"
 #include "include/NetworkManager.hpp"
 #include "inputs/InputManager.hpp"
 #include "ui/UIManager.hpp"
-#include "audio/AudioManager.hpp"
 
 class GameEngine;
 class SceneManager;
