@@ -29,8 +29,7 @@ static inline std::pair<size_t, size_t> ordered_pair(size_t a, size_t b) {
 void gamePlay_Collision_system(
     Registry& registry, SparseArray<Transform>& transforms,
     SparseArray<BoxCollider>& colliders, SparseArray<PlayerEntity>& players,
-    SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses,
-    SparseArray<Items>& items, SparseArray<Projectile>& projectiles) {
+    SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses) {
   std::unordered_set<std::pair<size_t, size_t>, pair_hash> collisions_now;
   std::vector<size_t> colli_entities;
   for (auto&& [ix, transform, collider] :
@@ -73,26 +72,7 @@ void gamePlay_Collision_system(
 
       std::cout << "[DEBUG][ENTER] Collision detected between " << entityA
                 << " and " << entityB << std::endl;
-      if (tagger == CollisionCategory::Projectile &&
-          (it == CollisionCategory::Player || it == CollisionCategory::Enemy ||
-           it == CollisionCategory::Boss)) {
-        if (projectiles[entityA].has_value()) {
-          float damage = projectiles[entityA]->damage;
-          apply_damage_to_entity(registry, entityB, damage);
-          registry.kill_entity(Entity(entityA));
-        }
-      } else if (it == CollisionCategory::Projectile &&
-                 (tagger == CollisionCategory::Player ||
-                  tagger == CollisionCategory::Enemy ||
-                  tagger == CollisionCategory::Boss)) {
-        if (projectiles[entityB].has_value()) {
-          float damage = projectiles[entityB]->damage;
-          apply_damage_to_entity(registry, entityA, damage);
-          registry.kill_entity(Entity(entityB));
-        }
-      }
-
-      else if ((tagger == CollisionCategory::Player &&
+      if ((tagger == CollisionCategory::Player &&
                 it == CollisionCategory::Enemy) ||
                (tagger == CollisionCategory::Enemy &&
                 it == CollisionCategory::Player) ||
@@ -108,7 +88,7 @@ void gamePlay_Collision_system(
                 ? bosses[entityA]->contact_damage
                 : 0;
         if (damage_A_to_B > 0) {
-          apply_damage_to_entity(registry, entityB, damage_A_to_B);
+          apply_damage_to_entity(registry, entityB, damage_A_to_B, entityA);
         }
 
         // B deals damage to A
@@ -119,20 +99,16 @@ void gamePlay_Collision_system(
                 ? bosses[entityB]->contact_damage
                 : 0;
         if (damage_B_to_A > 0) {
-          apply_damage_to_entity(registry, entityA, damage_B_to_A);
+          apply_damage_to_entity(registry, entityA, damage_B_to_A, entityB);
         }
       }
 
-      if (it == CollisionCategory::Item) {
-        if (items[collision.It].has_value()) {
-          items[collision.It]->picked_up = true;
-          registry.kill_entity(collision.It);
-        }
-      }
-      if (!registry.has_component<Collision>(Entity(collision.It))) {
-        registry.add_component<Collision>(Entity(collision.It),
-                                          std::move(collision));
-      }
+      // if (it == CollisionCategory::Item) {
+      //   if (items[collision.It].has_value()) {
+      //     items[collision.It]->picked_up = true;
+      //     registry.kill_entity(collision.It);
+      //   }
+      // }
     }
   }
 
@@ -167,24 +143,26 @@ CollisionCategory get_entity_category(size_t entityId, Registry& registry) {
     return CollisionCategory::Player;
   if (registry.get_components<Enemy>()[entityId].has_value())
     return CollisionCategory::Enemy;
-  if (registry.get_components<Projectile>()[entityId].has_value())
-    return CollisionCategory::Projectile;
-  if (registry.get_components<Items>()[entityId].has_value())
-    return CollisionCategory::Item;
+  // if (registry.get_components<Projectile>()[entityId].has_value())
+  //   return CollisionCategory::Projectile;
+  // if (registry.get_components<Items>()[entityId].has_value())
+  //   return CollisionCategory::Item;
   if (registry.get_components<Boss>()[entityId].has_value())
     return CollisionCategory::Boss;
 
   return CollisionCategory::Unknown;
 }
 
-void apply_damage_to_entity(Registry& registry, size_t targetId, float damage) {
+void apply_damage_to_entity(Registry& registry, size_t targetId, float damage,
+                            size_t attackerId) {
   auto& players = registry.get_components<PlayerEntity>();
+  auto& enemies = registry.get_components<Enemy>();
+  auto& bosses = registry.get_components<Boss>();
+
   if (targetId < players.size() && players[targetId].has_value()) {
     auto& player = players[targetId].value();
-
     if (player.invtimer <= 0.0f) {
       player.current -= static_cast<int>(damage);
-
       if (player.current <= 0) {
         player.isAlive = false;
         registry.kill_entity(Entity(targetId));
@@ -195,30 +173,34 @@ void apply_damage_to_entity(Registry& registry, size_t targetId, float damage) {
     return;
   }
 
-  auto& enemies = registry.get_components<Enemy>();
-  if (targetId < enemies.size() && enemies[targetId].has_value()) {
-    auto& enemy = enemies[targetId].value();
+  // Si c'est un ennemi qui reçoit les dégâts
+  // if (targetId < enemies.size() && enemies[targetId].has_value()) {
+  //   auto& enemy = enemies[targetId].value();
+  //   enemy.current -= static_cast<int>(damage);
 
-    enemy.current -= static_cast<int>(damage);
+  //   if (enemy.current <= 0) {
+  //     // Ajouter le score au joueur attaquant
+  //     if (attackerId < players.size() && players[attackerId].has_value()) {
+  //       players[attackerId]->score += enemy.scoreValue;
+  //     }
+  //     registry.kill_entity(Entity(targetId));
+  //   }
+  //   return;
+  // }
 
-    if (enemy.current <= 0) {
-      registry.kill_entity(Entity(targetId));
-    }
-    return;
-  }
+  // if (targetId < bosses.size() && bosses[targetId].has_value()) {
+  //   auto& boss = bosses[targetId].value();
+  //   boss.current -= static_cast<int>(damage);
 
-  auto& bosses = registry.get_components<Boss>();
-  if (targetId < bosses.size() && bosses[targetId].has_value()) {
-    auto& boss = bosses[targetId].value();
+  //   std::cout << "Boss " << targetId << " hit. Health: " << boss.current
+  //             << std::endl;
 
-    boss.current -= static_cast<int>(damage);
-
-    std::cout << "Boss " << targetId << " hit. Health: " << boss.current
-              << std::endl;
-
-    if (boss.current <= 0) {
-      registry.kill_entity(Entity(targetId));
-    }
-    return;
-  }
+  //   if (boss.current <= 0) {
+  //     // if (attackerId < players.size() && players[attackerId].has_value()) {
+  //     // players[attackerId]->score += boss.scoreValue;
+  //     //}
+  //     registry.kill_entity(Entity(targetId));
+  //   }
+  //   return;
+  // }
 }

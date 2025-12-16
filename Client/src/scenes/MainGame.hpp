@@ -26,9 +26,17 @@ class MyGameScene : public Scene {
   std::unordered_map<uint16_t, Entity> m_otherPlayers;
   std::unordered_map<uint16_t, Entity> m_enemies;
   std::unordered_map<uint16_t, Entity> m_projectiles;
+  std::unordered_map<size_t, float> m_explosions;
   int m_score;
   bool m_isInitialized;
   bool m_firstState;
+  bool m_isAlive;
+  uint32_t m_level;
+  uint32_t m_wave;
+  bool m_nextWave;
+  UIText* m_scoreText;
+  UIText* m_healthText;
+  UIText* m_levelText;
   MultiplayerSkinManager m_skinManager;
 
  public:
@@ -37,7 +45,14 @@ class MyGameScene : public Scene {
         m_localPlayerId(0),
         m_score(0),
         m_isInitialized(false),
-        m_firstState(false) {}
+        m_firstState(false),
+        m_isAlive(true),
+        m_level(0),
+        m_wave(0),
+        m_nextWave(false),
+        m_scoreText(nullptr),
+        m_healthText(nullptr),
+        m_levelText(nullptr) {}
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING GAME SCENE ===" << std::endl;
@@ -102,15 +117,14 @@ class MyGameScene : public Scene {
       }
 
       // UI Elements
-      auto* scoreText = GetUI().AddElement<UIText>(10, 10, "Score: 0", "", 20);
-      scoreText->SetLayer(100);
+      m_scoreText = GetUI().AddElement<UIText>(10, 10, "Score: 0", "", 20);
+      m_scoreText->SetLayer(100);
 
-      auto* healthBar = GetUI().AddElement<UISolidColor>(
-          10, 40, 200, 20, (SDL_Color){200, 50, 50, 255});
-      healthBar->SetLayer(100);
-      auto* healthBarBG = GetUI().AddElement<UISolidColor>(
-          8, 38, 204, 24, (SDL_Color){200, 200, 200, 255});
-      healthBar->SetLayer(99);
+      m_healthText = GetUI().AddElement<UIText>(10, 40, "Health: 100", "", 20);
+      m_healthText->SetLayer(100);
+
+      m_levelText = GetUI().AddElement<UIText>(10, 60, "Level: 0", "", 20);
+      m_levelText->SetLayer(100);
 
       m_isInitialized = true;
       std::cout << "Game scene initialized successfully" << std::endl;
@@ -128,6 +142,7 @@ class MyGameScene : public Scene {
     m_otherPlayers.clear();
     m_enemies.clear();
     m_projectiles.clear();
+    m_explosions.clear();
     m_skinManager.Clear();
     m_isInitialized = false;
     m_firstState = false;
@@ -146,7 +161,7 @@ class MyGameScene : public Scene {
     // Weapon systems
     weapon_cooldown_system(GetRegistry(), weapons, deltaTime);
     weapon_reload_system(GetRegistry(), weapons, deltaTime);
-
+    RemoveExplosions(deltaTime);
     MoveBackground(deltaTime);
     GetEvents(deltaTime);
   }
@@ -201,6 +216,10 @@ class MyGameScene : public Scene {
       textures.LoadTexture("projectile_enemy",
                            "../Client/assets/projectile_enemy.png");
     }
+    if (!textures.GetTexture("explosion")) {
+      textures.LoadTexture("explosion",
+                           "../Client/assets/explosion.png");
+    }
   }
 
   void CreateGameAnimations(AnimationManager& animations) {
@@ -213,6 +232,22 @@ class MyGameScene : public Scene {
                                 {{170, 6, 20, 23}, 0.1f},
                                 {{203, 6, 20, 23}, 0.1f},
                                 {{236, 6, 20, 23}, 0.1f}},
+                               true);
+    
+    animations.CreateAnimation("boss_anim", "boss",
+                               {{{27, 1711, 154, 203}, 0.6f},
+                                  {{189, 1711, 154, 203}, 0.5f},
+                                  {{351, 1711, 154, 203}, 0.6f},
+                                  {{189, 1711, 154, 203}, 0.5f}},
+                               true);
+    
+    animations.CreateAnimation("explode_anim", "explosion",
+                               {{{130, 2, 30, 30}, 0.1f},
+                                  {{163, 2, 30, 30}, 0.1f},
+                                  {{194, 2, 30, 30}, 0.1f},
+                                  {{228, 2, 30, 30}, 0.1f},
+                                  {{261, 2, 30, 30}, 0.1f},
+                                  {{294, 2, 30, 30}, 0.1f}},
                                true);
 
     animations.CreateAnimation(
@@ -243,6 +278,8 @@ class MyGameScene : public Scene {
         return "enemy2";
       case 2:
         return "enemy3";
+      case 4:
+        return "boss";
       default:
         return "enemy1";
     }
@@ -256,6 +293,8 @@ class MyGameScene : public Scene {
         return "enemy2_anim";
       case 2:
         return "enemy3_anim";
+      case 4:
+        return "boss_anim";
       default:
         return "enemy1_anim";
     }
@@ -322,6 +361,7 @@ class MyGameScene : public Scene {
     auto it = m_otherPlayers.find(playerId);
     if (it != m_otherPlayers.end()) {
       Entity playerEntity = it->second;
+      CreateExplosion(playerEntity);
       GetAudio().PlaySound("explosion");
       GetRegistry().kill_entity(playerEntity);
       m_skinManager.RemovePlayer(playerId);
@@ -383,6 +423,7 @@ class MyGameScene : public Scene {
     auto it = m_enemies.find(enemyId);
     if (it != m_enemies.end()) {
       Entity enemyEntity = it->second;
+      CreateExplosion(enemyEntity);
       GetRegistry().kill_entity(enemyEntity);
       GetAudio().PlaySound("explosion");
       m_entities.erase(
@@ -483,6 +524,7 @@ class MyGameScene : public Scene {
             playerComponents[m_localPlayer].has_value()) {
           playerComponents[m_localPlayer]->current =
               static_cast<int>(playerState.hp);
+          m_healthText->SetText("Health: " + std::to_string(static_cast<int>(playerState.hp)));
         }
       } else {
         auto it = m_otherPlayers.find(playerId);
@@ -511,6 +553,16 @@ class MyGameScene : public Scene {
       for (uint16_t playerId : toRemove) {
         RemoveOtherPlayer(playerId);
       }
+      if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() && m_isAlive) {
+        CreateExplosion(m_localPlayer);
+        GetAudio().PlaySound("explosion");
+        m_healthText->SetText("Health: 0");
+        GetRegistry().kill_entity(m_localPlayer);
+        m_entities.erase(
+        std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
+        m_entities.end());
+        m_isAlive = false;
+      }
     }
 
     m_firstState = true;
@@ -526,6 +578,7 @@ class MyGameScene : public Scene {
 
       auto it = m_enemies.find(enemyId);
       if (it == m_enemies.end()) {
+        m_nextWave = false;
         SpawnEnemy(enemyId, enemyState.enemyType,
                    {enemyState.posX, enemyState.posY});
       } else {
@@ -542,6 +595,15 @@ class MyGameScene : public Scene {
 
     for (uint16_t enemyId : toRemove) {
       RemoveEnemy(enemyId);
+    }
+    if (!m_nextWave && activeEnemyIds.size() == 0) {
+      m_nextWave = true;
+      m_wave += 1;
+      if (m_wave == 5) {
+        m_wave = 0;
+        m_level += 1;
+      }
+      m_levelText->SetText("Level: " + std::to_string(m_level) + " Wave: " + std::to_string(m_wave));
     }
   }
 
@@ -578,6 +640,8 @@ class MyGameScene : public Scene {
   void GetEvents(float dt) {
     Event e = GetNetwork().PopEvent();
 
+    if (e.type == EventType::GAME_END)
+      ChangeScene("gameover");
     std::visit(
         [&](auto&& payload) {
           using T = std::decay_t<decltype(payload)>;
@@ -586,12 +650,29 @@ class MyGameScene : public Scene {
             UpdatePlayers(payload.players, dt);
             UpdateEnemies(payload.enemies, dt);
             UpdateProjectiles(payload.projectiles, dt);
-          } else if constexpr (std::is_same_v<T, BOSS_SPAWN>) {
-          } else if constexpr (!std::is_same_v<T, BOSS_UPDATE>) {
-          } else if constexpr (!std::is_same_v<T, GAME_END>) {
-          } else if constexpr (!std::is_same_v<T, ENEMY_HIT>) {
           }
         },
         e.data);
+  }
+
+  void CreateExplosion(Entity entity) {
+    auto& transform = GetRegistry().get_components<Transform>()[entity];
+
+    Vector2 pos = transform->position;
+    Entity explosion = m_engine->CreateAnimatedSprite("explosion", pos, "explode_anim");
+
+    m_explosions[explosion] = 0.6f;
+  }
+
+  void RemoveExplosions(float dt) {
+    for (auto it = m_explosions.begin(); it != m_explosions.end(); ) {
+        it->second -= dt;
+        if (it->second <= 0.0f) {
+            GetRegistry().kill_entity(Entity(it->first));
+            it = m_explosions.erase(it); 
+        } else {
+            ++it; 
+        }
+    }
   }
 };

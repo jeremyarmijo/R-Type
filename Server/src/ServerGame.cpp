@@ -36,9 +36,9 @@ void ServerGame::HandleAuth(uint16_t playerId) {
   m_players[playerId] = player;
   lobbyPlayers.push_back(playerId);
   std::cout << "Player " << playerId << " joined the lobby ("
-            << lobbyPlayers.size() << "/2)" << std::endl;
+            << lobbyPlayers.size() << "/4)" << std::endl;
 
-  if (lobbyPlayers.size() == 2 && !gameStarted) {
+  if (lobbyPlayers.size() == 4 && !gameStarted) {
     StartGame();
   }
 }
@@ -155,6 +155,31 @@ void ServerGame::SendAction(std::tuple<Action, uint16_t> ac) {
   actionQueue.push(std::move(ac));
 }
 
+void ServerGame::EndGame() {
+
+  Action ac;
+  GameEnd g;
+  g.victory = false;
+  ac.type = ActionType::GAME_END;
+  ac.data = g;
+
+  SendAction(std::make_tuple(ac, 0));
+  gameStarted = false;
+  std::cout << "game ended!!" << std::endl;
+}
+
+void ServerGame::CheckGameEnded() {
+  int validPlayers = 0;
+  for (auto& [id, entity] : m_players) {
+    if (registry.is_entity_valid(entity)) {
+      validPlayers += 1;
+    }
+  }
+  if (validPlayers <= 0) {
+    EndGame();
+  }
+}
+
 void ServerGame::GameLoop() {
   InitWorld();
 
@@ -181,6 +206,7 @@ void ServerGame::GameLoop() {
     ReceivePlayerInputs();
     UpdateGameState(deltaTime);
     SendWorldStateToClients();
+    CheckGameEnded();
 
     auto frameTime = std::chrono::steady_clock::now() - currentTime;
     if (frameTime < frameDuration) {
@@ -236,8 +262,12 @@ void ServerGame::SendPacket() {
 void ServerGame::Run() {
   while (serverRunning) {
     networkManager.Update();
-    std::this_thread::sleep_for(std::chrono::milliseconds(16));
     SendPacket();
+    if (!gameStarted && gameThread.joinable()) {
+      gameThread.join();
+      lobbyPlayers.clear();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
 }
 
@@ -288,6 +318,15 @@ void ServerGame::UpdateGameState(float deltaTime) {
   auto& projectiles = registry.get_components<Projectile>();
   auto& weapons = registry.get_components<Weapon>();
 
+  for (auto&& [player] : Zipper(players)) {
+    if (player.invtimer > 0.0f) {
+      player.invtimer -= deltaTime;
+      if (player.invtimer < 0.0f) {
+        player.invtimer = 0.0f;
+      }
+    }
+  }
+
   player_movement_system(registry);
   physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
   enemy_movement_system(registry, transforms, rigidbodies, enemies, players,
@@ -312,12 +351,10 @@ void ServerGame::UpdateGameState(float deltaTime) {
       },
       deltaTime);
   // Projectile systems
-  projectile_lifetime_system(registry, projectiles, deltaTime);
   projectile_collision_system(registry, transforms, colliders, projectiles);
-  // gamePlay_Collision_system(registry, transforms, colliders, players,
-  // enemies,
-  //                           bosses, /*items*/
-  //                           registry.get_components<Items>(), projectiles);
+  projectile_lifetime_system(registry, projectiles, deltaTime);
+  gamePlay_Collision_system(registry, transforms, colliders, players,
+  enemies, bosses);
   enemy_wave_system(registry, enemies, deltaTime, 5, difficulty);
   bounds_check_system(registry, transforms, colliders, rigidbodies);
 }

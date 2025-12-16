@@ -48,6 +48,11 @@ void NetworkManager::Disconnect() {
 
   tcpConnected = false;
   udpConnected = false;
+  tcpPort = -1;
+  udpPort = -1;
+  if (networkThread.joinable()) {
+    networkThread.join();
+  }
 }
 
 int NetworkManager::ConnectTCP() {

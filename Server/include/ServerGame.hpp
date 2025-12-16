@@ -46,6 +46,8 @@ class ServerGame {
   void StartGame();
   void InitWorld();
   void GameLoop();
+  void CheckGameEnded();
+  void EndGame();
 
   std::optional<std::tuple<Event, uint16_t>> PopEvent();
   void SendAction(std::tuple<Action, uint16_t>);
