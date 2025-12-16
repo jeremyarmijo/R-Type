@@ -13,7 +13,7 @@ class INetworkManager {
   using ConnectionCallback = std::function<void(uint32_t client_id)>;
   using DisconnectionCallback = std::function<void(uint32_t client_id)>;
 
-  virtual bool Initialize(uint16_t tcp_port, uint16_t udp_port) = 0;
+  virtual bool Initialize(uint16_t tcp_port, uint16_t udp_port, const std::string& host) = 0;
   virtual void Shutdown() = 0;
 
   virtual void SendTo(const NetworkMessage& msg, bool sendUdp) = 0;

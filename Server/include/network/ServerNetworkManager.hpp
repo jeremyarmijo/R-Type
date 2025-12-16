@@ -28,7 +28,7 @@ class ServerNetworkManager : public INetworkManager {
   ServerNetworkManager();
   ~ServerNetworkManager() override;
 
-  bool Initialize(uint16_t tcp_port, uint16_t udp_port);
+  bool Initialize(uint16_t tcp_port, uint16_t udp_port, const std::string& host = "0.0.0.0") override;
   void Shutdown() override;
 
   void SendTo(const NetworkMessage& msg, bool sendUdp) override;

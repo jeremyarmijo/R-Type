@@ -20,7 +20,7 @@ class TCPServer {
                          const asio::ip::tcp::endpoint& endpoint)>;
   using DisconnectCallback = std::function<void(uint16_t client_id)>;
 
-  TCPServer(asio::io_context& io_context, uint16_t port);
+  TCPServer(asio::io_context& io_context, uint16_t port, const std::string& host = "0.0.0.0");
   ~TCPServer();
 
   void SetLoginCallback(LoginCallback callback);

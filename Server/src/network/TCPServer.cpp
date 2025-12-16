@@ -11,11 +11,11 @@
 #include "../../include/ServerMacro.hpp"
 #include "network/EncodeFunc.hpp"
 
-TCPServer::TCPServer(asio::io_context& io_context, uint16_t port)
-    : acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
+TCPServer::TCPServer(asio::io_context& io_context, uint16_t port, const std::string& host)
+    : acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::make_address(host), port)),
       next_client_id_(1),
       udp_port_(PORT_UDP_DEFAULT) {
-  std::cout << "[TCPServer] Listening on port " << port << std::endl;
+  std::cout << "[TCPServer] Listening on " << host << ":" << port << std::endl;
   StartAccept();
 }
 
