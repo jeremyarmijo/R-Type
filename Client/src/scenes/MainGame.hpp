@@ -32,7 +32,8 @@ class MyGameScene : public Scene {
   bool m_firstState;
   bool m_isAlive;
   uint32_t m_level;
-  bool m_nextLevel;
+  uint32_t m_wave;
+  bool m_nextWave;
   UIText* m_scoreText;
   UIText* m_healthText;
   UIText* m_levelText;
@@ -47,7 +48,8 @@ class MyGameScene : public Scene {
         m_firstState(false),
         m_isAlive(true),
         m_level(0),
-        m_nextLevel(false),
+        m_wave(0),
+        m_nextWave(false),
         m_scoreText(nullptr),
         m_healthText(nullptr),
         m_levelText(nullptr) {}
@@ -576,7 +578,7 @@ class MyGameScene : public Scene {
 
       auto it = m_enemies.find(enemyId);
       if (it == m_enemies.end()) {
-        m_nextLevel = false;
+        m_nextWave = false;
         SpawnEnemy(enemyId, enemyState.enemyType,
                    {enemyState.posX, enemyState.posY});
       } else {
@@ -594,10 +596,14 @@ class MyGameScene : public Scene {
     for (uint16_t enemyId : toRemove) {
       RemoveEnemy(enemyId);
     }
-    if (!m_nextLevel && activeEnemyIds.size() == 0) {
-      m_nextLevel = true;
-      m_level += 1;
-      m_levelText->SetText("Level: " + std::to_string(m_level));
+    if (!m_nextWave && activeEnemyIds.size() == 0) {
+      m_nextWave = true;
+      m_wave += 1;
+      if (m_wave == 5) {
+        m_wave = 0;
+        m_level += 1;
+      }
+      m_levelText->SetText("Level: " + std::to_string(m_level) + " Wave: " + std::to_string(m_wave));
     }
   }
 

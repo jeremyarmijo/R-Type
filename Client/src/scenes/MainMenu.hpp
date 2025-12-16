@@ -55,6 +55,7 @@ class MainMenu : public Scene {
       audio.LoadSound("explosion", "../Client/assets/explosion.wav");
       audio.LoadSound("button", "../Client/assets/button.wav");
       audio.LoadSound("shoot", "../Client/assets/shoot.wav");
+      audio.LoadSound("hitmarker", "../Client/assets/hitmarker.wav");
 
       audio.PlayMusic("menu_music");
 
