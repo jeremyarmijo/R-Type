@@ -29,6 +29,7 @@ class MyGameScene : public Scene {
   int m_score;
   bool m_isInitialized;
   bool m_firstState;
+  bool m_isAlive;
   MultiplayerSkinManager m_skinManager;
 
  public:
@@ -37,7 +38,8 @@ class MyGameScene : public Scene {
         m_localPlayerId(0),
         m_score(0),
         m_isInitialized(false),
-        m_firstState(false) {}
+        m_firstState(false),
+        m_isAlive(true) {}
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING GAME SCENE ===" << std::endl;
@@ -510,6 +512,14 @@ class MyGameScene : public Scene {
 
       for (uint16_t playerId : toRemove) {
         RemoveOtherPlayer(playerId);
+      }
+      if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() && m_isAlive) {
+        GetAudio().PlaySound("explosion");
+        GetRegistry().kill_entity(m_localPlayer);
+        m_entities.erase(
+        std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
+        m_entities.end());
+        m_isAlive = false;
       }
     }
 
