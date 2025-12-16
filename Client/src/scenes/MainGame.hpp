@@ -30,6 +30,11 @@ class MyGameScene : public Scene {
   bool m_isInitialized;
   bool m_firstState;
   bool m_isAlive;
+  uint32_t m_level;
+  bool m_nextLevel;
+  UIText* m_scoreText;
+  UIText* m_healthText;
+  UIText* m_levelText;
   MultiplayerSkinManager m_skinManager;
 
  public:
@@ -39,7 +44,12 @@ class MyGameScene : public Scene {
         m_score(0),
         m_isInitialized(false),
         m_firstState(false),
-        m_isAlive(true) {}
+        m_isAlive(true),
+        m_level(0),
+        m_nextLevel(false),
+        m_scoreText(nullptr),
+        m_healthText(nullptr),
+        m_levelText(nullptr) {}
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING GAME SCENE ===" << std::endl;
@@ -104,15 +114,14 @@ class MyGameScene : public Scene {
       }
 
       // UI Elements
-      auto* scoreText = GetUI().AddElement<UIText>(10, 10, "Score: 0", "", 20);
-      scoreText->SetLayer(100);
+      m_scoreText = GetUI().AddElement<UIText>(10, 10, "Score: 0", "", 20);
+      m_scoreText->SetLayer(100);
 
-      auto* healthBar = GetUI().AddElement<UISolidColor>(
-          10, 40, 200, 20, (SDL_Color){200, 50, 50, 255});
-      healthBar->SetLayer(100);
-      auto* healthBarBG = GetUI().AddElement<UISolidColor>(
-          8, 38, 204, 24, (SDL_Color){200, 200, 200, 255});
-      healthBar->SetLayer(99);
+      m_healthText = GetUI().AddElement<UIText>(10, 40, "Health: 100", "", 20);
+      m_healthText->SetLayer(100);
+
+      m_levelText = GetUI().AddElement<UIText>(10, 60, "Level: 0", "", 20);
+      m_levelText->SetLayer(100);
 
       m_isInitialized = true;
       std::cout << "Game scene initialized successfully" << std::endl;
@@ -216,6 +225,13 @@ class MyGameScene : public Scene {
                                 {{203, 6, 20, 23}, 0.1f},
                                 {{236, 6, 20, 23}, 0.1f}},
                                true);
+    
+    animations.CreateAnimation("boss_anim", "boss",
+                               {{{27, 1711, 154, 203}, 0.6f},
+                                  {{189, 1711, 154, 203}, 0.5f},
+                                  {{351, 1711, 154, 203}, 0.6f},
+                                  {{189, 1711, 154, 203}, 0.5f}},
+                               true);
 
     animations.CreateAnimation(
         "enemy2_anim", "enemy2",
@@ -245,6 +261,8 @@ class MyGameScene : public Scene {
         return "enemy2";
       case 2:
         return "enemy3";
+      case 4:
+        return "boss";
       default:
         return "enemy1";
     }
@@ -258,6 +276,8 @@ class MyGameScene : public Scene {
         return "enemy2_anim";
       case 2:
         return "enemy3_anim";
+      case 4:
+        return "boss_anim";
       default:
         return "enemy1_anim";
     }
@@ -485,6 +505,7 @@ class MyGameScene : public Scene {
             playerComponents[m_localPlayer].has_value()) {
           playerComponents[m_localPlayer]->current =
               static_cast<int>(playerState.hp);
+          m_healthText->SetText("Health: " + std::to_string(static_cast<int>(playerState.hp)));
         }
       } else {
         auto it = m_otherPlayers.find(playerId);
@@ -536,6 +557,7 @@ class MyGameScene : public Scene {
 
       auto it = m_enemies.find(enemyId);
       if (it == m_enemies.end()) {
+        m_nextLevel = false;
         SpawnEnemy(enemyId, enemyState.enemyType,
                    {enemyState.posX, enemyState.posY});
       } else {
@@ -552,6 +574,11 @@ class MyGameScene : public Scene {
 
     for (uint16_t enemyId : toRemove) {
       RemoveEnemy(enemyId);
+    }
+    if (!m_nextLevel && activeEnemyIds.size() == 0) {
+      m_nextLevel = true;
+      m_level += 1;
+      m_levelText->SetText("Level: " + std::to_string(m_level));
     }
   }
 
