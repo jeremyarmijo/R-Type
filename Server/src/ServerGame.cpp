@@ -78,8 +78,8 @@ void ServerGame::SetupNetworkCallbacks() {
   });
 }
 
-bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff) {
-  if (!networkManager.Initialize(tcpPort, udpPort)) {
+bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff, const std::string& host) {
+  if (!networkManager.Initialize(tcpPort, udpPort, host)) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
   }
