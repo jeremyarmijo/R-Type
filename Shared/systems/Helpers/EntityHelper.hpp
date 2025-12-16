@@ -13,7 +13,7 @@
 #include "inputs/InputManager.hpp"
 
 static const Vector2 PLAYER_SIZE{32.f, 32.f};
-static const Vector2 ENEMY_BASIC_SIZE{32.f, 32.f};
+static const Vector2 ENEMY_BASIC_SIZE{40.f, 40.f};
 static const Vector2 ENEMY_BOSS_SIZE{128.f, 128.f};
 
 enum class EntityType { Player, Enemy, Boss, Projectile };
@@ -26,6 +26,7 @@ inline Entity createPlayer(Registry& registry, const Vector2& startPos,
   registry.add_component<Transform>(player, Transform{startPos});
   registry.add_component<RigidBody>(player, RigidBody{});
   registry.add_component<InputState>(player, InputState());
+  registry.add_component<Weapon>(player, Weapon());
   registry.add_component<BoxCollider>(
       player, BoxCollider(PLAYER_SIZE.x, PLAYER_SIZE.y));
   registry.add_component<PlayerEntity>(player,
