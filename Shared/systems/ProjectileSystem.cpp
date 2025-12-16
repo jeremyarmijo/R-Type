@@ -187,3 +187,21 @@ Entity spawn_projectile(Registry& registry, Vector2 position, Vector2 direction,
 
   return projectile;
 }
+
+Entity spawn_player_projectile(Registry& registry, Vector2 position, Vector2 direction,
+                        float speed, size_t ownerId) {
+  Entity projectile = registry.spawn_entity();
+
+  Transform transform(position, {2.f, 2.f});
+  registry.emplace_component<Transform>(projectile, transform);
+  Vector2 velocity = direction.Normalized() * speed * 2;
+  RigidBody rb(0.0f, 0.0f, false);
+  rb.velocity = velocity;
+  registry.emplace_component<RigidBody>(projectile, std::move(rb));
+  registry.emplace_component<BoxCollider>(projectile, 19.0f, 19.0f);
+
+  registry.emplace_component<Projectile>(projectile, 10.0f, speed, direction,
+                                         3.0f, ownerId);
+
+  return projectile;
+}

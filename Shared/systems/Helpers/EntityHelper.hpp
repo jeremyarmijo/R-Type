@@ -14,7 +14,7 @@
 
 static const Vector2 PLAYER_SIZE{32.f, 32.f};
 static const Vector2 ENEMY_BASIC_SIZE{40.f, 40.f};
-static const Vector2 ENEMY_BOSS_SIZE{128.f, 128.f};
+static const Vector2 ENEMY_BOSS_SIZE{128.f, 240.f};
 
 enum class EntityType { Player, Enemy, Boss, Projectile };
 
