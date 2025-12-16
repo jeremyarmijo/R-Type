@@ -10,15 +10,20 @@
 
 void player_movement_system(Registry& registry);
 
-void enemy_movement_system(SparseArray<Transform>& transforms,
+void enemy_movement_system(Registry& registry,
+                           SparseArray<Transform>& transforms,
                            SparseArray<RigidBody>& rigidbodies,
-                           SparseArray<Enemy>& enemies, float deltaTime);
+                           SparseArray<Enemy>& enemies,
+                           SparseArray<PlayerEntity>& players,
+                           float deltaTime);
 
 void Projectile_movement_system(SparseArray<Transform>& transforms,
                                 SparseArray<RigidBody>& rigidbodies,
                                 SparseArray<Projectile>& projectiles,
                                 Registry& registry, float deltaTime);
 
-void boss_movement_system(SparseArray<Transform>& transforms,
+void boss_movement_system(Registry& registry,
+                          SparseArray<Transform>& transforms,
                           SparseArray<RigidBody>& rigidbodies,
-                          SparseArray<Boss>& bosses, float deltaTime);
+                          SparseArray<Boss>& bosses,
+                          float deltaTime);
