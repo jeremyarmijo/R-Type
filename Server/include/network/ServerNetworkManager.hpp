@@ -40,6 +40,7 @@ class ServerNetworkManager : public INetworkManager {
   void SetMessageCallback(MessageCallback callback) override;
   void SetConnectionCallback(ConnectionCallback callback) override;
   void SetDisconnectionCallback(DisconnectionCallback callback) override;
+  void SetGameStarted(bool strated){GameStarted = strated;}
 
  private:
   void IOThreadFunc();
@@ -50,6 +51,7 @@ class ServerNetworkManager : public INetworkManager {
                   const asio::ip::tcp::endpoint& tcp_endpoint);
   void OnTCPDisconnect(uint32_t client_id);
 
+  bool GameStarted = false;
   asio::io_context io_context_;
   std::unique_ptr<asio::io_context::work> work_guard_;
   std::unique_ptr<TCPServer> tcp_server_;
@@ -69,5 +71,5 @@ class ServerNetworkManager : public INetworkManager {
   DisconnectionCallback disconnection_callback_;
 
   std::unique_ptr<asio::steady_timer> timeout_timer_;
-  static constexpr std::chrono::seconds CLIENT_TIMEOUT{300};
+  static constexpr std::chrono::seconds CLIENT_TIMEOUT{10};
 };

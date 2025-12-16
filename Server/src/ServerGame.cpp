@@ -35,7 +35,7 @@ void ServerGame::HandleAuth(uint16_t playerId) {
   m_players[playerId] = player;
   lobbyPlayers.push_back(playerId);
   std::cout << "Player " << playerId << " joined the lobby ("
-            << lobbyPlayers.size() << "/4)" << std::endl;
+            << lobbyPlayers.size() << "/2)" << std::endl;
 
   if (lobbyPlayers.size() == 2 && !gameStarted) {
     StartGame();
@@ -134,6 +134,7 @@ void ServerGame::InitWorld() {
 
 void ServerGame::StartGame() {
   gameStarted = true;
+  networkManager.SetGameStarted(gameStarted);
   std::cout << "Lobby full! Starting the game!!!!\n";
   gameThread = std::thread(&ServerGame::GameLoop, this);
 }
