@@ -39,7 +39,13 @@ class OptionsScene : public Scene {
   UIButton* m_saveButton;
   UIButton* m_backButton;
 
+  UIButton* m_musicMuteButton;
+  UIButton* m_sfxMuteButton;
+
   PlayerSkin m_currentSkin;
+
+  bool m_sfxMute;
+  bool m_musicMute;
 
  public:
   OptionsScene(GameEngine* engine, SceneManager* sceneManager)
@@ -57,6 +63,10 @@ class OptionsScene : public Scene {
         m_resetButton(nullptr),
         m_saveButton(nullptr),
         m_backButton(nullptr),
+        m_musicMuteButton(nullptr),
+        m_sfxMuteButton(nullptr),
+        m_sfxMute(false),
+        m_musicMute(false),
         m_currentSkin(PlayerSkin::BLUE) {}
 
   void OnEnter() override {
@@ -87,6 +97,7 @@ class OptionsScene : public Scene {
       m_prevSkinButton->SetFontSize(32);
       m_prevSkinButton->SetLayer(10);
       m_prevSkinButton->SetOnClick([this]() {
+        GetAudio().PlaySound("button");
         ChangeSkin(PlayerSettings::GetPreviousSkin(m_currentSkin));
       });
 
@@ -102,7 +113,10 @@ class OptionsScene : public Scene {
       m_nextSkinButton->SetFontSize(32);
       m_nextSkinButton->SetLayer(10);
       m_nextSkinButton->SetOnClick(
-          [this]() { ChangeSkin(PlayerSettings::GetNextSkin(m_currentSkin)); });
+          [this]() {
+            GetAudio().PlaySound("button");
+            ChangeSkin(PlayerSettings::GetNextSkin(m_currentSkin));
+            });
 
       m_background = m_engine->CreateSprite("background", {400, 300}, -10);
       AnimationManager& animations = GetAnimations();
@@ -143,21 +157,41 @@ class OptionsScene : public Scene {
                                {130, 30, 30, 255});
       m_resetButton->SetFontSize(18);
       m_resetButton->SetLayer(10);
-      m_resetButton->SetOnClick([this]() { ResetToDefaults(); });
+      m_resetButton->SetOnClick([this]() { GetAudio().PlaySound("button"); ResetToDefaults(); });
 
       m_saveButton = GetUI().AddElement<UIButton>(330, 560, 140, 40, "Save");
       m_saveButton->SetColors({50, 150, 50, 255}, {70, 170, 70, 255},
                               {30, 130, 30, 255});
       m_saveButton->SetFontSize(18);
       m_saveButton->SetLayer(10);
-      m_saveButton->SetOnClick([this]() { SaveSettings(); });
+      m_saveButton->SetOnClick([this]() { GetAudio().PlaySound("button"); SaveSettings(); });
 
       m_backButton = GetUI().AddElement<UIButton>(510, 560, 140, 40, "Back");
       m_backButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
                               {80, 80, 80, 255});
       m_backButton->SetFontSize(18);
       m_backButton->SetLayer(10);
-      m_backButton->SetOnClick([this]() { ChangeScene("menu"); });
+      m_backButton->SetOnClick([this]() { GetAudio().PlaySound("button"); ChangeScene("menu"); });
+
+      m_sfxMuteButton = GetUI().AddElement<UIButton>(510, 10, 140, 40, "Mute SFX");
+      m_sfxMuteButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
+                              {80, 80, 80, 255});
+      m_sfxMuteButton->SetFontSize(18);
+      m_sfxMuteButton->SetLayer(10);
+      m_sfxMuteButton->SetOnClick([this]() { GetAudio().PlaySound("button");
+        m_sfxMute = !m_sfxMute;
+        GetAudio().MuteSFX(m_sfxMute);
+        });
+      
+      m_musicMuteButton = GetUI().AddElement<UIButton>(660, 10, 140, 40, "Mute Music");
+      m_musicMuteButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
+                              {80, 80, 80, 255});
+      m_musicMuteButton->SetFontSize(18);
+      m_musicMuteButton->SetLayer(10);
+      m_musicMuteButton->SetOnClick([this]() { GetAudio().PlaySound("button");
+        m_musicMute = !m_musicMute;
+        GetAudio().MuteMusic(m_musicMute);
+        });
 
       m_isInitialized = true;
       std::cout << "Options scene initialized" << std::endl;
