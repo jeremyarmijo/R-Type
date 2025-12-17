@@ -3,16 +3,18 @@
 
 1. [Definition](#definition)  
 2. [ECS Architecture Overview](#ecs-architecture-overview)  
-3. [Key Gameplay Features](#key-gameplay-features)  
-4. [Creating Entities](#creating-entities)  
+3. [Key Gameplay Features](#key-features)  
+4. [Files Organisation](#organisation)  
+5. [Creating Entities](#creating-entities)  
    - [Player](#player)  
    - [Enemies](#enemies)  
    - [Boss](#boss)  
    - [Projectiles](#projectiles)  
-5. [Movement System](#movement-system)  
-6. [Collision and Damage System](#collision-system)  
-7. [Projectile System](#projectile-system)    
-8. [ServerGame](#servergame)
+6. [Movement System](#movement-system)  
+7. [Collision and Damage System](#collision-system)  
+8. [Projectile System](#projectile-system)    
+9. [ServerGame](#servergame)  
+10. [Author](#author)
 
 ---
 
@@ -98,6 +100,24 @@ registry.register_component<Projectile>();
   - Systems are independent and reusable
   - Designed for scalability and maintainability
 
+
+
+### Organisation
+
+The `Shared` folder contains all the core game logic and data, divided into **components** and **systems**:
+
+- `Shared/components/` → **Data definitions for entities**  
+  This is where you define all components like `PlayerEntity`, `Enemy`, `Boss`, `Projectile`, `Transform`, `RigidBody`, `BoxCollider`, etc.  
+  Whenever you want to **add a new component**, you place it here.
+
+- `Shared/systems/` → **Game logic implementation**  
+  This folder contains all systems that operate on components, like movement, collision, projectile handling, physics, enemy waves, and weapons.  
+  Whenever you want to **add or modify game mechanics**, you work here.
+
+> **Summary:**  
+> - Components = **what entities have** (data)  
+> - Systems = **what entities do** (logic)  
+> - To extend the game, create new components in `Shared/components/` and new behaviors in `Shared/systems/`.
 
 ## Creating Entities
 
@@ -567,3 +587,8 @@ It handles player authentication, network messages, entity updates, and broadcas
 > The server maintains authoritative game state. Clients only send inputs, and the server broadcasts the updated world state.  
 > To contribute, focus on adding new ECS components, systems, or network messages. Do **not** rely on client-side calculations for game logic — everything authoritative happens in `ServerGame` on the server side.
 
+
+
+### Author
+
+dalia.guiz@epitech.eu
