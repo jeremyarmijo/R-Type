@@ -29,7 +29,7 @@
 ## **Build Instructions**
 ### **1. Clone the Repository**
 ```bash
-git clone https://github.com/jeremyarmijo/R-Type.git
+git clone https://github.com/YOUR_USERNAME/R-Type.git
 cd R-Type
 ```
 
@@ -103,16 +103,17 @@ make
 
 ## **Technical Documentation**
 
-### **Documentation Structure**
-1. **[Engine Architecture](docs/architecture.md)**:
-   - UML diagrams, software layers, design patterns (ECS, Mediator).
-   - *(TO COMPLETE: Example diagram in PlantUML or image.)*
-2. **[Network Protocol](docs/network_protocol.md)**:
-   - Binary packet specification (e.g., `PlayerInputPacket`, `EntityUpdatePacket`).
-   - Error handling and synchronization.
-   - *(TO COMPLETE: Example packet structure in C++.)*
-3. **[Technical Comparison](docs/tech_comparison.md)**:
-   - Why C++/SDL2/ASIO? Comparison with SFML, ENet, etc.
-4. **[Tutorials](docs/tutorials/)**:
-   - How to add an enemy, level, or sound effect.
-   - *(TO COMPLETE: Step-by-step guide with code snippets.)*
+### **Core Documentation**
+- **[Server Technical Documentation](documentation/SERVER_TECHNICAL_DOC.md)** - Complete server architecture, networking.
+- **[Doxygen](https://jeremyarmijo.github.io/R-Type/)** - Detailed class and method documentation
+- **[Contributing Guide](documentation/CONTRIBUTING.md)** - How to contribute to the project
+
+### **Network Documentation**
+- **[Network Protocol](documentation/NetworkClient.md)** - Client-server communication protocol
+- **[ASIO Implementation](documentation/ASIO_IMPLEMENTATION.md)** - Network library usage guide
+
+### **Quick Links**
+- [Build Instructions](#build-instructions)
+- [Usage Instructions](#usage-instructions)
+- [How to Contribute](documentation/CONTRIBUTING.md)
+- [Full class Documentation](https://jeremyarmijo.github.io/R-Type/)
