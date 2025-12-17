@@ -4,9 +4,9 @@
 #include <utility>
 #include <vector>
 
-UDPServer::UDPServer(asio::io_context& io_context, uint16_t port)
-    : socket_(io_context, asio::ip::udp::endpoint(asio::ip::udp::v4(), port)) {
-  std::cout << "[UDPServer] Listening on port " << port << std::endl;
+UDPServer::UDPServer(asio::io_context& io_context, uint16_t port, const std::string& host)
+    : socket_(io_context, asio::ip::udp::endpoint(asio::ip::make_address(host), port)) {
+  std::cout << "[UDPServer] Listening on " << host << ":" << port << std::endl;
   std::cout << "[UDPServer] Socket opened: "
             << socket_.local_endpoint().address().to_string() << std::endl;
   StartReceive();
