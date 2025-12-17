@@ -93,11 +93,11 @@ make
 
 ## **Authors**
 - **Team**:
-  - [jeremy](https://github.com/jeremyarmijo/)
-  - [jeremy](https://github.com/jeremyarmijo/)
-  - [jeremy](https://github.com/jeremyarmijo/)
-  - [jeremy](https://github.com/jeremyarmijo/)
-  - [jeremy](https://github.com/jeremyarmijo/)
+  - [Jeremy Armijo]()
+  - [Dalia Guiz](dalia.guiz@epitech.eu)
+  - [Jason Zohou](jason.zohou@epitech.eu)
+  - [Xavier Daste](xavier.daste@epitech.eu)
+  - [Ziad Bengherabi](ziad.bengherabi@epitech.eu)
 
 ---
 
@@ -107,13 +107,11 @@ make
 - **[Server Technical Documentation](documentation/SERVER_TECHNICAL_DOC.md)** - Complete server architecture, networking.
 - **[Doxygen](https://jeremyarmijo.github.io/R-Type/)** - Detailed class and method documentation
 - **[Contributing Guide](documentation/CONTRIBUTING.md)** - How to contribute to the project
+- **[Gameplay Guide](documentation/HowToContribute.md)** - Detailed class and method for GamePlay 
+- **[Network client](documentation/NetworkClient.md)** - Detailed class and method for Network in client 
 
 ### **Network Documentation**
-- **[Network Protocol](documentation/NetworkClient.md)** - Client-server communication protocol
-- **[ASIO Implementation](documentation/ASIO_IMPLEMENTATION.md)** - Network library usage guide
+- **[Network Protocol](documentation/network/protocoleRFC.txt)** - Client-server communication protocol
 
-### **Quick Links**
-- [Build Instructions](#build-instructions)
-- [Usage Instructions](#usage-instructions)
-- [How to Contribute](documentation/CONTRIBUTING.md)
+### **Quick Link**
 - [Full class Documentation](https://jeremyarmijo.github.io/R-Type/)
