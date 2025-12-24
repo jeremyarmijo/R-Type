@@ -11,6 +11,7 @@
 #include "graphics/AnimationManager.hpp"
 #include "graphics/RenderComponents.hpp"
 #include "graphics/RenderSystem.hpp"
+#include "graphics/RenderManager.hpp"
 #include "graphics/TextureManager.hpp"
 #include "include/NetworkManager.hpp"
 #include "inputs/InputSystem.hpp"
@@ -19,18 +20,17 @@
 #include "settings/PlayerSettings.hpp"
 #include "systems/PhysicsSystem.hpp"
 
-constexpr int MAX_PLAYERS = 4;
-
 class GameEngine {
  private:
-  SDL_Window* m_window;
-  SDL_Renderer* m_renderer;
+  // SDL_Window* m_window;
+  // SDL_Renderer* m_renderer;
   bool m_running;
 
   int m_windowWidth;
   int m_windowHeight;
 
   Registry m_registry;
+  RenderManager m_renderManager;
   TextureManager m_textureManager;
   AnimationManager m_animationManager;
   NetworkManager m_networkManager;
@@ -92,7 +92,8 @@ class GameEngine {
   NetworkManager& GetNetworkManager() { return m_networkManager; }
   InputManager& GetInputManager() { return m_inputManager; }
   PlayerSettings& GetPlayerSettings() { return m_playerSettings; }
-  SDL_Renderer* GetRenderer() { return m_renderer; }
+  RenderManager& GetRenderManager() { return m_renderManager; }
+  SDL_Renderer* GetRenderer() { return m_renderManager.GetRenderer(); }
   AudioManager& GetAudioManager() { return m_audioManager; }
 
   Vector2 GetCameraPosition() const { return m_cameraPosition; }

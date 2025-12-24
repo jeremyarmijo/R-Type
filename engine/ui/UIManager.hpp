@@ -24,7 +24,9 @@ class UIManager {
         m_screenWidth(w),
         m_screenHeight(h) {}
 
-  ~UIManager() { Clear(); }
+  ~UIManager() {
+    Clear();
+  }
 
   template <typename T, typename... Args>
   T* AddElement(Args&&... args) {

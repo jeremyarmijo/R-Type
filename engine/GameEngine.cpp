@@ -26,15 +26,8 @@ bool GameEngine::Initialize(const std::string& title, int width, int height) {
   m_windowWidth = width;
   m_windowHeight = height;
 
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
-    return false;
-  }
-
-  if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
-    std::cerr << "SDL_image initialization failed: " << IMG_GetError()
-              << std::endl;
-    return false;
+  if (!m_renderManager.Initialize()) {
+    std::cerr << "Failed to initialize Renderer!" << std::endl;
   }
 
   if (TTF_Init() == -1) {
@@ -45,23 +38,6 @@ bool GameEngine::Initialize(const std::string& title, int width, int height) {
 
   if (!m_audioManager.Initialize()) {
     std::cerr << "Failed to initialize audio!" << std::endl;
-  }
-
-  m_window =
-      SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
-                       SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
-
-  if (!m_window) {
-    std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
-    return false;
-  }
-
-  m_renderer = SDL_CreateRenderer(
-      m_window, -1, SDL_RENDERER_ACCELERATED);
-
-  if (!m_renderer) {
-    std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
-    return false;
   }
 
   // Initialize texture manager with renderer
@@ -125,81 +101,18 @@ void GameEngine::RegisterComponents() {
   std::cout << "Components registered" << std::endl;
 }
 
-/**
- * @brief registers system functions in the ECS registry (currently broken, DO
- * NOT USE)
- *
- */
-void GameEngine::RegisterSystems() {
-  // Systems will be called automatically by run_systems()
-
-  // add in order of operation
-
-  /*
-  m_registry.add_system<PlayerEntity, Transform, RigidBody>(
-      [this](Registry& reg,
-             SparseArray<PlayerEntity>& PlayerEntity
-             SparseArray<Transform>& transforms,
-             SparseArray<RigidBody>& rigidbodies) {
-          auto& colliders = reg.get_components<BoxCollider>();
-          player_input_system(reg, PlayerEntity, transforms, rigidbodies,
-                            colliders, &m_inputManager);
-      }
-  );
-
-  m_registry.add_system<Animation, Sprite>(
-      [this](Registry& reg, SparseArray<Animation>& animations,
-  SparseArray<Sprite>& sprites) { animation_system(reg, animations, sprites,
-  &m_animationManager, m_deltaTime);
-      }
-  );
-
-  m_registry.add_system<Transform, RigidBody>(
-      [this](Registry& reg, SparseArray<Transform>& transforms,
-  SparseArray<RigidBody>& rigidbodies) { physics_movement_system(reg,
-  transforms, rigidbodies, m_deltaTime, m_gravity);
-      }
-  );
-
-  m_registry.add_system<Transform, BoxCollider, RigidBody>(
-      [this](Registry& reg,
-             const SparseArray<Transform>& transforms,
-             const SparseArray<BoxCollider>& colliders,
-             SparseArray<RigidBody>& rigidbodies) {
-          collision_detection_system(reg, transforms, colliders, rigidbodies);
-      }
-  );
-  */
-
-  std::cout << "Systems registered" << std::endl;
-}
-
-/**
- * @brief destroys SDL renderer and window
- *
- */
 void GameEngine::Shutdown() {
   if (m_sceneManager) {
     m_sceneManager->ClearAllScenes();
   }
 
-  if (m_renderer) {
-    SDL_DestroyRenderer(m_renderer);
-    m_renderer = nullptr;
-  }
-
-  if (m_window) {
-    SDL_DestroyWindow(m_window);
-    m_window = nullptr;
-  }
+  m_renderManager.Shutdown();
 
   m_audioManager.Shutdown();
 
   m_networkManager.Disconnect();
 
-  IMG_Quit();
   TTF_Quit();
-  SDL_Quit();
 
   std::cout << "Engine shutdown complete" << std::endl;
 }

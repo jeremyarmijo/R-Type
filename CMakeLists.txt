@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 file(GLOB_RECURSE SOURCES
     ${PROJECT_SOURCE_DIR}/Client/src/*.cpp
     ${PROJECT_SOURCE_DIR}/Shared/*.cpp
+    ${PROJECT_SOURCE_DIR}/engine/*.cpp
 )
 
 add_executable(RTYPE_Client ${SOURCES})
@@ -22,13 +23,13 @@ target_include_directories(RTYPE_Client PRIVATE
     ${PROJECT_SOURCE_DIR}/Shared/systems/
     ${PROJECT_SOURCE_DIR}/Client/src/
     ${PROJECT_SOURCE_DIR}/Client/src/scenes/
-    ${PROJECT_SOURCE_DIR}/Client/src/engine/
-    ${PROJECT_SOURCE_DIR}/Client/src/engine/ui/
-    ${PROJECT_SOURCE_DIR}/Client/src/engine/graphics/
-    ${PROJECT_SOURCE_DIR}/Client/src/engine/inputs/
-    ${PROJECT_SOURCE_DIR}/Client/src/engine/network/
-    ${PROJECT_SOURCE_DIR}/Client/src/engine/scene/
-    ${PROJECT_SOURCE_DIR}/Client/src/engine/settings/
+    ${PROJECT_SOURCE_DIR}/engine/
+    ${PROJECT_SOURCE_DIR}/engine/ui/
+    ${PROJECT_SOURCE_DIR}/engine/graphics/
+    ${PROJECT_SOURCE_DIR}/engine/inputs/
+    ${PROJECT_SOURCE_DIR}/engine/network/
+    ${PROJECT_SOURCE_DIR}/engine/scene/
+    ${PROJECT_SOURCE_DIR}/engine/settings/
 )
 
 add_custom_target(clean-all
