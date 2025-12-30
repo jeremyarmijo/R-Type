@@ -4,7 +4,7 @@
 #include <queue>
 #include <utility>
 #include <vector>
-
+#include <string>
 #include "Collision/Collision.hpp"
 #include "Collision/CollisionController.hpp"
 #include "Collision/Items.hpp"
@@ -15,6 +15,7 @@
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/BoundsSystem.hpp"
+#include "systems/LevelSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WaveSystem.hpp"
@@ -78,7 +79,8 @@ void ServerGame::SetupNetworkCallbacks() {
   });
 }
 
-bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff, const std::string& host) {
+bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
+                            const std::string& host) {
   if (!networkManager.Initialize(tcpPort, udpPort, host)) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
@@ -103,6 +105,7 @@ bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff, const 
   // Weapon & Projectile components
   registry.register_component<Weapon>();
   registry.register_component<Projectile>();
+  registry.register_component<LevelComponent>();
 
   std::cout << "Components registered" << std::endl;
   SetupNetworkCallbacks();
@@ -136,6 +139,11 @@ void ServerGame::InitWorld() {
 void ServerGame::StartGame() {
   gameStarted = true;
   networkManager.SetGameStarted(gameStarted);
+
+  auto levels = createLevels();
+  createLevelEntity(registry, levels[2]);  // niveau 1 uniquement
+  std::cout << "[StartGame] Level 1 created" << std::endl;
+
   std::cout << "Lobby full! Starting the game!!!!\n";
   gameThread = std::thread(&ServerGame::GameLoop, this);
 }
@@ -156,7 +164,6 @@ void ServerGame::SendAction(std::tuple<Action, uint16_t> ac) {
 }
 
 void ServerGame::EndGame() {
-
   Action ac;
   GameEnd g;
   g.victory = false;
@@ -317,6 +324,9 @@ void ServerGame::UpdateGameState(float deltaTime) {
   auto& colliders = registry.get_components<BoxCollider>();
   auto& projectiles = registry.get_components<Projectile>();
   auto& weapons = registry.get_components<Weapon>();
+  auto& levels = registry.get_components<LevelComponent>();
+  std::cout << "Nombre de niveaux dans le registry : " << levels.size()
+            << std::endl;
 
   for (auto&& [player] : Zipper(players)) {
     if (player.invtimer > 0.0f) {
@@ -353,9 +363,10 @@ void ServerGame::UpdateGameState(float deltaTime) {
   // Projectile systems
   projectile_collision_system(registry, transforms, colliders, projectiles);
   projectile_lifetime_system(registry, projectiles, deltaTime);
-  gamePlay_Collision_system(registry, transforms, colliders, players,
-  enemies, bosses);
-  enemy_wave_system(registry, enemies, deltaTime, 5, difficulty);
+  gamePlay_Collision_system(registry, transforms, colliders, players, enemies,
+                            bosses);
+  update_level_system(registry, levels, enemies, deltaTime);
+  // enemy_wave_system(registry, enemies, deltaTime, 5, difficulty);
   bounds_check_system(registry, transforms, colliders, rigidbodies);
 }
 
