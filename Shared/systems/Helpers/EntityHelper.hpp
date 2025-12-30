@@ -8,6 +8,7 @@
 #include "Player/EnemySpawn.hpp"
 #include "Player/PlayerEntity.hpp"
 #include "Player/Projectile.hpp"
+#include "components/Levels.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "inputs/InputManager.hpp"
@@ -86,4 +87,12 @@ inline Entity createEnemySpawner(Registry& registry,
       spawner, EnemySpawning(std::move(points), interval, maxEnemies, type));
 
   return spawner;
+}
+
+inline Entity createLevelEntity(Registry& registry,
+                                const LevelComponent& level) {
+  Entity lvlEntity = registry.spawn_entity();
+  registry.add_component<LevelComponent>(lvlEntity, LevelComponent(level));
+
+  return lvlEntity;
 }
