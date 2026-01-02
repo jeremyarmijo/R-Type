@@ -1,6 +1,6 @@
 PROJECT_NAME        = "R-Type"
 OUTPUT_DIRECTORY    = docs
-INPUT               = src include
+INPUT               = ../Client ../Server
 RECURSIVE           = YES
 EXTRACT_ALL         = YES
 GENERATE_HTML       = YES
