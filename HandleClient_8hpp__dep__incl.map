@@ -1,0 +1,19 @@
+<map id="/home/runner/work/R&#45;Type/R&#45;Type/Server/include/network/HandleClient.hpp" name="/home/runner/work/R&#45;Type/R&#45;Type/Server/include/network/HandleClient.hpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="440,5,687,60"/>
+<area shape="rect" id="Node000002" href="$ClientManager_8hpp.html" title=" " alt="" coords="305,108,561,163"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="520,70,469,110,465,106,517,66"/>
+<area shape="rect" id="Node000009" href="$HandleClient_8cpp.html" title=" " alt="" coords="585,108,803,163"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="610,66,661,106,658,110,606,70"/>
+<area shape="rect" id="Node000003" href="$ServerNetworkManager_8hpp.html" title=" " alt="" coords="191,211,421,280"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="393,174,347,212,344,208,389,170"/>
+<area shape="rect" id="Node000008" href="$ClientManager_8cpp.html" title=" " alt="" coords="446,218,673,273"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="476,170,530,216,527,220,473,174"/>
+<area shape="rect" id="Node000004" href="$ServerGame_8hpp.html" title=" " alt="" coords="82,328,269,383"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="257,291,209,330,206,326,253,286"/>
+<area shape="rect" id="Node000007" href="$ServerNetworkManager_8cpp.html" title=" " alt="" coords="293,328,580,383"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="359,286,406,326,403,330,355,291"/>
+<area shape="rect" id="Node000005" href="$ServerGame_8cpp.html" title=" " alt="" coords="5,431,164,485"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="144,395,110,432,106,429,140,391"/>
+<area shape="rect" id="Node000006" href="$main_8cpp.html" title=" " alt="" coords="188,431,347,485"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="211,391,245,429,241,432,207,395"/>
+</map>

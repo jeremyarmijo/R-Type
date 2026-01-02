@@ -1,0 +1,16 @@
+<map id="/home/runner/work/R&#45;Type/R&#45;Type/Client/src/engine/ui/UIImage.hpp" name="/home/runner/work/R&#45;Type/R&#45;Type/Client/src/engine/ui/UIImage.hpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="248,5,444,60"/>
+<area shape="rect" id="Node000002" href="$Main_8cpp.html" title=" " alt="" coords="375,211,534,265"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,44,142,57,98,67,60,80,30,95,12,114,9,124,9,135,23,161,45,178,80,193,123,205,172,214,278,226,375,232,374,238,278,232,172,219,122,210,78,198,43,183,19,164,4,136,3,123,8,111,27,91,58,75,97,62,141,52,234,39"/>
+<area shape="rect" id="Node000003" href="$UIImage_8cpp.html" title=" " alt="" coords="33,108,228,163"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="279,68,188,110,185,106,277,63"/>
+<area shape="rect" id="Node000004" href="$JoinGame_8hpp.html" title=" " alt="" coords="252,108,441,163"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="349,74,349,108,344,108,344,74"/>
+<area shape="rect" id="Node000005" href="$MainMenu_8hpp.html" title=" " alt="" coords="465,108,660,163"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="416,63,507,106,505,110,414,68"/>
+<area shape="rect" id="Node000006" href="$WaitLobby_8hpp.html" title=" " alt="" coords="684,108,876,163"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="458,56,672,105,684,108,682,113,671,111,457,62"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="386,170,428,209,424,213,383,174"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="526,174,484,213,481,209,522,170"/>
+<area shape="poly" id="edge8_Node000006_Node000002" title=" " alt="" coords="683,169,535,215,533,210,681,164"/>
+</map>

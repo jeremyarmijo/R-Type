@@ -1,0 +1,20 @@
+<map id="/home/runner/work/R&#45;Type/R&#45;Type/Client/src/engine/ui/UISolidColor.cpp" name="/home/runner/work/R&#45;Type/R&#45;Type/Client/src/engine/ui/UISolidColor.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="247,5,465,60"/>
+<area shape="rect" id="Node000002" href="$UISolidColor_8hpp.html" title=" " alt="" coords="283,108,429,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="359,60,359,94,353,94,353,60"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="405,328,501,353"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="364,133,386,180,446,314,441,316,382,182,359,135"/>
+<area shape="rect" id="Node000004" href="$UIElement_8hpp.html" title=" " alt="" coords="237,181,371,207"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="350,135,323,172,318,169,345,132"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="321,205,379,253,437,316,433,319,375,257,318,209"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,328,64,353"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="262,209,203,229,141,257,96,288,58,320,55,316,93,284,139,252,201,224,260,204"/>
+<area shape="rect" id="Node000006" href="$TextureManager_8hpp.html" title=" " alt="" coords="152,255,365,280"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="299,208,276,245,271,242,294,206"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="291,278,410,321,408,326,289,283"/>
+<area shape="poly" id="edge9_Node000006_Node000005" title=" " alt="" coords="223,283,78,329,76,323,222,277"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="88,328,232,353"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="244,282,189,322,186,318,241,278"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="257,328,381,353"/>
+<area shape="poly" id="edge10_Node000006_Node000008" title=" " alt="" coords="271,279,302,316,298,319,267,282"/>
+</map>

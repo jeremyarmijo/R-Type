@@ -1,0 +1,13 @@
+<map id="/home/runner/work/R&#45;Type/R&#45;Type/Server/include/network/INetworkManager.hpp" name="/home/runner/work/R&#45;Type/R&#45;Type/Server/include/network/INetworkManager.hpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="167,5,445,60"/>
+<area shape="rect" id="Node000002" href="$ServerNetworkManager_8hpp.html" title=" " alt="" coords="191,108,421,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="309,74,309,108,303,108,303,74"/>
+<area shape="rect" id="Node000003" href="$ServerGame_8hpp.html" title=" " alt="" coords="82,225,269,280"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="257,188,209,227,206,223,253,184"/>
+<area shape="rect" id="Node000006" href="$ServerNetworkManager_8cpp.html" title=" " alt="" coords="293,225,580,280"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="359,184,406,223,403,227,355,188"/>
+<area shape="rect" id="Node000004" href="$ServerGame_8cpp.html" title=" " alt="" coords="5,328,164,383"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="144,292,110,330,106,326,140,289"/>
+<area shape="rect" id="Node000005" href="$main_8cpp.html" title=" " alt="" coords="188,328,347,383"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="211,289,245,326,241,330,207,292"/>
+</map>

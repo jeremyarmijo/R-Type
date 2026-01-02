@@ -1,0 +1,13 @@
+<map id="UIElement" name="UIElement">
+<area shape="rect" id="Node000001" title=" " alt="" coords="217,5,307,31"/>
+<area shape="rect" id="Node000002" href="$classUIButton.html" title=" " alt="" coords="5,79,84,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,37,81,81,79,76,213,32"/>
+<area shape="rect" id="Node000003" href="$classUIImage.html" title=" " alt="" coords="109,79,186,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,40,167,81,165,76,231,35"/>
+<area shape="rect" id="Node000004" href="$classUISolidColor.html" title=" " alt="" coords="211,79,313,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="265,44,265,79,259,79,259,44"/>
+<area shape="rect" id="Node000005" href="$classUIText.html" title=" " alt="" coords="337,79,400,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="292,36,353,76,350,81,289,40"/>
+<area shape="rect" id="Node000006" href="$classUITextInput.html" title=" " alt="" coords="425,79,521,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="309,32,439,76,438,81,308,37"/>
+</map>
