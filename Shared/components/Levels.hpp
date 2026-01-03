@@ -3,9 +3,9 @@
 #include <optional>
 #include <vector>
 
-#include "components/Physics2D.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
+#include "components/Physics2D.hpp"
 
 struct Wave {
   std::vector<EnemyType> enemyTypes;
@@ -22,8 +22,9 @@ struct LevelComponent {
   float waveDelayTimer = 0.0f;
   bool finishedLevel = false;
   bool initialized = false;
+  int levelIndex = 0;
 
   LevelComponent() = default;
   explicit LevelComponent(const std::vector<Wave>& ws)
-  : waves(ws), currentWave(-1) {}
+      : waves(ws), currentWave(-1) {}
 };
