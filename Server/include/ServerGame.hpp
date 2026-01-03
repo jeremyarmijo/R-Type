@@ -3,11 +3,13 @@
 #include <iostream>
 #include <mutex>
 #include <queue>
+#include <string>
 #include <thread>
 #include <tuple>
-#include <vector>
-#include <string>
 #include <unordered_map>
+#include <vector>
+
+#include "components/Levels.hpp"
 #include "ecs/Registry.hpp"
 #include "network/DecodeFunc.hpp"
 #include "network/EncodeFunc.hpp"
@@ -25,6 +27,8 @@ class ServerGame {
   /**
    * @brief Construct a new ServerGame object
    */
+
+  Entity currentLevelEntityId{};
   ServerGame();
   bool Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
                   const std::string& host = "0.0.0.0");
@@ -36,6 +40,13 @@ class ServerGame {
   void Shutdown();
 
  private:
+  std::vector<LevelComponent> levelsData;
+  int currentLevelIndex = 0;
+  Entity currentLevelEntity;
+  float levelTransitionTimer = 0.0f;
+  bool waitingForNextLevel = false;
+  const float TIME_BETWEEN_LEVELS = 5.0f;
+
   ServerNetworkManager networkManager;  ///< Network communication manager
   Decoder decode;     ///< Decoder for incoming network messages
   Encoder encode;     ///< Encoder for outgoing network messages
