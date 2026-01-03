@@ -2,9 +2,10 @@
 
 #include <iostream>
 #include <queue>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
+
 #include "Collision/Collision.hpp"
 #include "Collision/CollisionController.hpp"
 #include "Collision/Items.hpp"
@@ -12,6 +13,7 @@
 #include "Movement/Movement.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
+#include "components/BossPart.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/BoundsSystem.hpp"
@@ -106,7 +108,7 @@ bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
   registry.register_component<Weapon>();
   registry.register_component<Projectile>();
   registry.register_component<LevelComponent>();
-
+  registry.register_component<BossPart>();
   std::cout << "Components registered" << std::endl;
   SetupNetworkCallbacks();
   return true;
@@ -140,9 +142,14 @@ void ServerGame::StartGame() {
   gameStarted = true;
   networkManager.SetGameStarted(gameStarted);
 
-  auto levels = createLevels();
-  createLevelEntity(registry, levels[2]);  // niveau 1 uniquement
-  std::cout << "[StartGame] Level 1 created" << std::endl;
+  levelsData = createLevels();
+  currentLevelIndex = 0;
+  waitingForNextLevel = false;
+  levelTransitionTimer = 0.0f;
+  currentLevelEntity =
+      createLevelEntity(registry, levelsData[currentLevelIndex]);
+  std::cout << "[StartGame] Level " << currentLevelIndex + 1 << " created"
+            << std::endl;
 
   std::cout << "Lobby full! Starting the game!!!!\n";
   gameThread = std::thread(&ServerGame::GameLoop, this);
@@ -324,28 +331,137 @@ void ServerGame::UpdateGameState(float deltaTime) {
   auto& colliders = registry.get_components<BoxCollider>();
   auto& projectiles = registry.get_components<Projectile>();
   auto& weapons = registry.get_components<Weapon>();
-  auto& levels = registry.get_components<LevelComponent>();
-  std::cout << "Nombre de niveaux dans le registry : " << levels.size()
-            << std::endl;
 
   for (auto&& [player] : Zipper(players)) {
     if (player.invtimer > 0.0f) {
       player.invtimer -= deltaTime;
-      if (player.invtimer < 0.0f) {
-        player.invtimer = 0.0f;
+      if (player.invtimer < 0.0f) player.invtimer = 0.0f;
+    }
+  }
+
+  for (size_t i = 0; i < bosses.size(); ++i) {
+    if (bosses[i].has_value()) {
+      if (i < transforms.size() && transforms[i].has_value()) {
+        std::cout << "[DEBUG] Boss " << i << " at position ("
+                  << transforms[i]->position.x << ", "
+                  << transforms[i]->position.y << ") HP=" << bosses[i]->current
+                  << std::endl;
+      } else {
+        std::cout << "[DEBUG] Boss " << i << " has NO TRANSFORM!" << std::endl;
       }
     }
   }
 
+  std::cout << "[DEBUG] currentLevelIndex=" << currentLevelIndex
+            << " waitingForNextLevel=" << waitingForNextLevel
+            << " levelTransitionTimer=" << levelTransitionTimer << std::endl;
+
+  auto& levelsDbg = registry.get_components<LevelComponent>();
+  int countLevels = 0;
+  for (auto& lvl : levelsDbg) {
+    if (lvl.has_value()) {
+      countLevels++;
+      std::cout << "[DEBUG] LevelComponent found: currentWave="
+                << lvl->currentWave << " finishedLevel=" << lvl->finishedLevel
+                << " initialized=" << lvl->initialized << std::endl;
+    }
+  }
+  std::cout << "[DEBUG] LevelComponents in registry: " << countLevels
+            << std::endl;
+
+  int enemyCount = 0;
+  for (auto& en : enemies) {
+    if (en.has_value()) enemyCount++;
+  }
+  int bossCount = 0;
+  for (auto& bo : bosses) {
+    if (bo.has_value()) bossCount++;
+  }
+  std::cout << "[DEBUG] Enemies alive: " << enemyCount
+            << " Bosses alive: " << bossCount << std::endl;
+
+  if (waitingForNextLevel) {
+    levelTransitionTimer += deltaTime;
+    std::cout << "[DEBUG] Waiting for next level... " << levelTransitionTimer
+              << "/" << TIME_BETWEEN_LEVELS << std::endl;
+
+    if (levelTransitionTimer >= TIME_BETWEEN_LEVELS) {
+      levelTransitionTimer = 0.0f;
+      waitingForNextLevel = false;
+      currentLevelIndex++;
+
+      if (currentLevelIndex >= static_cast<int>(levelsData.size())) {
+        Action ac;
+        GameEnd g;
+        g.victory = true;
+        ac.type = ActionType::GAME_END;
+        ac.data = g;
+        SendAction(std::make_tuple(ac, 0));
+        gameStarted = false;
+        std::cout << "[Game] VICTORY! All levels completed!" << std::endl;
+        return;
+      }
+
+      currentLevelEntity =
+          createLevelEntity(registry, levelsData[currentLevelIndex]);
+      std::cout << "[Game] Level " << (currentLevelIndex + 1)
+                << " created (Entity "
+                << static_cast<size_t>(currentLevelEntity) << ")" << std::endl;
+    }
+  } else {
+    bool levelFinished =
+        update_level_system(registry, deltaTime, currentLevelIndex);
+    std::cout << "[DEBUG] update_level_system returned: " << levelFinished
+              << std::endl;
+
+    if (levelFinished) {
+      std::cout << "[DEBUG] Cleaning up remaining enemies and bosses..."
+                << std::endl;
+
+      std::vector<Entity> toKill;
+
+      auto& enemiesCleanup = registry.get_components<Enemy>();
+      for (size_t i = 0; i < enemiesCleanup.size(); ++i) {
+        if (enemiesCleanup[i].has_value()) {
+          std::cout << "[DEBUG] Marking enemy at index " << i << " for cleanup"
+                    << std::endl;
+          toKill.push_back(registry.entity_from_index(i));
+        }
+      }
+
+      auto& bossesCleanup = registry.get_components<Boss>();
+      for (size_t i = 0; i < bossesCleanup.size(); ++i) {
+        if (bossesCleanup[i].has_value()) {
+          std::cout << "[DEBUG] Marking boss at index " << i << " for cleanup"
+                    << std::endl;
+          toKill.push_back(registry.entity_from_index(i));
+        }
+      }
+      for (Entity e : toKill) {
+        std::cout << "[DEBUG] Killing leftover entity: "
+                  << static_cast<size_t>(e) << std::endl;
+        registry.kill_entity(e);
+      }
+
+      std::cout << "[DEBUG] Killing level entity: "
+                << static_cast<size_t>(currentLevelEntity) << std::endl;
+      registry.kill_entity(currentLevelEntity);
+
+      waitingForNextLevel = true;
+      levelTransitionTimer = 0.0f;
+      std::cout << "[Game] Level " << (currentLevelIndex + 1)
+                << " finished! Waiting " << TIME_BETWEEN_LEVELS << " seconds..."
+                << std::endl;
+    }
+  }
   player_movement_system(registry);
   physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
   enemy_movement_system(registry, transforms, rigidbodies, enemies, players,
                         deltaTime);
   boss_movement_system(registry, transforms, rigidbodies, bosses, deltaTime);
-  // Weapon systems
+  boss_part_system(registry, deltaTime);
   weapon_cooldown_system(registry, weapons, deltaTime);
   weapon_reload_system(registry, weapons, deltaTime);
-
   weapon_firing_system(
       registry, weapons, transforms,
       [this](size_t entityId) -> bool {
@@ -353,20 +469,16 @@ void ServerGame::UpdateGameState(float deltaTime) {
         if (entityId < playerEntity.size() &&
             playerEntity[entityId].has_value()) {
           auto& state = registry.get_components<InputState>()[entityId];
-          // std::cout << "entity = " << entityId << " fire state = " <<
-          // state->action1 << std::endl;
           return state->action1;
         }
         return false;
       },
       deltaTime);
-  // Projectile systems
+
   projectile_collision_system(registry, transforms, colliders, projectiles);
   projectile_lifetime_system(registry, projectiles, deltaTime);
   gamePlay_Collision_system(registry, transforms, colliders, players, enemies,
                             bosses);
-  update_level_system(registry, levels, enemies, deltaTime);
-  // enemy_wave_system(registry, enemies, deltaTime, 5, difficulty);
   bounds_check_system(registry, transforms, colliders, rigidbodies);
 }
 
@@ -376,6 +488,7 @@ void ServerGame::SendWorldStateToClients() {
   auto& enemies = registry.get_components<Enemy>();
   auto& bosses = registry.get_components<Boss>();
   auto& projectiles = registry.get_components<Projectile>();
+  auto& bosspart = registry.get_components<BossPart>();
 
   GameState gs;
 
@@ -397,6 +510,18 @@ void ServerGame::SendWorldStateToClients() {
     es.posX = transform.position.x;
     es.posY = transform.position.y;
     es.hp = static_cast<uint8_t>(enemy.current);
+    es.state = 1;
+    es.direction = 0;
+    gs.enemies.push_back(es);
+  }
+
+  for (auto&& [idx, segment, transform] : IndexedZipper(bosspart, transforms)) {
+    EnemyState es;
+    es.enemyId = static_cast<uint16_t>(idx);
+    es.enemyType = 99;
+    es.posX = transform.position.x;
+    es.posY = transform.position.y;
+    es.hp = 1;
     es.state = 1;
     es.direction = 0;
     gs.enemies.push_back(es);
