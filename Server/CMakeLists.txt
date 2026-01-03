@@ -1,11 +1,25 @@
-cmake_minimum_required(VERSION 3.10)
-
-include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake OPTIONAL)
+cmake_minimum_required(VERSION 3.14)
 
 project(RTYPE_Server VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(cmake/CPM.cmake)
+
+CPMAddPackage(
+  NAME asio
+  GITHUB_REPOSITORY chriskohlhoff/asio
+  GIT_TAG asio-1-30-2
+  OPTIONS
+    "ASIO_STANDALONE ON"
+)
+
+if(asio_ADDED)
+  add_library(asio INTERFACE)
+  target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
+  target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
+endif()
 
 file(GLOB_RECURSE SOURCES
     ${PROJECT_SOURCE_DIR}/src/*.cpp
@@ -26,5 +40,7 @@ target_include_directories(RTYPE_Server PRIVATE
     ${PROJECT_SOURCE_DIR}/../Shared/systems/
     ${PROJECT_SOURCE_DIR}/
 )
+
+target_link_libraries(RTYPE_Server PRIVATE asio)
 
 target_compile_options(RTYPE_Server PRIVATE -Wall -Wextra)
