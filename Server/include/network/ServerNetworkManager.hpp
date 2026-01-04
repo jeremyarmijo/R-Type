@@ -147,3 +147,7 @@ class ServerNetworkManager : public INetworkManager {
   std::unique_ptr<asio::steady_timer> timeout_timer_;         ///< Timer for checking client timeouts
   static constexpr std::chrono::seconds CLIENT_TIMEOUT{10};   ///< Client timeout duration
 };
+
+extern "C" {
+  INetworkManager *EntryPointLib();
+}
