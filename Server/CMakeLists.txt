@@ -73,6 +73,6 @@ target_include_directories(RTYPE_Server PRIVATE
     ${PROJECT_SOURCE_DIR}/
 )
 
-target_link_libraries(RTYPE_Client PRIVATE SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer asio)
+target_link_libraries(RTYPE_Server PRIVATE SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer)
 
 target_compile_options(RTYPE_Server PRIVATE -Wall -Wextra)
