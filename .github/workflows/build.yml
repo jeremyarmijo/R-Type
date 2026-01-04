@@ -1,8 +1,7 @@
 name: Build R-Type Project on Ubuntu
 on:
     push:
-      branches: [ 96-add-crossplatform-build-with-cpm-package-manager ]
-    #   branches: [ main ]
+      branches: [ main ]
 
 jobs:
   build-server-gamelogic:
