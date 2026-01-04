@@ -1,10 +1,11 @@
 #include "systems/ProjectileSystem.hpp"
 
 #include <SDL2/SDL.h>
-#include <vector>
+#include <iostream>
 #include <string>
 #include <utility>
-
+#include <vector>
+#include <algorithm>
 #include "Player/Enemy.hpp"
 #include "ecs/Zipper.hpp"
 #include "graphics/RenderComponents.hpp"
@@ -108,29 +109,27 @@ void projectile_collision_system(Registry& registry,
 
   for (auto&& [projIdx, projectile, projTransform, projCollider] :
        IndexedZipper(projectiles, transforms, colliders)) {
-    
     if (!projectile.isActive) continue;
 
     std::string ownerType = get_owner_type(projectile.ownerId);
     if (ownerType == "Unknown") {
-      std::cout << "Warning: Projectile " << projIdx 
-                << " has unknown owner " << projectile.ownerId << std::endl;
+      std::cout << "Warning: Projectile " << projIdx << " has unknown owner "
+                << projectile.ownerId << std::endl;
       continue;
     }
 
     for (auto&& [targetIdx, targetTransform, targetCollider] :
          IndexedZipper(transforms, colliders)) {
-      
       if (projIdx == targetIdx) continue;
-      
+
       if (targetIdx == projectile.ownerId) continue;
 
-      bool isTargetPlayer = (targetIdx < players.size() && 
-                            players[targetIdx].has_value());
-      bool isTargetEnemy = (targetIdx < enemies.size() && 
-                           enemies[targetIdx].has_value());
-      bool isTargetBoss = (targetIdx < bosses.size() && 
-                          bosses[targetIdx].has_value());
+      bool isTargetPlayer =
+          (targetIdx < players.size() && players[targetIdx].has_value());
+      bool isTargetEnemy =
+          (targetIdx < enemies.size() && enemies[targetIdx].has_value());
+      bool isTargetBoss =
+          (targetIdx < bosses.size() && bosses[targetIdx].has_value());
 
       bool validCollision = false;
 
@@ -146,8 +145,8 @@ void projectile_collision_system(Registry& registry,
 
       if (!validCollision) continue;
 
-      if (check_collision(projTransform, projCollider, 
-                         targetTransform, targetCollider)) {
+      if (check_collision(projTransform, projCollider, targetTransform,
+                          targetCollider)) {
         apply_projectile_damage(registry, targetIdx, projectile.damage);
         projectile.isActive = false;
         registry.kill_entity(Entity(projIdx));
@@ -189,8 +188,8 @@ Entity spawn_projectile(Registry& registry, Vector2 position, Vector2 direction,
   return projectile;
 }
 
-Entity spawn_player_projectile(Registry& registry, Vector2 position, Vector2 direction,
-                        float speed, size_t ownerId) {
+Entity spawn_player_projectile(Registry& registry, Vector2 position,
+                               Vector2 direction, float speed, size_t ownerId) {
   Entity projectile = registry.spawn_entity();
 
   Transform transform(position, {2.f, 2.f});
