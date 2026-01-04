@@ -53,7 +53,21 @@ CPMAddPackage(
     "SDL2MIXER_WAV ON"
 )
 
+CPMAddPackage(
+  NAME asio
+  GITHUB_REPOSITORY chriskohlhoff/asio
+  GIT_TAG asio-1-30-2
+)
+
+if(asio_ADDED)
+  add_library(asio INTERFACE)
+  target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
+  target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
+endif()
+
 file(GLOB_RECURSE SOURCES
+    ${PROJECT_SOURCE_DIR}/../Client/src/engine/inputs/*.cpp
+    ${PROJECT_SOURCE_DIR}/../Client/src/engine/network/*.cpp
     ${PROJECT_SOURCE_DIR}/src/ServerGame.cpp
     ${PROJECT_SOURCE_DIR}/src/main.cpp
     ${PROJECT_SOURCE_DIR}/../Shared/network/*.cpp
@@ -63,16 +77,16 @@ file(GLOB_RECURSE SOURCES
 add_executable(RTYPE_Server ${SOURCES})
 
 target_include_directories(RTYPE_Server PRIVATE
+    ${PROJECT_SOURCE_DIR}/../Client/src/engine/
     ${PROJECT_SOURCE_DIR}/../Shared
     ${PROJECT_SOURCE_DIR}/../Shared/components
-    ${PROJECT_SOURCE_DIR}/include/network
     ${PROJECT_SOURCE_DIR}/include/
-    ${PROJECT_SOURCE_DIR}/../Client/src/engine/
     ${PROJECT_SOURCE_DIR}/../Shared/systems/
     ${PROJECT_SOURCE_DIR}/../Shared/dynamicLibLoader/
     ${PROJECT_SOURCE_DIR}/
+    ${PROJECT_SOURCE_DIR}/../Client/src/engine/network/
 )
 
-target_link_libraries(RTYPE_Server PRIVATE SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer)
+target_link_libraries(RTYPE_Server PRIVATE SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer asio)
 
 target_compile_options(RTYPE_Server PRIVATE -Wall -Wextra)
