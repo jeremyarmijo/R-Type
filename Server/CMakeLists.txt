@@ -5,28 +5,11 @@ project(RTYPE_Server VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(cmake/CPM.cmake)
-
-CPMAddPackage(
-  NAME asio
-  GITHUB_REPOSITORY chriskohlhoff/asio
-  GIT_TAG asio-1-30-2
-  OPTIONS
-    "ASIO_STANDALONE ON"
-)
-
-if(asio_ADDED)
-  add_library(asio INTERFACE)
-  target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
-  target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
-endif()
-
 file(GLOB_RECURSE SOURCES
-    ${PROJECT_SOURCE_DIR}/src/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/network/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/ServerGame.cpp
+    ${PROJECT_SOURCE_DIR}/src/main.cpp
     ${PROJECT_SOURCE_DIR}/../Shared/network/*.cpp
     ${PROJECT_SOURCE_DIR}/../Shared/systems/*.cpp
-
 )
 
 add_executable(RTYPE_Server ${SOURCES})
@@ -38,9 +21,8 @@ target_include_directories(RTYPE_Server PRIVATE
     ${PROJECT_SOURCE_DIR}/include/
     ${PROJECT_SOURCE_DIR}/../Client/src/engine/
     ${PROJECT_SOURCE_DIR}/../Shared/systems/
+    ${PROJECT_SOURCE_DIR}/../Shared/dynamicLibLoader/
     ${PROJECT_SOURCE_DIR}/
 )
-
-target_link_libraries(RTYPE_Server PRIVATE asio)
 
 target_compile_options(RTYPE_Server PRIVATE -Wall -Wextra)
