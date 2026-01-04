@@ -1,0 +1,40 @@
+name: Build R-Type Project on Ubuntu
+on:
+    push:
+      branches: [ 96-add-crossplatform-build-with-cpm-package-manager ]
+    #   branches: [ main ]
+
+jobs:
+  build-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup CPM.cmake
+        run: |
+          cd Server/src
+          mkdir -p cmake
+          wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/CPM.cmake
+
+      - name: Build Server
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          source-dir: Server
+          build-dir: Server/build
+
+  build-client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup CPM.cmake
+        run: |
+          mkdir -p cmake
+          wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/CPM.cmake
+
+      - name: Build Client
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          build-dir: build
