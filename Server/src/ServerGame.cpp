@@ -19,11 +19,14 @@
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WaveSystem.hpp"
 #include "systems/WeaponSystem.hpp"
+#include "dynamicLibLoader/DLLoader.hpp"
 
 ServerGame::ServerGame()
     : serverRunning(true), gameStarted(false), difficulty(1) {
   SetupDecoder(decode);
   SetupEncoder(encode);
+  DLLoader<INetworkManager> loader("../src/build/libnetwork_server.so", "EntryPointLib");
+  networkManager = std::unique_ptr<INetworkManager>(loader.getInstance());
 }
 
 void ServerGame::HandleAuth(uint16_t playerId) {
@@ -44,7 +47,7 @@ void ServerGame::HandleAuth(uint16_t playerId) {
 }
 
 void ServerGame::SetupNetworkCallbacks() {
-  networkManager.SetMessageCallback([this](const NetworkMessage& msg) {
+  networkManager->SetMessageCallback([this](const NetworkMessage& msg) {
     Event ev = decode.decode(msg.data);
     uint16_t playerId = msg.client_id;
 
@@ -59,11 +62,11 @@ void ServerGame::SetupNetworkCallbacks() {
     }
   });
 
-  networkManager.SetConnectionCallback([this](uint16_t client_id) {
+  networkManager->SetConnectionCallback([this](uint16_t client_id) {
     std::cout << "Client " << client_id << " connected!" << std::endl;
   });
 
-  networkManager.SetDisconnectionCallback([this](uint16_t client_id) {
+  networkManager->SetDisconnectionCallback([this](uint16_t client_id) {
     std::cout << "Client " << client_id << " disconnected!" << std::endl;
     std::lock_guard<std::mutex> lock(lobbyMutex);
     auto it = m_players.find(client_id);
@@ -79,7 +82,7 @@ void ServerGame::SetupNetworkCallbacks() {
 }
 
 bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff, const std::string& host) {
-  if (!networkManager.Initialize(tcpPort, udpPort, host)) {
+  if (!networkManager->Initialize(tcpPort, udpPort, host)) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
   }
@@ -135,7 +138,6 @@ void ServerGame::InitWorld() {
 
 void ServerGame::StartGame() {
   gameStarted = true;
-  networkManager.SetGameStarted(gameStarted);
   std::cout << "Lobby full! Starting the game!!!!\n";
   gameThread = std::thread(&ServerGame::GameLoop, this);
 }
@@ -244,16 +246,16 @@ void ServerGame::SendPacket() {
     }
     std::cout << std::endl;*/
     if (clientId == 0) {
-      if (protocol == 0) networkManager.BroadcastUDP(msg);
-      if (protocol == 2) networkManager.BroadcastTCP(msg);
+      if (protocol == 0) networkManager->BroadcastUDP(msg);
+      if (protocol == 2) networkManager->BroadcastTCP(msg);
       continue;
     }
     if (protocol == 0) {
-      networkManager.SendTo(msg, true);
+      networkManager->SendTo(msg, true);
       continue;
     }
     if (protocol == 2) {
-      networkManager.SendTo(msg, false);
+      networkManager->SendTo(msg, false);
       continue;
     }
   }
@@ -261,7 +263,7 @@ void ServerGame::SendPacket() {
 
 void ServerGame::Run() {
   while (serverRunning) {
-    networkManager.Update();
+    networkManager->Update();
     SendPacket();
     if (!gameStarted && gameThread.joinable()) {
       gameThread.join();
@@ -275,7 +277,7 @@ void ServerGame::Shutdown() {
   serverRunning = false;
   if (gameThread.joinable()) gameThread.join();
 
-  networkManager.Shutdown();
+  networkManager->Shutdown();
 }
 
 void ServerGame::ReceivePlayerInputs() {
