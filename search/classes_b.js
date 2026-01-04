@@ -1,9 +1,7 @@
 var searchData=
 [
-  ['scene_0',['Scene',['../classScene.html',1,'']]],
-  ['scenedata_1',['SceneData',['../classSceneData.html',1,'']]],
-  ['scenemanager_2',['SceneManager',['../classSceneManager.html',1,'']]],
-  ['servergame_3',['ServerGame',['../classServerGame.html',1,'']]],
-  ['servernetworkmanager_4',['ServerNetworkManager',['../classServerNetworkManager.html',1,'']]],
-  ['sprite_5',['Sprite',['../structSprite.html',1,'']]]
+  ['mainmenu_0',['MainMenu',['../classMainMenu.html',1,'']]],
+  ['multiplayerskinmanager_1',['MultiplayerSkinManager',['../classMultiplayerSkinManager.html',1,'']]],
+  ['mygame_2',['MyGame',['../classMyGame.html',1,'']]],
+  ['mygamescene_3',['MyGameScene',['../classMyGameScene.html',1,'']]]
 ];

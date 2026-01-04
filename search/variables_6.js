@@ -1,29 +1,7 @@
 var searchData=
 [
-  ['m_5faction1_0',['m_action1',['../classInputManager.html#abff9090959fc326fcd63edd546a6ecc7',1,'InputManager']]],
-  ['m_5faction2_1',['m_action2',['../classInputManager.html#a2dd476de65318de04c7c754fdddefae4',1,'InputManager']]],
-  ['m_5fanchor_2',['m_anchor',['../classUIElement.html#ad0b27e32682a41480b0c457fb666a26d',1,'UIElement']]],
-  ['m_5fenabled_3',['m_enabled',['../classUIElement.html#a21882f9c12bc4d7fac46b02c9e1c437d',1,'UIElement']]],
-  ['m_5fengine_4',['m_engine',['../classScene.html#a0b6bc2a9451ac97c4fbf78fb8af2e96a',1,'Scene']]],
-  ['m_5flayer_5',['m_layer',['../classUIElement.html#a6481f32bfa7065c013d27912e315ea57',1,'UIElement']]],
-  ['m_5fmovedown_6',['m_moveDown',['../classInputManager.html#a4437e72b5988e672af151a42e3753f7a',1,'InputManager']]],
-  ['m_5fmoveleft_7',['m_moveLeft',['../classInputManager.html#a6f2b919a6bc1a1ac021889fa0dee03a5',1,'InputManager']]],
-  ['m_5fmoveright_8',['m_moveRight',['../classInputManager.html#aa56faa8e3db9ba17b68a55a1e3b4e25b',1,'InputManager']]],
-  ['m_5fmoveup_9',['m_moveUp',['../classInputManager.html#ab6d72a8ca2687485cff1f5e515bf5b6a',1,'InputManager']]],
-  ['m_5fname_10',['m_name',['../classScene.html#a59157f3f1fed1c8edd2accb000060f17',1,'Scene']]],
-  ['m_5fprevaction1_11',['m_prevAction1',['../classInputManager.html#a80284d9b31474a03320091e8db5f3338',1,'InputManager']]],
-  ['m_5fprevaction2_12',['m_prevAction2',['../classInputManager.html#a1a4f009f620e1eb69c193c0f96ac31ae',1,'InputManager']]],
-  ['m_5fprevmovedown_13',['m_prevMoveDown',['../classInputManager.html#aa7cb6132a9866ed0c3a0f27c6fe6d147',1,'InputManager']]],
-  ['m_5fprevmoveleft_14',['m_prevMoveLeft',['../classInputManager.html#a0244001dfe844d7b115c854f762a3da8',1,'InputManager']]],
-  ['m_5fprevmoveright_15',['m_prevMoveRight',['../classInputManager.html#afcb4eddf694c55f82f66282921efda2c',1,'InputManager']]],
-  ['m_5fprevmoveup_16',['m_prevMoveUp',['../classInputManager.html#a22b0a0f6df6854efa96e2d69d974dd52',1,'InputManager']]],
-  ['m_5frect_17',['m_rect',['../classUIElement.html#aa7175e78d7166b498b99c20a09cd0197',1,'UIElement']]],
-  ['m_5fscenemanager_18',['m_sceneManager',['../classScene.html#a762a971509d78c0ce17ca06421b33ff7',1,'Scene']]],
-  ['m_5fuimanager_19',['m_uiManager',['../classScene.html#ae9062ed3fbe0ed2f538789be73d844e4',1,'Scene']]],
-  ['m_5fvisible_20',['m_visible',['../classUIElement.html#aa146ad861409c284acd7f9e7c8343af7',1,'UIElement']]],
-  ['max_5fplayers_21',['MAX_PLAYERS',['../GameEngine_8hpp.html#a1009736152c3ecbf679637a326ad16d1',1,'GameEngine.hpp']]],
-  ['movedown_22',['moveDown',['../structInputState.html#af1d4adedb765c5a8369c47f95116e53d',1,'InputState']]],
-  ['moveleft_23',['moveLeft',['../structInputState.html#a65c7405487c960f094f72d0996af911e',1,'InputState']]],
-  ['moveright_24',['moveRight',['../structInputState.html#acefcf7585cd7612551abd3f435f51a45',1,'InputState']]],
-  ['moveup_25',['moveUp',['../structInputState.html#aa16e48ae04c143c2171631f1f19357a4',1,'InputState']]]
+  ['hasforce_0',['hasForce',['../structPlayerEntity.html#a49b77b67e9696191f085c01192953c9b',1,'PlayerEntity']]],
+  ['height_1',['height',['../structBoxCollider.html#a64c20ce8197835c395f9d9f39fd6ac21',1,'BoxCollider']]],
+  ['hp_2',['hp',['../structBoss.html#a0517628e5cdd82ee25abae40f0fc3b34',1,'Boss::hp'],['../structPlayerState.html#a12ddc6ce91f2180e81363a3863edbacf',1,'PlayerState::hp'],['../structEnemyState.html#a8bbc5abc73cc8cf895d7d04cf4ce87fc',1,'EnemyState::hp'],['../structBossUpdate.html#a6d1b69283d1637e12cc37f8921722126',1,'BossUpdate::hp'],['../structGAME__STATE_1_1PlayerState.html#a0437e6b070fba5ca379080c194af3dd3',1,'GAME_STATE::PlayerState::hp'],['../structGAME__STATE_1_1EnemyState.html#a71888f2864034061cbd371903f66acaf',1,'GAME_STATE::EnemyState::hp'],['../structBOSS__UPDATE.html#a51483c5c0294bd4e7efa4225240fe3a2',1,'BOSS_UPDATE::hp']]],
+  ['hpremaining_3',['hpremaining',['../structEnemyHit.html#a241aafbac28c3dbc0aff5261bdec8cbe',1,'EnemyHit::hpRemaining'],['../structENEMY__HIT.html#af7f3b709a82ed89a0717c380131bb6a0',1,'ENEMY_HIT::hpRemaining']]]
 ];

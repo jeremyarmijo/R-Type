@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['main_2ecpp_0',['main.cpp',['../Main_8cpp.html',1,'(Global Namespace)'],['../main_8cpp.html',1,'(Global Namespace)']]],
-  ['maingame_2ehpp_1',['MainGame.hpp',['../MainGame_8hpp.html',1,'']]],
-  ['mainmenu_2ehpp_2',['MainMenu.hpp',['../MainMenu_8hpp.html',1,'']]],
-  ['multiplayerskinmanager_2ehpp_3',['MultiplayerSkinManager.hpp',['../MultiplayerSkinManager_8hpp.html',1,'']]]
+  ['inetworkmanager_2ehpp_0',['INetworkManager.hpp',['../INetworkManager_8hpp.html',1,'']]],
+  ['inputmanager_2ecpp_1',['InputManager.cpp',['../InputManager_8cpp.html',1,'']]],
+  ['inputmanager_2ehpp_2',['InputManager.hpp',['../InputManager_8hpp.html',1,'']]],
+  ['inputsystem_2ecpp_3',['InputSystem.cpp',['../InputSystem_8cpp.html',1,'']]],
+  ['inputsystem_2ehpp_4',['InputSystem.hpp',['../InputSystem_8hpp.html',1,'']]],
+  ['items_2ehpp_5',['Items.hpp',['../Items_8hpp.html',1,'']]]
 ];

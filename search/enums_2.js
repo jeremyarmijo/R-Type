@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['textalign_0',['TextAlign',['../UIText_8hpp.html#abdd7e81d0fb7db7f8a4e6465765bac0b',1,'UIText.hpp']]],
-  ['type_1',['Type',['../structConnectionEvent.html#afefdc7403d60df01944ff943e7b29f11',1,'ConnectionEvent']]]
+  ['collisioncategory_0',['CollisionCategory',['../CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249',1,'CollisionController.hpp']]]
 ];

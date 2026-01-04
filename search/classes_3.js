@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['handleclient_0',['HandleClient',['../classHandleClient.html',1,'']]]
+  ['decoder_0',['Decoder',['../classDecoder.html',1,'']]]
 ];

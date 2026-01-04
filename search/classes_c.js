@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['tcpserver_0',['TCPServer',['../classTCPServer.html',1,'']]],
-  ['texturemanager_1',['TextureManager',['../classTextureManager.html',1,'']]]
+  ['networkmanager_0',['NetworkManager',['../classNetworkManager.html',1,'']]],
+  ['networkmessage_1',['NetworkMessage',['../structNetworkMessage.html',1,'']]]
 ];

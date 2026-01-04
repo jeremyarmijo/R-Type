@@ -92,7 +92,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;utility&gt;</span></div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="AudioManager_8hpp.html">audio/AudioManager.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;ecs/Registry.hpp&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;<a class="code" href="Registry_8hpp.html">ecs/Registry.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;<a class="code" href="AnimationManager_8hpp.html">graphics/AnimationManager.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;<a class="code" href="TextureManager_8hpp.html">graphics/TextureManager.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &quot;<a class="code" href="NetworkManager_8hpp.html">include/NetworkManager.hpp</a>&quot;</span></div>
@@ -165,14 +165,14 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classScene.html#ae74bfa185aa402606bbfa2de62aacfec">QuitGame</a>();</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> <span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>  Registry&amp; <a class="code hl_function" href="classScene.html#ab1cd439d197f5477a94bd484948855e3">GetRegistry</a>();</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>  <a class="code hl_class" href="classRegistry.html">Registry</a>&amp; <a class="code hl_function" href="classScene.html#ab1cd439d197f5477a94bd484948855e3">GetRegistry</a>();</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  <a class="code hl_class" href="classTextureManager.html">TextureManager</a>&amp; <a class="code hl_function" href="classScene.html#a6e60de0ab534fdc3483b3aae0ee96cb1">GetTextures</a>();</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>  <a class="code hl_class" href="classAnimationManager.html">AnimationManager</a>&amp; <a class="code hl_function" href="classScene.html#aeab7d50e10fcf612dfd8f65200272be8">GetAnimations</a>();</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>  <a class="code hl_class" href="classInputManager.html">InputManager</a>&amp; <a class="code hl_function" href="classScene.html#a67c5ad391b06cc1431b9baad97fea040">GetInput</a>();</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>  <a class="code hl_class" href="classNetworkManager.html">NetworkManager</a>&amp; <a class="code hl_function" href="classScene.html#ae766ac706b8fa189f50b85c19d018491">GetNetwork</a>();</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <a class="code hl_class" href="classAudioManager.html">AudioManager</a>&amp; <a class="code hl_function" href="classScene.html#afdfd785f25b783decca01c04c6bfa0e9">GetAudio</a>();</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>  SDL_Renderer* <a class="code hl_function" href="classScene.html#a4d53c4853bd9368d4c15b3c702ac688a">GetRenderer</a>();</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>  Vector2 <a class="code hl_function" href="classScene.html#a614dd05c183731ea6d91d4c405f65b81">GetCameraPosition</a>();</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>  <a class="code hl_struct" href="structVector2.html">Vector2</a> <a class="code hl_function" href="classScene.html#a614dd05c183731ea6d91d4c405f65b81">GetCameraPosition</a>();</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">   84</a></span>  <a class="code hl_class" href="classUIManager.html">UIManager</a>&amp; <a class="code hl_function" href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">GetUI</a>() { <span class="keywordflow">return</span> <a class="code hl_variable" href="classScene.html#ae9062ed3fbe0ed2f538789be73d844e4">m_uiManager</a>; }</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>  <a class="code hl_class" href="classSceneData.html">SceneData</a>&amp; <a class="code hl_function" href="classScene.html#a9035ec26273285ed788afff83e3616a5">GetSceneData</a>();</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
@@ -188,7 +188,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>  std::unordered_map&lt;std::string, std::unique_ptr&lt;Scene&gt;&gt; m_scenes;</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>  <a class="code hl_class" href="classScene.html">Scene</a>* m_currentScene;</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>  <a class="code hl_class" href="classScene.html">Scene</a>* m_nextScene;</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  Registry* m_registry;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  <a class="code hl_class" href="classRegistry.html">Registry</a>* m_registry;</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  <a class="code hl_class" href="classSceneData.html">SceneData</a> m_sceneData;</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> <span class="keyword">public</span>:</div>
@@ -197,7 +197,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>      : m_currentScene(nullptr), m_nextScene(nullptr), m_registry(nullptr) {}</div>
 </div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno"><a class="line" href="classSceneManager.html#a9499fce3df7d7d0f2428de8a8463651e">  104</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classSceneManager.html#a9499fce3df7d7d0f2428de8a8463651e">SetRegistry</a>(Registry* registry) { m_registry = registry; }</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno"><a class="line" href="classSceneManager.html#a9499fce3df7d7d0f2428de8a8463651e">  104</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classSceneManager.html#a9499fce3df7d7d0f2428de8a8463651e">SetRegistry</a>(<a class="code hl_class" href="classRegistry.html">Registry</a>* registry) { m_registry = registry; }</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span>... Args&gt;</div>
 <div class="foldopen" id="foldopen00107" data-start="{" data-end="}">
@@ -243,6 +243,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="aAudioManager_8hpp_html"><div class="ttname"><a href="AudioManager_8hpp.html">AudioManager.hpp</a></div></div>
 <div class="ttc" id="aInputManager_8hpp_html"><div class="ttname"><a href="InputManager_8hpp.html">InputManager.hpp</a></div></div>
 <div class="ttc" id="aNetworkManager_8hpp_html"><div class="ttname"><a href="NetworkManager_8hpp.html">NetworkManager.hpp</a></div></div>
+<div class="ttc" id="aRegistry_8hpp_html"><div class="ttname"><a href="Registry_8hpp.html">Registry.hpp</a></div></div>
 <div class="ttc" id="aTextureManager_8hpp_html"><div class="ttname"><a href="TextureManager_8hpp.html">TextureManager.hpp</a></div></div>
 <div class="ttc" id="aUIManager_8hpp_html"><div class="ttname"><a href="UIManager_8hpp.html">UIManager.hpp</a></div></div>
 <div class="ttc" id="aclassAnimationManager_html"><div class="ttname"><a href="classAnimationManager.html">AnimationManager</a></div><div class="ttdef"><b>Definition</b> AnimationManager.hpp:21</div></div>
@@ -250,6 +251,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="aclassGameEngine_html"><div class="ttname"><a href="classGameEngine.html">GameEngine</a></div><div class="ttdef"><b>Definition</b> GameEngine.hpp:24</div></div>
 <div class="ttc" id="aclassInputManager_html"><div class="ttname"><a href="classInputManager.html">InputManager</a></div><div class="ttdef"><b>Definition</b> InputManager.hpp:27</div></div>
 <div class="ttc" id="aclassNetworkManager_html"><div class="ttname"><a href="classNetworkManager.html">NetworkManager</a></div><div class="ttdef"><b>Definition</b> NetworkManager.hpp:18</div></div>
+<div class="ttc" id="aclassRegistry_html"><div class="ttname"><a href="classRegistry.html">Registry</a></div><div class="ttdef"><b>Definition</b> Registry.hpp:15</div></div>
 <div class="ttc" id="aclassSceneData_html"><div class="ttname"><a href="classSceneData.html">SceneData</a></div><div class="ttdef"><b>Definition</b> SceneManager.hpp:22</div></div>
 <div class="ttc" id="aclassSceneData_html_abc57c740e07d0bf90efaf9225cd89822"><div class="ttname"><a href="classSceneData.html#abc57c740e07d0bf90efaf9225cd89822">SceneData::Clear</a></div><div class="ttdeci">void Clear()</div><div class="ttdef"><b>Definition</b> SceneManager.hpp:50</div></div>
 <div class="ttc" id="aclassSceneData_html_ac8d498f281de294198485f5588d5a66e"><div class="ttname"><a href="classSceneData.html#ac8d498f281de294198485f5588d5a66e">SceneData::Has</a></div><div class="ttdeci">bool Has(const std::string &amp;key) const</div><div class="ttdef"><b>Definition</b> SceneManager.hpp:46</div></div>
@@ -297,6 +299,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="aclassTextureManager_html"><div class="ttname"><a href="classTextureManager.html">TextureManager</a></div><div class="ttdef"><b>Definition</b> TextureManager.hpp:8</div></div>
 <div class="ttc" id="aclassUIManager_html"><div class="ttname"><a href="classUIManager.html">UIManager</a></div><div class="ttdef"><b>Definition</b> UIManager.hpp:12</div></div>
 <div class="ttc" id="aclassUIManager_html_a02902918c48b7738f66d06f1af9f0515"><div class="ttname"><a href="classUIManager.html#a02902918c48b7738f66d06f1af9f0515">UIManager::Clear</a></div><div class="ttdeci">void Clear()</div><div class="ttdef"><b>Definition</b> UIManager.hpp:37</div></div>
+<div class="ttc" id="astructVector2_html"><div class="ttname"><a href="structVector2.html">Vector2</a></div><div class="ttdef"><b>Definition</b> Physics2D.hpp:6</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

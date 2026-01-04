@@ -1,9 +1,12 @@
 <map id="/home/runner/work/R&#45;Type/R&#45;Type/Client/src/engine/graphics/RenderComponents.hpp" name="/home/runner/work/R&#45;Type/R&#45;Type/Client/src/engine/graphics/RenderComponents.hpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="63,5,246,75"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,123,101,148"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,77,78,115,74,111,116,73"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="125,123,184,148"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="157,75,157,109,152,109,152,75"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="209,123,410,148"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="212,73,280,113,277,118,209,77"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,188,75"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="41,196,137,221"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,76,66,99,58,123,56,135,58,147,75,184,70,186,53,149,51,135,53,122,61,97,73,74"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="67,123,126,148"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="99,75,99,109,94,109,94,75"/>
+<area shape="rect" id="Node000004" href="$Physics2D_8hpp.html" title=" " alt="" coords="151,123,352,148"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="154,73,222,113,219,118,151,77"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="226,150,129,193,127,188,224,146"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="220,196,283,221"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="254,148,254,182,249,182,249,148"/>
 </map>

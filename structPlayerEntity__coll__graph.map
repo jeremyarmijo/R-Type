@@ -1,0 +1,10 @@
+<map id="PlayerEntity" name="PlayerEntity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,269,107,295"/>
+<area shape="rect" id="Node000002" href="$structVector2.html" title=" " alt="" coords="21,5,91,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="59,44,59,269,53,269,53,44"/>
+<area shape="rect" id="Node000004" href="$structProjectile.html" title=" " alt="" coords="72,93,155,119"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="74,41,108,91,103,94,69,44"/>
+<area shape="rect" id="Node000003" href="$structWeapon.html" title=" " alt="" coords="73,181,148,207"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="98,220,66,270,61,267,94,217"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="115,133,114,181,108,181,110,132"/>
+</map>

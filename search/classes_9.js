@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['optionsscene_0',['OptionsScene',['../classOptionsScene.html',1,'']]]
+  ['keybindings_0',['KeyBindings',['../classKeyBindings.html',1,'']]]
 ];
