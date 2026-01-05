@@ -25,10 +25,13 @@
 struct lobby_list {
   uint16_t lobby_id;
   std::string mdp;
+  uint8_t difficulty = 1;
   uint8_t nb_player;
+  uint8_t max_players = 4;
   std::vector<std::tuple<uint16_t, bool>> players_list;
   bool players_ready = false;
   bool gameRuning = false;
+  bool hasPassword = false;
   std::vector<LevelComponent> levelsData;
   int currentLevelIndex = 0;
   bool waitingForNextLevel = false;
@@ -67,11 +70,20 @@ class ServerGame {
   std::queue<std::tuple<Action, uint16_t>>
       actionQueue;  ///< Queue of actions to send to clients
 
-  int difficulty;         ///< Game difficulty setting
   std::mutex queueMutex;  ///< Mutex for thread-safe queue access
-  void CreateLobby(uint16_t playerId, std::string mdp);
+
+  void CreateLobby(uint16_t playerId, std::string mdp, uint8_t difficulty);
   void JoinLobby(uint16_t playerId, uint16_t lobbyId, std::string mdp);
   void HandlePayerReady(uint16_t playerId);
+  
+  void HandleLobbyCreate(uint16_t playerId, Event& ev);
+  void HandleLobbyJoinRequest(uint16_t playerId, Event& ev);
+  void HandleLobbyListRequest(uint16_t playerId);
+  void HandleLobbyLeave(uint16_t playerId);
+  void SendLobbyUpdate(lobby_list& lobby);
+  void RemovePlayerFromLobby(uint16_t playerId);
+  lobby_list* FindPlayerLobby(uint16_t playerId);
+
   /**
    * @brief Receive and process player input events
    */
