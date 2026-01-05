@@ -1,4 +1,4 @@
-                   R-Type Network Protocol Specification
+R-Type Network Protocol Specification
 
 Status of This Memo
    This document specifies the R-Type Network Protocol, a custom
@@ -18,9 +18,18 @@ Table of Contents
    6. TCP Messages
        6.1 LOGIN_REQUEST (0x01)
        6.2 LOGIN_RESPONSE (0x02)
-       6.3 GAME_START (0x0F)
-       6.4 GAME_END (0x10)
-       6.5 ERROR (0x12)
+       6.3 LOBBY_CREATE (0x03)
+       6.4 LOBBY_JOIN_REQUEST (0x04)
+       6.5 LOBBY_JOIN_RESPONSE (0x05)
+       6.6 LOBBY_LIST_REQUEST (0x06)
+       6.7 LOBBY_LIST_RESPONSE (0x07)
+       6.8 PLAYER_READY (0x08)
+       6.9 LOBBY_UPDATE (0x09)
+       6.10 LOBBY_LEAVE (0x0A)
+       6.11 LOBBY_START (0x0B)
+       6.12 GAME_START (0x0F)
+       6.13 GAME_END (0x10)
+       6.14 ERROR (0x12)
    7. UDP Messages
        7.1 PLAYER_INPUT (0x20)
        7.2 GAME_STATE (0x21)
@@ -110,14 +119,114 @@ Offset  Field       Size   Description
    - 0x1003: Already connected
    - 0x1004: Server full
 
-6.3 GAME_START (0x0F)
+6.3 LOBBY_CREATE (0x03)
+   Direction: Client → Server
+
+Offset  Field       Size   Description
+0       passwordLen 8b     Password length (0 = no password)
+1       password    N      UTF-8 password (optional)
+1+N     difficulty  8b     Game difficulty (1-3)
+
+6.4 LOBBY_JOIN_REQUEST (0x04)
+   Direction: Client → Server
+
+Offset  Field       Size   Description
+0       lobbyId     16b    Target lobby identifier
+2       passwordLen 8b     Password length
+3       password    N      UTF-8 password
+
+6.5 LOBBY_JOIN_RESPONSE (0x05)
+   Direction: Server → Client
+
+   Success Response:
+Offset  Field       Size   Description
+0       success     8b     MUST be 1
+1       lobbyId     16b    Joined lobby ID
+3       playerId    16b    Assigned player ID
+5       playerCount 8b     Current number of players
+6       players     N      Array of player info
+
+   Each player info entry (variable length):
+Field       Size   Description
+playerId    16b    Player identifier
+ready       8b     Ready state (0=not ready, 1=ready)
+usernameLen 8b     Username length
+username    N      UTF-8 username
+
+   Failure Response:
+Offset  Field       Size   Description
+0       success     8b     MUST be 0
+1       errorCode   16b    Error code
+3       messageLen  8b     Error message length
+4       message     N      UTF-8 error message
+
+   Defined error codes:
+   - 0x2010: Lobby not found
+   - 0x2011: Invalid password
+   - 0x2012: Lobby is full
+   - 0x2013: Player already in a lobby
+   - 0x2014: Game already started
+
+6.6 LOBBY_LIST_REQUEST (0x06)
+   Direction: Client → Server
+
+   No payload - message header only
+
+6.7 LOBBY_LIST_RESPONSE (0x07)
+   Direction: Server → Client
+
+Offset  Field       Size   Description
+0       lobbyCount  8b     Number of lobbies
+1       lobbies     N      Array of lobby info
+
+   Each lobby info entry is 7 bytes:
+Field         Size   Description
+lobbyId       16b    Lobby identifier
+playerCount   8b     Current player count
+maxPlayers    8b     Maximum players (always 4)
+difficulty    8b     Game difficulty (1-3)
+isStarted     8b     Game started (0=no, 1=yes)
+hasPassword   8b     Password protected (0=no, 1=yes)
+
+6.8 PLAYER_READY (0x08)
+   Direction: Client → Server
+
+Offset  Field       Size   Description
+0       ready       8b     Ready state (0=not ready, 1=ready)
+
+6.9 LOBBY_UPDATE (0x09)
+   Direction: Server → Clients (Broadcast)
+
+Offset  Field       Size   Description
+0       playerCount 8b     Current number of players
+1       players     N      Array of player info
+
+   Each player info entry (variable length):
+Field       Size   Description
+playerId    16b    Player identifier
+ready       8b     Ready state (0=not ready, 1=ready)
+usernameLen 8b     Username length
+username    N      UTF-8 username
+
+6.10 LOBBY_LEAVE (0x0A)
+   Direction: Client → Server
+
+   No payload - message header only
+
+6.11 LOBBY_START (0x0B)
+   Direction: Server → Clients (Broadcast)
+
+Offset  Field       Size   Description
+0       countdown   8b     Seconds until game starts
+
+6.12 GAME_START (0x0F)
    Direction: Server → Clients
 Field        Size   Description
 playerSpawnX 32b    Initial X position
 playerSpawnY 32b    Initial Y position
 scrollSpeed  32b    Initial scroll speed
 
-6.4 GAME_END (0x10)
+6.13 GAME_END (0x10)
    Direction: Server → Clients
 Field        Size   Description
 victory     8b      Match result
@@ -130,7 +239,7 @@ playerId   16b    Player ID
 score      32b    Final score
 rank       8b     Player rank
 
-6.5 ERROR (0x12)
+6.14 ERROR (0x12)
    Direction: Server → Client
 Field       Size   Description
 errorCode   16b    Error code
@@ -199,6 +308,15 @@ hpRemaining 16b    Remaining HP
 TCP:
 0x01 LOGIN_REQUEST
 0x02 LOGIN_RESPONSE
+0x03 LOBBY_CREATE
+0x04 LOBBY_JOIN_REQUEST
+0x05 LOBBY_JOIN_RESPONSE
+0x06 LOBBY_LIST_REQUEST
+0x07 LOBBY_LIST_RESPONSE
+0x08 PLAYER_READY
+0x09 LOBBY_UPDATE
+0x0A LOBBY_LEAVE
+0x0B LOBBY_START
 0x0F GAME_START
 0x10 GAME_END
 0x12 ERROR
