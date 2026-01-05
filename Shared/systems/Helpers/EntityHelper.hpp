@@ -8,6 +8,8 @@
 #include "Player/EnemySpawn.hpp"
 #include "Player/PlayerEntity.hpp"
 #include "Player/Projectile.hpp"
+#include "components/BossPart.hpp"
+#include "components/Levels.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "inputs/InputManager.hpp"
@@ -86,4 +88,24 @@ inline Entity createEnemySpawner(Registry& registry,
       spawner, EnemySpawning(std::move(points), interval, maxEnemies, type));
 
   return spawner;
+}
+
+inline Entity createLevelEntity(Registry& registry,
+                                const LevelComponent& level) {
+  Entity lvlEntity = registry.spawn_entity();
+  registry.add_component<LevelComponent>(lvlEntity, LevelComponent(level));
+
+  return lvlEntity;
+}
+
+inline Entity createBossPart(Registry& registry, Entity bossEntity,
+                             const Vector2& startPos, Vector2 offset,
+                             int segmentIndex, float timeOffset, int hp,
+                             Vector2 size = {30.f, 30.f}) {
+  Entity part = registry.spawn_entity();
+  registry.add_component<Transform>(part, Transform{startPos});
+  registry.add_component<BoxCollider>(part, BoxCollider(size.x, size.y));
+  registry.add_component<BossPart>(
+      part, BossPart(bossEntity, offset, segmentIndex, timeOffset, hp));
+  return part;
 }

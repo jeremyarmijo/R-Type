@@ -110,7 +110,6 @@ void Projectile_movement_system(SparseArray<Transform>& transforms,
     transform.position += rigidbody.velocity * deltaTime;
 
     if (proj.currentLife > 2.f) {
-      // registry knows entity id : convert index -> Entity
       registry.kill_entity(registry.entity_from_index(i));
     }
   }
@@ -119,7 +118,6 @@ void Projectile_movement_system(SparseArray<Transform>& transforms,
 void spawn_basic_enemy_for_boss(Registry& registry) {
   const float MIN_Y = 30.0f;
   const float MAX_Y = 550.0f;
-
   const float SPAWN_X = 750.0f;
 
   float spawnY = MIN_Y + static_cast<float>(rand()) /
@@ -167,18 +165,41 @@ void boss_movement_system(Registry& registry,
         }
       } break;
 
-      case BossType::Snake: {
-        rigidbody.velocity.x = -boss.speed;
-        rigidbody.velocity.y = std::sin(boss.timer * 8.f) * boss.amplitude;
+      case BossType::Gomander_snake: {
+        if (boss.direction.x == 0.f) {
+          boss.direction.x = -1.f;
+        }
+        rigidbody.velocity.x = boss.direction.x * boss.speed;
+
+        if (transform.position.x <= 200.0f) {
+          boss.direction.x = 1.f;  // Repart à droite
+        }
+        if (transform.position.x >= 650.0f) {
+          boss.direction.x = -1.f;  // Repart à gauche
+        }
+        rigidbody.velocity.y =
+            std::sin(boss.timer * 3.f) * boss.amplitude * 3.f;
       } break;
 
       case BossType::BydoEye: {
         rigidbody.velocity = {0.f, 0.f};
       } break;
 
-      case BossType::Battleship: {
-        rigidbody.velocity.x = -boss.speed * 0.5f;
-        rigidbody.velocity.y = std::sin(boss.timer * 2.f) * 20.f;
+      case BossType::Bydo_Battleship: {
+        if (boss.direction.x == 0.f) {
+          boss.direction.x = -1.f;  // Commence par aller à gauche
+        }
+        rigidbody.velocity.x =
+            boss.direction.x * boss.speed * 0.3f;  // Très lent
+
+        if (transform.position.x <= 400.0f) {
+          boss.direction.x = 1.f;  // Repart à droite
+        }
+        if (transform.position.x >= 700.0f) {
+          boss.direction.x = -1.f;  // Repart à gauche
+        }
+        rigidbody.velocity.y =
+            std::sin(boss.timer * 1.5f) * 15.f;  // Lent et léger
       } break;
 
       case BossType::FinalBoss: {
@@ -208,16 +229,53 @@ void boss_movement_system(Registry& registry,
           spawn_boss_projectile(registry, {transform.position.x, y3}, entityId);
           boss.timer += 0.5f;
         }
-
       } break;
     }
-    // transform.position += rigidbody.velocity * deltaTime;
     if (boss.type == BossType::BigShip) {
       if (boss.timer > 10.f && boss.phase == BossPhase::Phase1)
         boss.phase = BossPhase::Phase2;
 
       if (boss.timer > 20.f && boss.phase == BossPhase::Phase2)
         boss.phase = BossPhase::Phase3;
+    }
+  }
+}
+
+void boss_part_system(Registry& registry, float deltaTime) {
+  auto& parts = registry.get_components<BossPart>();
+  auto& transforms = registry.get_components<Transform>();
+  auto& bosses = registry.get_components<Boss>();
+
+  for (size_t i = 0; i < parts.size(); ++i) {
+    if (!parts[i].has_value()) continue;
+    if (i >= transforms.size() || !transforms[i].has_value()) continue;
+
+    BossPart& part = parts[i].value();
+    if (!part.alive) continue;
+
+    Transform& partTransform = transforms[i].value();
+
+    size_t bossId = static_cast<size_t>(part.bossEntity);
+    if (bossId >= bosses.size() || !bosses[bossId].has_value()) continue;
+    if (bossId >= transforms.size() || !transforms[bossId].has_value())
+      continue;
+
+    Boss& boss = bosses[bossId].value();
+    Transform& bossTransform = transforms[bossId].value();
+
+    if (part.segmentIndex >= 0) {
+      float delayedTimer = boss.timer - part.timeOffset;
+      float offsetX = (part.segmentIndex + 1) * 35.f;
+
+      partTransform.position.x =
+          bossTransform.position.x + (boss.direction.x * -1.f) * offsetX;
+      partTransform.position.y =
+          bossTransform.position.y +
+          std::sin(delayedTimer * 5.f) * boss.amplitude * 1.5f;
+
+    } else {
+      partTransform.position.x = bossTransform.position.x + part.offset.x;
+      partTransform.position.y = bossTransform.position.y + part.offset.y;
     }
   }
 }
