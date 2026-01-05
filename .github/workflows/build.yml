@@ -1,0 +1,71 @@
+name: Build R-Type Project on Ubuntu
+on:
+    push:
+      branches: [ main ]
+
+jobs:
+  build-server-gamelogic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4.2.2
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfreetype6-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev libxxf86vm-dev libxss-dev
+
+      - name: Setup CPM.cmake
+        run: |
+          cd Server/
+          mkdir -p cmake
+          wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/CPM.cmake
+
+      - name: Build Server
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          source-dir: Server
+          build-dir: Server/build
+  build-server-network:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4.2.2
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfreetype6-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev libxxf86vm-dev libxss-dev
+
+      - name: Setup CPM.cmake
+        run: |
+          cd Server/src
+          mkdir -p cmake
+          wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/CPM.cmake
+
+      - name: Build Server
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          source-dir: Server/src
+          build-dir: Server/src/build
+
+  build-client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4.2.2
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfreetype6-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev libxxf86vm-dev libxss-dev libasound2-dev libpulse-dev libsdl2-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev
+
+      - name: Setup CPM.cmake
+        run: |
+          mkdir -p cmake
+          wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/CPM.cmake
+
+      - name: Build Client
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          build-dir: build

@@ -6,6 +6,7 @@
 #include <thread>
 #include <tuple>
 #include <vector>
+#include <memory>
 
 #include "ecs/Registry.hpp"
 #include "network/DecodeFunc.hpp"
@@ -34,7 +35,7 @@ class ServerGame {
   void Shutdown();
 
  private:
-  ServerNetworkManager networkManager; ///< Network communication manager
+  std::unique_ptr<INetworkManager> networkManager; ///< Network communication manager
   Decoder decode;                      ///< Decoder for incoming network messages
   Encoder encode;                      ///< Encoder for outgoing network messages
   Registry registry;                   ///< ECS registry for game entities
