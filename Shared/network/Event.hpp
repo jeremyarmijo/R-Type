@@ -91,6 +91,9 @@ struct GAME_STATE {
 
 struct AUTH {
   uint16_t playerId;
+  uint16_t lobbyId;
+  bool createLobby;
+  std::string mdp;
 };
 
 struct BOSS_SPAWN {
@@ -121,6 +124,7 @@ enum class EventType : uint8_t {
   LOGIN_RESPONSE = 0x02,
   GAME_START = 0x0F,
   GAME_END = 0x10,
+  PLAYER_READY = 0x31,
   ERROR = 0x12,
 
   // UDP Messages

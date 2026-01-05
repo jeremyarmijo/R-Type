@@ -22,13 +22,27 @@
  * Handles the core game loop, player management, network communication,
  * and game state synchronization for the R-Type server.
  */
+struct lobby_list {
+  uint16_t lobby_id;
+  std::string mdp;
+  uint8_t nb_player;
+  std::vector<std::tuple<uint16_t, bool>> players_list;
+  bool players_ready = false;
+  bool gameRuning = false;
+  std::vector<LevelComponent> levelsData;
+  int currentLevelIndex = 0;
+  bool waitingForNextLevel = false;
+  float levelTransitionTimer = 0.0f;
+  Entity currentLevelEntity;
+  Registry registry;
+  std::unordered_map<uint16_t, Entity> m_players;
+  std::thread gameThread;
+};
 class ServerGame {
  public:
   /**
    * @brief Construct a new ServerGame object
    */
-
-  Entity currentLevelEntityId{};
   ServerGame();
   bool Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
                   const std::string& host = "0.0.0.0");
@@ -40,49 +54,40 @@ class ServerGame {
   void Shutdown();
 
  private:
-  std::vector<LevelComponent> levelsData;
-  int currentLevelIndex = 0;
-  Entity currentLevelEntity;
-  float levelTransitionTimer = 0.0f;
-  bool waitingForNextLevel = false;
+  std::vector<lobby_list> lobbys;
+  uint16_t nextLobbyId = 1;
   const float TIME_BETWEEN_LEVELS = 5.0f;
 
   ServerNetworkManager networkManager;  ///< Network communication manager
-  Decoder decode;     ///< Decoder for incoming network messages
-  Encoder encode;     ///< Encoder for outgoing network messages
-  Registry registry;  ///< ECS registry for game entities
+  Decoder decode;  ///< Decoder for incoming network messages
+  Encoder encode;  ///< Encoder for outgoing network messages
+
   std::queue<std::tuple<Event, uint16_t>>
       eventQueue;  ///< Queue of incoming events from clients
   std::queue<std::tuple<Action, uint16_t>>
       actionQueue;  ///< Queue of actions to send to clients
-  std::unordered_map<uint16_t, Entity>
-      m_players;          ///< Map of player IDs to their entities
+
   int difficulty;         ///< Game difficulty setting
   std::mutex queueMutex;  ///< Mutex for thread-safe queue access
-
+  void CreateLobby(uint16_t playerId, std::string mdp);
+  void JoinLobby(uint16_t playerId, uint16_t lobbyId, std::string mdp);
+  void HandlePayerReady(uint16_t playerId);
   /**
    * @brief Receive and process player input events
    */
-  void ReceivePlayerInputs();
-
+  void ReceivePlayerInputs(lobby_list& lobby);
   /**
    * @brief Update game state based on elapsed time
    * @param deltaTime Time elapsed since last update
    */
-  void UpdateGameState(float deltaTime);
-
+  void UpdateGameState(lobby_list& lobby, float deltaTime);
   /**
    * @brief Send current world state to all connected clients
    */
-  void SendWorldStateToClients();
-
-  std::vector<uint16_t> lobbyPlayers;  ///< List of players in the lobby
-  std::mutex lobbyMutex;               ///< Mutex for thread-safe lobby access
+  void SendWorldStateToClients(lobby_list& lobby);
+  std::mutex lobbyMutex;  ///< Mutex for thread-safe lobby access
 
   bool serverRunning;  ///< Server running state flag
-  bool gameStarted;    ///< Game started state flag
-
-  std::thread gameThread;  ///< Main game loop thread
 
   /**
    * @brief Setup network event callbacks
@@ -93,33 +98,27 @@ class ServerGame {
    * @brief Handle player authentication
    * @param playerId ID of the player to authenticate
    */
-  void HandleAuth(uint16_t playerId);
-
+  void HandleAuth(uint16_t playerId, Event& ev);
   /**
    * @brief Start the game when all players are ready
    */
-  void StartGame();
-
+  void StartGame(lobby_list& lobby_list);
   /**
    * @brief Initialize the game world with entities
    */
-  void InitWorld();
-
+  void InitWorld(lobby_list& lobby);
   /**
    * @brief Main game loop running in separate thread
    */
-  void GameLoop();
-
+  void GameLoop(lobby_list& lobby);
   /**
    * @brief Check if game end conditions are met
    */
-  void CheckGameEnded();
-
+  void CheckGameEnded(lobby_list& lobby);
   /**
    * @brief End the game and cleanup
    */
-  void EndGame();
-
+  void EndGame(lobby_list& lobby);
   /**
    * @brief Pop an event from the event queue
    * @return Optional tuple containing event and client ID
