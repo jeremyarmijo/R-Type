@@ -307,6 +307,182 @@ inline void LoginResponseFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, resp->message.data(), msgLen);
 }
 
+inline void LobbyCreateFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* lobby = std::get_if<LobbyCreate>(&a.data);
+  if (!lobby) return;
+
+  out.clear();
+  size_t offset = 0;
+
+  uint8_t passwordLen = static_cast<uint8_t>(lobby->password.size());
+  out.resize(offset + 1);
+  out[offset++] = passwordLen;
+
+  out.resize(offset + passwordLen);
+  memcpy(out.data() + offset, lobby->password.data(), passwordLen);
+  offset += passwordLen;
+
+  out.resize(offset + 1);
+  out[offset++] = lobby->difficulty;
+}
+
+inline void LobbyJoinRequestFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* req = std::get_if<LobbyJoinRequest>(&a.data);
+  if (!req) return;
+
+  out.clear();
+  size_t offset = 0;
+
+  out.resize(offset + 2);
+  uint16_t lobbyId = htons(req->lobbyId);
+  memcpy(out.data() + offset, &lobbyId, sizeof(uint16_t));
+  offset += 2;
+
+  uint8_t passwordLen = static_cast<uint8_t>(req->password.size());
+  out.resize(offset + 1);
+  out[offset++] = passwordLen;
+
+  out.resize(offset + passwordLen);
+  memcpy(out.data() + offset, req->password.data(), passwordLen);
+}
+
+inline void LobbyJoinResponseFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* resp = std::get_if<LobbyJoinResponse>(&a.data);
+  if (!resp) return;
+
+  out.clear();
+  size_t offset = 0;
+
+  out.resize(offset + 1);
+  out[offset++] = resp->success ? 1 : 0;
+
+  if (resp->success) {
+    out.resize(offset + 4);
+
+    uint16_t lobbyId = htons(resp->lobbyId);
+    memcpy(out.data() + offset, &lobbyId, 2);
+    offset += 2;
+
+    uint16_t playerId = htons(resp->playerId);
+    memcpy(out.data() + offset, &playerId, 2);
+    offset += 2;
+
+    uint8_t playerCount = static_cast<uint8_t>(resp->players.size());
+    out.resize(offset + 1);
+    out[offset++] = playerCount;
+
+    for (const auto& player : resp->players) {
+      out.resize(offset + 3);
+
+      uint16_t pId = htons(player.playerId);
+      memcpy(out.data() + offset, &pId, 2);
+      offset += 2;
+
+      out[offset++] = player.ready ? 1 : 0;
+
+      uint8_t usernameLen = static_cast<uint8_t>(player.username.size());
+      out.resize(offset + 1);
+      out[offset++] = usernameLen;
+
+      out.resize(offset + usernameLen);
+      memcpy(out.data() + offset, player.username.data(), usernameLen);
+      offset += usernameLen;
+    }
+  } else {
+    out.resize(offset + 2);
+    uint16_t code = htons(resp->errorCode);
+    memcpy(out.data() + offset, &code, 2);
+    offset += 2;
+
+    uint8_t msgLen = static_cast<uint8_t>(resp->errorMessage.size());
+    out.resize(offset + 1);
+    out[offset++] = msgLen;
+
+    out.resize(offset + msgLen);
+    memcpy(out.data() + offset, resp->errorMessage.data(), msgLen);
+  }
+}
+
+inline void LobbyListRequestFunc(const Action& a, std::vector<uint8_t>& out) {
+  out.clear();
+}
+
+inline void LobbyListResponseFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* resp = std::get_if<LobbyListResponse>(&a.data);
+  if (!resp) return;
+
+  out.clear();
+  size_t offset = 0;
+
+  uint8_t lobbyCount = static_cast<uint8_t>(resp->lobbies.size());
+  out.resize(offset + 1);
+  out[offset++] = lobbyCount;
+
+  for (const auto& lobby : resp->lobbies) {
+    out.resize(offset + 7);
+
+    uint16_t lobbyId = htons(lobby.lobbyId);
+    memcpy(out.data() + offset, &lobbyId, 2);
+    offset += 2;
+
+    out[offset++] = lobby.playerCount;
+    out[offset++] = lobby.maxPlayers;
+    out[offset++] = lobby.difficulty;
+    out[offset++] = lobby.isStarted ? 1 : 0;
+    out[offset++] = lobby.hasPassword ? 1 : 0;
+  }
+}
+
+inline void PlayerReadyFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* ready = std::get_if<PlayerReady>(&a.data);
+  if (!ready) return;
+
+  out.resize(1);
+  out[0] = ready->ready ? 1 : 0;
+}
+
+inline void LobbyUpdateFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* update = std::get_if<LobbyUpdate>(&a.data);
+  if (!update) return;
+
+  out.clear();
+  size_t offset = 0;
+
+  uint8_t playerCount = static_cast<uint8_t>(update->playerInfo.size());
+  out.resize(offset + 1);
+  out[offset++] = playerCount;
+
+  for (const auto& player : update->playerInfo) {
+    out.resize(offset + 3);
+
+    uint16_t playerId = htons(player.playerId);
+    memcpy(out.data() + offset, &playerId, 2);
+    offset += 2;
+
+    out[offset++] = player.ready ? 1 : 0;
+
+    uint8_t usernameLen = static_cast<uint8_t>(player.username.size());
+    out.resize(offset + 1);
+    out[offset++] = usernameLen;
+
+    out.resize(offset + usernameLen);
+    memcpy(out.data() + offset, player.username.data(), usernameLen);
+    offset += usernameLen;
+  }
+}
+
+inline void LobbyLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
+  out.clear();
+}
+
+inline void LobbyStartFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* start = std::get_if<LobbyStart>(&a.data);
+  if (!start) return;
+
+  out.resize(1);
+  out[0] = start->countdown;
+}
+
 inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::ERROR, ErrorFunc);
@@ -328,4 +504,15 @@ inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::BOSS_SPAWN, BossSpawnFunc);
   encoder.registerHandler(ActionType::BOSS_UPDATE, BossUpdateFunc);
   encoder.registerHandler(ActionType::ENEMY_HIT, EnemyHitFunc);
+  encoder.registerHandler(ActionType::LOBBY_CREATE, LobbyCreateFunc);
+  encoder.registerHandler(ActionType::LOBBY_JOIN_REQUEST, LobbyJoinRequestFunc);
+  encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE,
+                          LobbyJoinResponseFunc);
+  encoder.registerHandler(ActionType::LOBBY_LIST_REQUEST, LobbyListRequestFunc);
+  encoder.registerHandler(ActionType::LOBBY_LIST_RESPONSE,
+                          LobbyListResponseFunc);
+  encoder.registerHandler(ActionType::PLAYER_READY, PlayerReadyFunc);
+  encoder.registerHandler(ActionType::LOBBY_UPDATE, LobbyUpdateFunc);
+  encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
+  encoder.registerHandler(ActionType::LOBBY_START, LobbyStartFunc);
 }

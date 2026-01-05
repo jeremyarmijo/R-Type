@@ -91,9 +91,6 @@ struct GAME_STATE {
 
 struct AUTH {
   uint16_t playerId;
-  uint16_t lobbyId;
-  bool createLobby;
-  std::string mdp;
 };
 
 struct BOSS_SPAWN {
@@ -118,13 +115,78 @@ struct ENEMY_HIT {
   uint16_t hpRemaining;
 };
 
+struct LOBBY_CREATE {
+  std::string password;
+  uint8_t difficulty;
+};
+
+struct LOBBY_JOIN_REQUEST {
+  uint16_t lobbyId;
+  std::string password;
+};
+
+struct LOBBY_JOIN_RESPONSE {
+  struct Player {
+    uint16_t playerId;
+    bool ready;
+    std::string username;
+  };
+
+  uint8_t success;
+  uint16_t lobbyId;
+  uint16_t playerId;
+  std::vector<Player> players;
+
+  uint16_t errorCode;
+  std::string errorMessage;
+};
+
+struct LOBBY_LIST_RESPONSE {
+  struct Lobbies {
+    uint16_t lobbyId;
+    uint8_t playerCount;
+    uint8_t maxPlayers;
+    uint8_t difficulty;
+    bool isStarted;
+    bool hasPassword;
+  };
+  std::vector<Lobbies> lobbies;
+};
+
+struct PLAYER_READY {
+  bool ready;
+};
+
+struct LOBBY_UPDATE {
+  struct PlayerInfo {
+    uint16_t playerId;
+    bool ready;
+    std::string username;
+  };
+  std::vector<PlayerInfo> playerInfo;
+};
+
+struct LOBBY_START {
+  uint8_t countdown;
+};
+
 enum class EventType : uint8_t {
   // TCP Messages
   LOGIN_REQUEST = 0x01,
   LOGIN_RESPONSE = 0x02,
+
+  LOBBY_CREATE = 0x03,
+  LOBBY_JOIN_REQUEST = 0x04,
+  LOBBY_JOIN_RESPONSE = 0x05,
+  LOBBY_LIST_REQUEST = 0x06,
+  LOBBY_LIST_RESPONSE = 0x07,
+  PLAYER_READY = 0x08,
+  LOBBY_UPDATE = 0x09,
+  LOBBY_LEAVE = 0x0A,
+  LOBBY_START = 0x0B,
+
   GAME_START = 0x0F,
   GAME_END = 0x10,
-  PLAYER_READY = 0x31,
   ERROR = 0x12,
 
   // UDP Messages
@@ -141,7 +203,9 @@ enum class EventType : uint8_t {
 using EventData =
     std::variant<std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, GAME_START,
                  GAME_END, ERROR, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
-                 BOSS_UPDATE, ENEMY_HIT>;
+                 BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
+                 LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
+                 LOBBY_UPDATE, LOBBY_START>;
 
 struct Event {
   EventType type;
