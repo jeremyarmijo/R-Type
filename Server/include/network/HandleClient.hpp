@@ -1,14 +1,14 @@
 #pragma once
+#include <asio.hpp>
 #include <chrono>
 #include <cstdint>
 #include <optional>
 #include <string>
-#include <asio.hpp>
 
 /**
  * @class HandleClient
  * @brief Represents a connected client with its state and endpoints
- * 
+ *
  * Manages client information including TCP/UDP endpoints, authentication state,
  * activity tracking, and packet statistics.
  */
@@ -28,13 +28,13 @@ class HandleClient {
    * @return Client identifier
    */
   uint16_t GetId() const { return id_; }
-  
+
   /**
    * @brief Get client username
    * @return Client username
    */
   const std::string& GetUsername() const { return username_; }
-  
+
   /**
    * @brief Get client TCP endpoint
    * @return TCP endpoint
@@ -48,7 +48,7 @@ class HandleClient {
    * @return true if UDP endpoint is set, false otherwise
    */
   bool HasUDPEndpoint() const { return udp_endpoint_.has_value(); }
-  
+
   /**
    * @brief Get client UDP endpoint
    * @return UDP endpoint
@@ -56,7 +56,7 @@ class HandleClient {
   const asio::ip::udp::endpoint& GetUDPEndpoint() const {
     return udp_endpoint_.value();
   }
-  
+
   /**
    * @brief Set client UDP endpoint
    * @param endpoint UDP endpoint to set
@@ -70,7 +70,7 @@ class HandleClient {
    * @return true if authenticated, false otherwise
    */
   bool IsAuthenticated() const { return is_authenticated_; }
-  
+
   /**
    * @brief Set client authentication state
    * @param auth Authentication state
@@ -81,7 +81,7 @@ class HandleClient {
    * @brief Update last seen timestamp to current time
    */
   void UpdateLastSeen();
-  
+
   /**
    * @brief Check if client has timed out
    * @param timeout Timeout duration
@@ -94,30 +94,32 @@ class HandleClient {
    * @return Packet count
    */
   uint64_t GetPacketsSent() const { return packets_sent_; }
-  
+
   /**
    * @brief Get number of packets received from this client
    * @return Packet count
    */
   uint64_t GetPacketsReceived() const { return packets_received_; }
-  
+
   /**
    * @brief Increment sent packets counter
    */
   void IncrementPacketsSent() { ++packets_sent_; }
-  
+
   /**
    * @brief Increment received packets counter
    */
   void IncrementPacketsReceived() { ++packets_received_; }
 
  private:
-  uint16_t id_;                                              ///< Unique client identifier
-  std::string username_;                                     ///< Client username
-  asio::ip::tcp::endpoint tcp_endpoint_;                     ///< TCP endpoint
-  std::optional<asio::ip::udp::endpoint> udp_endpoint_;      ///< Optional UDP endpoint
-  bool is_authenticated_;                                    ///< Authentication state
-  std::chrono::steady_clock::time_point last_seen_;          ///< Last activity timestamp
-  uint64_t packets_sent_ = 0;                                ///< Number of packets sent
-  uint64_t packets_received_ = 0;                            ///< Number of packets received
+  uint16_t id_;                           ///< Unique client identifier
+  std::string username_;                  ///< Client username
+  asio::ip::tcp::endpoint tcp_endpoint_;  ///< TCP endpoint
+  std::optional<asio::ip::udp::endpoint>
+      udp_endpoint_;       ///< Optional UDP endpoint
+  bool is_authenticated_;  ///< Authentication state
+  std::chrono::steady_clock::time_point
+      last_seen_;                  ///< Last activity timestamp
+  uint64_t packets_sent_ = 0;      ///< Number of packets sent
+  uint64_t packets_received_ = 0;  ///< Number of packets received
 };
