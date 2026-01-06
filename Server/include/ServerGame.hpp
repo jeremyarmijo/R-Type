@@ -57,7 +57,7 @@ class ServerGame {
   void Shutdown();
 
  private:
-  std::vector<lobby_list> lobbys;
+  std::vector<std::unique_ptr<lobby_list>> lobbys;
   uint16_t nextLobbyId = 1;
   const float TIME_BETWEEN_LEVELS = 5.0f;
 
@@ -67,7 +67,7 @@ class ServerGame {
 
   std::queue<std::tuple<Event, uint16_t>>
       eventQueue;  ///< Queue of incoming events from clients
-  std::queue<std::tuple<Action, uint16_t>>
+  std::queue<std::tuple<Action, uint16_t, lobby_list*>>
       actionQueue;  ///< Queue of actions to send to clients
 
   std::mutex queueMutex;  ///< Mutex for thread-safe queue access
@@ -75,7 +75,7 @@ class ServerGame {
   void CreateLobby(uint16_t playerId, std::string mdp, uint8_t difficulty);
   void JoinLobby(uint16_t playerId, uint16_t lobbyId, std::string mdp);
   void HandlePayerReady(uint16_t playerId);
-  
+
   void HandleLobbyCreate(uint16_t playerId, Event& ev);
   void HandleLobbyJoinRequest(uint16_t playerId, Event& ev);
   void HandleLobbyListRequest(uint16_t playerId);
@@ -141,7 +141,7 @@ class ServerGame {
    * @brief Send an action to a specific client
    * @param action Tuple containing action and client ID
    */
-  void SendAction(std::tuple<Action, uint16_t>);
+  void SendAction(std::tuple<Action, uint16_t, lobby_list*>);
 
   /**
    * @brief Send queued packets to clients

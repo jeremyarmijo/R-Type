@@ -13,7 +13,8 @@ ServerNetworkManager::ServerNetworkManager() = default;
 
 ServerNetworkManager::~ServerNetworkManager() { Shutdown(); }
 
-bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port, const std::string& host) {
+bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port,
+                                      const std::string &host) {
   try {
     work_guard_ = std::make_unique<asio::io_context::work>(io_context_);
     tcp_server_ = std::make_unique<TCPServer>(io_context_, tcp_port, host);
@@ -172,21 +173,24 @@ void ServerNetworkManager::SendTo(const NetworkMessage &msg, bool sendUdp) {
   }
 }
 
-void ServerNetworkManager::BroadcastUDP(const NetworkMessage &msg) {
-  auto clients = client_manager_.GetAllClients();
-  for (const auto &client : clients) {
-    if (udp_server_ && client->HasUDPEndpoint()) {
+void ServerNetworkManager::BroadcastLobbyUDP(
+    const NetworkMessage &msg, std::vector<std::tuple<uint16_t, bool>> &ids) {
+  for (auto &id : ids) {
+    uint16_t clientId = std::get<0>(id);
+    auto client = client_manager_.GetClient(clientId);
+    if (client && udp_server_ && client->HasUDPEndpoint()) {
       udp_server_->SendTo(msg.data, client->GetUDPEndpoint());
       client->IncrementPacketsSent();
     }
   }
 }
 
-void ServerNetworkManager::BroadcastTCP(const NetworkMessage &msg) {
-  auto clients = client_manager_.GetAllClients();
-
-  for (const auto &client : clients) {
-    if (tcp_server_) {
+void ServerNetworkManager::BroadcastLobbyTCP(
+    const NetworkMessage &msg, std::vector<std::tuple<uint16_t, bool>> &ids) {
+  for (auto &id : ids) {
+    uint16_t clientId = std::get<0>(id);
+    auto client = client_manager_.GetClient(clientId);
+    if (client && tcp_server_) {
       tcp_server_->SendTo(msg.data, client->GetId());
       client->IncrementPacketsSent();
     }
@@ -205,8 +209,7 @@ void ServerNetworkManager::CheckClientTimeouts() {
   for (uint32_t client_id : timed_out) {
     std::cout << "[ServerNetworkManager] Client " << client_id << " timed out"
               << std::endl;
-    if (tcp_server_)
-      tcp_server_->DisconnectClient(client_id);
+    if (tcp_server_) tcp_server_->DisconnectClient(client_id);
     client_manager_.RemoveClient(client_id);
   }
 
