@@ -155,3 +155,7 @@ class ServerNetworkManager : public INetworkManager {
   static constexpr std::chrono::seconds CLIENT_TIMEOUT{
       10};  ///< Client timeout duration
 };
+
+extern "C" {
+  INetworkManager *EntryPointLib();
+}

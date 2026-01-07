@@ -8,6 +8,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 #include "components/Levels.hpp"
 #include "ecs/Registry.hpp"
@@ -57,20 +58,24 @@ class ServerGame {
   void Shutdown();
 
  private:
+
+
+  std::unique_ptr<INetworkManager> networkManager; ///< Network communication manager
+  Decoder decode;                      ///< Decoder for incoming network messages
+  Encoder encode;                      ///< Encoder for outgoing network messages
+  Registry registry;                   ///< ECS registry for game entities
+  std::unordered_map<uint16_t, Entity> m_players;       ///< Map of player IDs to their entities
+  std::mutex queueMutex;               ///< Mutex for thread-safe queue access
+  
   std::vector<std::unique_ptr<lobby_list>> lobbys;
   uint16_t nextLobbyId = 1;
   const float TIME_BETWEEN_LEVELS = 5.0f;
-
-  ServerNetworkManager networkManager;  ///< Network communication manager
-  Decoder decode;  ///< Decoder for incoming network messages
-  Encoder encode;  ///< Encoder for outgoing network messages
 
   std::queue<std::tuple<Event, uint16_t>>
       eventQueue;  ///< Queue of incoming events from clients
   std::queue<std::tuple<Action, uint16_t, lobby_list*>>
       actionQueue;  ///< Queue of actions to send to clients
 
-  std::mutex queueMutex;  ///< Mutex for thread-safe queue access
 
   void CreateLobby(uint16_t playerId, std::string mdp, uint8_t difficulty);
   void JoinLobby(uint16_t playerId, uint16_t lobbyId, std::string mdp);

@@ -22,10 +22,13 @@
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WaveSystem.hpp"
 #include "systems/WeaponSystem.hpp"
+#include "dynamicLibLoader/DLLoader.hpp"
 
 ServerGame::ServerGame() : serverRunning(true) {
   SetupDecoder(decode);
   SetupEncoder(encode);
+  DLLoader<INetworkManager> loader("../src/build/libnetwork_server.so", "EntryPointLib");
+  networkManager = std::unique_ptr<INetworkManager>(loader.getInstance());
 }
 
 void ServerGame::CreateLobby(uint16_t playerId, std::string mdp,
@@ -266,7 +269,7 @@ lobby_list* ServerGame::FindPlayerLobby(uint16_t playerId) {
 }
 
 void ServerGame::SetupNetworkCallbacks() {
-  networkManager.SetMessageCallback([this](const NetworkMessage& msg) {
+  networkManager->SetMessageCallback([this](const NetworkMessage& msg) {
     Event ev = decode.decode(msg.data);
     uint16_t playerId = msg.client_id;
 
@@ -288,11 +291,11 @@ void ServerGame::SetupNetworkCallbacks() {
     }
   });
 
-  networkManager.SetConnectionCallback([this](uint16_t client_id) {
+  networkManager->SetConnectionCallback([this](uint16_t client_id) {
     std::cout << "Client " << client_id << " connected!" << std::endl;
   });
 
-  networkManager.SetDisconnectionCallback([this](uint16_t client_id) {
+  networkManager->SetDisconnectionCallback([this](uint16_t client_id) {
     std::cout << "Client " << client_id << " disconnected!" << std::endl;
 
     RemovePlayerFromLobby(client_id);
@@ -310,7 +313,7 @@ void ServerGame::SetupNetworkCallbacks() {
 }
 bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
                             const std::string& host) {
-  if (!networkManager.Initialize(tcpPort, udpPort, host)) {
+  if (!networkManager->Initialize(tcpPort, udpPort, host)) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
   }
@@ -493,17 +496,17 @@ void ServerGame::SendPacket() {
     std::cout << std::endl;*/
     if (clientId == 0 && lobby != nullptr) {
       if (protocol == 0)
-        networkManager.BroadcastLobbyUDP(msg, lobby->players_list);
+        networkManager->BroadcastLobbyUDP(msg, lobby->players_list);
       if (protocol == 2)
-        networkManager.BroadcastLobbyTCP(msg, lobby->players_list);
+        networkManager->BroadcastLobbyTCP(msg, lobby->players_list);
       continue;
     }
     if (protocol == 0) {
-      networkManager.SendTo(msg, true);
+      networkManager->SendTo(msg, true);
       continue;
     }
     if (protocol == 2) {
-      networkManager.SendTo(msg, false);
+      networkManager->SendTo(msg, false);
       continue;
     }
   }
@@ -511,7 +514,7 @@ void ServerGame::SendPacket() {
 
 void ServerGame::Run() {
   while (serverRunning) {
-    networkManager.Update();
+    networkManager->Update();
     SendPacket();
     for (auto& lobby : lobbys) {
       if (!lobby->gameRuning && lobby->gameThread.joinable()) {
@@ -529,7 +532,7 @@ void ServerGame::Shutdown() {
       lobby->gameThread.join();
     }
   }
-  networkManager.Shutdown();
+  networkManager->Shutdown();
 }
 
 void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {

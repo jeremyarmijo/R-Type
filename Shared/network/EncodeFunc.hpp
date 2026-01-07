@@ -213,10 +213,6 @@ inline void GameStartFunc(const Action& a, std::vector<uint8_t>& out) {
   out.resize(12);
   size_t offset = 0;
 
-  float playerSpawnX = start->playerSpawnX;
-  float playerSpawnY = start->playerSpawnY;
-  float scrollSpeed = start->scrollSpeed;
-
   htonf(start->playerSpawnX, out.data() + offset);
   offset += 4;
 
