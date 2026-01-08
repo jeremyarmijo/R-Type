@@ -31,17 +31,20 @@ ServerGame::ServerGame() : serverRunning(true) {
   networkManager = std::unique_ptr<INetworkManager>(loader.getInstance());
 }
 
-void ServerGame::CreateLobby(uint16_t playerId, std::string mdp,
-                             uint8_t difficulty) {
+void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName, std::string playerName, std::string mdp,
+                             uint8_t difficulty, uint8_t Maxplayer) {
   std::lock_guard<std::mutex> lock(lobbyMutex);
-
+  
   auto l = std::make_unique<lobby_list>();
   l->lobby_id = nextLobbyId++;
+  l->host_id = playerId;
+  l->name = lobbyName;
+  l->max_players = Maxplayer;
   l->mdp = mdp;
   l->difficulty = difficulty;
   l->hasPassword = !mdp.empty();
   l->nb_player = 1;
-  l->players_list.push_back(std::make_tuple(playerId, false));
+  l->players_list.push_back(std::make_tuple(playerId, false, playerName));
 
   std::cout << "[Lobby] Player " << playerId << " created lobby " << l->lobby_id
             << std::endl;
@@ -60,20 +63,28 @@ void ServerGame::CreateLobby(uint16_t playerId, std::string mdp,
 
   ac.type = ActionType::LOBBY_JOIN_RESPONSE;
   ac.data = resp;
+  
   SendAction(std::make_tuple(ac, playerId, nullptr));
+  
+  lobby_list* lobbyPtr = l.get();
 
   lobbys.push_back(std::move(l));
+  SendLobbyUpdate(*lobbyPtr);
 }
 
 void ServerGame::SendLobbyUpdate(lobby_list& lobby) {
   Action ac;
   LobbyUpdate update;
 
-  for (auto& [pId, ready] : lobby.players_list) {
+  for (auto& [pId, ready, pName] : lobby.players_list) {
     LobbyPlayer p;
     p.playerId = pId;
     p.ready = ready;
-    p.username = "Player" + std::to_string(pId);
+    p.username = pName;
+
+    update.difficulty = lobby.difficulty;
+    update.maxPlayers = lobby.max_players;
+    update.name = lobby.name;
     update.playerInfo.push_back(p);
   }
 
@@ -83,7 +94,7 @@ void ServerGame::SendLobbyUpdate(lobby_list& lobby) {
   SendAction(std::make_tuple(ac, 0, &lobby));
 }
 
-void ServerGame::JoinLobby(uint16_t playerId, uint16_t lobbyId,
+void ServerGame::JoinLobby(uint16_t playerId, std::string playerName, uint16_t lobbyId,
                            std::string mdp) {
   std::lock_guard<std::mutex> lock(lobbyMutex);
 
@@ -102,46 +113,67 @@ void ServerGame::JoinLobby(uint16_t playerId, uint16_t lobbyId,
     resp.success = false;
     resp.errorCode = 0x2010;
     resp.errorMessage = "Lobby not found";
+
+    ac.type = ActionType::LOBBY_JOIN_RESPONSE;
+    ac.data = resp;
+    SendAction(std::make_tuple(ac, playerId, nullptr));
+
   } else if (targetLobby->gameRuning) {
     resp.success = false;
     resp.errorCode = 0x2014;
     resp.errorMessage = "Game already started";
+
+    ac.type = ActionType::LOBBY_JOIN_RESPONSE;
+    ac.data = resp;
+    SendAction(std::make_tuple(ac, playerId, nullptr));
+
   } else if (targetLobby->nb_player >= targetLobby->max_players) {
     resp.success = false;
     resp.errorCode = 0x2012;
     resp.errorMessage = "Lobby is full";
+
+    ac.type = ActionType::LOBBY_JOIN_RESPONSE;
+    ac.data = resp;
+    SendAction(std::make_tuple(ac, playerId, nullptr));
+
   } else if (targetLobby->hasPassword && targetLobby->mdp != mdp) {
     resp.success = false;
     resp.errorCode = 0x2011;
     resp.errorMessage = "Invalid password";
+    
+    ac.type = ActionType::LOBBY_JOIN_RESPONSE;
+    ac.data = resp;
+    SendAction(std::make_tuple(ac, playerId, nullptr));
+
   } else {
-    targetLobby->players_list.push_back(std::make_tuple(playerId, false));
+    targetLobby->players_list.push_back(std::make_tuple(playerId, false, playerName));
     targetLobby->nb_player++;
 
     resp.success = true;
     resp.lobbyId = lobbyId;
     resp.playerId = playerId;
 
-    for (auto& [pId, ready] : targetLobby->players_list) {
+    for (auto& [pId, ready, pName] : targetLobby->players_list) {
       LobbyPlayer p;
       p.playerId = pId;
       p.ready = ready;
-      p.username = "Player" + std::to_string(pId);
+      p.username = pName;
       resp.players.push_back(p);
     }
+
+    ac.type = ActionType::LOBBY_JOIN_RESPONSE;
+    ac.data = resp;
+    SendAction(std::make_tuple(ac, playerId, nullptr));
 
     std::cout << "[Lobby] Player " << playerId << " joined lobby " << lobbyId
               << std::endl;
     SendLobbyUpdate(*targetLobby);
   }
-
-  ac.type = ActionType::LOBBY_JOIN_RESPONSE;
-  ac.data = resp;
-  SendAction(std::make_tuple(ac, playerId, nullptr));
 }
 
 void ServerGame::RemovePlayerFromLobby(uint16_t playerId) {
-  for (auto it = lobbys.begin(); it != lobbys.end();) {
+  std::lock_guard<std::mutex> lock(lobbyMutex); // CRITIQUE ICI
+  for (auto it = lobbys.begin(); it != lobbys.end();) {  
     bool found = false;
 
     for (auto pIt = (*it)->players_list.begin();
@@ -174,6 +206,16 @@ void ServerGame::RemovePlayerFromLobby(uint16_t playerId) {
   }
 }
 
+void ServerGame::ResetLobbyReadyStatus(lobby_list& lobby) {
+  for (auto& player : lobby.players_list) {
+    std::get<1>(player) = false;
+  }
+  
+  lobby.players_ready = false;
+
+  SendLobbyUpdate(lobby);
+}
+
 void ServerGame::HandlePayerReady(uint16_t playerId) {
   std::lock_guard<std::mutex> lock(lobbyMutex);
 
@@ -203,7 +245,7 @@ void ServerGame::HandlePayerReady(uint16_t playerId) {
         ac.type = ActionType::LOBBY_START;
         ac.data = start;
 
-        for (auto& [pId, ready] : lobby->players_list) {
+        for (auto& [pId, ready, _] : lobby->players_list) {
           SendAction(std::make_tuple(ac, pId, nullptr));
         }
         lobby->gameRuning = true;
@@ -218,14 +260,14 @@ void ServerGame::HandleLobbyCreate(uint16_t playerId, Event& ev) {
   const auto* create = std::get_if<LOBBY_CREATE>(&ev.data);
   if (!create) return;
 
-  CreateLobby(playerId, create->password, create->difficulty);
+  CreateLobby(playerId, create->lobbyName, create->playerName, create->password, create->difficulty, create->Maxplayer);
 }
 
 void ServerGame::HandleLobbyJoinRequest(uint16_t playerId, Event& ev) {
   const auto* join = std::get_if<LOBBY_JOIN_REQUEST>(&ev.data);
   if (!join) return;
 
-  JoinLobby(playerId, join->lobbyId, join->password);
+  JoinLobby(playerId, join->name, join->lobbyId, join->password);
 }
 
 void ServerGame::HandleLobbyListRequest(uint16_t playerId) {
@@ -238,6 +280,7 @@ void ServerGame::HandleLobbyListRequest(uint16_t playerId) {
     if (!lobby->gameRuning) {
       LobbyInfo info;
       info.lobbyId = lobby->lobby_id;
+      info.name = lobby->name;
       info.playerCount = lobby->nb_player;
       info.maxPlayers = lobby->max_players;
       info.difficulty = lobby->difficulty;
@@ -253,13 +296,13 @@ void ServerGame::HandleLobbyListRequest(uint16_t playerId) {
 }
 
 void ServerGame::HandleLobbyLeave(uint16_t playerId) {
-  std::lock_guard<std::mutex> lock(lobbyMutex);
   RemovePlayerFromLobby(playerId);
 }
 
 lobby_list* ServerGame::FindPlayerLobby(uint16_t playerId) {
+  std::lock_guard<std::mutex> lock(lobbyMutex);
   for (auto& lobby : lobbys) {
-    for (auto& [pId, ready] : lobby->players_list) {
+    for (auto& [pId, ready, _] : lobby->players_list) {
       if (pId == playerId) {
         return lobby.get();
       }
@@ -276,19 +319,69 @@ void ServerGame::SetupNetworkCallbacks() {
     {
       std::lock_guard<std::mutex> lock(queueMutex);
       eventQueue.push(std::make_tuple(ev, playerId));
+      std::cout << "MESSAGE IN QUEUE :" << std::endl;
     }
 
-    if (ev.type == EventType::LOBBY_CREATE) {
-      HandleLobbyCreate(playerId, ev);
-    } else if (ev.type == EventType::LOBBY_JOIN_REQUEST) {
-      HandleLobbyJoinRequest(playerId, ev);
-    } else if (ev.type == EventType::LOBBY_LIST_REQUEST) {
-      HandleLobbyListRequest(playerId);
-    } else if (ev.type == EventType::LOBBY_LEAVE) {
-      HandleLobbyLeave(playerId);
-    } else if (ev.type == EventType::PLAYER_READY) {
-      HandlePayerReady(playerId);
+switch (ev.type) {
+    case EventType::LOGIN_REQUEST: {
+        auto& d = std::get<LOGIN_REQUEST>(ev.data);
+        std::cout << "[LOGIN_REQUEST]" << std::endl;
+        break;
     }
+
+    case EventType::LOBBY_CREATE: {
+        auto& d = std::get<LOBBY_CREATE>(ev.data);
+        std::cout << "[LOBBY_CREATE]" << std::endl;
+        HandleLobbyCreate(playerId, ev);
+        break;
+    }
+
+    case EventType::LOBBY_JOIN_REQUEST: {
+        auto& d = std::get<LOBBY_JOIN_REQUEST>(ev.data);
+        std::cout << "[LOBBY_JOIN_REQUEST]"<< std::endl;
+        HandleLobbyJoinRequest(playerId, ev);
+        break;
+    }
+
+    case EventType::LOBBY_LIST_REQUEST:
+        std::cout << "[LOBBY_LIST_REQUEST]" << std::endl;
+        HandleLobbyListRequest(playerId);
+        break;
+
+    case EventType::PLAYER_READY: {
+        auto& d = std::get<PLAYER_READY>(ev.data);
+        std::cout << "[PLAYER_READY]"<< std::endl;
+        HandlePayerReady(playerId);
+        break;
+    }
+
+    case EventType::PLAYER_INPUT: {
+        auto& d = std::get<PLAYER_INPUT>(ev.data);
+        std::cout << "[PLAYER_INPUT]" << std::endl;
+        break;
+    }
+
+    case EventType::LOBBY_LEAVE:
+        std::cout << "[LOBBY_LEAVE]" << std::endl;
+        HandleLobbyLeave(playerId);
+        break;
+
+    case EventType::GAME_START: {
+        auto& d = std::get<GAME_START>(ev.data);
+        std::cout << "[GAME_START]" << std::endl;
+        break;
+    }
+
+    case EventType::ERROR: {
+        auto& d = std::get<ERROR>(ev.data);
+        std::cout << "[ERROR] Code: " << d.errorCode << " | Msg: " << d.message << std::endl;
+        break;
+    }
+
+    default:
+        std::cout << "[UNKNOWN EVENT] Type ID: " << (int)ev.type << std::endl;
+        break;
+}
   });
 
   networkManager->SetConnectionCallback([this](uint16_t client_id) {
@@ -297,20 +390,20 @@ void ServerGame::SetupNetworkCallbacks() {
 
   networkManager->SetDisconnectionCallback([this](uint16_t client_id) {
     std::cout << "Client " << client_id << " disconnected!" << std::endl;
-
     RemovePlayerFromLobby(client_id);
 
     std::lock_guard<std::mutex> lock(lobbyMutex);
     for (auto& lobby : lobbys) {
-      auto it = lobby->m_players.find(client_id);
-      if (it != lobby->m_players.end()) {
-        Entity playerEntity = it->second;
-        lobby->registry.kill_entity(playerEntity);
-        lobby->m_players.erase(it);
-      }
+        auto it = lobby->m_players.find(client_id);
+        if (it != lobby->m_players.end()) {
+            Entity playerEntity = it->second;
+            lobby->registry.kill_entity(playerEntity);
+            lobby->m_players.erase(it);
+        }
     }
   });
 }
+
 bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
                             const std::string& host) {
   if (!networkManager->Initialize(tcpPort, udpPort, host)) {
@@ -369,7 +462,7 @@ void ServerGame::StartGame(lobby_list& lobby_list) {
   lobby_list.registry.register_component<LevelComponent>();
   lobby_list.registry.register_component<BossPart>();
 
-  for (auto& [playerId, ready] : lobby_list.players_list) {
+  for (auto& [playerId, ready, _] : lobby_list.players_list) {
     float posY = 200.f + (lobby_list.m_players.size() % 4) * 100.f;
     Entity player = createPlayer(lobby_list.registry, {200, posY}, playerId);
     lobby_list.m_players[playerId] = player;
@@ -403,8 +496,9 @@ void ServerGame::SendAction(std::tuple<Action, uint16_t, lobby_list*> ac) {
   std::lock_guard<std::mutex> lock(queueMutex);
   actionQueue.push(std::move(ac));
 }
-
 void ServerGame::EndGame(lobby_list& lobby) {
+  if (!lobby.gameRuning) return;
+
   Action ac;
   GameEnd g;
   g.victory = false;
@@ -431,26 +525,25 @@ void ServerGame::CheckGameEnded(lobby_list& lobby) {
 void ServerGame::GameLoop(lobby_list& lobby) {
   InitWorld(lobby);
 
-  std::this_thread::sleep_for(std::chrono::seconds(3));
+  for (int i = 0; i < 100 && lobby.gameRuning; ++i) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
 
   const auto frameDuration = std::chrono::milliseconds(16);
   auto lastTime = std::chrono::steady_clock::now();
-  int tick = 0;
 
-  Action ac;
-  GameStart g;
-  g.playerSpawnX = 5;
-  g.playerSpawnY = 10;
-  g.scrollSpeed = 0;
-  ac.type = ActionType::GAME_START;
-  ac.data = g;
-
-  SendAction(std::make_tuple(ac, 0, &lobby));
+  if (lobby.gameRuning) {
+    Action ac;
+    GameStart g;
+    g.playerSpawnX = 5; g.playerSpawnY = 10; g.scrollSpeed = 0;
+    ac.type = ActionType::GAME_START;
+    ac.data = g;
+    SendAction(std::make_tuple(ac, 0, &lobby));
+  }
 
   while (lobby.gameRuning) {
     auto currentTime = std::chrono::steady_clock::now();
-    float deltaTime =
-        std::chrono::duration<float>(currentTime - lastTime).count();
+    float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
     lastTime = currentTime;
 
     ReceivePlayerInputs(lobby);
@@ -459,11 +552,11 @@ void ServerGame::GameLoop(lobby_list& lobby) {
     CheckGameEnded(lobby);
 
     auto frameTime = std::chrono::steady_clock::now() - currentTime;
-    if (frameTime < frameDuration) {
+    if (frameTime < frameDuration && lobby.gameRuning) {
       std::this_thread::sleep_for(frameDuration - frameTime);
     }
-    tick++;
   }
+  std::cout << "[Thread] GameLoop stopped for lobby " << lobby.lobby_id << std::endl;
 }
 
 void ServerGame::SendPacket() {
@@ -512,13 +605,35 @@ void ServerGame::SendPacket() {
   }
 }
 
+void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
+    lobby.registry = Registry{};    
+    lobby.m_players.clear();
+    lobby.currentLevelIndex = 0;
+    lobby.waitingForNextLevel = false;
+    lobby.levelTransitionTimer = 0.0f;
+
+    for (auto& player : lobby.players_list) {
+        std::get<1>(player) = false;
+    }
+    lobby.players_ready = false;
+    
+    SendLobbyUpdate(lobby);
+}
+
 void ServerGame::Run() {
   while (serverRunning) {
     networkManager->Update();
     SendPacket();
-    for (auto& lobby : lobbys) {
-      if (!lobby->gameRuning && lobby->gameThread.joinable()) {
-        lobby->gameThread.join();
+
+    {
+      std::lock_guard<std::mutex> lock(lobbyMutex);
+      for (auto it = lobbys.begin(); it != lobbys.end(); ) {
+        if (!(*it)->gameRuning && (*it)->gameThread.joinable()) {
+          (*it)->gameThread.join();
+          ClearLobbyForRematch(**it);
+          std::cout << "[Lobby] " << (*it)->lobby_id << " reset done." << std::endl;
+        }
+        ++it;
       }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
@@ -527,9 +642,13 @@ void ServerGame::Run() {
 
 void ServerGame::Shutdown() {
   serverRunning = false;
-  for (auto& lobby : lobbys) {
-    if (lobby->gameThread.joinable()) {
-      lobby->gameThread.join();
+  {
+    std::lock_guard<std::mutex> lock(lobbyMutex);
+    for (auto& lobby : lobbys) {
+      lobby->gameRuning = false;
+      if (lobby->gameThread.joinable()) {
+        lobby->gameThread.join();
+      }
     }
   }
   networkManager->Shutdown();
@@ -540,7 +659,7 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
     auto [event, playerId] = evOpt.value();
 
     bool playerInLobby = false;
-    for (auto& [pId, ready] : lobby.players_list) {
+    for (auto& [pId, ready, _] : lobby.players_list) {
       if (pId == playerId) {
         playerInLobby = true;
         break;

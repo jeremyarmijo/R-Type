@@ -116,12 +116,16 @@ struct ENEMY_HIT {
 };
 
 struct LOBBY_CREATE {
+  std::string lobbyName;
+  std::string playerName;
   std::string password;
+  uint8_t Maxplayer;
   uint8_t difficulty;
 };
 
 struct LOBBY_JOIN_REQUEST {
   uint16_t lobbyId;
+  std::string name;
   std::string password;
 };
 
@@ -141,15 +145,17 @@ struct LOBBY_JOIN_RESPONSE {
   std::string errorMessage;
 };
 
-struct LOBBY_LIST_RESPONSE {
-  struct Lobbies {
+struct Lobbies {
     uint16_t lobbyId;
+    std::string name;
     uint8_t playerCount;
     uint8_t maxPlayers;
     uint8_t difficulty;
     bool isStarted;
     bool hasPassword;
-  };
+};
+
+struct LOBBY_LIST_RESPONSE {
   std::vector<Lobbies> lobbies;
 };
 
@@ -157,17 +163,29 @@ struct PLAYER_READY {
   bool ready;
 };
 
-struct LOBBY_UPDATE {
-  struct PlayerInfo {
+struct PlayerInfo {
     uint16_t playerId;
     bool ready;
     std::string username;
-  };
+};
+
+struct LOBBY_UPDATE {
+  std::string name;
+  uint8_t maxPlayers;
+  uint8_t difficulty;
   std::vector<PlayerInfo> playerInfo;
 };
 
 struct LOBBY_START {
   uint8_t countdown;
+};
+
+struct LOBBY_LIST_REQUEST {
+  uint16_t playerId;
+};
+
+struct LOBBY_LEAVE {
+  uint16_t playerId;
 };
 
 enum class EventType : uint8_t {
@@ -205,7 +223,7 @@ using EventData =
                  GAME_END, ERROR, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
                  BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
                  LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
-                 LOBBY_UPDATE, LOBBY_START>;
+                 LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE>;
 
 struct Event {
   EventType type;

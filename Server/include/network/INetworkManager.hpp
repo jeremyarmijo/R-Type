@@ -42,14 +42,14 @@ class INetworkManager {
    * @param msg Network message to broadcast
    */
   virtual void BroadcastLobbyUDP(const NetworkMessage& msg,
-                                 std::vector<std::tuple<uint16_t, bool>>&) = 0;
+                                 std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
 
   /**
    * @brief Broadcast message via TCP to all clients
    * @param msg Network message to broadcast
    */
   virtual void BroadcastLobbyTCP(const NetworkMessage& msg,
-                                 std::vector<std::tuple<uint16_t, bool>>&) = 0;
+                                 std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
 
   /**
    * @brief Update network state and process events

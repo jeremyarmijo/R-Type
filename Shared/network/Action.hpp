@@ -67,12 +67,16 @@ struct LoginResponse {
 };
 
 struct LobbyCreate {
+  std::string lobbyName;
+  std::string lobbyPlayer;
   std::string password;
+  uint8_t Maxplayer;
   uint8_t difficulty;
 };
 
 struct LobbyJoinRequest {
   uint16_t lobbyId;
+  std::string name;
   std::string password;
 };
 
@@ -93,11 +97,20 @@ struct LobbyJoinResponse {
 
 struct LobbyInfo {
   uint16_t lobbyId;
+  std::string name;
   uint8_t playerCount;
   uint8_t maxPlayers;
   uint8_t difficulty;
   bool isStarted;
   bool hasPassword;
+};
+
+struct LobbyListRequest {
+  uint16_t playerId;
+};
+
+struct LobbyLeave {
+  uint16_t playerId;
 };
 
 struct LobbyListResponse {
@@ -109,6 +122,9 @@ struct PlayerReady {
 };
 
 struct LobbyUpdate {
+  std::string name;
+  uint8_t maxPlayers;
+  uint8_t difficulty;
   std::vector<LobbyPlayer> playerInfo;
 };
 
@@ -203,7 +219,7 @@ using ActionData =
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit>;
+                 EnemyHit, LobbyListRequest, LobbyLeave>;
 
 struct Action {
   ActionType type;

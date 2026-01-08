@@ -141,23 +141,22 @@ void ProcessPacketTCP::ReadPayload(uint16_t payload_size) {
       });
 }
 
-void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
-                                         std::size_t) {
+void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error, std::size_t) {
   if (error && error != asio::error::eof) {
     std::cerr << "[ProcessPacketTCP] Payload read error: " << error.message()
               << std::endl;
     return;
   }
 
-  switch (current_msg_type_) {
-    case 0x01:
-      ProcessLoginRequest();
-      break;
+  std::vector<uint8_t> full_packet;
+  full_packet.insert(full_packet.end(), header_buffer_.begin(), header_buffer_.end());
+  full_packet.insert(full_packet.end(), payload_buffer_.begin(), payload_buffer_.end());
 
-    default:
-      std::cerr << "[ProcessPacketTCP] Unknown message type: 0x" << std::hex
-                << static_cast<int>(current_msg_type_) << std::endl;
-      break;
+  if (current_msg_type_ == 0x01) { 
+      ProcessLoginRequest(); 
+  } 
+  else if (server_->GetMessageCallback()) {
+      server_->GetMessageCallback()(client_id_, full_packet);
   }
 
   ReadHeader();

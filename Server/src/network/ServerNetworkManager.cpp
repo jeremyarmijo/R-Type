@@ -18,6 +18,11 @@ bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port,
   try {
     work_guard_ = std::make_unique<asio::io_context::work>(io_context_);
     tcp_server_ = std::make_unique<TCPServer>(io_context_, tcp_port, host);
+    tcp_server_->SetMessageCallback(
+        [this](uint32_t client_id, const std::vector<uint8_t> &data) {
+          OnReceiveTCP(client_id, data);
+        });
+    tcp_server_->SetUDPPort(udp_port);
     tcp_server_->SetUDPPort(udp_port);
     tcp_server_->SetLoginCallback(
         [this](uint32_t client_id, const std::string &username,
@@ -124,6 +129,22 @@ void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
   }
 }
 
+void ServerNetworkManager::OnReceiveTCP(uint32_t client_id, const std::vector<uint8_t> &data) {
+  auto client = client_manager_.GetClient(client_id);
+  if (!client) return;
+
+  client->UpdateLastSeen();
+
+  NetworkMessage msg;
+  msg.client_id = static_cast<uint16_t>(client_id);
+  msg.data = data;
+
+  {
+    std::lock_guard<std::mutex> lock(queue_mutex_);
+    incoming_messages_.push(std::move(msg));
+  }
+}
+
 void ServerNetworkManager::Update() {
   std::queue<NetworkMessage> messages;
   {
@@ -174,7 +195,7 @@ void ServerNetworkManager::SendTo(const NetworkMessage &msg, bool sendUdp) {
 }
 
 void ServerNetworkManager::BroadcastLobbyUDP(
-    const NetworkMessage &msg, std::vector<std::tuple<uint16_t, bool>> &ids) {
+    const NetworkMessage &msg, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
   for (auto &id : ids) {
     uint16_t clientId = std::get<0>(id);
     auto client = client_manager_.GetClient(clientId);
@@ -186,7 +207,7 @@ void ServerNetworkManager::BroadcastLobbyUDP(
 }
 
 void ServerNetworkManager::BroadcastLobbyTCP(
-    const NetworkMessage &msg, std::vector<std::tuple<uint16_t, bool>> &ids) {
+    const NetworkMessage &msg, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
   for (auto &id : ids) {
     uint16_t clientId = std::get<0>(id);
     auto client = client_manager_.GetClient(clientId);

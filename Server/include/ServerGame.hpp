@@ -25,11 +25,13 @@
  */
 struct lobby_list {
   uint16_t lobby_id;
-  std::string mdp;
+  uint16_t host_id;
+  std::string name = "";
+  std::string mdp = "";
   uint8_t difficulty = 1;
   uint8_t nb_player;
   uint8_t max_players = 4;
-  std::vector<std::tuple<uint16_t, bool>> players_list;
+  std::vector<std::tuple<uint16_t, bool, std::string>> players_list;
   bool players_ready = false;
   bool gameRuning = false;
   bool hasPassword = false;
@@ -77,9 +79,11 @@ class ServerGame {
       actionQueue;  ///< Queue of actions to send to clients
 
 
-  void CreateLobby(uint16_t playerId, std::string mdp, uint8_t difficulty);
-  void JoinLobby(uint16_t playerId, uint16_t lobbyId, std::string mdp);
+  void CreateLobby(uint16_t playerId, std::string name,  std::string playerName, std::string mdp, uint8_t difficulty, uint8_t Maxplayer);
+  void JoinLobby(uint16_t playerId, std::string playerName,uint16_t lobbyId, std::string mdp);
   void HandlePayerReady(uint16_t playerId);
+  void ResetLobbyReadyStatus(lobby_list& lobby);
+  void ClearLobbyForRematch(lobby_list& lobby);
 
   void HandleLobbyCreate(uint16_t playerId, Event& ev);
   void HandleLobbyJoinRequest(uint16_t playerId, Event& ev);

@@ -24,18 +24,17 @@ class GameOverScene : public Scene {
   void OnEnter() override {
     std::cout << "\n=== GAME OVER ===" << std::endl;
 
-    GetNetwork().Disconnect();
-    GetAudio().LoadMusic("gameover_music", "../Client/assets/gameover_music.ogg");
+    GetAudio().LoadMusic("gameover_music",
+                         "../Client/assets/gameover_music.ogg");
     GetAudio().PlayMusic("gameover_music", 0);
 
     Entity background = m_engine->CreateSprite("background", {400, 300}, -10);
-      m_entities.push_back(background);
-    auto* text =
-    GetUI().AddElement<UIText>(220, 240, "GAME OVER...", "",
-                               50, SDL_Color{255, 255, 255, 255});
-    auto* returnText =
-    GetUI().AddElement<UIText>(110, 330, "press \"space\" to return to menu", "",
-                               30, SDL_Color{255, 255, 255, 255});
+    m_entities.push_back(background);
+    auto* text = GetUI().AddElement<UIText>(220, 240, "GAME OVER...", "", 50,
+                                            SDL_Color{255, 255, 255, 255});
+    auto* returnText = GetUI().AddElement<UIText>(
+        110, 330, "press \"space\" to return to Lobby", "", 30,
+        SDL_Color{255, 255, 255, 255});
     text->SetVisible(true);
     text->SetLayer(10);
 
@@ -60,8 +59,8 @@ class GameOverScene : public Scene {
     if (event.type == SDL_KEYDOWN) {
       if (event.key.keysym.sym == SDLK_SPACE ||
           event.key.keysym.sym == SDLK_RETURN) {
-        std::cout << "Returning to menu..." << std::endl;
-        ChangeScene("menu");
+        std::cout << "Returning to Lobby..." << std::endl;
+        ChangeScene("lobbyInfoPlayer");
       }
     }
   }

@@ -23,6 +23,7 @@ class JoinGame : public Scene {
   UITextInput* m_serverInput;
   UIButton* m_joinButton;
   UIButton* m_backButton;
+  std::string username;
 
  public:
   JoinGame(GameEngine* engine, SceneManager* sceneManager)
@@ -88,7 +89,7 @@ class JoinGame : public Scene {
       m_joinButton->SetOnClick([this]() {
         GetAudio().PlaySound("button");
         std::string serverIP = m_serverInput->GetText();
-        std::string username = m_usernameInput->GetText();
+        username = m_usernameInput->GetText();
 
         if (serverIP.empty()) {
           std::cout << "ERROR: Please enter a server IP!" << std::endl;
@@ -149,7 +150,8 @@ class JoinGame : public Scene {
       const auto* data = std::get_if<LOGIN_RESPONSE>(&e.data);
       if (data->success == 0) return;
       GetSceneData().Set("playerId", data->playerId);
-      ChangeScene("wait");
+      GetSceneData().Set("playerName", username);
+      ChangeScene("lobby");
     }
   }
 

@@ -217,8 +217,7 @@ class MyGameScene : public Scene {
                            "../Client/assets/projectile_enemy.png");
     }
     if (!textures.GetTexture("explosion")) {
-      textures.LoadTexture("explosion",
-                           "../Client/assets/explosion.png");
+      textures.LoadTexture("explosion", "../Client/assets/explosion.png");
     }
   }
 
@@ -233,21 +232,21 @@ class MyGameScene : public Scene {
                                 {{203, 6, 20, 23}, 0.1f},
                                 {{236, 6, 20, 23}, 0.1f}},
                                true);
-    
+
     animations.CreateAnimation("boss_anim", "boss",
                                {{{27, 1711, 154, 203}, 0.6f},
-                                  {{189, 1711, 154, 203}, 0.5f},
-                                  {{351, 1711, 154, 203}, 0.6f},
-                                  {{189, 1711, 154, 203}, 0.5f}},
+                                {{189, 1711, 154, 203}, 0.5f},
+                                {{351, 1711, 154, 203}, 0.6f},
+                                {{189, 1711, 154, 203}, 0.5f}},
                                true);
-    
+
     animations.CreateAnimation("explode_anim", "explosion",
                                {{{130, 2, 30, 30}, 0.1f},
-                                  {{163, 2, 30, 30}, 0.1f},
-                                  {{194, 2, 30, 30}, 0.1f},
-                                  {{228, 2, 30, 30}, 0.1f},
-                                  {{261, 2, 30, 30}, 0.1f},
-                                  {{294, 2, 30, 30}, 0.1f}},
+                                {{163, 2, 30, 30}, 0.1f},
+                                {{194, 2, 30, 30}, 0.1f},
+                                {{228, 2, 30, 30}, 0.1f},
+                                {{261, 2, 30, 30}, 0.1f},
+                                {{294, 2, 30, 30}, 0.1f}},
                                true);
 
     animations.CreateAnimation(
@@ -524,7 +523,8 @@ class MyGameScene : public Scene {
             playerComponents[m_localPlayer].has_value()) {
           playerComponents[m_localPlayer]->current =
               static_cast<int>(playerState.hp);
-          m_healthText->SetText("Health: " + std::to_string(static_cast<int>(playerState.hp)));
+          m_healthText->SetText(
+              "Health: " + std::to_string(static_cast<int>(playerState.hp)));
         }
       } else {
         auto it = m_otherPlayers.find(playerId);
@@ -553,14 +553,15 @@ class MyGameScene : public Scene {
       for (uint16_t playerId : toRemove) {
         RemoveOtherPlayer(playerId);
       }
-      if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() && m_isAlive) {
+      if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() &&
+          m_isAlive) {
         CreateExplosion(m_localPlayer);
         GetAudio().PlaySound("explosion");
         m_healthText->SetText("Health: 0");
         GetRegistry().kill_entity(m_localPlayer);
         m_entities.erase(
-        std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
-        m_entities.end());
+            std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
+            m_entities.end());
         m_isAlive = false;
       }
     }
@@ -603,7 +604,8 @@ class MyGameScene : public Scene {
         m_wave = 0;
         m_level += 1;
       }
-      m_levelText->SetText("Level: " + std::to_string(m_level) + " Wave: " + std::to_string(m_wave));
+      m_levelText->SetText("Level: " + std::to_string(m_level) +
+                           " Wave: " + std::to_string(m_wave));
     }
   }
 
@@ -640,8 +642,7 @@ class MyGameScene : public Scene {
   void GetEvents(float dt) {
     Event e = GetNetwork().PopEvent();
 
-    if (e.type == EventType::GAME_END)
-      ChangeScene("gameover");
+    if (e.type == EventType::GAME_END) ChangeScene("gameover");
     std::visit(
         [&](auto&& payload) {
           using T = std::decay_t<decltype(payload)>;
@@ -659,20 +660,21 @@ class MyGameScene : public Scene {
     auto& transform = GetRegistry().get_components<Transform>()[entity];
 
     Vector2 pos = transform->position;
-    Entity explosion = m_engine->CreateAnimatedSprite("explosion", pos, "explode_anim");
+    Entity explosion =
+        m_engine->CreateAnimatedSprite("explosion", pos, "explode_anim");
 
     m_explosions[explosion] = 0.6f;
   }
 
   void RemoveExplosions(float dt) {
-    for (auto it = m_explosions.begin(); it != m_explosions.end(); ) {
-        it->second -= dt;
-        if (it->second <= 0.0f) {
-            GetRegistry().kill_entity(Entity(it->first));
-            it = m_explosions.erase(it); 
-        } else {
-            ++it; 
-        }
+    for (auto it = m_explosions.begin(); it != m_explosions.end();) {
+      it->second -= dt;
+      if (it->second <= 0.0f) {
+        GetRegistry().kill_entity(Entity(it->first));
+        it = m_explosions.erase(it);
+      } else {
+        ++it;
+      }
     }
   }
 };

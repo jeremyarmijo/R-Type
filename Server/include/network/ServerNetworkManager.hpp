@@ -55,14 +55,14 @@ class ServerNetworkManager : public INetworkManager {
    * @param msg Network message to broadcast
    */
   void BroadcastLobbyUDP(const NetworkMessage& msg,
-                         std::vector<std::tuple<uint16_t, bool>>&) override;
+                         std::vector<std::tuple<uint16_t, bool, std::string>>&) override;
 
   /**
    * @brief Broadcast a message to all clients via TCP
    * @param msg Network message to broadcast
    */
   void BroadcastLobbyTCP(const NetworkMessage& msg,
-                         std::vector<std::tuple<uint16_t, bool>>&) override;
+                         std::vector<std::tuple<uint16_t, bool, std::string>>&) override;
 
   /**
    * @brief Process incoming messages and connection events
@@ -111,6 +111,7 @@ class ServerNetworkManager : public INetworkManager {
    */
   void OnReceive(const std::vector<uint8_t>& data,
                  const asio::ip::udp::endpoint& sender);
+void OnReceiveTCP(uint32_t client_id, const std::vector<uint8_t> &data);
 
   /**
    * @brief Handle TCP login event

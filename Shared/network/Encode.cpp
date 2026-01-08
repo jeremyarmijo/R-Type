@@ -16,6 +16,25 @@ inline uint8_t getType(const Action& a) {
       return 0x01;
     case ActionType::LOGIN_RESPONSE:
       return 0x02;
+    case ActionType::LOBBY_CREATE:
+      return 0x03;
+    case ActionType::LOBBY_JOIN_REQUEST:
+      return 0x04;
+    case ActionType::LOBBY_JOIN_RESPONSE:
+      return 0x05;
+    case ActionType::LOBBY_LIST_REQUEST:
+      return 0x06;
+    case ActionType::LOBBY_LIST_RESPONSE:
+      return 0x07;
+    case ActionType::PLAYER_READY:
+      return 0x08;
+    case ActionType::LOBBY_UPDATE:
+      return 0x09;
+    case ActionType::LOBBY_LEAVE:
+      return 0x0A;
+    case ActionType::LOBBY_START:
+      return 0x0B;
+
     case ActionType::GAME_START:
       return 0x0F;
     case ActionType::GAME_END:
@@ -33,7 +52,7 @@ inline uint8_t getType(const Action& a) {
     case ActionType::RIGHT_RELEASE:
     case ActionType::FIRE_PRESS:
     case ActionType::FIRE_RELEASE:
-      return 0x20;  // PLAYER_INPUT
+      return 0x20;
 
     case ActionType::GAME_STATE:
       return 0x21;

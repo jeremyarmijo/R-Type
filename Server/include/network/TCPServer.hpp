@@ -12,6 +12,8 @@
 #include "include/ServerMacro.hpp"
 #include "network/DecodeFunc.hpp"
 
+using MessageCallback = std::function<void(uint32_t, const std::vector<uint8_t>&)>;
+
 class ProcessPacketTCP;
 
 /**
@@ -32,6 +34,9 @@ class TCPServer {
   TCPServer(asio::io_context& io_context, uint16_t port,
             const std::string& host = "0.0.0.0");
   ~TCPServer();
+
+  void SetMessageCallback(MessageCallback callback) { message_callback_ = std::move(callback); }
+  MessageCallback GetMessageCallback() const { return message_callback_; }
 
   /**
    * @brief Set callback for client login events
@@ -69,6 +74,8 @@ class TCPServer {
    * @param client_id Target client identifier
    */
   void SendTo(const std::vector<uint8_t>& data, uint16_t client_id);
+  private:
+    MessageCallback message_callback_;
 
  private:
   friend class ProcessPacketTCP;

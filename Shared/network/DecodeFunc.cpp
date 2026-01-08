@@ -405,11 +405,19 @@ Event DecodeLOBBY_CREATE(const std::vector<uint8_t>& packet) {
   uint32_t payloadLength = 0;
   if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
+  uint8_t lobbyNameLen = packet[offset++];
+  data.lobbyName = std::string(reinterpret_cast<const char*>(&packet[offset]), lobbyNameLen);
+  offset += lobbyNameLen;
+
+  uint8_t playerNameLen = packet[offset++];
+  data.playerName = std::string(reinterpret_cast<const char*>(&packet[offset]), playerNameLen);
+  offset += playerNameLen;
+
   uint8_t passwordLen = packet[offset++];
-  data.password =
-      std::string(reinterpret_cast<const char*>(&packet[offset]), passwordLen);
+  data.password = std::string(reinterpret_cast<const char*>(&packet[offset]), passwordLen);
   offset += passwordLen;
 
+  data.Maxplayer = packet[offset++];
   data.difficulty = packet[offset++];
 
   evt.data = data;
@@ -417,26 +425,38 @@ Event DecodeLOBBY_CREATE(const std::vector<uint8_t>& packet) {
 }
 
 Event DecodeLOBBY_JOIN_REQUEST(const std::vector<uint8_t>& packet) {
-  Event evt;
-  evt.type = EventType::LOBBY_JOIN_REQUEST;
+    Event evt;
+    evt.type = EventType::LOBBY_JOIN_REQUEST;
+    LOBBY_JOIN_REQUEST data;
+    
+    size_t offset = 2; 
+    uint32_t payloadLength = 0;
 
-  LOBBY_JOIN_REQUEST data;
-  size_t offset = 2;
+    if (!checkHeader(packet, offset, payloadLength)) return evt;
 
-  uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+    if (packet.size() < offset + 2) return evt;
+    
+    uint16_t rawId;
+    memcpy(&rawId, &packet[offset], 2);
+    data.lobbyId = ntohs(rawId);
+    offset += 2;
 
-  memcpy(&data.lobbyId, &packet[offset], sizeof(data.lobbyId));
-  data.lobbyId = ntohs(data.lobbyId);
-  offset += sizeof(data.lobbyId);
+    if (packet.size() < offset + 1) return evt;
+    uint8_t nameLen = packet[offset++];
+    if (nameLen > 0 && (offset + nameLen <= packet.size())) {
+        data.name = std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
+        offset += nameLen;
+    }
 
-  uint8_t passwordLen = packet[offset++];
-  data.password =
-      std::string(reinterpret_cast<const char*>(&packet[offset]), passwordLen);
-  offset += passwordLen;
+    if (packet.size() < offset + 1) return evt;
+    uint8_t passwordLen = packet[offset++];
+    if (passwordLen > 0 && (offset + passwordLen <= packet.size())) {
+        data.password = std::string(reinterpret_cast<const char*>(&packet[offset]), passwordLen);
+        offset += passwordLen;
+    }
 
-  evt.data = data;
-  return evt;
+    evt.data = data;
+    return evt;
 }
 
 Event DecodeLOBBY_JOIN_RESPONSE(const std::vector<uint8_t>& packet) {
@@ -494,26 +514,12 @@ Event DecodeLOBBY_JOIN_RESPONSE(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
-Event DecodeLOBBY_LIST_REQUEST(const std::vector<uint8_t>& packet) {
-  Event evt;
-  evt.type = EventType::LOBBY_LIST_REQUEST;
-
-  size_t offset = 2;
-
-  uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
-
-  evt.data = std::monostate{};
-  return evt;
-}
-
 Event DecodeLOBBY_LIST_RESPONSE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::LOBBY_LIST_RESPONSE;
 
   LOBBY_LIST_RESPONSE data;
   size_t offset = 2;
-
   uint32_t payloadLength = 0;
   if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
@@ -521,17 +527,21 @@ Event DecodeLOBBY_LIST_RESPONSE(const std::vector<uint8_t>& packet) {
   data.lobbies.reserve(lobbyCount);
 
   for (uint8_t i = 0; i < lobbyCount; ++i) {
-    LOBBY_LIST_RESPONSE::Lobbies lobby;
+    Lobbies lobby;
 
     memcpy(&lobby.lobbyId, &packet[offset], sizeof(lobby.lobbyId));
     lobby.lobbyId = ntohs(lobby.lobbyId);
     offset += sizeof(lobby.lobbyId);
 
+    uint8_t nameLen = packet[offset++];
+    lobby.name = std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
+    offset += nameLen;
+
     lobby.playerCount = packet[offset++];
     lobby.maxPlayers = packet[offset++];
     lobby.difficulty = packet[offset++];
-    lobby.isStarted = packet[offset++] == 1;
-    lobby.hasPassword = packet[offset++] == 1;
+    lobby.isStarted = (packet[offset++] == 1);
+    lobby.hasPassword = (packet[offset++] == 1);
 
     data.lobbies.push_back(lobby);
   }
@@ -566,41 +576,33 @@ Event DecodeLOBBY_UPDATE(const std::vector<uint8_t>& packet) {
   uint32_t payloadLength = 0;
   if (!checkHeader(packet, offset, payloadLength)) return Event{};
 
+  uint8_t nameLen = packet[offset++];
+  data.name = std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
+  offset += nameLen;
+
+  data.maxPlayers = packet[offset++];
+  data.difficulty = packet[offset++];
+
   uint8_t playerCount = packet[offset++];
   data.playerInfo.reserve(playerCount);
 
   for (uint8_t i = 0; i < playerCount; ++i) {
-    LOBBY_UPDATE::PlayerInfo player;
+    PlayerInfo player;
 
     memcpy(&player.playerId, &packet[offset], sizeof(player.playerId));
     player.playerId = ntohs(player.playerId);
     offset += sizeof(player.playerId);
 
-    player.ready = packet[offset++] == 1;
+    player.ready = (packet[offset++] == 1);
 
     uint8_t usernameLen = packet[offset++];
-    player.username = std::string(
-        reinterpret_cast<const char*>(&packet[offset]), usernameLen);
+    player.username = std::string(reinterpret_cast<const char*>(&packet[offset]), usernameLen);
     offset += usernameLen;
 
     data.playerInfo.push_back(player);
   }
 
   evt.data = data;
-  return evt;
-}
-
-Event DecodeLOBBY_LEAVE(const std::vector<uint8_t>& packet) {
-  Event evt;
-  evt.type = EventType::LOBBY_LEAVE;
-
-  size_t offset = 2;
-
-  uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
-
-  // Pas de payload - message vide
-  evt.data = std::monostate{};
   return evt;
 }
 
@@ -616,6 +618,38 @@ Event DecodeLOBBY_START(const std::vector<uint8_t>& packet) {
 
   data.countdown = packet[offset++];
 
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeLOBBY_LIST_REQUEST(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LOBBY_LIST_REQUEST;
+  LOBBY_LIST_REQUEST data;
+  size_t offset = 2;
+  
+  uint32_t payloadLength = 0;
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+
+  memcpy(&data.playerId, &packet[offset], 2);
+  data.playerId = ntohs(data.playerId);
+  
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeLOBBY_LEAVE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LOBBY_LEAVE;
+  LOBBY_LEAVE data;
+  size_t offset = 2;
+  
+  uint32_t payloadLength = 0;
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+
+  memcpy(&data.playerId, &packet[offset], 2);
+  data.playerId = ntohs(data.playerId);
+  
   evt.data = data;
   return evt;
 }
