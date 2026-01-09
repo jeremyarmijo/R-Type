@@ -45,6 +45,8 @@ inline uint8_t getType(const Action& a) {
       return 0x24;
     case ActionType::ENEMY_HIT:
       return 0x25;
+    case ActionType::FORCE_STATE:
+      return 0x26;
 
     default:
       return 0xFF;

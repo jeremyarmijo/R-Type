@@ -303,6 +303,29 @@ inline void LoginResponseFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, resp->message.data(), msgLen);
 }
 
+inline void ForceStateFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* force = std::get_if<ForceState>(&a.data);
+  if (!force) return;
+
+  out.resize(13);
+  size_t offset = 0;
+
+  uint16_t forceId = htons(force->forceId);
+  memcpy(out.data() + offset, &forceId, sizeof(uint16_t));
+  offset += 2;
+
+  uint16_t ownerId = htons(force->ownerId);
+  memcpy(out.data() + offset, &ownerId, sizeof(uint16_t));
+  offset += 2;
+
+  htonf(force->posX, out.data() + offset);
+  offset += 4;
+  htonf(force->posY, out.data() + offset);
+  offset += 4;
+
+  out[offset++] = force->state;
+}
+
 inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::ERROR, ErrorFunc);
@@ -318,6 +341,7 @@ inline void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::RIGHT_RELEASE, PlayerInputFunc);
   encoder.registerHandler(ActionType::FIRE_PRESS, PlayerInputFunc);
   encoder.registerHandler(ActionType::FIRE_RELEASE, PlayerInputFunc);
+  encoder.registerHandler(ActionType::FORCE_STATE, ForceStateFunc);
   encoder.registerHandler(ActionType::LOGIN_REQUEST, LoginRequestFunc);
   encoder.registerHandler(ActionType::LOGIN_RESPONSE, LoginResponseFunc);
   encoder.registerHandler(ActionType::GAME_STATE, GameStateFunc);

@@ -115,6 +115,14 @@ struct ENEMY_HIT {
   uint16_t hpRemaining;
 };
 
+struct FORCE_STATE {
+  uint16_t forceId;
+  uint16_t ownerId;
+  float posX;
+  float posY;
+  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
+};
+
 enum class EventType : uint8_t {
   // TCP Messages
   LOGIN_REQUEST = 0x01,
@@ -130,6 +138,7 @@ enum class EventType : uint8_t {
   BOSS_SPAWN = 0x23,
   BOSS_UPDATE = 0x24,
   ENEMY_HIT = 0x25,
+  FORCE_STATE = 0x26,
 
   UNKNOWN = 0xFF
 };
@@ -137,7 +146,7 @@ enum class EventType : uint8_t {
 using EventData =
     std::variant<std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, GAME_START,
                  GAME_END, ERROR, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
-                 BOSS_UPDATE, ENEMY_HIT>;
+                 BOSS_UPDATE, ENEMY_HIT, FORCE_STATE>;
 
 struct Event {
   EventType type;
