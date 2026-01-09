@@ -148,9 +148,10 @@ struct ForceState {
   uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
 };
 
-using ActionData = std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput,
-                                LoginResponse, GameStart, GameEnd, ErrorMsg,
-                                GameState, BossSpawn, BossUpdate, EnemyHit, ForceState>;
+using ActionData =
+    std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
+                 GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
+                 EnemyHit, ForceState>;
 
 struct Action {
   ActionType type;
