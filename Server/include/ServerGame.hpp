@@ -9,7 +9,6 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <memory>
 
 #include "components/Levels.hpp"
 #include "ecs/Registry.hpp"

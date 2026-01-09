@@ -10,10 +10,12 @@
 #include "ecs/Registry.hpp"
 #include "ecs/Zipper.hpp"
 
-void gamePlay_Collision_system(
-    Registry& registry, SparseArray<Transform>& transforms,
-    SparseArray<BoxCollider>& colliders, SparseArray<PlayerEntity>& players,
-    SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses);
+void gamePlay_Collision_system(Registry& registry,
+                               SparseArray<Transform>& transforms,
+                               SparseArray<BoxCollider>& colliders,
+                               SparseArray<PlayerEntity>& players,
+                               SparseArray<Enemy>& enemies,
+                               SparseArray<Boss>& bosses);
 
 CollisionCategory get_entity_category(size_t entityId, Registry& registry);
 

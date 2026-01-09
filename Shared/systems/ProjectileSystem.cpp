@@ -1,11 +1,13 @@
 #include "systems/ProjectileSystem.hpp"
 
 #include <SDL2/SDL.h>
+
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
-#include <algorithm>
+
 #include "Player/Enemy.hpp"
 #include "ecs/Zipper.hpp"
 #include "graphics/RenderComponents.hpp"
