@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <random>
 
 #include "Helpers/EntityHelper.hpp"
 #include "Movement/Movement.hpp"
@@ -120,8 +121,11 @@ void spawn_basic_enemy_for_boss(Registry& registry) {
   const float MAX_Y = 550.0f;
   const float SPAWN_X = 750.0f;
 
-  float spawnY = MIN_Y + static_cast<float>(rand()) /
-                             (static_cast<float>(RAND_MAX / (MAX_Y - MIN_Y)));
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+  std::uniform_real_distribution<float> dis(MIN_Y, MAX_Y);
+
+  float spawnY = dis(gen);
 
   Vector2 pos = {SPAWN_X, spawnY};
   createEnemy(registry, EnemyType::Basic, pos);
