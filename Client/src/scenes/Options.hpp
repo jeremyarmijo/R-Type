@@ -218,6 +218,7 @@ class OptionsScene : public Scene {
     m_isInitialized = false;
     m_waitingForKey = false;
     m_bindingRows.clear();
+    GetUI().Clear();
   }
 
   void Update(float deltaTime) override {

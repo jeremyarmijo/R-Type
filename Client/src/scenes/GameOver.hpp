@@ -44,6 +44,7 @@ class GameOverScene : public Scene {
 
   void OnExit() override {
     std::cout << "Leaving Game Over screen..." << std::endl;
+    GetUI().Clear();
     m_isInitialized = false;
   }
 

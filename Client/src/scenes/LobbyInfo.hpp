@@ -20,6 +20,7 @@ class LobbyInfoPlayer : public Scene {
   std::vector<Entity> m_entities;
 
   UIButton* m_readyButton;
+  UIButton* m_leaveButton;
   UIButton* m_backButton;
 
   uint8_t difficulty = 1;
@@ -60,15 +61,28 @@ class LobbyInfoPlayer : public Scene {
     m_readyButton->SetOnClick([this]() {
       std::cout << "Ready button clicked!" << std::endl;
       GetAudio().PlaySound("button");
-      Action playerR{ActionType::PLAYER_READY, PlayerReady{isReady}};
       if (isReady == false)
         isReady = true;
       else
         isReady = false;
+      Action playerR{ActionType::PLAYER_READY, PlayerReady{isReady}};
       GetNetwork().SendAction(playerR);
     });
-    m_readyButton->SetColors({20, 40, 100, 200}, {30, 60, 150, 255},
-                             {10, 20, 60, 220});
+    m_readyButton->SetColors({20, 100, 40, 200}, {30, 150, 60, 255},
+                             {10, 60, 20, 220});
+
+    m_leaveButton = GetUI().AddElement<UIButton>(250, 500, 250, 80, "LEAVE");
+    m_leaveButton->SetLayer(9);
+    m_leaveButton->SetOnClick([this]() {
+      std::cout << "Leave button clicked!" << std::endl;
+      GetAudio().PlaySound("button");
+      uint16_t pId = GetSceneData().Get<uint16_t>("playerId", 0);
+      Action leaveReq{ActionType::LOBBY_LEAVE, LobbyLeave{pId}};
+      GetNetwork().SendAction(leaveReq);
+      ChangeScene("lobby");
+    });
+    m_leaveButton->SetColors({150, 50, 50, 255}, {170, 70, 70, 255},
+                             {130, 30, 30, 255});
 
     int yPos = 150;
     std::cout << "\n--- Current Players in Lobby ---" << std::endl;
@@ -98,6 +112,7 @@ class LobbyInfoPlayer : public Scene {
         m_isInitialized(false),
         m_settingsTransition(false),
         m_readyButton(nullptr),
+        m_leaveButton(nullptr),
         m_backButton(nullptr) {}
 
   void OnEnter() override {
@@ -107,25 +122,13 @@ class LobbyInfoPlayer : public Scene {
       m_isInitialized = false;
 
       TextureManager& textures = GetTextures();
-      AnimationManager& animations = GetAnimations();
       AudioManager& audio = GetAudio();
 
       audio.LoadMusic("menu_music", "../Client/assets/menu_music.ogg");
-      audio.LoadMusic("game_music", "../Client/assets/rtype_music.ogg");
-      audio.LoadSound("explosion", "../Client/assets/explosion.wav");
       audio.LoadSound("button", "../Client/assets/button.wav");
-      audio.LoadSound("shoot", "../Client/assets/shoot.wav");
-      audio.LoadSound("hitmarker", "../Client/assets/hitmarker.wav");
 
       audio.PlayMusic("menu_music");
 
-      std::cout << "Loading textures..." << std::endl;
-      if (!textures.GetTexture("player")) {
-        textures.LoadTexture("player", "../Client/assets/player.png");
-      }
-      if (!textures.GetTexture("boss")) {
-        textures.LoadTexture("boss", "../Client/assets/boss1.png");
-      }
       if (!textures.GetTexture("background")) {
         textures.LoadTexture("background", "../Client/assets/bg.jpg");
       }
@@ -133,30 +136,8 @@ class LobbyInfoPlayer : public Scene {
       Entity background = m_engine->CreateSprite("background", {400, 300}, -10);
       m_entities.push_back(background);
 
-      std::cout << "Creating UI Elements..." << std::endl;
-      auto* text =
-          GetUI().AddElement<UIText>(50, 40, "LOBBY: " + m_lobbyName, "", 50,
-                                     SDL_Color{255, 255, 255, 255});
-      text->SetVisible(true);
-      text->SetLayer(10);
-
-      m_readyButton = GetUI().AddElement<UIButton>(550, 500, 250, 80, "READY");
-      m_readyButton->SetLayer(9);
-      m_readyButton->SetOnClick([this]() {
-        std::cout << "Ready button clicked!" << std::endl;
-        GetAudio().PlaySound("button");
-        if (isReady == false)
-          isReady = true;
-        else
-          isReady = false;
-
-        Action playerR{ActionType::PLAYER_READY, PlayerReady{isReady}};
-        GetNetwork().SendAction(playerR);
-      });
-      m_readyButton->SetColors({20, 40, 100, 200}, {30, 60, 150, 255},
-                               {10, 20, 60, 220});
-
-      std::cout << "=================================\n" << std::endl;
+      // Le rafraîchissement initial de l'UI
+      RefreshPlayerListUI();
 
       m_isInitialized = true;
       std::cout << "Game scene initialized successfully" << std::endl;
@@ -168,12 +149,9 @@ class LobbyInfoPlayer : public Scene {
 
   void OnExit() override {
     std::cout << "\n=== EXITING LOBBY SCENE ===" << std::endl;
-
     m_entities.clear();
+    GetUI().Clear();
     m_isInitialized = false;
-
-    std::cout << "Menu cleanup complete" << std::endl;
-    std::cout << "==============================\n" << std::endl;
   }
 
   void Update(float deltaTime) override {
@@ -201,7 +179,6 @@ class LobbyInfoPlayer : public Scene {
 
   void Render() override {
     if (!m_isInitialized) return;
-
     RenderSpritesLayered();
     GetUI().Render();
   }
@@ -209,16 +186,6 @@ class LobbyInfoPlayer : public Scene {
   void HandleEvent(SDL_Event& event) override {
     if (GetUI().HandleEvent(event)) {
       return;
-    }
-
-    if (event.type == SDL_KEYDOWN) {
-      if (event.key.keysym.sym == SDLK_r) {
-        std::cout << "Restarting level..." << std::endl;
-        ChangeScene("game");
-      } else if (event.key.keysym.sym == SDLK_x) {
-        std::cout << "Quitting to Game Over screen..." << std::endl;
-        ChangeScene("gameover");
-      }
     }
   }
 };

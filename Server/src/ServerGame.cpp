@@ -176,7 +176,7 @@ void ServerGame::JoinLobby(uint16_t playerId, std::string playerName,
 }
 
 void ServerGame::RemovePlayerFromLobby(uint16_t playerId) {
-  std::lock_guard<std::mutex> lock(lobbyMutex);  // CRITIQUE ICI
+  std::lock_guard<std::mutex> lock(lobbyMutex);
   for (auto it = lobbys.begin(); it != lobbys.end();) {
     bool found = false;
 

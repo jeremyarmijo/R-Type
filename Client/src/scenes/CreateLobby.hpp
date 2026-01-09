@@ -92,6 +92,15 @@ class CreateLobby : public Scene {
       text->SetVisible(true);
       text->SetLayer(10);
 
+      m_backButton = GetUI().AddElement<UIButton>(50, 100, 100, 40, "BACK");
+      m_backButton->SetLayer(9);
+      m_backButton->SetOnClick([this]() {
+        GetAudio().PlaySound("button");
+        ChangeScene("lobby");
+      });
+      m_backButton->SetColors({150, 50, 50, 255}, {170, 70, 70, 255},
+                              {130, 30, 30, 255});
+
       m_difficulty1Button = GetUI().AddElement<UIButton>(275, 400, 50, 35, "1");
       m_difficulty1Button->SetLayer(9);
       m_difficulty1Button->SetOnClick([this]() {
@@ -219,7 +228,6 @@ class CreateLobby : public Scene {
         std::cout << "Options button clicked!" << std::endl;
         GetAudio().PlaySound("button");
 
-        // ChangeScene("options");
         m_privateLobbyButton->SetColors(
             {100, 100, 100, 255}, {150, 150, 150, 255}, {80, 80, 80, 255});
         m_publicLobbyButton->SetColors({20, 40, 100, 200}, {30, 60, 150, 255},
@@ -236,7 +244,6 @@ class CreateLobby : public Scene {
       m_privateLobbyButton->SetOnClick([this]() {
         GetAudio().PlaySound("button");
 
-        // ChangeScene("options");
         m_publicLobbyButton->SetColors({100, 100, 100, 255},
                                        {150, 150, 150, 255}, {80, 80, 80, 255});
         m_privateLobbyButton->SetColors({20, 40, 100, 200}, {30, 60, 150, 255},
@@ -252,7 +259,6 @@ class CreateLobby : public Scene {
       m_saveButton->SetOnClick([this]() {
         GetAudio().PlaySound("button");
 
-        // ChangeScene("options");
         std::string lobbyName = m_lobbyNameInput->GetText();
         std::string passwordInput = m_lobbypasswordInput->GetText();
 
@@ -317,6 +323,7 @@ class CreateLobby : public Scene {
     std::cout << "\n=== EXITING LOBBY SCENE ===" << std::endl;
 
     m_entities.clear();
+    GetUI().Clear();
     m_isInitialized = false;
 
     std::cout << "Menu cleanup complete" << std::endl;
@@ -345,16 +352,6 @@ class CreateLobby : public Scene {
   void HandleEvent(SDL_Event& event) override {
     if (GetUI().HandleEvent(event)) {
       return;
-    }
-
-    if (event.type == SDL_KEYDOWN) {
-      if (event.key.keysym.sym == SDLK_r) {
-        std::cout << "Restarting level..." << std::endl;
-        ChangeScene("game");
-      } else if (event.key.keysym.sym == SDLK_x) {
-        std::cout << "Quitting to Game Over screen..." << std::endl;
-        ChangeScene("gameover");
-      }
     }
   }
 };

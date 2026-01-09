@@ -16,9 +16,16 @@ class LobbyJoin : public Scene {
   bool m_isInitialized;
   std::vector<Entity> m_entities;
   std::vector<Lobbies> m_lobbies;
+
+  UIButton* m_publicLobbyButton;
+  UIButton* m_privateLobbyButton;
+  UIButton* m_backButton;
+
   uint16_t m_PlayerId;
+  bool isPrivate;
   float m_refreshTimer = 0.0f;
   const float REFRESH_INTERVAL = 5.0f;
+  bool m_needsUIRefresh;
 
   void SendLobbyListRequest() {
     Action listReq{ActionType::LOBBY_LIST_REQUEST,
@@ -34,11 +41,55 @@ class LobbyJoin : public Scene {
     title->SetVisible(true);
     title->SetLayer(10);
 
+    m_backButton = GetUI().AddElement<UIButton>(50, 100, 100, 40, "BACK");
+    m_backButton->SetLayer(9);
+    m_backButton->SetOnClick([this]() {
+      GetAudio().PlaySound("button");
+      ChangeScene("lobby");
+    });
+    m_backButton->SetColors({150, 50, 50, 255}, {170, 70, 70, 255},
+                            {130, 30, 30, 255});
+
     int yOffset = 150;
     const int buttonWidth = 600;
     const int buttonHeight = 60;
 
+    m_publicLobbyButton =
+        GetUI().AddElement<UIButton>(550, 100, 120, 40, "PUBLIC");
+    m_publicLobbyButton->SetLayer(9);
+    m_publicLobbyButton->SetOnClick([this]() {
+      std::cout << "Public filter clicked!" << std::endl;
+      GetAudio().PlaySound("button");
+
+      isPrivate = false;
+      SendLobbyListRequest();
+    });
+    m_publicLobbyButton->SetColors({20, 40, 100, 200}, {30, 60, 150, 255},
+                                   {10, 20, 60, 220});
+    if (isPrivate) {
+      m_publicLobbyButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
+                                     {80, 80, 80, 255});
+    }
+
+    m_privateLobbyButton =
+        GetUI().AddElement<UIButton>(660, 100, 120, 40, "PRIVATE");
+    m_privateLobbyButton->SetLayer(9);
+    m_privateLobbyButton->SetOnClick([this]() {
+      GetAudio().PlaySound("button");
+
+      isPrivate = true;
+      SendLobbyListRequest();
+    });
+    m_privateLobbyButton->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
+                                    {80, 80, 80, 255});
+    if (isPrivate) {
+      m_privateLobbyButton->SetColors({20, 40, 100, 200}, {30, 60, 150, 255},
+                                      {10, 20, 60, 220});
+    }
+
     for (const auto& lobby : m_lobbies) {
+      if (isPrivate && !lobby.hasPassword) continue;
+      if (!isPrivate && lobby.hasPassword) continue;
       std::string status = lobby.isStarted ? "[IN GAME]" : "[WAITING]";
       std::string playerCount =
           std::to_string(static_cast<int>(lobby.playerCount)) + "/" +
@@ -57,38 +108,51 @@ class LobbyJoin : public Scene {
 
       btn->SetOnClick([this, lobby]() {
         GetAudio().PlaySound("button");
-        std::cout << "LOBBBBYY ID:" << int(lobby.lobbyId) << std::endl;
+        std::string pName = GetSceneData().Get<std::string>("playerName", "");
+        if (isPrivate) {
+          GetSceneData().Set("lobbyId", lobby.lobbyId);
+          GetSceneData().Set("lobbyName", lobby.name);
+          ChangeScene("lobbyPassword");
+          return;
+        }
         Action joinAction{ActionType::LOBBY_JOIN_REQUEST,
-                          LobbyJoinRequest{lobby.lobbyId, lobby.name, ""}};
+                          LobbyJoinRequest{lobby.lobbyId, pName, ""}};
         GetNetwork().SendAction(joinAction);
       });
 
       yOffset += 70;
     }
+
+    m_needsUIRefresh = false;
   }
 
  public:
   LobbyJoin(GameEngine* engine, SceneManager* sceneManager)
       : Scene(engine, sceneManager, "lobbyjoin"),
         m_isInitialized(false),
-        m_refreshTimer(0.0f) {}
+        m_publicLobbyButton(nullptr),
+        m_privateLobbyButton(nullptr),
+        m_backButton(nullptr),
+        m_refreshTimer(0.0f),
+        m_needsUIRefresh(false) {}
 
   void OnEnter() override {
     try {
       m_isInitialized = false;
       m_refreshTimer = 0.0f;
+      m_needsUIRefresh = false;
 
       TextureManager& textures = GetTextures();
       if (!textures.GetTexture("background")) {
         textures.LoadTexture("background", "../Client/assets/bg.jpg");
       }
-      m_entities.push_back(
-          m_engine->CreateSprite("background", {400, 300}, -10));
+
+      Entity background = m_engine->CreateSprite("background", {400, 300}, -10);
+      m_entities.push_back(background);
 
       m_PlayerId = GetSceneData().Get<uint16_t>("playerId", 0);
 
       SendLobbyListRequest();
-      RefreshLobbyListUI();
 
       m_isInitialized = true;
     } catch (const std::exception& e) {
@@ -106,10 +170,10 @@ class LobbyJoin : public Scene {
     if (!m_isInitialized) return;
 
     m_refreshTimer += deltaTime;
-    /*if (m_refreshTimer >= REFRESH_INTERVAL) {
-        SendLobbyListRequest();
-        m_refreshTimer = 0.0f;
-    }*/
+    if (m_refreshTimer >= REFRESH_INTERVAL) {
+      SendLobbyListRequest();
+      m_refreshTimer = 0.0f;
+    }
 
     Event e = GetNetwork().PopEvent();
 
@@ -117,7 +181,7 @@ class LobbyJoin : public Scene {
       const auto* data = std::get_if<LOBBY_LIST_RESPONSE>(&e.data);
       if (data) {
         m_lobbies = data->lobbies;
-        RefreshLobbyListUI();
+        m_needsUIRefresh = true;
       }
     }
 
@@ -127,6 +191,9 @@ class LobbyJoin : public Scene {
         ChangeScene("lobbyInfoPlayer");
       }
     }
+    if (m_needsUIRefresh) {
+      RefreshLobbyListUI();
+    }
   }
 
   void Render() override {
@@ -135,10 +202,5 @@ class LobbyJoin : public Scene {
     GetUI().Render();
   }
 
-  void HandleEvent(SDL_Event& event) override {
-    GetUI().HandleEvent(event);
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-      ChangeScene("menu");
-    }
-  }
+  void HandleEvent(SDL_Event& event) override { GetUI().HandleEvent(event); }
 };

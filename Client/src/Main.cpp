@@ -13,6 +13,7 @@
 #include "scenes/MainMenu.hpp"
 #include "scenes/Options.hpp"
 #include "scenes/WaitLobby.hpp"
+#include "scenes/LobbyPassword.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIImage.hpp"
 #include "ui/UIText.hpp"
@@ -51,6 +52,8 @@ class MyGame {
     m_sceneManager.RegisterScene<LobbyInfoPlayer>("lobbyInfoPlayer", &m_engine,
                                                   &m_sceneManager);
     m_sceneManager.RegisterScene<LobbyJoin>("lobbyjoin", &m_engine,
+                                            &m_sceneManager);
+    m_sceneManager.RegisterScene<LobbyPassword>("lobbyPassword", &m_engine,
                                             &m_sceneManager);
 
     std::cout << "Starting initial scene..." << std::endl;

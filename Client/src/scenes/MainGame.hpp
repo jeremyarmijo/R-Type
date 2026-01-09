@@ -146,6 +146,7 @@ class MyGameScene : public Scene {
     m_skinManager.Clear();
     m_isInitialized = false;
     m_firstState = false;
+    GetUI().Clear();
     std::cout << "Game scene cleanup complete" << std::endl;
     std::cout << "==============================\n" << std::endl;
   }
