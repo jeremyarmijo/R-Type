@@ -129,7 +129,8 @@ void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
   }
 }
 
-void ServerNetworkManager::OnReceiveTCP(uint32_t client_id, const std::vector<uint8_t> &data) {
+void ServerNetworkManager::OnReceiveTCP(uint32_t client_id,
+                                        const std::vector<uint8_t> &data) {
   auto client = client_manager_.GetClient(client_id);
   if (!client) return;
 
@@ -195,7 +196,8 @@ void ServerNetworkManager::SendTo(const NetworkMessage &msg, bool sendUdp) {
 }
 
 void ServerNetworkManager::BroadcastLobbyUDP(
-    const NetworkMessage &msg, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
+    const NetworkMessage &msg,
+    std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
   for (auto &id : ids) {
     uint16_t clientId = std::get<0>(id);
     auto client = client_manager_.GetClient(clientId);
@@ -207,7 +209,8 @@ void ServerNetworkManager::BroadcastLobbyUDP(
 }
 
 void ServerNetworkManager::BroadcastLobbyTCP(
-    const NetworkMessage &msg, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
+    const NetworkMessage &msg,
+    std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
   for (auto &id : ids) {
     uint16_t clientId = std::get<0>(id);
     auto client = client_manager_.GetClient(clientId);
@@ -283,7 +286,4 @@ void ServerNetworkManager::OnTCPDisconnect(uint32_t client_id) {
   client_manager_.RemoveClient(client_id);
 }
 
-INetworkManager *EntryPointLib()
-{
-    return new ServerNetworkManager();
-}
+INetworkManager *EntryPointLib() { return new ServerNetworkManager(); }
