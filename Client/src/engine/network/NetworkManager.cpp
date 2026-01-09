@@ -322,7 +322,7 @@ void NetworkManager::SendActionServer() {
       std::lock_guard<std::mutex> lock(mut);
       actionBuffer.pop();
     } else {
-      break; 
+      break;
     }
   }
 }

@@ -40,8 +40,9 @@ class LobbyJoin : public Scene {
 
     for (const auto& lobby : m_lobbies) {
       std::string status = lobby.isStarted ? "[IN GAME]" : "[WAITING]";
-      std::string playerCount = std::to_string((int)lobby.playerCount) + "/" +
-                                std::to_string((int)lobby.maxPlayers);
+      std::string playerCount =
+          std::to_string(static_cast<int>(lobby.playerCount)) + "/" +
+          std::to_string(static_cast<int>(lobby.maxPlayers));
       std::string buttonLabel =
           lobby.name + "   " + status + "   " + playerCount;
 

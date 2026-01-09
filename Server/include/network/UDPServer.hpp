@@ -1,9 +1,13 @@
 #pragma once
+
 #include <array>
-#include <asio.hpp>
 #include <functional>
 #include <memory>
 #include <vector>
+#include <string>
+
+#include <asio.hpp>
+
 
 /**
  * @class UDPServer

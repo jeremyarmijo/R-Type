@@ -39,11 +39,12 @@ class LobbyInfoPlayer : public Scene {
 
     std::string countStr =
         "MAX PLAYER: " + std::to_string(m_playersInfo.size()) + "/" +
-        std::to_string((int)m_playerMax);
+        std::to_string(static_cast<int>(m_playerMax));
     auto* pMax = GetUI().AddElement<UIText>(600, 40, countStr, "", 20,
                                             SDL_Color{255, 255, 255, 255});
 
-    std::string diffStr = "DIFFICULTY: " + std::to_string((int)m_difficulty);
+    std::string diffStr =
+        "DIFFICULTY: " + std::to_string(static_cast<int>(m_difficulty));
     auto* diff = GetUI().AddElement<UIText>(600, 80, diffStr, "", 20,
                                             SDL_Color{255, 255, 255, 255});
 

@@ -1,18 +1,21 @@
 #pragma once
 #include <arpa/inet.h>
 
-#include <asio.hpp>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <utility>
+
+#include <asio.hpp>
 
 #include "include/ServerMacro.hpp"
 #include "network/DecodeFunc.hpp"
 
-using MessageCallback = std::function<void(uint32_t, const std::vector<uint8_t>&)>;
+using MessageCallback =
+    std::function<void(uint32_t, const std::vector<uint8_t>&)>;
 
 class ProcessPacketTCP;
 
@@ -35,7 +38,9 @@ class TCPServer {
             const std::string& host = "0.0.0.0");
   ~TCPServer();
 
-  void SetMessageCallback(MessageCallback callback) { message_callback_ = std::move(callback); }
+  void SetMessageCallback(MessageCallback callback) {
+    message_callback_ = std::move(callback);
+  }
   MessageCallback GetMessageCallback() const { return message_callback_; }
 
   /**
@@ -74,8 +79,9 @@ class TCPServer {
    * @param client_id Target client identifier
    */
   void SendTo(const std::vector<uint8_t>& data, uint16_t client_id);
-  private:
-    MessageCallback message_callback_;
+
+ private:
+  MessageCallback message_callback_;
 
  private:
   friend class ProcessPacketTCP;

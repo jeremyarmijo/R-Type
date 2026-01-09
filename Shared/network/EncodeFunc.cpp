@@ -1,3 +1,4 @@
+#include <vector>
 #include "network/EncodeFunc.hpp"
 
 void htonf(float value, uint8_t* out) {
@@ -254,24 +255,24 @@ void LobbyCreateFunc(const Action& a, std::vector<uint8_t>& out) {
 }
 
 void LobbyJoinRequestFunc(const Action& a, std::vector<uint8_t>& out) {
-    const auto* req = std::get_if<LobbyJoinRequest>(&a.data);
-    if (!req) return;
+  const auto* req = std::get_if<LobbyJoinRequest>(&a.data);
+  if (!req) return;
 
-    out.clear();
-    
-    uint16_t lobbyIdNet = htons(req->lobbyId);
-    uint8_t idBytes[2];
-    memcpy(idBytes, &lobbyIdNet, 2);
-    out.push_back(idBytes[0]);
-    out.push_back(idBytes[1]);
+  out.clear();
 
-    uint8_t nameLen = static_cast<uint8_t>(req->name.size());
-    out.push_back(nameLen);
-    out.insert(out.end(), req->name.begin(), req->name.end());
+  uint16_t lobbyIdNet = htons(req->lobbyId);
+  uint8_t idBytes[2];
+  memcpy(idBytes, &lobbyIdNet, 2);
+  out.push_back(idBytes[0]);
+  out.push_back(idBytes[1]);
 
-    uint8_t passwordLen = static_cast<uint8_t>(req->password.size());
-    out.push_back(passwordLen);
-    out.insert(out.end(), req->password.begin(), req->password.end());
+  uint8_t nameLen = static_cast<uint8_t>(req->name.size());
+  out.push_back(nameLen);
+  out.insert(out.end(), req->name.begin(), req->name.end());
+
+  uint8_t passwordLen = static_cast<uint8_t>(req->password.size());
+  out.push_back(passwordLen);
+  out.insert(out.end(), req->password.begin(), req->password.end());
 }
 
 void LobbyJoinResponseFunc(const Action& a, std::vector<uint8_t>& out) {
@@ -395,7 +396,7 @@ void LobbyStartFunc(const Action& a, std::vector<uint8_t>& out) {
 void LobbyListRequestFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* req = std::get_if<LobbyListRequest>(&a.data);
   if (!req) return;
-  
+
   out.clear();
   uint16_t id = htons(req->playerId);
   uint8_t buf[2];
@@ -407,7 +408,7 @@ void LobbyListRequestFunc(const Action& a, std::vector<uint8_t>& out) {
 void LobbyLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* req = std::get_if<LobbyLeave>(&a.data);
   if (!req) return;
-  
+
   out.clear();
   uint16_t id = htons(req->playerId);
   uint8_t buf[2];
@@ -441,9 +442,11 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::ENEMY_HIT, EnemyHitFunc);
   encoder.registerHandler(ActionType::LOBBY_CREATE, LobbyCreateFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_REQUEST, LobbyJoinRequestFunc);
-  encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE, LobbyJoinResponseFunc);
+  encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE,
+                          LobbyJoinResponseFunc);
   encoder.registerHandler(ActionType::LOBBY_LIST_REQUEST, LobbyListRequestFunc);
-  encoder.registerHandler(ActionType::LOBBY_LIST_RESPONSE, LobbyListResponseFunc);
+  encoder.registerHandler(ActionType::LOBBY_LIST_RESPONSE,
+                          LobbyListResponseFunc);
   encoder.registerHandler(ActionType::PLAYER_READY, PlayerReadyFunc);
   encoder.registerHandler(ActionType::LOBBY_UPDATE, LobbyUpdateFunc);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);

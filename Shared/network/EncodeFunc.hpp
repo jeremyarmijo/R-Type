@@ -1,7 +1,9 @@
 #pragma once
 #include <arpa/inet.h>
+
 #include <cstring>
 #include <vector>
+
 #include "network/Encoder.hpp"
 
 void htonf(float value, uint8_t* out);

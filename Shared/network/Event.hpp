@@ -146,13 +146,13 @@ struct LOBBY_JOIN_RESPONSE {
 };
 
 struct Lobbies {
-    uint16_t lobbyId;
-    std::string name;
-    uint8_t playerCount;
-    uint8_t maxPlayers;
-    uint8_t difficulty;
-    bool isStarted;
-    bool hasPassword;
+  uint16_t lobbyId;
+  std::string name;
+  uint8_t playerCount;
+  uint8_t maxPlayers;
+  uint8_t difficulty;
+  bool isStarted;
+  bool hasPassword;
 };
 
 struct LOBBY_LIST_RESPONSE {
@@ -164,9 +164,9 @@ struct PLAYER_READY {
 };
 
 struct PlayerInfo {
-    uint16_t playerId;
-    bool ready;
-    std::string username;
+  uint16_t playerId;
+  bool ready;
+  std::string username;
 };
 
 struct LOBBY_UPDATE {

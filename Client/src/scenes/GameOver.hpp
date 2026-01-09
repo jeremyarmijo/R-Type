@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 
 #include <iostream>
+#include <vector>
 
 #include "scene/SceneManager.hpp"
 #include "ui/UIManager.hpp"

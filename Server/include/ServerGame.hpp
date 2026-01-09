@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <string>
@@ -60,15 +61,15 @@ class ServerGame {
   void Shutdown();
 
  private:
+  std::unique_ptr<INetworkManager>
+      networkManager;  ///< Network communication manager
+  Decoder decode;      ///< Decoder for incoming network messages
+  Encoder encode;      ///< Encoder for outgoing network messages
+  Registry registry;   ///< ECS registry for game entities
+  std::unordered_map<uint16_t, Entity>
+      m_players;          ///< Map of player IDs to their entities
+  std::mutex queueMutex;  ///< Mutex for thread-safe queue access
 
-
-  std::unique_ptr<INetworkManager> networkManager; ///< Network communication manager
-  Decoder decode;                      ///< Decoder for incoming network messages
-  Encoder encode;                      ///< Encoder for outgoing network messages
-  Registry registry;                   ///< ECS registry for game entities
-  std::unordered_map<uint16_t, Entity> m_players;       ///< Map of player IDs to their entities
-  std::mutex queueMutex;               ///< Mutex for thread-safe queue access
-  
   std::vector<std::unique_ptr<lobby_list>> lobbys;
   uint16_t nextLobbyId = 1;
   const float TIME_BETWEEN_LEVELS = 5.0f;
@@ -78,9 +79,10 @@ class ServerGame {
   std::queue<std::tuple<Action, uint16_t, lobby_list*>>
       actionQueue;  ///< Queue of actions to send to clients
 
-
-  void CreateLobby(uint16_t playerId, std::string name,  std::string playerName, std::string mdp, uint8_t difficulty, uint8_t Maxplayer);
-  void JoinLobby(uint16_t playerId, std::string playerName,uint16_t lobbyId, std::string mdp);
+  void CreateLobby(uint16_t playerId, std::string name, std::string playerName,
+                   std::string mdp, uint8_t difficulty, uint8_t Maxplayer);
+  void JoinLobby(uint16_t playerId, std::string playerName, uint16_t lobbyId,
+                 std::string mdp);
   void HandlePayerReady(uint16_t playerId);
   void ResetLobbyReadyStatus(lobby_list& lobby);
   void ClearLobbyForRematch(lobby_list& lobby);

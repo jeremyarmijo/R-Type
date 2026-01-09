@@ -1,6 +1,5 @@
 #pragma once
 
-#include <asio.hpp>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -8,6 +7,8 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+#include <asio.hpp>
 
 #include "network/ClientManager.hpp"
 #include "network/INetworkManager.hpp"
@@ -54,15 +55,17 @@ class ServerNetworkManager : public INetworkManager {
    * @brief Broadcast a message to all clients via UDP
    * @param msg Network message to broadcast
    */
-  void BroadcastLobbyUDP(const NetworkMessage& msg,
-                         std::vector<std::tuple<uint16_t, bool, std::string>>&) override;
+  void BroadcastLobbyUDP(
+      const NetworkMessage& msg,
+      std::vector<std::tuple<uint16_t, bool, std::string>>&) override;
 
   /**
    * @brief Broadcast a message to all clients via TCP
    * @param msg Network message to broadcast
    */
-  void BroadcastLobbyTCP(const NetworkMessage& msg,
-                         std::vector<std::tuple<uint16_t, bool, std::string>>&) override;
+  void BroadcastLobbyTCP(
+      const NetworkMessage& msg,
+      std::vector<std::tuple<uint16_t, bool, std::string>>&) override;
 
   /**
    * @brief Process incoming messages and connection events
@@ -111,7 +114,7 @@ class ServerNetworkManager : public INetworkManager {
    */
   void OnReceive(const std::vector<uint8_t>& data,
                  const asio::ip::udp::endpoint& sender);
-void OnReceiveTCP(uint32_t client_id, const std::vector<uint8_t> &data);
+  void OnReceiveTCP(uint32_t client_id, const std::vector<uint8_t>& data);
 
   /**
    * @brief Handle TCP login event
@@ -158,5 +161,5 @@ void OnReceiveTCP(uint32_t client_id, const std::vector<uint8_t> &data);
 };
 
 extern "C" {
-  INetworkManager *EntryPointLib();
+INetworkManager* EntryPointLib();
 }

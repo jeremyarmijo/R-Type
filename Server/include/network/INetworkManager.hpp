@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <functional>
 #include <vector>
+#include <string>
 
 #include "include/NetworkMessage.hpp"
 
@@ -41,15 +42,17 @@ class INetworkManager {
    * @brief Broadcast message via UDP to all clients
    * @param msg Network message to broadcast
    */
-  virtual void BroadcastLobbyUDP(const NetworkMessage& msg,
-                                 std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
+  virtual void BroadcastLobbyUDP(
+      const NetworkMessage& msg,
+      std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
 
   /**
    * @brief Broadcast message via TCP to all clients
    * @param msg Network message to broadcast
    */
-  virtual void BroadcastLobbyTCP(const NetworkMessage& msg,
-                                 std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
+  virtual void BroadcastLobbyTCP(
+      const NetworkMessage& msg,
+      std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
 
   /**
    * @brief Update network state and process events
