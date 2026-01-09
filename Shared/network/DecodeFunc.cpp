@@ -662,6 +662,34 @@ Event DecodeLOBBY_LEAVE(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
+Event DecodeMESSAGE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::MESSAGE;
+
+  MESSAGE data;
+  size_t offset = 2;
+
+  uint32_t payloadLength = 0;
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+
+  memcpy(&data.lobbyId, &packet[offset], sizeof(data.lobbyId));
+  data.lobbyId = ntohs(data.lobbyId);
+  offset += sizeof(data.lobbyId);
+
+  uint8_t nameLen = packet[offset++];
+  data.playerName =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
+  offset += nameLen;
+
+  uint8_t msgLen = packet[offset++];
+  data.message =
+      std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
+  offset += msgLen;
+
+  evt.data = data;
+  return evt;
+}
+
 void SetupDecoder(Decoder& decoder) {
   // TCP Messages
   decoder.registerHandler(0x01, DecodeLOGIN_REQUEST);
@@ -679,6 +707,7 @@ void SetupDecoder(Decoder& decoder) {
   decoder.registerHandler(0x09, DecodeLOBBY_UPDATE);
   decoder.registerHandler(0x0A, DecodeLOBBY_LEAVE);
   decoder.registerHandler(0x0B, DecodeLOBBY_START);
+  decoder.registerHandler(0x0C, DecodeMESSAGE);
 
   // UDP Messages
   decoder.registerHandler(0x20, DecodePLAYER_INPUT);

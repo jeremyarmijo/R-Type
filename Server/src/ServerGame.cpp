@@ -304,6 +304,32 @@ void ServerGame::HandleLobbyLeave(uint16_t playerId) {
   RemovePlayerFromLobby(playerId);
 }
 
+void ServerGame::HandleLobbyMessage(uint16_t playerId, Event& ev) {
+  const auto* msgData = std::get_if<MESSAGE>(&ev.data);
+  if (!msgData) return;
+
+  lobby_list* lobby = FindPlayerLobby(playerId);
+  if (!lobby) return;
+
+  Action ac;
+  Message response;
+  response.lobbyId = lobby->lobby_id;
+  response.playerName = msgData->playerName;
+
+  if (msgData->message.empty() || msgData->message == "") {
+    response.message = " ";
+  } else {
+    response.message = msgData->message;
+  }
+
+  ac.type = ActionType::MESSAGE;
+  ac.data = response;
+
+  std::cout << "[Chat] [" << lobby->name << "] " << msgData->playerName << ": "
+            << msgData->message << std::endl;
+  SendAction(std::make_tuple(ac, 0, lobby));
+}
+
 lobby_list* ServerGame::FindPlayerLobby(uint16_t playerId) {
   std::lock_guard<std::mutex> lock(lobbyMutex);
   for (auto& lobby : lobbys) {
@@ -371,9 +397,9 @@ void ServerGame::SetupNetworkCallbacks() {
         HandleLobbyLeave(playerId);
         break;
 
-      case EventType::GAME_START: {
-        auto& d = std::get<GAME_START>(ev.data);
-        std::cout << "[GAME_START]" << std::endl;
+      case EventType::MESSAGE: {
+        std::cout << "[MESSAGE]" << std::endl;
+        HandleLobbyMessage(playerId, ev);
         break;
       }
 
@@ -383,10 +409,7 @@ void ServerGame::SetupNetworkCallbacks() {
                   << std::endl;
         break;
       }
-
       default:
-        std::cout << "[UNKNOWN EVENT] Type ID: " << static_cast<int>(ev.type)
-                  << std::endl;
         break;
     }
   });

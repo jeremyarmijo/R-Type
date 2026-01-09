@@ -34,6 +34,8 @@ inline uint8_t getType(const Action& a) {
       return 0x0A;
     case ActionType::LOBBY_START:
       return 0x0B;
+    case ActionType::MESSAGE:
+      return 0x0C;
 
     case ActionType::GAME_START:
       return 0x0F;

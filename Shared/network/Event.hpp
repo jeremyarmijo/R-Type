@@ -115,6 +115,12 @@ struct ENEMY_HIT {
   uint16_t hpRemaining;
 };
 
+struct MESSAGE {
+  uint16_t lobbyId;
+  std::string playerName;
+  std::string message;
+};
+
 struct LOBBY_CREATE {
   std::string lobbyName;
   std::string playerName;
@@ -202,6 +208,7 @@ enum class EventType : uint8_t {
   LOBBY_UPDATE = 0x09,
   LOBBY_LEAVE = 0x0A,
   LOBBY_START = 0x0B,
+  MESSAGE = 0x0C,
 
   GAME_START = 0x0F,
   GAME_END = 0x10,
@@ -223,7 +230,8 @@ using EventData =
                  GAME_END, ERROR, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
                  BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
                  LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
-                 LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE>;
+                 LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
+                 MESSAGE>;
 
 struct Event {
   EventType type;

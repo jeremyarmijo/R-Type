@@ -23,6 +23,7 @@ enum class ActionType : uint8_t {
   LOBBY_LIST_REQUEST,
   PLAYER_READY,
   LOBBY_LEAVE,
+  MESSAGE,
 
   // Serveur → Client
   LOGIN_RESPONSE,
@@ -103,6 +104,12 @@ struct LobbyInfo {
   uint8_t difficulty;
   bool isStarted;
   bool hasPassword;
+};
+
+struct Message {
+  uint16_t lobbyId;
+  std::string playerName;
+  std::string message;
 };
 
 struct LobbyListRequest {
@@ -219,7 +226,7 @@ using ActionData =
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit, LobbyListRequest, LobbyLeave>;
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message>;
 
 struct Action {
   ActionType type;
@@ -258,6 +265,7 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::LOBBY_START:
     case ActionType::GAME_START:
     case ActionType::GAME_END:
+    case ActionType::MESSAGE:
     case ActionType::ERROR:
       return 2;  // TCP
 

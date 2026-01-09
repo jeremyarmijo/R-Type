@@ -1,5 +1,6 @@
-#include <vector>
 #include "network/EncodeFunc.hpp"
+
+#include <vector>
 
 void htonf(float value, uint8_t* out) {
   uint32_t asInt;
@@ -417,6 +418,32 @@ void LobbyLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
   out.push_back(buf[1]);
 }
 
+void MessageFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* msg = std::get_if<Message>(&a.data);
+  if (!msg) return;
+
+  out.clear();
+  size_t offset = 0;
+
+  out.resize(offset + 2);
+  uint16_t lobbyId = htons(msg->lobbyId);
+  memcpy(out.data() + offset, &lobbyId, sizeof(lobbyId));
+  offset += 2;
+
+  uint8_t nameLen = static_cast<uint8_t>(msg->playerName.size());
+  out.resize(offset + 1);
+  out[offset++] = nameLen;
+  out.resize(offset + nameLen);
+  memcpy(out.data() + offset, msg->playerName.data(), nameLen);
+  offset += nameLen;
+
+  uint8_t msgContentLen = static_cast<uint8_t>(msg->message.size());
+  out.resize(offset + 1);
+  out[offset++] = msgContentLen;
+  out.resize(offset + msgContentLen);
+  memcpy(out.data() + offset, msg->message.data(), msgContentLen);
+}
+
 void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
@@ -447,6 +474,7 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::LOBBY_LIST_REQUEST, LobbyListRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_LIST_RESPONSE,
                           LobbyListResponseFunc);
+  encoder.registerHandler(ActionType::MESSAGE, MessageFunc);
   encoder.registerHandler(ActionType::PLAYER_READY, PlayerReadyFunc);
   encoder.registerHandler(ActionType::LOBBY_UPDATE, LobbyUpdateFunc);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);

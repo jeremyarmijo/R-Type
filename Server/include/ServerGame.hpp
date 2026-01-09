@@ -85,6 +85,7 @@ class ServerGame {
   void HandlePayerReady(uint16_t playerId);
   void ResetLobbyReadyStatus(lobby_list& lobby);
   void ClearLobbyForRematch(lobby_list& lobby);
+  void HandleLobbyMessage(uint16_t playerId, Event& ev);
 
   void HandleLobbyCreate(uint16_t playerId, Event& ev);
   void HandleLobbyJoinRequest(uint16_t playerId, Event& ev);
