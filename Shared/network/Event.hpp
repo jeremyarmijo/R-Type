@@ -198,6 +198,12 @@ struct LOBBY_LEAVE {
 
 struct LOBBY_KICK {
   uint16_t playerId;
+struct FORCE_STATE {
+  uint16_t forceId;
+  uint16_t ownerId;
+  float posX;
+  float posY;
+  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
 };
 
 enum class EventType : uint8_t {
@@ -228,6 +234,7 @@ enum class EventType : uint8_t {
   BOSS_SPAWN = 0x23,
   BOSS_UPDATE = 0x24,
   ENEMY_HIT = 0x25,
+  FORCE_STATE = 0x26,
 
   UNKNOWN = 0xFF
 };
@@ -238,9 +245,11 @@ using EventData =
                  BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
                  LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
                  LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
-                 MESSAGE, LOBBY_KICK>;
+                 MESSAGE, LOBBY_KICK,GAME_END, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
+                 BOSS_UPDATE, ENEMY_HIT, FORCE_STATE>;
 
 struct Event {
   EventType type;
   EventData data;
-};
+};}
+

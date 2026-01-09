@@ -27,6 +27,7 @@ enum class ActionType : uint8_t {
   LOBBY_KICK,
 
   // Serveur → Client
+  FORCE_STATE,
   LOGIN_RESPONSE,
   LOBBY_JOIN_RESPONSE,
   LOBBY_LIST_RESPONSE,
@@ -233,7 +234,14 @@ using ActionData =
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick>;
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick, ForceState>;
+struct ForceState {
+  uint16_t forceId;
+  uint16_t ownerId;
+  float posX;
+  float posY;
+  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
+};
 
 struct Action {
   ActionType type;
@@ -275,6 +283,7 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::MESSAGE:
     case ActionType::LOBBY_KICK:
     case ActionType::ERROR_SERVER:
+    case ActionType::FORCE_STATE:
       return 2;  // TCP
 
     default:
