@@ -15,10 +15,12 @@
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
 #include "components/BossPart.hpp"
+#include "components/Force.hpp"
 #include "components/Physics2D.hpp"
 #include "dynamicLibLoader/DLLoader.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/BoundsSystem.hpp"
+#include "systems/ForceCtrl.hpp"
 #include "systems/LevelSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
@@ -46,6 +48,15 @@ void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName,
   l->hasPassword = !mdp.empty();
   l->nb_player = 1;
   l->players_list.push_back(std::make_tuple(playerId, false, playerName));
+  float posY = 200.f + ((playerId - 1) % 4) * 100.f;
+  Entity player = createPlayer(registry, {200, posY}, playerId);
+  m_players[playerId] = player;
+  Entity forceEntity = createForce(registry, player, {200, posY});
+  std::cout << "Force created for player " << playerId << std::endl;
+
+  lobbyPlayers.push_back(playerId);
+  std::cout << "Player " << playerId << " joined the lobby ("
+            << lobbyPlayers.size() << "/4)" << std::endl;
 
   std::cout << "[Lobby] Player " << playerId << " created lobby " << l->lobby_id
             << std::endl;
@@ -444,6 +455,7 @@ void ServerGame::SetupNetworkCallbacks() {
 }
 
 bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff, const std::string& host) {
+  difficulty = diff;
   if (!networkManager->Initialize(tcpPort, udpPort, host)) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
@@ -498,6 +510,9 @@ void ServerGame::StartGame(lobby_list& lobby_list) {
   lobby_list.registry.register_component<Projectile>();
   lobby_list.registry.register_component<LevelComponent>();
   lobby_list.registry.register_component<BossPart>();
+  lobby_list.registry.register_component<Force>();
+    std::cout << "Components registered" << std::endl;
+
 
   for (auto& [playerId, ready, _] : lobby_list.players_list) {
     float posY = 200.f + (lobby_list.m_players.size() % 4) * 100.f;
@@ -554,6 +569,7 @@ void ServerGame::CheckGameEnded(lobby_list& lobby) {
       validPlayers += 1;
     }
   }
+  std::cout << "[DEBUG] Valid players: " << validPlayers << std::endl;
   if (validPlayers <= 0) {
     EndGame(lobby);
   }
@@ -764,6 +780,8 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   auto& colliders = lobby.registry.get_components<BoxCollider>();
   auto& projectiles = lobby.registry.get_components<Projectile>();
   auto& weapons = lobby.registry.get_components<Weapon>();
+  auto& forces = lobby.registry.get_components<Force>();
+  auto& states = lobby.registry.get_components<InputState>();
 
   for (auto&& [player] : Zipper(players)) {
     if (player.invtimer > 0.0f) {
@@ -819,6 +837,19 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
     std::cout << "[DEBUG] Waiting for next level... "
               << lobby.levelTransitionTimer << "/" << TIME_BETWEEN_LEVELS
               << std::endl;
+  for (size_t i = 0; i < forces.size(); ++i) {
+    if (forces[i].has_value()) {
+      auto& f = forces[i].value();
+      auto& t = transforms[i].value();
+      std::cout << "[DEBUG] Force " << i << " at (" << t.position.x << ", "
+                << t.position.y << ")"
+                << " state=" << static_cast<int>(f.state) << std::endl;
+    }
+  }
+  if (waitingForNextLevel) {
+    levelTransitionTimer += deltaTime;
+    std::cout << "[DEBUG] Waiting for next level... " << levelTransitionTimer
+              << "/" << TIME_BETWEEN_LEVELS << std::endl;
 
     if (lobby.levelTransitionTimer >= TIME_BETWEEN_LEVELS) {
       lobby.levelTransitionTimer = 0.0f;
@@ -874,6 +905,16 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
           toKill.push_back(lobby.registry.entity_from_index(i));
         }
       }
+
+      auto& bossPartsCleanup = registry.get_components<BossPart>();
+      for (size_t i = 0; i < bossPartsCleanup.size(); ++i) {
+        if (bossPartsCleanup[i].has_value()) {
+          std::cout << "[DEBUG] Marking BossPart at index " << i
+                    << " for cleanup" << std::endl;
+          toKill.push_back(registry.entity_from_index(i));
+        }
+      }
+
       for (Entity e : toKill) {
         std::cout << "[DEBUG] Killing leftover entity: "
                   << static_cast<size_t>(e) << std::endl;
@@ -891,6 +932,7 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
                 << std::endl;
     }
   }
+
   player_movement_system(lobby.registry);
   physics_movement_system(lobby.registry, transforms, rigidbodies, deltaTime,
                           {0, 0});
@@ -901,6 +943,11 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   boss_part_system(lobby.registry, deltaTime);
   weapon_cooldown_system(lobby.registry, weapons, deltaTime);
   weapon_reload_system(lobby.registry, weapons, deltaTime);
+
+  force_control_system(lobby.registry, forces, states, transforms);
+  force_movement_system(lobby.registry, transforms, rigidbodies, forces, players,
+                        deltaTime);
+                        
   weapon_firing_system(
       lobby.registry, weapons, transforms,
       [&lobby](size_t entityId) -> bool {
@@ -920,6 +967,11 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   gamePlay_Collision_system(lobby.registry, transforms, colliders, players,
                             enemies, bosses);
   bounds_check_system(lobby.registry, transforms, colliders, rigidbodies);
+  force_collision_system(lobby.registry, transforms, colliders, forces, enemies,
+                         bosses, registry.get_components<BossPart>(),
+                         projectiles);
+}
+
 }
 
 void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
@@ -929,6 +981,7 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
   auto& bosses = lobby.registry.get_components<Boss>();
   auto& projectiles = lobby.registry.get_components<Projectile>();
   auto& bosspart = lobby.registry.get_components<BossPart>();
+  auto& forcesArr = registry.get_components<Force>();
 
   GameState gs;
 
@@ -992,4 +1045,24 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
   }
 
   SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0, &lobby));
+  /*for (auto&& [idx, force, transform] : IndexedZipper(forcesArr, transforms))
+{ if (!force.isActive) continue;
+
+    ForceState fs;  // Tu dois créer cette structure
+    fs.forceId = static_cast<uint16_t>(idx);
+    fs.ownerId = static_cast<uint16_t>(force.ownerPlayer);
+    fs.posX = transform.position.x;
+    fs.posY = transform.position.y;
+    fs.state = static_cast<uint8_t>(force.state);
+    gs.forces.push_back(fs);
+  }
+
+  struct ForceState {
+  uint16_t forceId;
+  uint16_t ownerId;
+  float posX;
+  float posY;
+  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
+};
+  SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0));*/
 }
