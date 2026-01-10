@@ -14,9 +14,11 @@
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
 #include "components/BossPart.hpp"
+#include "components/Force.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/BoundsSystem.hpp"
+#include "systems/ForceCtrl.hpp"
 #include "systems/LevelSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
@@ -37,6 +39,9 @@ void ServerGame::HandleAuth(uint16_t playerId) {
   float posY = 200.f + ((playerId - 1) % 4) * 100.f;
   Entity player = createPlayer(registry, {200, posY}, playerId);
   m_players[playerId] = player;
+  Entity forceEntity = createForce(registry, player, {200, posY});
+  std::cout << "Force created for player " << playerId << std::endl;
+
   lobbyPlayers.push_back(playerId);
   std::cout << "Player " << playerId << " joined the lobby ("
             << lobbyPlayers.size() << "/4)" << std::endl;
@@ -109,6 +114,7 @@ bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
   registry.register_component<Projectile>();
   registry.register_component<LevelComponent>();
   registry.register_component<BossPart>();
+  registry.register_component<Force>();
   std::cout << "Components registered" << std::endl;
   SetupNetworkCallbacks();
   return true;
@@ -185,10 +191,15 @@ void ServerGame::EndGame() {
 void ServerGame::CheckGameEnded() {
   int validPlayers = 0;
   for (auto& [id, entity] : m_players) {
+    bool isValid = registry.is_entity_valid(entity);
+    std::cout << "[DEBUG] Player " << id << " entity "
+              << static_cast<size_t>(entity) << " valid=" << isValid
+              << std::endl;
     if (registry.is_entity_valid(entity)) {
       validPlayers += 1;
     }
   }
+  std::cout << "[DEBUG] Valid players: " << validPlayers << std::endl;
   if (validPlayers <= 0) {
     EndGame();
   }
@@ -331,6 +342,8 @@ void ServerGame::UpdateGameState(float deltaTime) {
   auto& colliders = registry.get_components<BoxCollider>();
   auto& projectiles = registry.get_components<Projectile>();
   auto& weapons = registry.get_components<Weapon>();
+  auto& forces = registry.get_components<Force>();
+  auto& states = registry.get_components<InputState>();
 
   for (auto&& [player] : Zipper(players)) {
     if (player.invtimer > 0.0f) {
@@ -380,6 +393,15 @@ void ServerGame::UpdateGameState(float deltaTime) {
   std::cout << "[DEBUG] Enemies alive: " << enemyCount
             << " Bosses alive: " << bossCount << std::endl;
 
+  for (size_t i = 0; i < forces.size(); ++i) {
+    if (forces[i].has_value()) {
+      auto& f = forces[i].value();
+      auto& t = transforms[i].value();
+      std::cout << "[DEBUG] Force " << i << " at (" << t.position.x << ", "
+                << t.position.y << ")"
+                << " state=" << static_cast<int>(f.state) << std::endl;
+    }
+  }
   if (waitingForNextLevel) {
     levelTransitionTimer += deltaTime;
     std::cout << "[DEBUG] Waiting for next level... " << levelTransitionTimer
@@ -437,6 +459,16 @@ void ServerGame::UpdateGameState(float deltaTime) {
           toKill.push_back(registry.entity_from_index(i));
         }
       }
+
+      auto& bossPartsCleanup = registry.get_components<BossPart>();
+      for (size_t i = 0; i < bossPartsCleanup.size(); ++i) {
+        if (bossPartsCleanup[i].has_value()) {
+          std::cout << "[DEBUG] Marking BossPart at index " << i
+                    << " for cleanup" << std::endl;
+          toKill.push_back(registry.entity_from_index(i));
+        }
+      }
+
       for (Entity e : toKill) {
         std::cout << "[DEBUG] Killing leftover entity: "
                   << static_cast<size_t>(e) << std::endl;
@@ -455,6 +487,9 @@ void ServerGame::UpdateGameState(float deltaTime) {
     }
   }
   player_movement_system(registry);
+  force_control_system(registry, forces, states, transforms);
+  force_movement_system(registry, transforms, rigidbodies, forces, players,
+                        deltaTime);
   physics_movement_system(registry, transforms, rigidbodies, deltaTime, {0, 0});
   enemy_movement_system(registry, transforms, rigidbodies, enemies, players,
                         deltaTime);
@@ -480,6 +515,9 @@ void ServerGame::UpdateGameState(float deltaTime) {
   gamePlay_Collision_system(registry, transforms, colliders, players, enemies,
                             bosses);
   bounds_check_system(registry, transforms, colliders, rigidbodies);
+  force_collision_system(registry, transforms, colliders, forces, enemies,
+                         bosses, registry.get_components<BossPart>(),
+                         projectiles);
 }
 
 void ServerGame::SendWorldStateToClients() {
@@ -489,6 +527,7 @@ void ServerGame::SendWorldStateToClients() {
   auto& bosses = registry.get_components<Boss>();
   auto& projectiles = registry.get_components<Projectile>();
   auto& bosspart = registry.get_components<BossPart>();
+  auto& forcesArr = registry.get_components<Force>();
 
   GameState gs;
 
@@ -551,5 +590,24 @@ void ServerGame::SendWorldStateToClients() {
     gs.projectiles.push_back(ps);
   }
 
+  /*for (auto&& [idx, force, transform] : IndexedZipper(forcesArr, transforms))
+{ if (!force.isActive) continue;
+
+    ForceState fs;  // Tu dois créer cette structure
+    fs.forceId = static_cast<uint16_t>(idx);
+    fs.ownerId = static_cast<uint16_t>(force.ownerPlayer);
+    fs.posX = transform.position.x;
+    fs.posY = transform.position.y;
+    fs.state = static_cast<uint8_t>(force.state);
+    gs.forces.push_back(fs);
+  }
+
+  struct ForceState {
+  uint16_t forceId;
+  uint16_t ownerId;
+  float posX;
+  float posY;
+  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
+};*/
   SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0));
 }
