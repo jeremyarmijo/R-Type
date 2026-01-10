@@ -32,6 +32,7 @@ class LobbyInfoPlayer : public Scene {
 
   bool isReady = false;
   bool isLittelChat = true;
+  bool m_asStarted = false;
   std::vector<PlayerInfo> m_playersInfo;
   std::string m_lobbyName;
   uint8_t m_playerMax;
@@ -79,17 +80,29 @@ class LobbyInfoPlayer : public Scene {
         "DIFFICULTY: " + std::to_string(static_cast<int>(m_difficulty));
     auto* diff = GetUI().AddElement<UIText>(550, 75, diffStr, "", 22,
                                             SDL_Color{200, 200, 200, 255});
-
-    m_readyButton = GetUI().AddElement<UIButton>(
-        520, 500, 220, 60, isReady ? "NOT READY" : "READY");
-    m_readyButton->SetLayer(9);
-    m_readyButton->SetOnClick([this]() {
-      GetAudio().PlaySound("button");
-      isReady = !isReady;
-      Action playerR{ActionType::PLAYER_READY, PlayerReady{isReady}};
-      GetNetwork().SendAction(playerR);
-      RefreshPlayerListUI();
-    });
+    if (!m_asStarted) {
+      m_readyButton = GetUI().AddElement<UIButton>(
+          520, 500, 220, 60, isReady ? "NOT READY" : "READY");
+      m_readyButton->SetLayer(9);
+      m_readyButton->SetOnClick([this]() {
+        GetAudio().PlaySound("button");
+        isReady = !isReady;
+        GetSceneData().Set<bool>("isSpectator", false);
+        Action playerR{ActionType::PLAYER_READY, PlayerReady{isReady}};
+        GetNetwork().SendAction(playerR);
+        RefreshPlayerListUI();
+      });
+    } else {
+      m_readyButton =
+          GetUI().AddElement<UIButton>(520, 500, 220, 60, "SPECTATE");
+      m_readyButton->SetLayer(9);
+      m_readyButton->SetOnClick([this]() {
+        GetAudio().PlaySound("button");
+        Action playerR{ActionType::PLAYER_READY, PlayerReady{true}};
+        GetSceneData().Set<bool>("isSpectator", true);
+        GetNetwork().SendAction(playerR);
+      });
+    }
 
     if (isReady) {
       m_readyButton->SetColors({180, 40, 40, 255}, {200, 60, 60, 255},
@@ -192,12 +205,19 @@ class LobbyInfoPlayer : public Scene {
 
       auto* pName = GetUI().AddElement<UIText>(
           80, yPos, player.username, "", 26, SDL_Color{255, 255, 255, 255});
-      auto* pStatus = GetUI().AddElement<UIText>(
-          450, yPos, player.ready ? "READY" : "WAITING...", "", 24,
-          statusColor);
+
+      if (m_asStarted) {
+        auto* pStatus = GetUI().AddElement<UIText>(450, yPos, "IN GAME", "", 24,
+                                                   statusColor);
+        pStatus->SetLayer(10);
+      } else {
+        auto* pStatus = GetUI().AddElement<UIText>(
+            450, yPos, player.ready ? "READY" : "WAITING...", "", 24,
+            statusColor);
+        pStatus->SetLayer(10);
+      }
 
       pName->SetLayer(10);
-      pStatus->SetLayer(10);
       yPos += 50;
     }
   }
@@ -233,6 +253,7 @@ class LobbyInfoPlayer : public Scene {
   void OnExit() override {
     m_entities.clear();
     GetUI().Clear();
+    isReady = false;
     m_isInitialized = false;
   }
 
@@ -247,6 +268,7 @@ class LobbyInfoPlayer : public Scene {
         this->m_lobbyName = data->name;
         this->m_playerMax = data->maxPlayers;
         this->m_difficulty = data->difficulty;
+        this->m_asStarted = data->asStarted;
         RefreshPlayerListUI();
       }
     }

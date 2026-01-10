@@ -32,6 +32,9 @@ struct lobby_list {
   uint8_t nb_player;
   uint8_t max_players = 4;
   std::vector<std::tuple<uint16_t, bool, std::string>> players_list;
+  std::vector<std::tuple<uint16_t, bool, std::string>> spectate;
+  std::queue<std::pair<Event, uint16_t>> lobbyEventQueue;
+  std::mutex lobbyQueueMutex;
   bool players_ready = false;
   bool gameRuning = false;
   bool hasPassword = false;
@@ -44,6 +47,7 @@ struct lobby_list {
   std::unordered_map<uint16_t, Entity> m_players;
   std::thread gameThread;
 };
+
 class ServerGame {
  public:
   /**
@@ -82,7 +86,7 @@ class ServerGame {
                    std::string mdp, uint8_t difficulty, uint8_t Maxplayer);
   void JoinLobby(uint16_t playerId, std::string playerName, uint16_t lobbyId,
                  std::string mdp);
-  void HandlePayerReady(uint16_t playerId);
+  void HandlePayerReady(uint16_t playerId, bool isReady);
   void ResetLobbyReadyStatus(lobby_list& lobby);
   void ClearLobbyForRematch(lobby_list& lobby);
   void HandleLobbyMessage(uint16_t playerId, Event& ev);
@@ -147,6 +151,7 @@ class ServerGame {
    * @return Optional tuple containing event and client ID
    */
   std::optional<std::tuple<Event, uint16_t>> PopEvent();
+  std::optional<std::pair<Event, uint16_t>> PopEventLobby(lobby_list& lobby);
 
   /**
    * @brief Send an action to a specific client

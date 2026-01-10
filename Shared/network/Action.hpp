@@ -130,6 +130,7 @@ struct PlayerReady {
 
 struct LobbyUpdate {
   std::string name;
+  bool asStarted;
   uint8_t maxPlayers;
   uint8_t difficulty;
   std::vector<LobbyPlayer> playerInfo;

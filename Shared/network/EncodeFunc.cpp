@@ -366,6 +366,7 @@ void LobbyUpdateFunc(const Action& a, std::vector<uint8_t>& out) {
   out.push_back(nameLen);
   out.insert(out.end(), update->name.begin(), update->name.end());
 
+  out.push_back(update->asStarted ? 1 : 0);
   out.push_back(update->maxPlayers);
   out.push_back(update->difficulty);
 

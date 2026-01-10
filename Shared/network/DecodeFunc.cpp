@@ -587,6 +587,7 @@ Event DecodeLOBBY_UPDATE(const std::vector<uint8_t>& packet) {
       std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
   offset += nameLen;
 
+  data.asStarted = (packet[offset++] == 1);
   data.maxPlayers = packet[offset++];
   data.difficulty = packet[offset++];
 

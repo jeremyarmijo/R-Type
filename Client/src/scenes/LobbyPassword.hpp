@@ -114,7 +114,7 @@ class LobbyPassword : public Scene {
     if (e.type == EventType::LOBBY_JOIN_RESPONSE) {
       const auto* data = std::get_if<LOBBY_JOIN_RESPONSE>(&e.data);
       if (data) {
-        if (data->success) {
+        if (data && data->success) {
           ChangeScene("lobbyInfoPlayer");
         } else {
           m_passwordInput->SetText("");
