@@ -11,6 +11,8 @@
 #include "Player/Enemy.hpp"
 #include "Player/PlayerEntity.hpp"
 #include "Player/Projectile.hpp"
+#include "components/BossPart.hpp"
+#include "components/Force.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/PhysicsSystem.hpp"
 
@@ -151,7 +153,10 @@ CollisionCategory get_entity_category(size_t entityId, Registry& registry) {
   //   return CollisionCategory::Item;
   if (registry.get_components<Boss>()[entityId].has_value())
     return CollisionCategory::Boss;
-
+  if (registry.get_components<BossPart>()[entityId].has_value())
+    return CollisionCategory::BossPart;
+  if (registry.get_components<Force>()[entityId].has_value())
+    return CollisionCategory::Force;
   return CollisionCategory::Unknown;
 }
 
@@ -160,6 +165,7 @@ void apply_damage_to_entity(Registry& registry, size_t targetId, float damage,
   auto& players = registry.get_components<PlayerEntity>();
   auto& enemies = registry.get_components<Enemy>();
   auto& bosses = registry.get_components<Boss>();
+  auto& bossParts = registry.get_components<BossPart>();
 
   if (targetId < players.size() && players[targetId].has_value()) {
     auto& player = players[targetId].value();
