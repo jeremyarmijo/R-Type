@@ -115,6 +115,16 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
     }
   }
 
+  if (!anyEnemyAlive) {
+  auto& bossParts = registry.get_components<BossPart>();
+  for (auto& part : bossParts) {
+    if (part.has_value() && part->alive) {
+      anyEnemyAlive = true;
+      break;
+    }
+  }
+}
+
   if (anyEnemyAlive) {
     return false;
   }
