@@ -11,6 +11,8 @@ enum class CollisionCategory {
   Projectile,
   Boss,
   Item,
+  BossPart,
+  Force,
   scene
 };
 
