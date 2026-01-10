@@ -9,6 +9,7 @@
 #include "Player/PlayerEntity.hpp"
 #include "Player/Projectile.hpp"
 #include "components/BossPart.hpp"
+#include "components/Force.hpp"
 #include "components/Levels.hpp"
 #include "components/Physics2D.hpp"
 #include "ecs/Registry.hpp"
@@ -108,4 +109,20 @@ inline Entity createBossPart(Registry& registry, Entity bossEntity,
   registry.add_component<BossPart>(
       part, BossPart(bossEntity, offset, segmentIndex, timeOffset, hp));
   return part;
+}
+
+inline Entity createForce(Registry& registry, Entity playerEntity,
+                          const Vector2& startPos) {
+  Entity force = registry.spawn_entity();
+
+  Force forceComponent(playerEntity);
+  Vector2 forcePos = {startPos.x + forceComponent.offsetFront.x,
+                      startPos.y + forceComponent.offsetFront.y};
+
+  registry.add_component<Transform>(force, Transform{forcePos});
+  registry.add_component<RigidBody>(force, RigidBody{});
+  registry.add_component<BoxCollider>(force, BoxCollider(24.f, 24.f));
+  registry.add_component<Force>(force, std::move(forceComponent));
+
+  return force;
 }
