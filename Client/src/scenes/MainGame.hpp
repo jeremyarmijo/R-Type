@@ -27,6 +27,7 @@ class MyGameScene : public Scene {
   std::unordered_map<uint16_t, Entity> m_enemies;
   std::unordered_map<uint16_t, Entity> m_projectiles;
   std::unordered_map<size_t, float> m_explosions;
+  std::unordered_map<uint16_t, Entity> m_forces;
   int m_score;
   bool m_isInitialized;
   bool m_firstState;
@@ -142,6 +143,7 @@ class MyGameScene : public Scene {
     m_otherPlayers.clear();
     m_enemies.clear();
     m_projectiles.clear();
+    m_forces.clear();
     m_explosions.clear();
     m_skinManager.Clear();
     m_isInitialized = false;
@@ -217,8 +219,10 @@ class MyGameScene : public Scene {
                            "../Client/assets/projectile_enemy.png");
     }
     if (!textures.GetTexture("explosion")) {
-      textures.LoadTexture("explosion",
-                           "../Client/assets/explosion.png");
+      textures.LoadTexture("explosion", "../Client/assets/explosion.png");
+    }
+    if (!textures.GetTexture("force")) {
+      textures.LoadTexture("force", "../Client/assets/force.png");
     }
   }
 
@@ -233,21 +237,21 @@ class MyGameScene : public Scene {
                                 {{203, 6, 20, 23}, 0.1f},
                                 {{236, 6, 20, 23}, 0.1f}},
                                true);
-    
+
     animations.CreateAnimation("boss_anim", "boss",
                                {{{27, 1711, 154, 203}, 0.6f},
-                                  {{189, 1711, 154, 203}, 0.5f},
-                                  {{351, 1711, 154, 203}, 0.6f},
-                                  {{189, 1711, 154, 203}, 0.5f}},
+                                {{189, 1711, 154, 203}, 0.5f},
+                                {{351, 1711, 154, 203}, 0.6f},
+                                {{189, 1711, 154, 203}, 0.5f}},
                                true);
-    
+
     animations.CreateAnimation("explode_anim", "explosion",
                                {{{130, 2, 30, 30}, 0.1f},
-                                  {{163, 2, 30, 30}, 0.1f},
-                                  {{194, 2, 30, 30}, 0.1f},
-                                  {{228, 2, 30, 30}, 0.1f},
-                                  {{261, 2, 30, 30}, 0.1f},
-                                  {{294, 2, 30, 30}, 0.1f}},
+                                {{163, 2, 30, 30}, 0.1f},
+                                {{194, 2, 30, 30}, 0.1f},
+                                {{228, 2, 30, 30}, 0.1f},
+                                {{261, 2, 30, 30}, 0.1f},
+                                {{294, 2, 30, 30}, 0.1f}},
                                true);
 
     animations.CreateAnimation(
@@ -268,6 +272,21 @@ class MyGameScene : public Scene {
     animations.CreateAnimation(
         "projectile_enemy_anim", "projectile_enemy",
         {{{0, 0, 12, 12}, 0.1f}, {{12, 0, 12, 12}, 0.1f}}, true);
+
+    animations.CreateAnimation("force_anim", "force",
+                               {{{1, 1, 17, 16}, 0.08f},
+                                {{19, 1, 17, 16}, 0.08f},
+                                {{37, 1, 17, 16}, 0.08f},
+                                {{55, 1, 17, 16}, 0.08f},
+                                {{73, 1, 17, 16}, 0.08f},
+                                {{91, 1, 17, 16}, 0.08f},
+                                {{109, 1, 17, 16}, 0.08f},
+                                {{127, 1, 17, 16}, 0.08f},
+                                {{145, 1, 17, 16}, 0.08f},
+                                {{163, 1, 17, 16}, 0.08f},
+                                {{181, 1, 17, 16}, 0.08f},
+                                {{199, 1, 17, 16}, 0.08f}},
+                               true);
   }
 
   std::string GetEnemyTexture(uint8_t enemyType) const {
@@ -447,6 +466,85 @@ class MyGameScene : public Scene {
     }
   }
 
+  void SpawnForce(uint16_t forceId, uint16_t ownerId, Vector2 position) {
+    if (m_forces.find(forceId) != m_forces.end()) {
+      return;
+    }
+
+    std::cout << "Spawning force " << forceId << " for player " << ownerId
+              << " at (" << position.x << ", " << position.y << ")"
+              << std::endl;
+
+    Entity force =
+        m_engine->CreateAnimatedSprite("force", position, "force_anim");
+
+    auto& transform = GetRegistry().get_components<Transform>()[force];
+    if (transform) {
+      transform->scale = {2.0f, 2.0f};
+    }
+
+    m_forces[forceId] = force;
+    m_entities.push_back(force);
+
+    std::cout << "Force " << forceId << " spawned successfully" << std::endl;
+  }
+
+  void RemoveForce(uint16_t forceId) {
+    auto it = m_forces.find(forceId);
+    if (it != m_forces.end()) {
+      Entity forceEntity = it->second;
+      GetRegistry().kill_entity(forceEntity);
+      m_entities.erase(
+          std::remove(m_entities.begin(), m_entities.end(), forceEntity),
+          m_entities.end());
+      m_forces.erase(it);
+      std::cout << "Removed force " << forceId << std::endl;
+    }
+  }
+
+  void UpdateForcePosition(uint16_t forceId, Vector2 position) {
+    auto it = m_forces.find(forceId);
+    if (it != m_forces.end()) {
+      Entity forceEntity = it->second;
+      auto& transforms = GetRegistry().get_components<Transform>();
+
+      if (forceEntity < transforms.size() &&
+          transforms[forceEntity].has_value()) {
+        transforms[forceEntity]->position = position;
+      }
+    }
+  }
+
+  void UpdateForces(const std::vector<GAME_STATE::ForceState>& forces,
+                    float dt) {
+    std::unordered_set<uint16_t> activeForceIds;
+
+    for (const auto& forceState : forces) {
+      uint16_t forceId = forceState.forceId;
+      activeForceIds.insert(forceId);
+
+      auto it = m_forces.find(forceId);
+      if (it == m_forces.end()) {
+        SpawnForce(forceId, forceState.ownerId,
+                   {forceState.posX, forceState.posY});
+      } else {
+        UpdateForcePosition(forceId, {forceState.posX, forceState.posY});
+      }
+    }
+
+    // Remove forces that no longer exist
+    std::vector<uint16_t> toRemove;
+    for (const auto& [forceId, entity] : m_forces) {
+      if (activeForceIds.find(forceId) == activeForceIds.end()) {
+        toRemove.push_back(forceId);
+      }
+    }
+
+    for (uint16_t forceId : toRemove) {
+      RemoveForce(forceId);
+    }
+  }
+
   void SpawnProjectile(uint16_t projectileId, uint8_t projectileType,
                        Vector2 position) {
     if (m_projectiles.find(projectileId) != m_projectiles.end()) {
@@ -524,7 +622,8 @@ class MyGameScene : public Scene {
             playerComponents[m_localPlayer].has_value()) {
           playerComponents[m_localPlayer]->current =
               static_cast<int>(playerState.hp);
-          m_healthText->SetText("Health: " + std::to_string(static_cast<int>(playerState.hp)));
+          m_healthText->SetText(
+              "Health: " + std::to_string(static_cast<int>(playerState.hp)));
         }
       } else {
         auto it = m_otherPlayers.find(playerId);
@@ -553,14 +652,15 @@ class MyGameScene : public Scene {
       for (uint16_t playerId : toRemove) {
         RemoveOtherPlayer(playerId);
       }
-      if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() && m_isAlive) {
+      if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() &&
+          m_isAlive) {
         CreateExplosion(m_localPlayer);
         GetAudio().PlaySound("explosion");
         m_healthText->SetText("Health: 0");
         GetRegistry().kill_entity(m_localPlayer);
         m_entities.erase(
-        std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
-        m_entities.end());
+            std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
+            m_entities.end());
         m_isAlive = false;
       }
     }
@@ -603,7 +703,8 @@ class MyGameScene : public Scene {
         m_wave = 0;
         m_level += 1;
       }
-      m_levelText->SetText("Level: " + std::to_string(m_level) + " Wave: " + std::to_string(m_wave));
+      m_levelText->SetText("Level: " + std::to_string(m_level) +
+                           " Wave: " + std::to_string(m_wave));
     }
   }
 
@@ -640,8 +741,7 @@ class MyGameScene : public Scene {
   void GetEvents(float dt) {
     Event e = GetNetwork().PopEvent();
 
-    if (e.type == EventType::GAME_END)
-      ChangeScene("gameover");
+    if (e.type == EventType::GAME_END) ChangeScene("gameover");
     std::visit(
         [&](auto&& payload) {
           using T = std::decay_t<decltype(payload)>;
@@ -650,6 +750,7 @@ class MyGameScene : public Scene {
             UpdatePlayers(payload.players, dt);
             UpdateEnemies(payload.enemies, dt);
             UpdateProjectiles(payload.projectiles, dt);
+            UpdateForces(payload.forces, dt);
           }
         },
         e.data);
@@ -659,20 +760,21 @@ class MyGameScene : public Scene {
     auto& transform = GetRegistry().get_components<Transform>()[entity];
 
     Vector2 pos = transform->position;
-    Entity explosion = m_engine->CreateAnimatedSprite("explosion", pos, "explode_anim");
+    Entity explosion =
+        m_engine->CreateAnimatedSprite("explosion", pos, "explode_anim");
 
     m_explosions[explosion] = 0.6f;
   }
 
   void RemoveExplosions(float dt) {
-    for (auto it = m_explosions.begin(); it != m_explosions.end(); ) {
-        it->second -= dt;
-        if (it->second <= 0.0f) {
-            GetRegistry().kill_entity(Entity(it->first));
-            it = m_explosions.erase(it); 
-        } else {
-            ++it; 
-        }
+    for (auto it = m_explosions.begin(); it != m_explosions.end();) {
+      it->second -= dt;
+      if (it->second <= 0.0f) {
+        GetRegistry().kill_entity(Entity(it->first));
+        it = m_explosions.erase(it);
+      } else {
+        ++it;
+      }
     }
   }
 };
