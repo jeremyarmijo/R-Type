@@ -283,3 +283,60 @@ void boss_part_system(Registry& registry, float deltaTime) {
     }
   }
 }
+
+void force_movement_system(Registry& registry,
+                           SparseArray<Transform>& transforms,
+                           SparseArray<RigidBody>& rigidbodies,
+                           SparseArray<Force>& forces,
+                           SparseArray<PlayerEntity>& players,
+                           float deltaTime) {
+  for (auto&& [forceIdx, transform, rigidbody, force] :
+       IndexedZipper(transforms, rigidbodies, forces)) {
+    if (!force.isActive) continue;
+
+    size_t playerId = static_cast<size_t>(force.ownerPlayer);
+
+    if (playerId >= transforms.size() || !transforms[playerId].has_value()) {
+      continue;
+    }
+    if (playerId >= players.size() || !players[playerId].has_value()) {
+      continue;
+    }
+    if (!players[playerId]->isAlive) {
+      continue;
+    }
+
+    Vector2 playerPos = transforms[playerId]->position;
+
+    switch (force.state) {
+      case ForceState::AttachedFront: {
+        transform.position.x = playerPos.x + force.offsetFront.x;
+        transform.position.y = playerPos.y + force.offsetFront.y;
+        rigidbody.velocity = {0.f, 0.f};
+        break;
+      }
+
+      case ForceState::AttachedBack: {
+        transform.position.x = playerPos.x + force.offsetBack.x;
+        transform.position.y = playerPos.y + force.offsetBack.y;
+        rigidbody.velocity = {0.f, 0.f};
+        break;
+      }
+
+      case ForceState::Detached: {
+        rigidbody.velocity.x = force.direction.x * force.speed;
+        rigidbody.velocity.y = force.direction.y * force.speed;
+
+        force.currentDistance += force.speed * deltaTime;
+
+        if (force.currentDistance >= force.maxDistance) {
+          rigidbody.velocity = {0.f, 0.f};
+        }
+        if (transform.position.x >= 750.f || transform.position.x <= 50.f) {
+          rigidbody.velocity = {0.f, 0.f};
+        }
+        break;
+      }
+    }
+  }
+}
