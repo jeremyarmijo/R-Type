@@ -20,6 +20,7 @@ enum class ActionType : uint8_t {
   LOGIN_REQUEST,
 
   // Serveur → Client
+  FORCE_STATE,
   LOGIN_RESPONSE,
   GAME_START,
   GAME_END,
@@ -139,9 +140,18 @@ struct EnemyHit {
   uint16_t hpRemaining;
 };
 
-using ActionData = std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput,
-                                LoginResponse, GameStart, GameEnd, ErrorMsg,
-                                GameState, BossSpawn, BossUpdate, EnemyHit>;
+struct ForceState {
+  uint16_t forceId;
+  uint16_t ownerId;
+  float posX;
+  float posY;
+  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
+};
+
+using ActionData =
+    std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
+                 GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
+                 EnemyHit, ForceState>;
 
 struct Action {
   ActionType type;
@@ -170,6 +180,7 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::LOGIN_RESPONSE:
     case ActionType::GAME_START:
     case ActionType::GAME_END:
+    case ActionType::FORCE_STATE:
     case ActionType::ERROR:
       return 2;  // TCP
     default:

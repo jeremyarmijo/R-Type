@@ -22,6 +22,12 @@ class INetworkManager {
   using ConnectionCallback = std::function<void(uint32_t client_id)>;      ///< Connection callback type
   using DisconnectionCallback = std::function<void(uint32_t client_id)>;   ///< Disconnection callback type
 
+  /**
+   * @brief Initialize the network manager in this case we need both TCP and UDP in threads
+   * @param tcp_port TCP port to listen on
+   * @param udp_port UDP port to listen on
+   * @param host Host address to bind
+   */
   virtual bool Initialize(uint16_t tcp_port, uint16_t udp_port, const std::string& host) = 0;
   virtual void Shutdown() = 0;
 

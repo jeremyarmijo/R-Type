@@ -8,6 +8,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 #include "components/Levels.hpp"
 #include "ecs/Registry.hpp"
@@ -46,6 +47,7 @@ class ServerGame {
   float levelTransitionTimer = 0.0f;
   bool waitingForNextLevel = false;
   const float TIME_BETWEEN_LEVELS = 5.0f;
+  std::unique_ptr<INetworkManager> networkManager; ///< Network communication manager
 
   ServerNetworkManager networkManager;  ///< Network communication manager
   Decoder decode;     ///< Decoder for incoming network messages

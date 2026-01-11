@@ -258,3 +258,8 @@ void ServerNetworkManager::OnTCPDisconnect(uint32_t client_id) {
 
   client_manager_.RemoveClient(client_id);
 }
+
+INetworkManager *EntryPointLib()
+{
+    return new ServerNetworkManager();
+}
