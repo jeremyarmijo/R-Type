@@ -177,6 +177,7 @@ struct PlayerInfo {
 
 struct LOBBY_UPDATE {
   std::string name;
+  uint16_t hostId;
   bool asStarted;
   uint8_t maxPlayers;
   uint8_t difficulty;
@@ -195,6 +196,10 @@ struct LOBBY_LEAVE {
   uint16_t playerId;
 };
 
+struct LOBBY_KICK {
+  uint16_t playerId;
+};
+
 enum class EventType : uint8_t {
   // TCP Messages
   LOGIN_REQUEST = 0x01,
@@ -210,6 +215,7 @@ enum class EventType : uint8_t {
   LOBBY_LEAVE = 0x0A,
   LOBBY_START = 0x0B,
   MESSAGE = 0x0C,
+  LOBBY_KICK = 0x0D,
 
   GAME_START = 0x0F,
   GAME_END = 0x10,
@@ -232,7 +238,7 @@ using EventData =
                  BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
                  LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
                  LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
-                 MESSAGE>;
+                 MESSAGE, LOBBY_KICK>;
 
 struct Event {
   EventType type;

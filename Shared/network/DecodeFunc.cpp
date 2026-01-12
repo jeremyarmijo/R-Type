@@ -587,6 +587,10 @@ Event DecodeLOBBY_UPDATE(const std::vector<uint8_t>& packet) {
       std::string(reinterpret_cast<const char*>(&packet[offset]), nameLen);
   offset += nameLen;
 
+  memcpy(&data.hostId, &packet[offset], sizeof(data.hostId));
+  data.hostId = ntohs(data.hostId);
+  offset += sizeof(data.hostId);
+
   data.asStarted = (packet[offset++] == 1);
   data.maxPlayers = packet[offset++];
   data.difficulty = packet[offset++];
@@ -610,6 +614,24 @@ Event DecodeLOBBY_UPDATE(const std::vector<uint8_t>& packet) {
 
     data.playerInfo.push_back(player);
   }
+
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeLOBBY_KICK(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LOBBY_KICK;
+
+  LOBBY_KICK data;
+  size_t offset = 2;
+
+  uint32_t payloadLength = 0;
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+
+  memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
+  data.playerId = ntohs(data.playerId);
+  offset += sizeof(data.playerId);
 
   evt.data = data;
   return evt;
@@ -709,6 +731,7 @@ void SetupDecoder(Decoder& decoder) {
   decoder.registerHandler(0x0A, DecodeLOBBY_LEAVE);
   decoder.registerHandler(0x0B, DecodeLOBBY_START);
   decoder.registerHandler(0x0C, DecodeMESSAGE);
+  decoder.registerHandler(0x0D, DecodeLOBBY_KICK);
 
   // UDP Messages
   decoder.registerHandler(0x20, DecodePLAYER_INPUT);

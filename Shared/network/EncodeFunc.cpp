@@ -361,10 +361,17 @@ void LobbyUpdateFunc(const Action& a, std::vector<uint8_t>& out) {
   if (!update) return;
 
   out.clear();
+  size_t offset = 0;
 
   uint8_t nameLen = static_cast<uint8_t>(update->name.size());
   out.push_back(nameLen);
   out.insert(out.end(), update->name.begin(), update->name.end());
+  offset = out.size();
+
+  uint16_t hId = htons(update->hostId);
+  out.resize(offset + sizeof(uint16_t));
+  memcpy(out.data() + offset, &hId, sizeof(uint16_t));
+  offset += sizeof(uint16_t);
 
   out.push_back(update->asStarted ? 1 : 0);
   out.push_back(update->maxPlayers);
@@ -372,13 +379,13 @@ void LobbyUpdateFunc(const Action& a, std::vector<uint8_t>& out) {
 
   uint8_t playerCount = static_cast<uint8_t>(update->playerInfo.size());
   out.push_back(playerCount);
+  offset = out.size();
 
   for (const auto& player : update->playerInfo) {
     uint16_t pId = htons(player.playerId);
-    uint8_t idBuf[2];
-    memcpy(idBuf, &pId, 2);
-    out.push_back(idBuf[0]);
-    out.push_back(idBuf[1]);
+    size_t currentSize = out.size();
+    out.resize(currentSize + 2);
+    memcpy(out.data() + currentSize, &pId, sizeof(uint16_t));
 
     out.push_back(player.ready ? 1 : 0);
 
@@ -417,6 +424,18 @@ void LobbyLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(buf, &id, 2);
   out.push_back(buf[0]);
   out.push_back(buf[1]);
+}
+
+void LobbyKickFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* kick = std::get_if<LobbyKick>(&a.data);
+  if (!kick) return;
+
+  out.clear();
+  
+  uint16_t pId = htons(kick->playerId);
+  
+  out.resize(sizeof(uint16_t));
+  memcpy(out.data(), &pId, sizeof(uint16_t));
 }
 
 void MessageFunc(const Action& a, std::vector<uint8_t>& out) {
@@ -469,6 +488,7 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::BOSS_UPDATE, BossUpdateFunc);
   encoder.registerHandler(ActionType::ENEMY_HIT, EnemyHitFunc);
   encoder.registerHandler(ActionType::LOBBY_CREATE, LobbyCreateFunc);
+  encoder.registerHandler(ActionType::LOBBY_KICK, LobbyKickFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_REQUEST, LobbyJoinRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE,
                           LobbyJoinResponseFunc);

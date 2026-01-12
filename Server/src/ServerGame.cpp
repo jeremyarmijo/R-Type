@@ -86,6 +86,7 @@ void ServerGame::SendLobbyUpdate(lobby_list& lobby) {
     p.username = pName;
 
     update.difficulty = lobby.difficulty;
+    update.hostId = lobby.host_id;
     update.maxPlayers = lobby.max_players;
     update.asStarted = lobby.gameRuning;
     update.name = lobby.name;
@@ -400,6 +401,12 @@ void ServerGame::SetupNetworkCallbacks() {
       case EventType::LOBBY_LEAVE:
         std::cout << "[Network] LOBBY_LEAVE from " << playerId << std::endl;
         HandleLobbyLeave(playerId);
+        break;
+
+      case EventType::LOBBY_KICK:
+        auto& d = std::get<LOBBY_KICK>(ev.data);
+        std::cout << "[Network] LOBBY_LEAVE from " << playerId << std::endl;
+        HandleLobbyLeave(d.playerId);
         break;
 
       case EventType::MESSAGE:
