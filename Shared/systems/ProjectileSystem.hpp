@@ -15,5 +15,5 @@ void projectile_collision_system(Registry& registry,
 Entity spawn_projectile(Registry& registry, Vector2 position, Vector2 direction,
                         float speed, size_t ownerId);
 
-Entity spawn_player_projectile(Registry& registry, Vector2 position, Vector2 direction,
-                        float speed, size_t ownerId);
+Entity spawn_player_projectile(Registry& registry, Vector2 position,
+                               Vector2 direction, float speed, size_t ownerId);

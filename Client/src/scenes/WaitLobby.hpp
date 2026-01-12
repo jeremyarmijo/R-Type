@@ -58,6 +58,7 @@ class WaitLobby : public Scene {
     std::cout << "\n=== EXITING WAIT SCENE ===" << std::endl;
 
     m_entities.clear();
+    GetUI().Clear();
     m_isInitialized = false;
 
     std::cout << "wait cleanup complete" << std::endl;

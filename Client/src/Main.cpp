@@ -3,12 +3,17 @@
 
 #include "engine/GameEngine.hpp"
 #include "scene/SceneManager.hpp"
+#include "scenes/CreateLobby.hpp"
 #include "scenes/GameOver.hpp"
 #include "scenes/JoinGame.hpp"
+#include "scenes/Lobby.hpp"
+#include "scenes/LobbyInfo.hpp"
+#include "scenes/LobbyJoin.hpp"
 #include "scenes/MainGame.hpp"
 #include "scenes/MainMenu.hpp"
 #include "scenes/Options.hpp"
 #include "scenes/WaitLobby.hpp"
+#include "scenes/LobbyPassword.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIImage.hpp"
 #include "ui/UIText.hpp"
@@ -40,6 +45,17 @@ class MyGame {
     m_sceneManager.RegisterScene<GameOverScene>("gameover", &m_engine,
                                                 &m_sceneManager);
     m_sceneManager.RegisterScene<WaitLobby>("wait", &m_engine, &m_sceneManager);
+    m_sceneManager.RegisterScene<LobbyMenu>("lobby", &m_engine,
+                                            &m_sceneManager);
+    m_sceneManager.RegisterScene<CreateLobby>("createLobby", &m_engine,
+                                              &m_sceneManager);
+    m_sceneManager.RegisterScene<LobbyInfoPlayer>("lobbyInfoPlayer", &m_engine,
+                                                  &m_sceneManager);
+    m_sceneManager.RegisterScene<LobbyJoin>("lobbyjoin", &m_engine,
+                                            &m_sceneManager);
+    m_sceneManager.RegisterScene<LobbyPassword>("lobbyPassword", &m_engine,
+                                            &m_sceneManager);
+
     std::cout << "Starting initial scene..." << std::endl;
     m_sceneManager.ChangeScene("menu");
 

@@ -292,36 +292,34 @@ void NetworkManager::SendTcp(std::vector<uint8_t>& packet) {
 }
 
 void NetworkManager::SendActionServer() {
-  std::unique_lock<std::mutex> lock(mut);
-  size_t bufferSize = actionBuffer.size();
+  while (true) {
+    Action action;
+    bool hasAction = false;
 
-  for (size_t i = 0; i < bufferSize; ++i) {
-    auto opt = actionBuffer.peek();
-    if (!opt.has_value()) break;
+    {
+      std::lock_guard<std::mutex> lock(mut);
+      if (auto opt = actionBuffer.peek()) {
+        action = opt.value();
+        hasAction = true;
+      }
+    }
 
-    const Action& action = opt.value();
+    if (!hasAction) break;
+
     size_t protocol = UseUdp(action.type);
-
     bool sent = false;
     if ((protocol == 0 || protocol == 1) && udpConnected) {
       std::vector<uint8_t> packet = encoder.encode(action, protocol);
-
-      lock.unlock();
       SendUdp(packet);
-      lock.lock();
-
       sent = true;
     } else if (protocol == 2 && tcpConnected) {
       std::vector<uint8_t> packet = encoder.encode(action, protocol);
-
-      lock.unlock();
       SendTcp(packet);
-      lock.lock();
-
       sent = true;
     }
 
     if (sent) {
+      std::lock_guard<std::mutex> lock(mut);
       actionBuffer.pop();
     } else {
       break;

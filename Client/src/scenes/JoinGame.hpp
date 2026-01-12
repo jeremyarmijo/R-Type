@@ -23,6 +23,7 @@ class JoinGame : public Scene {
   UITextInput* m_serverInput;
   UIButton* m_joinButton;
   UIButton* m_backButton;
+  std::string username;
 
  public:
   JoinGame(GameEngine* engine, SceneManager* sceneManager)
@@ -88,7 +89,7 @@ class JoinGame : public Scene {
       m_joinButton->SetOnClick([this]() {
         GetAudio().PlaySound("button");
         std::string serverIP = m_serverInput->GetText();
-        std::string username = m_usernameInput->GetText();
+        username = m_usernameInput->GetText();
 
         if (serverIP.empty()) {
           std::cout << "ERROR: Please enter a server IP!" << std::endl;
@@ -135,6 +136,7 @@ class JoinGame : public Scene {
     std::cout << "\n=== EXITING JOIN GAME SCENE ===" << std::endl;
 
     m_entities.clear();
+    GetUI().Clear();
     m_isInitialized = false;
 
     std::cout << "Join game cleanup complete" << std::endl;
@@ -149,7 +151,8 @@ class JoinGame : public Scene {
       const auto* data = std::get_if<LOGIN_RESPONSE>(&e.data);
       if (data->success == 0) return;
       GetSceneData().Set("playerId", data->playerId);
-      ChangeScene("wait");
+      GetSceneData().Set("playerName", username);
+      ChangeScene("lobby");
     }
   }
 
@@ -163,16 +166,6 @@ class JoinGame : public Scene {
   void HandleEvent(SDL_Event& event) override {
     if (GetUI().HandleEvent(event)) {
       return;
-    }
-
-    if (event.type == SDL_KEYDOWN) {
-      if (event.key.keysym.sym == SDLK_r) {
-        std::cout << "Restarting level..." << std::endl;
-        ChangeScene("game");
-      } else if (event.key.keysym.sym == SDLK_x) {
-        std::cout << "Quitting to Game Over screen..." << std::endl;
-        ChangeScene("gameover");
-      }
     }
   }
 };

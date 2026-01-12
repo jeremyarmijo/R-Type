@@ -18,9 +18,20 @@ enum class ActionType : uint8_t {
   FIRE_PRESS,
   FIRE_RELEASE,
   LOGIN_REQUEST,
+  LOBBY_CREATE,
+  LOBBY_JOIN_REQUEST,
+  LOBBY_LIST_REQUEST,
+  PLAYER_READY,
+  LOBBY_LEAVE,
+  MESSAGE,
+  LOBBY_KICK,
 
   // Serveur → Client
   LOGIN_RESPONSE,
+  LOBBY_JOIN_RESPONSE,
+  LOBBY_LIST_RESPONSE,
+  LOBBY_UPDATE,
+  LOBBY_START,
   GAME_START,
   GAME_END,
   ERROR,
@@ -55,6 +66,80 @@ struct LoginResponse {
   uint16_t udpPort;
   uint16_t errorCode;
   std::string message;
+};
+
+struct LobbyCreate {
+  std::string lobbyName;
+  std::string lobbyPlayer;
+  std::string password;
+  uint8_t Maxplayer;
+  uint8_t difficulty;
+};
+
+struct LobbyJoinRequest {
+  uint16_t lobbyId;
+  std::string name;
+  std::string password;
+};
+
+struct LobbyPlayer {
+  uint16_t playerId;
+  bool ready;
+  std::string username;
+};
+
+struct LobbyJoinResponse {
+  bool success;
+  uint16_t lobbyId;
+  uint16_t playerId;
+  std::vector<LobbyPlayer> players;
+  uint16_t errorCode;
+  std::string errorMessage;
+};
+
+struct LobbyInfo {
+  uint16_t lobbyId;
+  std::string name;
+  uint8_t playerCount;
+  uint8_t maxPlayers;
+  uint8_t difficulty;
+  bool isStarted;
+  bool hasPassword;
+};
+
+struct Message {
+  uint16_t lobbyId;
+  std::string playerName;
+  std::string message;
+};
+
+struct LobbyListRequest {
+  uint16_t playerId;
+};
+
+struct LobbyLeave {
+  uint16_t playerId;
+};
+
+struct LobbyListResponse {
+  std::vector<LobbyInfo> lobbies;
+};
+
+struct PlayerReady {
+  bool ready;
+};
+
+struct LobbyUpdate {
+  std::string name;
+  uint16_t hostId;
+  bool asStarted;
+  uint8_t maxPlayers;
+  uint8_t difficulty;
+  std::vector<LobbyPlayer> playerInfo;
+};
+
+struct LobbyStart {
+  uint8_t countdown;
 };
 
 struct GameStart {
@@ -139,9 +224,16 @@ struct EnemyHit {
   uint16_t hpRemaining;
 };
 
-using ActionData = std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput,
-                                LoginResponse, GameStart, GameEnd, ErrorMsg,
-                                GameState, BossSpawn, BossUpdate, EnemyHit>;
+struct LobbyKick {
+  uint16_t playerId;
+};
+
+using ActionData =
+    std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
+                 LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
+                 LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
+                 GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick>;
 
 struct Action {
   ActionType type;
@@ -166,12 +258,25 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::BOSS_UPDATE:
     case ActionType::ENEMY_HIT:
       return 0;  // UDP
+
     case ActionType::LOGIN_REQUEST:
     case ActionType::LOGIN_RESPONSE:
+    case ActionType::LOBBY_CREATE:
+    case ActionType::LOBBY_JOIN_REQUEST:
+    case ActionType::LOBBY_JOIN_RESPONSE:
+    case ActionType::LOBBY_LIST_REQUEST:
+    case ActionType::LOBBY_LIST_RESPONSE:
+    case ActionType::PLAYER_READY:
+    case ActionType::LOBBY_UPDATE:
+    case ActionType::LOBBY_LEAVE:
+    case ActionType::LOBBY_START:
     case ActionType::GAME_START:
     case ActionType::GAME_END:
+    case ActionType::MESSAGE:
+    case ActionType::LOBBY_KICK:
     case ActionType::ERROR:
       return 2;  // TCP
+
     default:
       return 3;
   }

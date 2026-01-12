@@ -2,14 +2,16 @@
 #include <cstdint>
 #include <functional>
 #include <vector>
+#include <string>
 
 #include "include/NetworkMessage.hpp"
 
 /**
  * @class INetworkManager
  * @brief Interface for network management implementations
- * 
- * Defines the contract for network managers handling client-server communication.
+ *
+ * Defines the contract for network managers handling client-server
+ * communication.
  */
 class INetworkManager {
  public:
@@ -18,17 +20,15 @@ class INetworkManager {
    */
   virtual ~INetworkManager() = default;
 
-  using MessageCallback = std::function<void(const NetworkMessage&)>;      ///< Message callback type
-  using ConnectionCallback = std::function<void(uint32_t client_id)>;      ///< Connection callback type
-  using DisconnectionCallback = std::function<void(uint32_t client_id)>;   ///< Disconnection callback type
+  using MessageCallback =
+      std::function<void(const NetworkMessage&)>;  ///< Message callback type
+  using ConnectionCallback =
+      std::function<void(uint32_t client_id)>;  ///< Connection callback type
+  using DisconnectionCallback =
+      std::function<void(uint32_t client_id)>;  ///< Disconnection callback type
 
-  /**
-   * @brief Initialize the network manager in this case we need both TCP and UDP in threads
-   * @param tcp_port TCP port to listen on
-   * @param udp_port UDP port to listen on
-   * @param host Host address to bind
-   */
-  virtual bool Initialize(uint16_t tcp_port, uint16_t udp_port, const std::string& host) = 0;
+  virtual bool Initialize(uint16_t tcp_port, uint16_t udp_port,
+                          const std::string& host) = 0;
   virtual void Shutdown() = 0;
 
   /**
@@ -37,19 +37,23 @@ class INetworkManager {
    * @param sendUdp If true, use UDP; otherwise use TCP
    */
   virtual void SendTo(const NetworkMessage& msg, bool sendUdp) = 0;
-  
+
   /**
    * @brief Broadcast message via UDP to all clients
    * @param msg Network message to broadcast
    */
-  virtual void BroadcastUDP(const NetworkMessage& msg) = 0;
-  
+  virtual void BroadcastLobbyUDP(
+      const NetworkMessage& msg,
+      std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
+
   /**
    * @brief Broadcast message via TCP to all clients
    * @param msg Network message to broadcast
    */
-  virtual void BroadcastTCP(const NetworkMessage& msg) = 0;
-  
+  virtual void BroadcastLobbyTCP(
+      const NetworkMessage& msg,
+      std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
+
   /**
    * @brief Update network state and process events
    */
@@ -60,13 +64,13 @@ class INetworkManager {
    * @param callback Function to call when message is received
    */
   virtual void SetMessageCallback(MessageCallback callback) = 0;
-  
+
   /**
    * @brief Set callback for client connections
    * @param callback Function to call when client connects
    */
   virtual void SetConnectionCallback(ConnectionCallback callback) = 0;
-  
+
   /**
    * @brief Set callback for client disconnections
    * @param callback Function to call when client disconnects
