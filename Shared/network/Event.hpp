@@ -37,7 +37,7 @@ struct GAME_END {
   std::vector<Score> scores;
 };
 
-struct ERROR {
+struct ERROR_EVNT {
   uint16_t errorCode;
   std::string message;
 };
@@ -219,7 +219,7 @@ enum class EventType : uint8_t {
 
   GAME_START = 0x0F,
   GAME_END = 0x10,
-  ERROR = 0x12,
+  ERROR_TYPE = 0x12,
 
   // UDP Messages
   PLAYER_INPUT = 0x20,
@@ -234,7 +234,7 @@ enum class EventType : uint8_t {
 
 using EventData =
     std::variant<std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, GAME_START,
-                 GAME_END, ERROR, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
+                 GAME_END, ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
                  BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
                  LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
                  LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,

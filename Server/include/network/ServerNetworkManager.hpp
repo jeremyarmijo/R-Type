@@ -160,6 +160,12 @@ class ServerNetworkManager : public INetworkManager {
       10};  ///< Client timeout duration
 };
 
+#ifdef _WIN32
+  extern "C" {
+    __declspec(dllexport) INetworkManager* EntryPointLib();
+  }
+#else
 extern "C" {
 INetworkManager* EntryPointLib();
 }
+#endif

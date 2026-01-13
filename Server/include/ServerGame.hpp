@@ -15,6 +15,7 @@
 #include "network/DecodeFunc.hpp"
 #include "network/EncodeFunc.hpp"
 #include "network/ServerNetworkManager.hpp"
+#include "dynamicLibLoader/DLLoader.hpp"
 
 /**
  * @class ServerGame
@@ -64,8 +65,13 @@ class ServerGame {
   void Shutdown();
 
  private:
-  std::unique_ptr<INetworkManager>
-      networkManager;  ///< Network communication manager
+
+#ifdef _WIN32
+  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("C:/cross-platform_rtype/R-Type/Server/src/build/libnetwork_server.dll", "EntryPointLib");
+#else
+  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("../src/build/libnetwork_server.so", "EntryPointLib");
+#endif
+ std::unique_ptr<INetworkManager> networkManager;  ///< Network communication manager
   Decoder decode;      ///< Decoder for incoming network messages
   Encoder encode;      ///< Encoder for outgoing network messages
   Registry registry;   ///< ECS registry for game entities

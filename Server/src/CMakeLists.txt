@@ -37,4 +37,8 @@ target_include_directories(network_server PRIVATE
 
 target_link_libraries(network_server PRIVATE asio)
 
+if(WIN32)
+  target_link_libraries(network_server PRIVATE ws2_32 wsock32)
+endif()
+
 target_compile_options(network_server PRIVATE -Wall -Wextra)

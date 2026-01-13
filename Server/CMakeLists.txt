@@ -41,7 +41,7 @@ CPMAddPackage(
   GIT_TAG release-2.8.0
   OPTIONS
     "SDL2MIXER_INSTALL ON"
-    "SDL2MIXER_CMD ON"
+    "SDL2MIXER_CMD OFF"
     "SDL2MIXER_FLAC DRFLAC"
     "SDL2MIXER_MOD OFF"
     "SDL2MIXER_MP3 MINIMP3"
@@ -88,5 +88,9 @@ target_include_directories(RTYPE_Server PRIVATE
 )
 
 target_link_libraries(RTYPE_Server PRIVATE SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer asio)
+
+if(WIN32)
+  target_link_libraries(RTYPE_Server PRIVATE ws2_32 wsock32)
+endif()
 
 target_compile_options(RTYPE_Server PRIVATE -Wall -Wextra)

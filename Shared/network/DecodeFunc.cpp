@@ -1,6 +1,13 @@
 #include "network/DecodeFunc.hpp"
 
+// #include <arpa/inet.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
 #include <arpa/inet.h>
+#endif
+
 
 #include <cstring>
 #include <iostream>
@@ -138,9 +145,9 @@ Event DecodeGAME_END(const std::vector<uint8_t>& packet) {
 
 Event DecodeERROR(const std::vector<uint8_t>& packet) {
   Event evt;
-  evt.type = EventType::ERROR;
+  evt.type = EventType::ERROR_TYPE;
 
-  ERROR data;
+  ERROR_EVNT data;
   size_t offset = 2;
 
   uint32_t payloadLength = 0;

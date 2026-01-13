@@ -53,7 +53,7 @@ if(NOT SDL2_mixer_FOUND)
     GIT_TAG release-2.8.0
     OPTIONS
       "SDL2MIXER_INSTALL ON"
-      "SDL2MIXER_CMD ON"
+      "SDL2MIXER_CMD OFF"
       "SDL2MIXER_FLAC DRFLAC"
       "SDL2MIXER_MOD OFF"
       "SDL2MIXER_MP3 MINIMP3"
@@ -107,6 +107,10 @@ add_custom_target(clean-all
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
-target_link_libraries(RTYPE_Client PRIVATE SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer asio)
+target_link_libraries(RTYPE_Client PRIVATE SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf SDL2_mixer::SDL2_mixer asio)
+
+if(WIN32)
+  target_link_libraries(RTYPE_Client PRIVATE SDL2::SDL2main ws2_32 wsock32)
+endif()
 
 target_compile_options(RTYPE_Client PRIVATE -Wall -Wextra)

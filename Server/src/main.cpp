@@ -9,11 +9,9 @@ int main(int ac, char **av) {
   if (ac >= 2) diff = atoi(av[1]);
   if (diff == 0) diff = 1;
   if (ac >= 3) host = av[2];
-
   if (!server.Initialize(4242, 4243, diff, host)) {
     return 1;
   }
-
   server.Run();
   server.Shutdown();
 

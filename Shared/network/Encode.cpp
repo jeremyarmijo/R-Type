@@ -1,4 +1,10 @@
+// #include <arpa/inet.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include <vector>
 
@@ -43,7 +49,7 @@ inline uint8_t getType(const Action& a) {
       return 0x0F;
     case ActionType::GAME_END:
       return 0x10;
-    case ActionType::ERROR:
+    case ActionType::ERROR_SERVER:
       return 0x12;
 
     case ActionType::UP_PRESS:

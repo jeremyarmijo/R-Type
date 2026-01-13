@@ -34,7 +34,7 @@ enum class ActionType : uint8_t {
   LOBBY_START,
   GAME_START,
   GAME_END,
-  ERROR,
+  ERROR_SERVER,
   GAME_STATE,
   BOSS_SPAWN,
   BOSS_UPDATE,
@@ -274,7 +274,7 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::GAME_END:
     case ActionType::MESSAGE:
     case ActionType::LOBBY_KICK:
-    case ActionType::ERROR:
+    case ActionType::ERROR_SERVER:
       return 2;  // TCP
 
     default:

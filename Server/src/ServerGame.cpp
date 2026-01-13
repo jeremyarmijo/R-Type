@@ -28,8 +28,6 @@
 ServerGame::ServerGame() : serverRunning(true) {
   SetupDecoder(decode);
   SetupEncoder(encode);
-  DLLoader<INetworkManager> loader("../src/build/libnetwork_server.so",
-                                   "EntryPointLib");
   networkManager = std::unique_ptr<INetworkManager>(loader.getInstance());
 }
 
@@ -403,18 +401,18 @@ void ServerGame::SetupNetworkCallbacks() {
         HandleLobbyLeave(playerId);
         break;
 
-      case EventType::LOBBY_KICK:
+      case EventType::LOBBY_KICK: {
         auto& d = std::get<LOBBY_KICK>(ev.data);
         std::cout << "[Network] LOBBY_LEAVE from " << playerId << std::endl;
         HandleLobbyLeave(d.playerId);
         break;
-
+      }
       case EventType::MESSAGE:
         HandleLobbyMessage(playerId, ev);
         break;
 
-      case EventType::ERROR: {
-        auto& d = std::get<ERROR>(ev.data);
+      case EventType::ERROR_TYPE: {
+        auto& d = std::get<ERROR_EVNT>(ev.data);
         std::cerr << "[Network Error] Client " << playerId << ": " << d.message
                   << std::endl;
         break;
@@ -445,13 +443,11 @@ void ServerGame::SetupNetworkCallbacks() {
   });
 }
 
-bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
-                            const std::string& host) {
+bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff, const std::string& host) {
   if (!networkManager->Initialize(tcpPort, udpPort, host)) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
   }
-  std::cout << "Components registered" << std::endl;
   SetupNetworkCallbacks();
   return true;
 }
@@ -677,7 +673,11 @@ void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
 }
 
 void ServerGame::Run() {
+  std::cout << "before main loop"<< std::endl;
+
   while (serverRunning) {
+  std::cout << "server running"<< std::endl;
+
     networkManager->Update();
     SendPacket();
 
@@ -695,6 +695,7 @@ void ServerGame::Run() {
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
+  std::cout << "server "<< std::endl;
 }
 
 void ServerGame::Shutdown() {
