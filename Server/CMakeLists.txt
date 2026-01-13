@@ -90,7 +90,7 @@ target_include_directories(RTYPE_Server PRIVATE
 target_link_libraries(RTYPE_Server PRIVATE SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer asio)
 
 if(WIN32)
-  target_link_libraries(RTYPE_Server PRIVATE ws2_32 wsock32)
+  target_link_libraries(RTYPE_Server PRIVATE SDL2::SDL2main ws2_32 wsock32)
 endif()
 
 target_compile_options(RTYPE_Server PRIVATE -Wall -Wextra)
