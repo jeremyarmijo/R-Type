@@ -10,6 +10,8 @@ The R-Type server is a **multithreaded game server** built with C++17 that handl
 
 ### Core Components
 
+if you want description of all class in the project you can see here -> **[Doxygen online](https://jeremyarmijo.github.io/R-Type/)**
+
 1. **ServerGame** - Main game logic controller
    - Manages game loop and state
    - Coordinates ECS (Entity Component System)
@@ -38,6 +40,8 @@ The R-Type server is a **multithreaded game server** built with C++17 that handl
 ---
 
 ## Network Protocol
+
+If you want to see all protocol see here -> **[Server Protocol](network/protocoleRFC.txt)**
 
 ### TCP (Port 4242)
 - **Purpose**: Client authentication, lobby management
@@ -155,7 +159,7 @@ server.Run();
 - **Object pooling**: (Future) Reduce allocations
 
 ### Scalability
-- Current limit: **4 players per game**
+- Current limit: **Until 4 players per game**
 - Single-threaded game logic (sufficient for 4 players)
 - ASIO handles network I/O efficiently
 
@@ -184,14 +188,17 @@ The server outputs detailed logs to `stdout`:
 
 ## Building from Source
 
-See [CONAN_SETUP.md](../CONAN_SETUP.md) for detailed build instructions.
+See [README.md](../README.md) for detailed build instructions.
 
 ### Quick Build
 ```bash
 cd Server
-conan install . --output-folder=build --build=missing -s compiler.cppstd=17
-cmake -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake
-cmake --build build
+mkdir -p cmake
+wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
+mkdir build
+cd build
+cmake ..
+make
 ```
 
 ---
@@ -199,8 +206,9 @@ cmake --build build
 
 ## Related Documentation
 
-- [Network Protocol Specification](protocol.md)
+- [Network Protocol Specification](network/protocoleRFC.txt)
 - [Full class Documentation](https://jeremyarmijo.github.io/R-Type/)
+- [How-To-Contribute-Network-Server](How-To-Contribute-Network-Server.md)
 
 ---
 
@@ -209,4 +217,4 @@ cmake --build build
 For questions or issues, please:
 - Check the [Doxygen documentation](https://jeremyarmijo.github.io/R-Type/)
 - Open an issue on [GitHub](https://github.com/jeremyarmijo/R-Type/issues)
-- Review existing documentation in `/documentation`
+- Review existing documentation in `/documentation` or Wiki on github
