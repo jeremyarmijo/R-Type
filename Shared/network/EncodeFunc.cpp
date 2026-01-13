@@ -468,7 +468,7 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
   encoder.registerHandler(ActionType::LOBBY_LIST_REQUEST, LobbyListRequestFunc);
-  encoder.registerHandler(ActionType::ERROR, ErrorFunc);
+  encoder.registerHandler(ActionType::ERROR_SERVER, ErrorFunc);
   encoder.registerHandler(ActionType::GAME_START, GameStartFunc);
   encoder.registerHandler(ActionType::GAME_END, GameEndFunc);
   encoder.registerHandler(ActionType::UP_PRESS, PlayerInputFunc);
