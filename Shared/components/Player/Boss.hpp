@@ -6,11 +6,11 @@
 #include "ecs/Entity.hpp"
 
 enum class BossType {
-  BigShip,
+  FinalBoss,   // Ultime boss
   Gomander_snake,       // Boss serpent multi-segments
+  BigShip,
   BydoEye,     // Boss statique qui tire beaucoup
   Bydo_Battleship,  // Boss qui spawn des ennemis
-  FinalBoss    // Ultime boss
 };
 
 enum class BossPhase { Phase1, Phase2, Phase3 };

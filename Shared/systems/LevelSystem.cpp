@@ -161,10 +161,10 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
         createBoss(registry, btype, bossPos, BossPhase::Phase1, bossHP);
 
     if (btype == BossType::Gomander_snake) {
-      for (int i = 0; i < 8; ++i) {
+      for (int i = 0; i < 5; ++i) {
         Vector2 segmentPos = {bossPos.x + (i + 1) * 40.f, bossPos.y};
         createBossPart(registry, bossEntity, segmentPos, {0.f, 0.f}, i,
-                       (i + 1) * 0.15f, 50);
+                   (i + 1) * 0.15f, 50, {30.f, 30.f}, 1);
       }
       std::cout << "[Level " << (levelIndex + 1)
                 << "] Snake Boss spawned with 8 segments!" << std::endl;
@@ -174,7 +174,7 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
       for (const auto& offset : offsets) {
         Vector2 turretPos = {bossPos.x + offset.x, bossPos.y + offset.y};
         createBossPart(registry, bossEntity, turretPos, offset, -1, 0.f, 100,
-                       {20.f, 20.f});
+                       {20.f, 20.f}, 2);
       }
       std::cout << "[Level " << (levelIndex + 1)
                 << "] Final Boss spawned with 4 turrets!" << std::endl;

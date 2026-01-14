@@ -102,12 +102,14 @@ inline Entity createLevelEntity(Registry& registry,
 inline Entity createBossPart(Registry& registry, Entity bossEntity,
                              const Vector2& startPos, Vector2 offset,
                              int segmentIndex, float timeOffset, int hp,
-                             Vector2 size = {30.f, 30.f}) {
+                             Vector2 size = {30.f, 30.f},
+                             uint8_t partType = 0) {
   Entity part = registry.spawn_entity();
   registry.add_component<Transform>(part, Transform{startPos});
   registry.add_component<BoxCollider>(part, BoxCollider(size.x, size.y));
   registry.add_component<BossPart>(
-      part, BossPart(bossEntity, offset, segmentIndex, timeOffset, hp));
+      part, BossPart(bossEntity, offset, segmentIndex, timeOffset,
+      hp, partType));
   return part;
 }
 

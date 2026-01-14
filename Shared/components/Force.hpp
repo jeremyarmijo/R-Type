@@ -5,11 +5,11 @@
 #include "components/Physics2D.hpp"
 #include "ecs/Entity.hpp"
 
-enum class ForceState { AttachedFront, AttachedBack, Detached };
+enum class EForceState { AttachedFront, AttachedBack, Detached };
 
 struct Force {
   Entity ownerPlayer;
-  ForceState state;
+  EForceState state;
   Vector2 direction;
   Vector2 offsetFront;
   Vector2 offsetBack;
@@ -21,9 +21,9 @@ struct Force {
   bool blocksProjectiles;
   bool isActive;
 
-  Force(Entity owner = Entity(0), ForceState st = ForceState::AttachedFront,
+  Force(Entity owner = Entity(0), EForceState st = EForceState::AttachedFront,
         float spd = 200.f, Vector2 dir = {1.f, 0.f},
-        Vector2 offFront = {40.f, 0.f}, Vector2 offBack = {-40.f, 0.f},
+        Vector2 offFront = {20.f, -30.f}, Vector2 offBack = {-20.f, -30.f},
         float maxDist = 300.f, int dmg = 20, bool blocks = true)
       : ownerPlayer(owner),
         state(st),

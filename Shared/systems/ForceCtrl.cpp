@@ -19,14 +19,14 @@ void force_control_system(Registry& registry, SparseArray<Force>& forces,
     InputState& input = states[playerId].value();
 
     if (input.action2) {
-      if (force.state == ForceState::AttachedFront ||
-          force.state == ForceState::AttachedBack) {
-        force.state = ForceState::Detached;
+      if (force.state == EForceState::AttachedFront ||
+          force.state == EForceState::AttachedBack) {
+        force.state = EForceState::Detached;
         force.detachPosition = transforms[forceIdx]->position;
         force.currentDistance = 0.f;
         std::cout << "Force DETACHED!" << std::endl;
       } else {
-        force.state = ForceState::AttachedFront;
+        force.state = EForceState::AttachedFront;
         force.currentDistance = 0.f;
         std::cout << "Force RECALLED!" << std::endl;
       }

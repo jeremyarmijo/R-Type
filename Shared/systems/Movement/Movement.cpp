@@ -283,7 +283,6 @@ void boss_part_system(Registry& registry, float deltaTime) {
     }
   }
 }
-
 void force_movement_system(Registry& registry,
                            SparseArray<Transform>& transforms,
                            SparseArray<RigidBody>& rigidbodies,
@@ -294,36 +293,49 @@ void force_movement_system(Registry& registry,
        IndexedZipper(transforms, rigidbodies, forces)) {
     if (!force.isActive) continue;
 
-    size_t playerId = static_cast<size_t>(force.ownerPlayer);
+    size_t playerEntityId = static_cast<size_t>(force.ownerPlayer);
 
-    if (playerId >= transforms.size() || !transforms[playerId].has_value()) {
+    std::cout << "[FORCE] forceIdx=" << forceIdx
+              << " ownerEntity=" << playerEntityId
+              << " state=" << static_cast<int>(force.state) << std::endl;
+
+    if (playerEntityId >= transforms.size() ||
+        !transforms[playerEntityId].has_value()) {
+      std::cout << "[FORCE] Player transform NOT FOUND!" << std::endl;
       continue;
     }
-    if (playerId >= players.size() || !players[playerId].has_value()) {
+    if (playerEntityId >= players.size() ||
+        !players[playerEntityId].has_value()) {
       continue;
     }
-    if (!players[playerId]->isAlive) {
+    if (!players[playerEntityId]->isAlive) {
       continue;
     }
 
-    Vector2 playerPos = transforms[playerId]->position;
+    Vector2 playerPos = transforms[playerEntityId]->position;
 
     switch (force.state) {
-      case ForceState::AttachedFront: {
+      case EForceState::AttachedFront: {
+        static float floatTimer = 0.f;
+        floatTimer += deltaTime;
+
+        float floatOffsetY =
+            std::sin(floatTimer * 3.f) * 15.f;  // Oscille de ±15 pixels
+
         transform.position.x = playerPos.x + force.offsetFront.x;
         transform.position.y = playerPos.y + force.offsetFront.y;
         rigidbody.velocity = {0.f, 0.f};
         break;
       }
 
-      case ForceState::AttachedBack: {
+      case EForceState::AttachedBack: {
         transform.position.x = playerPos.x + force.offsetBack.x;
         transform.position.y = playerPos.y + force.offsetBack.y;
         rigidbody.velocity = {0.f, 0.f};
         break;
       }
 
-      case ForceState::Detached: {
+      case EForceState::Detached: {
         rigidbody.velocity.x = force.direction.x * force.speed;
         rigidbody.velocity.y = force.direction.y * force.speed;
 
