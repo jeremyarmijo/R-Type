@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <memory>
 
 #include "Collision/Collision.hpp"
 #include "Collision/CollisionController.hpp"
@@ -30,6 +31,8 @@
 ServerGame::ServerGame() : serverRunning(true) {
   SetupDecoder(decode);
   SetupEncoder(encode);
+  DLLoader<INetworkManager> loader("../src/build/libnetwork_server.so",
+                                   "EntryPointLib");
   networkManager = std::unique_ptr<INetworkManager>(loader.getInstance());
 }
 
@@ -759,7 +762,8 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
           state.moveRight = input.right;
           state.moveDown = input.down;
           state.moveUp = input.up;
-          state.action1 = input.fire;
+          state.action1 = (input.fire == 1);
+          state.action2 = (input.fire == 2);
           break;
         }
         break;
@@ -1011,9 +1015,10 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
   for (auto&& [idx, segment, transform] : IndexedZipper(bosspart, transforms)) {
     EnemyState es;
     es.enemyId = static_cast<uint16_t>(idx);
-    es.enemyType = 99;
-    es.posX = transform.position.x;
+    es.enemyType = 90 + segment.partType;
+    es.posX = transform.position.x;  // ← AJOUTE CETTE LIGNE !
     es.posY = transform.position.y;
+
     es.hp = 1;
     es.state = 1;
     es.direction = 0;
@@ -1023,7 +1028,7 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
   for (auto&& [idx, boss, transform] : IndexedZipper(bosses, transforms)) {
     EnemyState bs;
     bs.enemyId = static_cast<uint16_t>(idx);
-    bs.enemyType = static_cast<uint8_t>(boss.type);
+    bs.enemyType = static_cast<uint8_t>(boss.type) + 100;
     bs.posX = transform.position.x;
     bs.posY = transform.position.y;
     bs.hp = static_cast<uint8_t>(boss.current);
@@ -1045,24 +1050,19 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
   }
 
   SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0, &lobby));
-  /*for (auto&& [idx, force, transform] : IndexedZipper(forcesArr, transforms))
-{ if (!force.isActive) continue;
+  for (auto&& [idx, force, transform] : IndexedZipper(forcesArr, transforms)) {
+    if (!force.isActive) continue;
 
-    ForceState fs;  // Tu dois créer cette structure
+    ForceState fs;
     fs.forceId = static_cast<uint16_t>(idx);
     fs.ownerId = static_cast<uint16_t>(force.ownerPlayer);
     fs.posX = transform.position.x;
     fs.posY = transform.position.y;
     fs.state = static_cast<uint8_t>(force.state);
-    gs.forces.push_back(fs);
+
+    // ← AJOUTE CETTE LIGNE !
+    SendAction(std::make_tuple(Action{ActionType::FORCE_STATE, fs}, 0));
   }
 
-  struct ForceState {
-  uint16_t forceId;
-  uint16_t ownerId;
-  float posX;
-  float posY;
-  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
-};
-  SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0));*/
+  SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0));
 }
