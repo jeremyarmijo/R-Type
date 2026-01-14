@@ -93,6 +93,7 @@ target_include_directories(RTYPE_Server PRIVATE
     ${PROJECT_SOURCE_DIR}/../Shared/dynamicLibLoader/
     ${PROJECT_SOURCE_DIR}/
     ${PROJECT_SOURCE_DIR}/../Client/src/engine/network/
+    ${PROJECT_SOURCE_DIR}/src/network/
 )
 
 target_link_libraries(RTYPE_Server PRIVATE SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer asio)
