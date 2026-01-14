@@ -80,7 +80,8 @@ inline uint8_t getType(const Action& a) {
   }
 }
 
-std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP) {
+std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP,
+                                     uint16_t seqNum, uint16_t ack) {
   auto& func = handlers[static_cast<uint8_t>(a.type)];
   if (!func) return {};
 
@@ -88,8 +89,10 @@ std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP) {
   payload.reserve(64);
   func(a, payload);
 
+  size_t headerSize = (useUDP == 0 || useUDP == 1) ? 10 : 6;
+
   std::vector<uint8_t> packet;
-  packet.reserve(6 + payload.size());
+  packet.reserve(headerSize + payload.size());
 
   PacketHeader header;
   header.type = getType(a);
@@ -99,7 +102,9 @@ std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP) {
   if (useUDP == 1) header.flags |= 0x08;
   if (useUDP == 2) header.flags |= 0x01;
 
-  header.length = payload.size();
+  header.length = static_cast<uint32_t>(payload.size());
+  header.seqNum = seqNum;
+  header.ack = ack;
 
   writeHeader(packet, header);
   packet.insert(packet.end(), payload.begin(), payload.end());
@@ -112,6 +117,16 @@ void Encoder::writeHeader(std::vector<uint8_t>& packet, const PacketHeader& h) {
   packet.push_back(h.flags);
 
   uint32_t length = htonl(h.length);
-  const uint8_t* ptr = reinterpret_cast<const uint8_t*>(&length);
-  packet.insert(packet.end(), ptr, ptr + 4);
+  const uint8_t* pLen = reinterpret_cast<const uint8_t*>(&length);
+  packet.insert(packet.end(), pLen, pLen + 4);
+
+  if ((h.flags & 0x02) || (h.flags & 0x08)) {
+    uint16_t s = htons(h.seqNum);
+    const uint8_t* pSeq = reinterpret_cast<const uint8_t*>(&s);
+    packet.insert(packet.end(), pSeq, pSeq + 2);
+
+    uint16_t a = htons(h.ack);
+    const uint8_t* pAck = reinterpret_cast<const uint8_t*>(&a);
+    packet.insert(packet.end(), pAck, pAck + 2);
+  }
 }

@@ -234,13 +234,15 @@ enum class EventType : uint8_t {
 
 using EventData =
     std::variant<std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, GAME_START,
-                 GAME_END, ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
-                 BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
-                 LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
-                 LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
-                 MESSAGE, LOBBY_KICK>;
+                 GAME_END, ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH,
+                 BOSS_SPAWN, BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE,
+                 LOBBY_JOIN_REQUEST, LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE,
+                 PLAYER_READY, LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST,
+                 LOBBY_LEAVE, MESSAGE, LOBBY_KICK>;
 
 struct Event {
   EventType type;
   EventData data;
+  uint16_t seqNum;
+  uint16_t ack;
 };

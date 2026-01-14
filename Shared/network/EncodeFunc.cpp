@@ -431,9 +431,9 @@ void LobbyKickFunc(const Action& a, std::vector<uint8_t>& out) {
   if (!kick) return;
 
   out.clear();
-  
+
   uint16_t pId = htons(kick->playerId);
-  
+
   out.resize(sizeof(uint16_t));
   memcpy(out.data(), &pId, sizeof(uint16_t));
 }
