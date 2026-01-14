@@ -67,7 +67,7 @@ class ServerGame {
  private:
 
 #ifdef _WIN32
-  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("C:/cross-platform_rtype/R-Type/Server/src/build/libnetwork_server.dll", "EntryPointLib");
+  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("../src/build/libnetwork_server.dll", "EntryPointLib");
 #else
   DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("../src/build/libnetwork_server.so", "EntryPointLib");
 #endif
