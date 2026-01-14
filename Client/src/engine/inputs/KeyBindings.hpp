@@ -46,7 +46,7 @@ class KeyBindings {
 
     // Actions
     BindKey(GameAction::FIRE, SDL_SCANCODE_SPACE);
-    // BindKey(GameAction::SPECIAL, SDL_SCANCODE_F);
+    BindKey(GameAction::SPECIAL, SDL_SCANCODE_F);
     BindKey(GameAction::PAUSE, SDL_SCANCODE_ESCAPE);
     BindKey(GameAction::PAUSE, SDL_SCANCODE_P);
   }
