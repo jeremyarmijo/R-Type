@@ -176,28 +176,30 @@ void ServerGame::RemovePlayerFromLobby(uint16_t playerId) {
   std::lock_guard<std::mutex> lock(lobbyMutex);
   for (auto it = lobbys.begin(); it != lobbys.end();) {
     bool found = false;
+    auto& lobby = *it;
 
-    for (auto pIt = (*it)->players_list.begin();
-         pIt != (*it)->players_list.end(); ++pIt) {
+    for (auto pIt = lobby->players_list.begin();
+         pIt != lobby->players_list.end(); ++pIt) {
       if (std::get<0>(*pIt) == playerId) {
-        (*it)->players_list.erase(pIt);
-        (*it)->nb_player--;
+        lobby->players_list.erase(pIt);
+        lobby->nb_player--;
         found = true;
         break;
       }
     }
 
     if (found) {
-      if ((*it)->nb_player == 0) {
-        std::cout << "[Lobby] Lobby " << (*it)->lobby_id << " deleted (empty)"
-                  << std::endl;
-        (*it)->gameRuning = false;
-        if ((*it)->gameThread.joinable()) {
-          (*it)->gameThread.join();
+      if (lobby->nb_player == 0) {
+        lobby->gameRuning = false;
+        if (lobby->gameThread.joinable()) {
+          lobby->gameThread.join();
         }
         it = lobbys.erase(it);
       } else {
-        SendLobbyUpdate(**it);
+        if (lobby->host_id == playerId) {
+          lobby->host_id = std::get<0>(lobby->players_list[0]);
+        }
+        SendLobbyUpdate(*lobby);
         ++it;
       }
       break;
@@ -316,6 +318,21 @@ void ServerGame::HandleLobbyLeave(uint16_t playerId) {
   RemovePlayerFromLobby(playerId);
 }
 
+void ServerGame::HandleLobbyKick(uint16_t playerId, uint16_t playerKickId) {
+  lobby_list* lobby = FindPlayerLobby(playerId);
+  if (!lobby) return;
+
+  if (playerId != lobby->host_id) return;
+  Action ac;
+  ac.type = ActionType::LOBBY_KICK;
+  LobbyKick resp;
+  resp.playerId = playerKickId;
+  ac.data = resp;
+  SendAction(std::make_tuple(ac, playerKickId, nullptr));
+  RemovePlayerFromLobby(playerKickId);
+  SendLobbyUpdate(*lobby);
+}
+
 void ServerGame::HandleLobbyMessage(uint16_t playerId, Event& ev) {
   const auto* msgData = std::get_if<MESSAGE>(&ev.data);
   if (!msgData) return;
@@ -403,12 +420,12 @@ void ServerGame::SetupNetworkCallbacks() {
         HandleLobbyLeave(playerId);
         break;
 
-      case EventType::LOBBY_KICK:
+      case EventType::LOBBY_KICK: {
         auto& d = std::get<LOBBY_KICK>(ev.data);
         std::cout << "[Network] LOBBY_LEAVE from " << playerId << std::endl;
-        HandleLobbyLeave(d.playerId);
+        HandleLobbyKick(playerId, d.playerId);
         break;
-
+      }
       case EventType::MESSAGE:
         HandleLobbyMessage(playerId, ev);
         break;
