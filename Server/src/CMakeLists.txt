@@ -41,6 +41,7 @@ endif()
 file(GLOB_RECURSE SOURCES
     ${PROJECT_SOURCE_DIR}/network/*.cpp
     ${PROJECT_SOURCE_DIR}/../../Shared/network/*.cpp
+    ${PROJECT_SOURCE_DIR}/network/db/*.cpp
 )
 
 add_library(network_server SHARED ${SOURCES})
@@ -50,6 +51,7 @@ target_include_directories(network_server PRIVATE
     ${PROJECT_SOURCE_DIR}/../include/network
     ${PROJECT_SOURCE_DIR}/../include/
     ${PROJECT_SOURCE_DIR}/../
+    ${PROJECT_SOURCE_DIR}/network/
 )
 
 target_link_libraries(network_server PRIVATE asio sqlite3)
