@@ -8,10 +8,33 @@
 #include <vector>
 
 #include "network/DecodeFunc.hpp"
+#include "db/Database.hpp"
 
-ServerNetworkManager::ServerNetworkManager() = default;
+ServerNetworkManager::ServerNetworkManager() {
+  db = std::make_unique<Database>();
+  if (db->Open("r-type.db")) {
+    std::cout << "[Database] Opened r-type.db successfully." << std::endl;
+  } else {
+    throw std::runtime_error("[Database] Failed to open r-type.db.");
+  }
 
-ServerNetworkManager::~ServerNetworkManager() { Shutdown(); }
+  if (db->ExecuteQuery("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT NOT NULL, score INTEGER DEFAULT 0);")) {
+    std::cout << "[Database] Users table ensured." << std::endl;
+  } else {
+    throw std::runtime_error("[Database] Failed to create users table.");
+  }
+  db->AddUser("testuser", "password123", 100);
+  std::string password; int score;
+  db->GetUser("testuser", password, score);
+  std::cout << "User: testuser, Password: " << password << ", Score: " << score << std::endl;
+};
+
+ServerNetworkManager::~ServerNetworkManager() {
+  Shutdown();
+  if (db) {
+    db->Close();
+  }
+}
 
 bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port,
                                       const std::string &host) {
@@ -284,6 +307,22 @@ void ServerNetworkManager::OnTCPDisconnect(uint32_t client_id) {
   }
 
   client_manager_.RemoveClient(client_id);
+}
+
+bool ServerNetworkManager::GetUser(const std::string& username, std::string& password, int& score) {
+  if (!db) {
+    std::cerr << "[ServerNetworkManager] Database not initialized" << std::endl;
+    return false;
+  }
+  return db->GetUser(username, password, score);
+}
+
+bool ServerNetworkManager::AddUser(const std::string& username, const std::string& password, int score) {
+  if (!db) {
+    std::cerr << "[ServerNetworkManager] Database not initialized" << std::endl;
+    return false;
+  }
+  return db->AddUser(username, password, score);
 }
 
 #ifdef _WIN32
