@@ -65,14 +65,22 @@ if(asio_ADDED)
   target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
 endif()
 
-file(GLOB_RECURSE SOURCES
-    ${PROJECT_SOURCE_DIR}/../Client/src/engine/inputs/*.cpp
-    ${PROJECT_SOURCE_DIR}/../Client/src/engine/network/*.cpp
+file(GLOB SOURCES_MAIN
     ${PROJECT_SOURCE_DIR}/src/ServerGame.cpp
     ${PROJECT_SOURCE_DIR}/src/main.cpp
+)
+
+file(GLOB SOURCES_ENGINE
+    ${PROJECT_SOURCE_DIR}/../Client/src/engine/inputs/*.cpp
+    ${PROJECT_SOURCE_DIR}/../Client/src/engine/network/*.cpp
+)
+
+file(GLOB_RECURSE SOURCES_SHARED
     ${PROJECT_SOURCE_DIR}/../Shared/network/*.cpp
     ${PROJECT_SOURCE_DIR}/../Shared/systems/*.cpp
 )
+
+set(SOURCES ${SOURCES_MAIN} ${SOURCES_ENGINE} ${SOURCES_SHARED})
 
 add_executable(RTYPE_Server ${SOURCES})
 
