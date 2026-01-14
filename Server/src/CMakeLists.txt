@@ -36,13 +36,6 @@ if(sqlite3_ADDED)
     POSITION_INDEPENDENT_CODE ON
   )
   
-  if(WIN32)
-    target_compile_definitions(sqlite3 PRIVATE SQLITE_API=__declspec(dllexport))
-  endif()
-  
-  if(UNIX)
-    target_link_libraries(sqlite3 PUBLIC pthread dl)
-  endif()
 endif()
 
 file(GLOB_RECURSE SOURCES
