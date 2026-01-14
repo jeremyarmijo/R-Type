@@ -200,6 +200,13 @@ struct LOBBY_KICK {
   uint16_t playerId;
 };
 
+struct MAP_DATA {
+  uint16_t width;
+  uint16_t height;
+  float scrollSpeed;
+  std::vector<uint8_t> tiles;
+};
+
 enum class EventType : uint8_t {
   // TCP Messages
   LOGIN_REQUEST = 0x01,
@@ -216,6 +223,7 @@ enum class EventType : uint8_t {
   LOBBY_START = 0x0B,
   MESSAGE = 0x0C,
   LOBBY_KICK = 0x0D,
+  SEND_MAP = 0x0E,
 
   GAME_START = 0x0F,
   GAME_END = 0x10,
@@ -234,11 +242,11 @@ enum class EventType : uint8_t {
 
 using EventData =
     std::variant<std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, GAME_START,
-                 GAME_END, ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
-                 BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
-                 LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
-                 LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
-                 MESSAGE, LOBBY_KICK>;
+                 GAME_END, ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH,
+                 BOSS_SPAWN, BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE,
+                 LOBBY_JOIN_REQUEST, LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE,
+                 PLAYER_READY, LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST,
+                 LOBBY_LEAVE, MESSAGE, LOBBY_KICK, MAP_DATA>;
 
 struct Event {
   EventType type;

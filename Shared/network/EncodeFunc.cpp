@@ -431,9 +431,9 @@ void LobbyKickFunc(const Action& a, std::vector<uint8_t>& out) {
   if (!kick) return;
 
   out.clear();
-  
+
   uint16_t pId = htons(kick->playerId);
-  
+
   out.resize(sizeof(uint16_t));
   memcpy(out.data(), &pId, sizeof(uint16_t));
 }
@@ -464,6 +464,31 @@ void MessageFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, msg->message.data(), msgContentLen);
 }
 
+void MapDataFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* map = std::get_if<MapData>(&a.data);
+  if (!map) return;
+
+  out.clear();
+
+  uint16_t w = htons(map->width);
+  uint8_t wBytes[2];
+  memcpy(wBytes, &w, 2);
+  out.insert(out.end(), wBytes, wBytes + 2);
+
+  uint16_t h = htons(map->height);
+  uint8_t hBytes[2];
+  memcpy(hBytes, &h, 2);
+  out.insert(out.end(), hBytes, hBytes + 2);
+
+  uint8_t speedBytes[4];
+  htonf(map->scrollSpeed, speedBytes);
+  out.insert(out.end(), speedBytes, speedBytes + 4);
+
+  if (!map->tiles.empty()) {
+    out.insert(out.end(), map->tiles.begin(), map->tiles.end());
+  }
+}
+
 void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
@@ -492,6 +517,7 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::LOBBY_JOIN_REQUEST, LobbyJoinRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE,
                           LobbyJoinResponseFunc);
+  encoder.registerHandler(ActionType::SEND_MAP, MapDataFunc);
   encoder.registerHandler(ActionType::LOBBY_LIST_REQUEST, LobbyListRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_LIST_RESPONSE,
                           LobbyListResponseFunc);

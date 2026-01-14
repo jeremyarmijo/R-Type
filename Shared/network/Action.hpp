@@ -38,7 +38,8 @@ enum class ActionType : uint8_t {
   GAME_STATE,
   BOSS_SPAWN,
   BOSS_UPDATE,
-  ENEMY_HIT
+  ENEMY_HIT,
+  SEND_MAP,
 };
 
 struct AuthUDP {
@@ -228,12 +229,20 @@ struct LobbyKick {
   uint16_t playerId;
 };
 
+struct MapData {
+  uint16_t width;
+  uint16_t height;
+  float scrollSpeed;
+  std::vector<uint8_t> tiles;
+};
+
 using ActionData =
     std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick>;
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick,
+                 MapData>;
 
 struct Action {
   ActionType type;
@@ -275,6 +284,7 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::MESSAGE:
     case ActionType::LOBBY_KICK:
     case ActionType::ERROR_SERVER:
+    case ActionType::SEND_MAP:
       return 2;  // TCP
 
     default:
