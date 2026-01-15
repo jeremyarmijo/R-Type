@@ -11,11 +11,11 @@
 #include <vector>
 
 #include "components/Levels.hpp"
+#include "dynamicLibLoader/DLLoader.hpp"
 #include "ecs/Registry.hpp"
 #include "network/DecodeFunc.hpp"
 #include "network/EncodeFunc.hpp"
 #include "network/ServerNetworkManager.hpp"
-#include "dynamicLibLoader/DLLoader.hpp"
 
 /**
  * @class ServerGame
@@ -65,13 +65,15 @@ class ServerGame {
   void Shutdown();
 
  private:
-
 #ifdef _WIN32
-  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("../src/build/libnetwork_server.dll", "EntryPointLib");
+  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>(
+      "../src/build/libnetwork_server.dll", "EntryPointLib");
 #else
-  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("../src/build/libnetwork_server.so", "EntryPointLib");
+  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>(
+      "../src/build/libnetwork_server.so", "EntryPointLib");
 #endif
- std::unique_ptr<INetworkManager> networkManager;  ///< Network communication manager
+  std::unique_ptr<INetworkManager>
+      networkManager;  ///< Network communication manager
   Decoder decode;      ///< Decoder for incoming network messages
   Encoder encode;      ///< Encoder for outgoing network messages
   Registry registry;   ///< ECS registry for game entities
@@ -97,6 +99,7 @@ class ServerGame {
   void ClearLobbyForRematch(lobby_list& lobby);
   void HandleLobbyMessage(uint16_t playerId, Event& ev);
 
+  void HandleLoginResponse(uint16_t playerId, Event& ev);
   void HandleLobbyCreate(uint16_t playerId, Event& ev);
   void HandleLobbyJoinRequest(uint16_t playerId, Event& ev);
   void HandleLobbyListRequest(uint16_t playerId);

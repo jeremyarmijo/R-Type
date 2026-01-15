@@ -1,10 +1,11 @@
 #pragma once
 #include <cstdint>
 #include <functional>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "include/NetworkMessage.hpp"
+#include "network/Action.hpp"
 
 /**
  * @class INetworkManager
@@ -21,14 +22,14 @@ class INetworkManager {
   virtual ~INetworkManager() = default;
 
   using MessageCallback =
-      std::function<void(const NetworkMessage&)>;  ///< Message callback type
+      std::function<void(const NetworkMessage &)>;  ///< Message callback type
   using ConnectionCallback =
       std::function<void(uint32_t client_id)>;  ///< Connection callback type
   using DisconnectionCallback =
       std::function<void(uint32_t client_id)>;  ///< Disconnection callback type
 
   virtual bool Initialize(uint16_t tcp_port, uint16_t udp_port,
-                          const std::string& host) = 0;
+                          const std::string &host) = 0;
   virtual void Shutdown() = 0;
 
   /**
@@ -36,23 +37,21 @@ class INetworkManager {
    * @param msg Network message to send
    * @param sendUdp If true, use UDP; otherwise use TCP
    */
-  virtual void SendTo(const NetworkMessage& msg, bool sendUdp) = 0;
+  virtual void SendTo(const NetworkMessage &msg, Action ac, bool sendUdp) = 0;
 
   /**
    * @brief Broadcast message via UDP to all clients
    * @param msg Network message to broadcast
    */
   virtual void BroadcastLobbyUDP(
-      const NetworkMessage& msg,
-      std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
+      Action ac, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) = 0;
 
   /**
    * @brief Broadcast message via TCP to all clients
    * @param msg Network message to broadcast
    */
   virtual void BroadcastLobbyTCP(
-      const NetworkMessage& msg,
-      std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
+      Action ac, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) = 0;
 
   /**
    * @brief Update network state and process events

@@ -352,6 +352,21 @@ lobby_list* ServerGame::FindPlayerLobby(uint16_t playerId) {
   return nullptr;
 }
 
+void ServerGame::HandleLoginResponse(uint16_t playerId, Event& ev) {
+  const auto* login = std::get_if<LOGIN_REQUEST>(&ev.data);
+  if (!login) return;
+  LoginResponse lr;
+  lr.success = 1;
+  lr.playerId = playerId;
+  lr.udpPort = 4243;
+
+  Action res;
+  res.type = ActionType::LOGIN_RESPONSE;
+  res.data = lr;
+
+  SendAction(std::make_tuple(res, playerId, nullptr));
+}
+
 void ServerGame::SetupNetworkCallbacks() {
   networkManager->SetMessageCallback([this](const NetworkMessage& msg) {
     Event ev = decode.decode(msg.data);
@@ -372,10 +387,12 @@ void ServerGame::SetupNetworkCallbacks() {
     }
 
     switch (ev.type) {
-      case EventType::LOGIN_REQUEST:
-        std::cout << "[Network] LOGIN_REQUEST from " << playerId << std::endl;
+      case EventType::LOGIN_REQUEST: {
+        std::cout << "[ServerGame] Login request from: " << playerId
+                  << std::endl;
+        HandleLoginResponse(playerId, ev);
         break;
-
+      }
       case EventType::LOBBY_CREATE:
         std::cout << "[Network] LOBBY_CREATE from " << playerId << std::endl;
         HandleLobbyCreate(playerId, ev);
@@ -443,7 +460,8 @@ void ServerGame::SetupNetworkCallbacks() {
   });
 }
 
-bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff, const std::string& host) {
+bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
+                            const std::string& host) {
   if (!networkManager->Initialize(tcpPort, udpPort, host)) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
@@ -607,46 +625,24 @@ void ServerGame::SendPacket() {
     localQueue.swap(actionQueue);
   }
   while (!localQueue.empty()) {
-    auto ac = localQueue.front();
-    localQueue.pop();
+    auto& [action, clientId, lobby] = localQueue.front();
 
-    Action action = std::get<0>(ac);
-    uint16_t clientId = std::get<1>(ac);
-    lobby_list* lobby = std::get<2>(ac);
-
-    NetworkMessage msg;
-    msg.client_id = clientId;
-
-    size_t protocol = UseUdp(action.type);
-
-    msg.data = encode.encode(action, protocol);
-
-    /*std::cout << "Try SEND (clientId = " << clientId
-              << ")   (protocol = " << protocol << ")" << std::endl;
-    std::cout << "Packet = ";
-    for (auto &b : msg.data) {
-      std::cout << std::hex << static_cast<int>(b) <<  " ";
-    }
-    std::cout << std::endl;*/
     if (clientId == 0 && lobby != nullptr) {
-      if (protocol == 0) {
-        networkManager->BroadcastLobbyUDP(msg, lobby->players_list);
-        networkManager->BroadcastLobbyUDP(msg, lobby->spectate);
+      size_t protocol = UseUdp(action.type);
+
+      if (protocol == 0 || protocol == 1) {
+        networkManager->BroadcastLobbyUDP(action, lobby->players_list);
+        networkManager->BroadcastLobbyUDP(action, lobby->spectate);
+      } else {
+        networkManager->BroadcastLobbyTCP(action, lobby->players_list);
+        networkManager->BroadcastLobbyTCP(action, lobby->spectate);
       }
-      if (protocol == 2) {
-        networkManager->BroadcastLobbyTCP(msg, lobby->players_list);
-        networkManager->BroadcastLobbyTCP(msg, lobby->spectate);
-      }
-      continue;
+    } else {
+      NetworkMessage msg;
+      msg.client_id = clientId;
+      networkManager->SendTo(msg, action, false);
     }
-    if (protocol == 0) {
-      networkManager->SendTo(msg, true);
-      continue;
-    }
-    if (protocol == 2) {
-      networkManager->SendTo(msg, false);
-      continue;
-    }
+    localQueue.pop();
   }
 }
 
@@ -673,11 +669,9 @@ void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
 }
 
 void ServerGame::Run() {
-  std::cout << "before main loop"<< std::endl;
+  std::cout << "before main loop" << std::endl;
 
   while (serverRunning) {
-  std::cout << "server running"<< std::endl;
-
     networkManager->Update();
     SendPacket();
 
@@ -695,7 +689,7 @@ void ServerGame::Run() {
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
-  std::cout << "server "<< std::endl;
+  std::cout << "server " << std::endl;
 }
 
 void ServerGame::Shutdown() {

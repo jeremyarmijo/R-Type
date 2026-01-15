@@ -10,10 +10,10 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include <utility>
-
+#include <vector>
 #include <asio.hpp>
+
 
 #include "include/ServerMacro.hpp"
 #include "network/DecodeFunc.hpp"
@@ -33,8 +33,9 @@ class ProcessPacketTCP;
 class TCPServer {
  public:
   using LoginCallback = std::function<void(
-      uint16_t client_id, const std::string& username,
-      const asio::ip::tcp::endpoint& endpoint)>;  ///< Login callback type
+      uint32_t client_id, const std::string& username,
+      const asio::ip::tcp::endpoint& endpoint,
+      const std::vector<uint8_t>& data)>;  ///< Login callback type
   using DisconnectCallback =
       std::function<void(uint16_t client_id)>;  ///< Disconnect callback type
 
@@ -185,24 +186,6 @@ class ProcessPacketTCP : public std::enable_shared_from_this<ProcessPacketTCP> {
    */
   void HandleReadPayload(const asio::error_code& error,
                          std::size_t bytes_transferred);
-
-  /**
-   * @brief Process login request from client
-   */
-  void ProcessLoginRequest();
-
-  /**
-   * @brief Process game start request
-   */
-  void ProcessingGameStart();
-
-  /**
-   * @brief Send login response to client
-   * @param success Whether login was successful
-   * @param player_id Assigned player ID
-   * @param udp_port UDP port for game data
-   */
-  void SendLoginResponse(bool success, uint16_t player_id, uint16_t udp_port);
 
   asio::ip::tcp::socket socket_;      ///< TCP socket for this client
   asio::ip::tcp::endpoint endpoint_;  ///< Client endpoint

@@ -8,8 +8,12 @@
 #include <vector>
 
 #include "network/DecodeFunc.hpp"
+#include "network/EncodeFunc.hpp"
 
-ServerNetworkManager::ServerNetworkManager() = default;
+ServerNetworkManager::ServerNetworkManager() {
+  SetupEncoder(encode);
+  SetupDecoder(decode);
+}
 
 ServerNetworkManager::~ServerNetworkManager() { Shutdown(); }
 
@@ -24,14 +28,15 @@ bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port,
         });
     tcp_server_->SetUDPPort(udp_port);
     tcp_server_->SetUDPPort(udp_port);
-    
+
     tcp_server_->SetLoginCallback(
-      [this](uint32_t client_id, const std::string &username,
-        const asio::ip::tcp::endpoint &endpoint) {
-          OnTCPLogin(client_id, username, endpoint);
+        [this](uint32_t client_id, const std::string &username,
+               const asio::ip::tcp::endpoint &endpoint,
+               const std::vector<uint8_t> &data) {
+          OnTCPLogin(client_id, username, endpoint, data);
         });
-        tcp_server_->SetDisconnectCallback(
-          [this](uint32_t client_id) { OnTCPDisconnect(client_id); });
+    tcp_server_->SetDisconnectCallback(
+        [this](uint32_t client_id) { OnTCPDisconnect(client_id); });
     udp_server_ = std::make_unique<UDPServer>(io_context_, udp_port, host);
 
     udp_server_->SetReceiveCallback(
@@ -92,10 +97,8 @@ void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
   auto client = client_manager_.GetUDPClientByEndpoint(sender);
 
   if (!client) {
-    Decoder decode;
-    SetupDecoder(decode);
-
     Event evt = decode.decode(data);
+
     const AUTH *auth = std::get_if<AUTH>(&evt.data);
 
     if (!auth || evt.type != EventType::AUTH) {
@@ -112,6 +115,8 @@ void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
                 << player_id << "\n";
       return;
     }
+    client->UpdateLocalSequence(evt.seqNum);
+    client->UpdateRemoteAck(evt.ack, evt.ack_bits);
     client_manager_.AssociateUDPEndpoint(player_id, sender);
     std::cout << "[ServerNetworkManager] UDP endpoint associated for client "
               << player_id << "\n";
@@ -182,40 +187,62 @@ void ServerNetworkManager::Update() {
   }
 }
 
-void ServerNetworkManager::SendTo(const NetworkMessage &msg, bool sendUdp) {
+void ServerNetworkManager::SendTo(const NetworkMessage &msg, Action ac,
+                                  bool forceUdp) {
   auto client = client_manager_.GetClient(msg.client_id);
-  if (client && udp_server_ && client->HasUDPEndpoint() && sendUdp) {
-    udp_server_->SendTo(msg.data, client->GetUDPEndpoint());
+  if (!client) return;
+
+  size_t protocol = UseUdp(ac.type);
+
+  if ((protocol == 0 || protocol == 1 || forceUdp) &&
+      client->HasUDPEndpoint()) {
+    uint16_t seq = client->GetNextOutSeq();
+    uint16_t ack = client->GetLastReceivedSeq();
+    uint32_t bits = client->GetLocalAckBits();
+
+    std::vector<uint8_t> finalPacket =
+        encode.encode(ac, protocol, seq, ack, bits);
+
+    udp_server_->SendTo(finalPacket, client->GetUDPEndpoint());
     client->IncrementPacketsSent();
-    return;
-  }
-  if (client && tcp_server_ && !sendUdp) {
-    tcp_server_->SendTo(msg.data, msg.client_id);
+  } else if (tcp_server_) {
+    std::vector<uint8_t> finalPacket = encode.encode(ac, 2, 0, 0, 0);
+    tcp_server_->SendTo(finalPacket, client->GetId());
     client->IncrementPacketsSent();
   }
 }
 
 void ServerNetworkManager::BroadcastLobbyUDP(
-    const NetworkMessage &msg,
-    std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
+    Action ac, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
+  size_t protocol = UseUdp(ac.type);
+
   for (auto &id : ids) {
     uint16_t clientId = std::get<0>(id);
     auto client = client_manager_.GetClient(clientId);
+
     if (client && udp_server_ && client->HasUDPEndpoint()) {
-      udp_server_->SendTo(msg.data, client->GetUDPEndpoint());
+      uint16_t seq = client->GetNextOutSeq();
+      uint16_t ack = client->GetLastReceivedSeq();
+      uint32_t bits = client->GetLocalAckBits();
+
+      std::vector<uint8_t> finalPacket =
+          encode.encode(ac, protocol, seq, ack, bits);
+
+      udp_server_->SendTo(finalPacket, client->GetUDPEndpoint());
       client->IncrementPacketsSent();
     }
   }
 }
 
 void ServerNetworkManager::BroadcastLobbyTCP(
-    const NetworkMessage &msg,
-    std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
+    Action ac, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) {
   for (auto &id : ids) {
     uint16_t clientId = std::get<0>(id);
     auto client = client_manager_.GetClient(clientId);
+
     if (client && tcp_server_) {
-      tcp_server_->SendTo(msg.data, client->GetId());
+      std::vector<uint8_t> finalPacket = encode.encode(ac, 2, 0, 0, 0);
+      tcp_server_->SendTo(finalPacket, client->GetId());
       client->IncrementPacketsSent();
     }
   }
@@ -257,7 +284,8 @@ void ServerNetworkManager::SetDisconnectionCallback(
 
 void ServerNetworkManager::OnTCPLogin(
     uint32_t client_id, const std::string &username,
-    const asio::ip::tcp::endpoint &tcp_endpoint) {
+    const asio::ip::tcp::endpoint &tcp_endpoint,
+    const std::vector<uint8_t> &data) {
   auto client =
       client_manager_.AddClientFromTCP(tcp_endpoint, username, client_id);
 
@@ -270,6 +298,7 @@ void ServerNetworkManager::OnTCPLogin(
       std::lock_guard<std::mutex> lock(events_mutex_);
       connection_events_.push(event);
     }
+    OnReceiveTCP(client_id, data);
   }
 }
 
@@ -287,11 +316,9 @@ void ServerNetworkManager::OnTCPDisconnect(uint32_t client_id) {
 }
 
 #ifdef _WIN32
-__declspec(dllexport) INetworkManager* EntryPointLib() {
+__declspec(dllexport) INetworkManager *EntryPointLib() {
   return new ServerNetworkManager();
 }
 #else
-INetworkManager *EntryPointLib() {
-    return new ServerNetworkManager();
-}
+INetworkManager *EntryPointLib() { return new ServerNetworkManager(); }
 #endif
