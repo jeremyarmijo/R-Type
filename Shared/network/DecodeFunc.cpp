@@ -402,16 +402,46 @@ Event DecodeENEMY_HIT(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
-Event DecodeLOBBY_CREATE(const std::vector<uint8_t>& packet) {
-  Event evt;
-  evt.type = EventType::LOBBY_CREATE;
-
-  LOBBY_CREATE data;
 Event DecodeFORCE_STATE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::FORCE_STATE;
 
   FORCE_STATE data;
+  size_t offset = 2;
+
+  uint32_t payloadLength = 0;
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+
+  memcpy(&data.forceId, &packet[offset], sizeof(data.forceId));
+  data.forceId = ntohs(data.forceId);
+  offset += sizeof(data.forceId);
+
+  memcpy(&data.ownerId, &packet[offset], sizeof(data.ownerId));
+  data.ownerId = ntohs(data.ownerId);
+  offset += sizeof(data.ownerId);
+
+  uint32_t temp;
+  memcpy(&temp, &packet[offset], sizeof(temp));
+  temp = ntohl(temp);
+  memcpy(&data.posX, &temp, sizeof(data.posX));
+  offset += sizeof(temp);
+
+  memcpy(&temp, &packet[offset], sizeof(temp));
+  temp = ntohl(temp);
+  memcpy(&data.posY, &temp, sizeof(data.posY));
+  offset += sizeof(temp);
+
+  data.state = packet[offset++];
+
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeLOBBY_CREATE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LOBBY_CREATE;
+
+  LOBBY_CREATE data;
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
@@ -719,42 +749,7 @@ Event DecodeMESSAGE(const std::vector<uint8_t>& packet) {
   uint8_t msgLen = packet[offset++];
   data.message =
       std::string(reinterpret_cast<const char*>(&packet[offset]), msgLen);
-  offset += msgLen;*
-
-  evt.data = data;
-  return evt;
-}
-
-Event DecodeFORCE_STATE(const std::vector<uint8_t>& packet) {
-  Event evt;
-  evt.type = EventType::FORCE_STATE;
-
-  FORCE_STATE data;
-  size_t offset = 2;
-
-  uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
-
-  memcpy(&data.forceId, &packet[offset], sizeof(data.forceId));
-  data.forceId = ntohs(data.forceId);
-  offset += sizeof(data.forceId);
-
-  memcpy(&data.ownerId, &packet[offset], sizeof(data.ownerId));
-  data.ownerId = ntohs(data.ownerId);
-  offset += sizeof(data.ownerId);
-
-  uint32_t temp;
-  memcpy(&temp, &packet[offset], sizeof(temp));
-  temp = ntohl(temp);
-  memcpy(&data.posX, &temp, sizeof(data.posX));
-  offset += sizeof(temp);
-
-  memcpy(&temp, &packet[offset], sizeof(temp));
-  temp = ntohl(temp);
-  memcpy(&data.posY, &temp, sizeof(data.posY));
-  offset += sizeof(temp);
-
-  data.state = packet[offset++];
+  offset += msgLen;
 
   evt.data = data;
   return evt;

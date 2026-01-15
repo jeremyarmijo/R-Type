@@ -229,12 +229,6 @@ struct LobbyKick {
   uint16_t playerId;
 };
 
-using ActionData =
-    std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
-                 LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
-                 LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
-                 GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick, ForceState>;
 struct ForceState {
   uint16_t forceId;
   uint16_t ownerId;
@@ -242,6 +236,13 @@ struct ForceState {
   float posY;
   uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
 };
+using ActionData =
+    std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
+                 LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
+                 LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
+                 GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message,
+                 LobbyKick, ForceState>;
 
 struct Action {
   ActionType type;

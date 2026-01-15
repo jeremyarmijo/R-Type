@@ -276,17 +276,15 @@ class MyGameScene : public Scene {
                                 {{236, 6, 20, 23}, 0.1f}},
                                true);
 
-
     animations.CreateAnimation("boss_anim", "boss",
                                {{{27, 1711, 154, 203}, 0.6f},
                                 {{189, 1711, 154, 203}, 0.5f},
                                 {{351, 1711, 154, 203}, 0.6f},
-                                {{189, 1711, 154, 203}, 0.5f}},
+                                {{189, 1711, 154, 203}, 0.5f},
                                 {{189, 1711, 154, 203}, 0.5f},
                                 {{351, 1711, 154, 203}, 0.6f},
                                 {{189, 1711, 154, 203}, 0.5f}},
                                true);
-
 
     animations.CreateAnimation("explode_anim", "explosion",
                                {{{130, 2, 30, 30}, 0.1f},
@@ -345,27 +343,13 @@ class MyGameScene : public Scene {
 
     animations.CreateAnimation("boss_serpent_body_anim", "boss2",
                                {
-                                   // Ligne 0 (haut)
-                                   {{0, 0, 32, 31}, 0.1f},
-                                   {{32, 0, 32, 31}, 0.1f},
-                                   {{64, 0, 32, 31}, 0.1f},
-                                   {{96, 0, 32, 31}, 0.1f},
-                                   {{128, 0, 32, 31}, 0.1f},
-                                   {{160, 0, 32, 31}, 0.1f},
-                                   {{192, 0, 32, 31}, 0.1f},
-
-                                   // Ligne 1 (bas)
-                                   {{0, 31, 32, 31}, 0.1f},
-                                   {{32, 31, 32, 31}, 0.1f},
-                                   {{64, 31, 32, 31}, 0.1f},
-                                   {{96, 31, 32, 31}, 0.1f},
-                                   {{128, 31, 32, 31}, 0.1f},
-                                   {{160, 31, 32, 31}, 0.1f},
-                                   {{192, 31, 32, 31}, 0.1f},
-
-                                   // côtés
-                                   {{224, 0, 32, 31}, 0.1f},
-                                   {{224, 31, 32, 31}, 0.1f},
+                                   {{0, 0, 34, 29}, 0.1f},
+                                   {{34, 0, 34, 29}, 0.1f},
+                                   {{68, 0, 34, 29}, 0.1f},
+                                   {{102, 0, 34, 29}, 0.1f},
+                                   {{136, 0, 34, 29}, 0.1f},
+                                   {{170, 0, 34, 29}, 0.1f},
+                                   {{204, 0, 34, 29}, 0.1f},
                                },
                                true);
 
@@ -745,7 +729,7 @@ class MyGameScene : public Scene {
           playerComponents[m_localPlayer]->current =
               static_cast<int>(playerState.hp);
           m_healthText->SetText(
-              
+
               "Health: " + std::to_string(static_cast<int>(playerState.hp)));
         }
       } else {
@@ -838,7 +822,7 @@ class MyGameScene : public Scene {
         m_level += 1;
       }
       m_levelText->SetText("Level: " + std::to_string(m_level) +
-                          
+
                            " Wave: " + std::to_string(m_wave));
     }
   }
@@ -918,7 +902,7 @@ class MyGameScene : public Scene {
 
     Vector2 pos = transform->position;
     Entity explosion =
-       
+
         m_engine->CreateAnimatedSprite("explosion", pos, "explode_anim");
 
     m_explosions[explosion] = 0.6f;
@@ -933,73 +917,6 @@ class MyGameScene : public Scene {
       } else {
         ++it;
       }
-    for (auto it = m_explosions.begin(); it != m_explosions.end();) {
-      it->second -= dt;
-      if (it->second <= 0.0f) {
-        GetRegistry().kill_entity(Entity(it->first));
-        it = m_explosions.erase(it);
-      } else {
-        ++it;
-      }
-    for (auto it = m_explosions.begin(); it != m_explosions.end();) {
-      it->second -= dt;
-      if (it->second <= 0.0f) {
-        GetRegistry().kill_entity(Entity(it->first));
-        it = m_explosions.erase(it);
-      } else {
-        ++it;
-      }
-    }
-  }
-
-  void SpawnSegmentedEnemy(uint16_t enemyId, uint8_t enemyType,
-                           Vector2 position, uint8_t segments) {
-    if (m_enemies.find(enemyId) != m_enemies.end()) {
-      return;
-    }
-
-    std::string texture = GetEnemyTexture(enemyType);
-    std::string animation = GetEnemyAnimation(enemyType);
-
-    std::cout << "Spawning segmented enemy " << enemyId << " (type "
-              << static_cast<int>(enemyType) << ") with "
-              << static_cast<int>(segments) << " segments at (" << position.x
-              << ", " << position.y << ")" << std::endl;
-
-    std::vector<Entity> segmentEntities;
-
-    for (int i = 0; i < segments; ++i) {
-      Vector2 segmentPos = position;
-      segmentPos.x -= i * 30;  // espace entre les segments
-
-      Entity segment =
-          m_engine->CreateAnimatedSprite(texture, segmentPos, animation);
-
-      auto& transform = GetRegistry().get_components<Transform>()[segment];
-      if (transform) {
-        transform->scale = {2.0f, 2.0f};
-      }
-
-      segmentEntities.push_back(segment);
-      m_entities.push_back(segment);
-    }
-    m_compositeEnemies[enemyId] = segmentEntities;
-    std::cout << "Segmented enemy " << enemyId << " spawned successfully"
-              << std::endl;
-  }
-  void UpdateCompositeEnemyPosition(uint16_t enemyId, Vector2 position,
-                                    float segmentSpacing = 30.0f) {
-    auto it = m_compositeEnemies.find(enemyId);
-    if (it != m_compositeEnemies.end()) {
-      auto& segments = it->second;
-      for (size_t i = 0; i < segments.size(); ++i) {
-        Entity segment = segments[i];
-        auto& transforms = GetRegistry().get_components<Transform>();
-        if (segment < transforms.size() && transforms[segment].has_value()) {
-          transforms[segment]->position = {
-              position.x - static_cast<float>(i) * segmentSpacing, position.y};
-        }
-      }
     }
   }
 
@@ -1067,22 +984,6 @@ class MyGameScene : public Scene {
               position.x - static_cast<float>(i) * segmentSpacing, position.y};
         }
       }
-    }
-  }
-
-  void RemoveCompositeEnemy(uint16_t enemyId) {
-    auto it = m_compositeEnemies.find(enemyId);
-    if (it != m_compositeEnemies.end()) {
-      auto& segments = it->second;
-      for (auto& segment : segments) {
-        CreateExplosion(segment);  // optionnel, explosion pour chaque segment
-        GetRegistry().kill_entity(segment);
-        m_entities.erase(
-            std::remove(m_entities.begin(), m_entities.end(), segment),
-            m_entities.end());
-      }
-      m_compositeEnemies.erase(it);
-      std::cout << "Removed composite enemy " << enemyId << std::endl;
     }
   }
 };
