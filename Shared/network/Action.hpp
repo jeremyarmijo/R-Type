@@ -241,8 +241,8 @@ using ActionData =
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit, LobbyListRequest, LobbyLeave, Message,
-                 LobbyKick, ForceState>;
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick,
+                 ForceState>;
 
 struct Action {
   ActionType type;
@@ -266,6 +266,7 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::BOSS_SPAWN:
     case ActionType::BOSS_UPDATE:
     case ActionType::ENEMY_HIT:
+    case ActionType::FORCE_STATE:
       return 0;  // UDP
 
     case ActionType::LOGIN_REQUEST:
@@ -284,7 +285,6 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::MESSAGE:
     case ActionType::LOBBY_KICK:
     case ActionType::ERROR_SERVER:
-    case ActionType::FORCE_STATE:
       return 2;  // TCP
 
     default:

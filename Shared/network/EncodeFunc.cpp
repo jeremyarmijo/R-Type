@@ -431,9 +431,9 @@ void LobbyKickFunc(const Action& a, std::vector<uint8_t>& out) {
   if (!kick) return;
 
   out.clear();
-  
+
   uint16_t pId = htons(kick->playerId);
-  
+
   out.resize(sizeof(uint16_t));
   memcpy(out.data(), &pId, sizeof(uint16_t));
 }
@@ -464,6 +464,30 @@ void MessageFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, msg->message.data(), msgContentLen);
 }
 
+void ForceStateFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* force = std::get_if<ForceState>(&a.data);
+  if (!force) return;
+
+  out.resize(13);
+  size_t offset = 0;
+
+  uint16_t forceId = htons(force->forceId);
+  memcpy(out.data() + offset, &forceId, sizeof(uint16_t));
+  offset += 2;
+
+  uint16_t ownerId = htons(force->ownerId);
+  memcpy(out.data() + offset, &ownerId, sizeof(uint16_t));
+  offset += 2;
+
+  htonf(force->posX, out.data() + offset);
+  offset += 4;
+
+  htonf(force->posY, out.data() + offset);
+  offset += 4;
+
+  out[offset++] = force->state;
+}
+
 void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
@@ -488,7 +512,8 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::BOSS_UPDATE, BossUpdateFunc);
   encoder.registerHandler(ActionType::ENEMY_HIT, EnemyHitFunc);
   encoder.registerHandler(ActionType::LOBBY_CREATE, LobbyCreateFunc);
-  encoder.registerHandler(ActionType::LOBBY_KICK, LobbyKickFunc);
+  encoder.registerHandler(ActionType::LOBBY_CREATE, LobbyCreateFunc);
+  encoder.registerHandler(ActionType::FORCE_STATE, ForceStateFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_REQUEST, LobbyJoinRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE,
                           LobbyJoinResponseFunc);
