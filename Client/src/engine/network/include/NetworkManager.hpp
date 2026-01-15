@@ -1,14 +1,13 @@
 #pragma once
 
+#include <asio.hpp>
 #include <cstring>
+#include <map>
 #include <mutex>
 #include <queue>
 #include <string>
 #include <thread>
 #include <vector>
-
-#include <asio.hpp>
-
 
 #include "include/CircularBuffer.hpp"
 #include "network/Action.hpp"
@@ -18,6 +17,13 @@
 
 class NetworkManager {
  public:
+  struct SentPacket {
+    uint16_t seq;
+    std::vector<uint8_t> data;
+    std::chrono::steady_clock::time_point lastSent;
+    int retryCount;
+  };
+  std::map<uint16_t, SentPacket> clientHistory;
   NetworkManager();
   ~NetworkManager();
 
@@ -71,6 +77,7 @@ class NetworkManager {
 
   Decoder decoder;
   Event DecodePacket(std::vector<uint8_t>& packet);
+  void HandleRetransmission();
 
   std::vector<uint8_t> recvTcpBuffer;
   CircularBuffer<Event> eventBuffer;

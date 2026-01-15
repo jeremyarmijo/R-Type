@@ -229,7 +229,10 @@ void NetworkManager::ReadUDP() {
     Event evt = DecodePacket(packet);
     std::lock_guard<std::mutex> lock(mut);
     uint16_t newSeq = evt.seqNum;
+    bool isDuplicate = false;
+
     if (newSeq == ack) {
+      isDuplicate = true;
     } else if (static_cast<uint16_t>(newSeq - ack) < 32768) {
       uint16_t shift = newSeq - ack;
       if (shift < 32) {
@@ -242,10 +245,21 @@ void NetworkManager::ReadUDP() {
     } else {
       uint16_t shift = ack - newSeq;
       if (shift > 0 && shift <= 32) {
+        if (ack_bits & (1 << (shift - 1))) {
+          isDuplicate = true;
+        }
         ack_bits |= (1 << (shift - 1));
+      } else {
+        isDuplicate = true;
       }
     }
-    eventBuffer.push(evt);
+    clientHistory.erase(evt.ack);
+    for (int i = 0; i < 32; ++i) {
+      if (evt.ack_bits & (1 << i)) {
+        clientHistory.erase(static_cast<uint16_t>(evt.ack - (i + 1)));
+      }
+    }
+    if (!isDuplicate) eventBuffer.push(evt);
   } else if (error == asio::error::eof) {
     std::cout << "UDP server disconnected" << std::endl;
     udpConnected = false;
@@ -328,12 +342,15 @@ void NetworkManager::SendActionServer() {
       uint32_t ab;
       {
         std::lock_guard<std::mutex> lock(mut);
-        seqNum++;
-        s = seqNum;
+        s = ++seqNum;
         a = ack;
         ab = ack_bits;
       }
       std::vector<uint8_t> packet = encoder.encode(action, protocol, s, a, ab);
+      if (protocol == 1) {
+        std::lock_guard<std::mutex> lock(mut);
+        clientHistory[s] = {s, packet, std::chrono::steady_clock::now(), 0};
+      }
       SendUdp(packet);
       sent = true;
     } else if (protocol == 2 && tcpConnected) {
@@ -347,6 +364,26 @@ void NetworkManager::SendActionServer() {
       actionBuffer.pop();
     } else {
       break;
+    }
+  }
+}
+
+void NetworkManager::HandleRetransmission() {
+  std::lock_guard<std::mutex> lock(mut);
+  auto now = std::chrono::steady_clock::now();
+
+  for (auto it = clientHistory.begin(); it != clientHistory.end();) {
+    if (now - it->second.lastSent > std::chrono::milliseconds(100)) {
+      if (it->second.retryCount < 15) {
+        SendUdp(it->second.data);
+        it->second.lastSent = now;
+        it->second.retryCount++;
+        ++it;
+      } else {
+        it = clientHistory.erase(it);
+      }
+    } else {
+      ++it;
     }
   }
 }
@@ -367,6 +404,7 @@ void NetworkManager::ThreadLoop() {
     }
     if (udpConnected && udpPort != -1) {
       ReadUDP();
+      HandleRetransmission();
     }
     SendActionServer();
 
