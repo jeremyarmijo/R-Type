@@ -1,7 +1,7 @@
 #pragma once
 #include <utility>
 #include <vector>
-
+#include <iostream>
 #include "Collision/Items.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
@@ -67,15 +67,38 @@ inline Entity createBoss(Registry& registry, BossType type,
 
 inline Entity createProjectile(Registry& registry, const Vector2& startPos,
                                const Vector2& direction, float speed,
-                               Uint32 damage, bool fromPlayer) {
+                               Uint32 damage, bool fromPlayer,
+                               int chargeLevel = 0) {  // ← AJOUTE
   Entity projectile = registry.spawn_entity();
+
+  // Ajuste les stats selon le niveau de charge
+  float finalDamage = damage;
+  float colliderSize = 10.f;
+
+  if (chargeLevel >= 1) {
+    finalDamage = damage * 2.5f;  // 25 damage
+    colliderSize = 20.f;
+  }
+  if (chargeLevel >= 2) {
+    finalDamage = damage * 5.0f;  // 50 damage
+    colliderSize = 35.f;
+  }
+  if (chargeLevel >= 3) {
+    finalDamage = damage * 10.0f;  // 100 damage
+    colliderSize = 50.f;
+  }
 
   registry.add_component<Transform>(projectile, Transform(startPos));
   registry.add_component<RigidBody>(projectile, RigidBody());
-  registry.add_component<BoxCollider>(projectile, BoxCollider(10.f, 10.f));
-  registry.add_component<Projectile>(
-      projectile, Projectile(damage, speed, direction.Normalized(), 5.0f,
-                             fromPlayer ? 1 : 0));
+  registry.add_component<BoxCollider>(projectile,
+                                      BoxCollider(colliderSize, colliderSize));
+
+  Projectile proj(finalDamage, speed, direction.Normalized(), 5.0f,
+                  fromPlayer ? 1 : 0, chargeLevel);
+  registry.add_component<Projectile>(projectile, std::move(proj));
+  std::cout << "[PROJECTILE] Created with chargeLevel=" << chargeLevel
+            << " damage=" << finalDamage << " size=" << colliderSize
+            << std::endl;
 
   return projectile;
 }
@@ -108,8 +131,8 @@ inline Entity createBossPart(Registry& registry, Entity bossEntity,
   registry.add_component<Transform>(part, Transform{startPos});
   registry.add_component<BoxCollider>(part, BoxCollider(size.x, size.y));
   registry.add_component<BossPart>(
-      part, BossPart(bossEntity, offset, segmentIndex, timeOffset,
-      hp, partType));
+      part,
+      BossPart(bossEntity, offset, segmentIndex, timeOffset, hp, partType));
   return part;
 }
 

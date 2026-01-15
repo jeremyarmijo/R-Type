@@ -57,8 +57,10 @@ struct PlayerInput {
   bool left;
   bool right;
   uint8_t fire;
+  bool forceToggle;
 
-  PlayerInput() : up(false), down(false), left(false), right(false), fire(0) {}
+  PlayerInput() : up(false), down(false), left(false), right(false),
+  fire(0), forceToggle(false){}
 };
 
 struct LoginResponse {
@@ -266,6 +268,7 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::BOSS_SPAWN:
     case ActionType::BOSS_UPDATE:
     case ActionType::ENEMY_HIT:
+    case ActionType::FORCE_STATE:
       return 0;  // UDP
 
     case ActionType::LOGIN_REQUEST:
@@ -284,7 +287,6 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::MESSAGE:
     case ActionType::LOBBY_KICK:
     case ActionType::ERROR_SERVER:
-    case ActionType::FORCE_STATE:
       return 2;  // TCP
 
     default:

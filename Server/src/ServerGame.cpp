@@ -20,6 +20,7 @@
 #include "dynamicLibLoader/DLLoader.hpp"
 #include "ecs/Registry.hpp"
 #include "systems/BoundsSystem.hpp"
+#include "systems/ChargedShoot.hpp"
 #include "systems/ForceCtrl.hpp"
 #include "systems/LevelSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
@@ -742,6 +743,11 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
       case EventType::PLAYER_INPUT: {
         const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
 
+        std::cout << "[SERVER INPUT] Player " << playerId
+                  << " fire=" << static_cast<int>(input.fire)
+                  << " (left=" << input.left << " right=" << input.right << ")"
+                  << std::endl;
+
         auto& players = lobby.registry.get_components<PlayerEntity>();
         auto& states = lobby.registry.get_components<InputState>();
 
@@ -754,6 +760,11 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
           state.moveUp = input.up;
           state.action1 = (input.fire == 1);
           state.action2 = (input.fire == 2);
+
+          if (state.action2) {
+            std::cout << "[SERVER] Player " << playerId << " is CHARGING!"
+                      << std::endl;
+          }
           break;
         }
         break;
@@ -924,6 +935,7 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   }
 
   player_movement_system(lobby.registry);
+  charged_shoot_system(lobby.registry, deltaTime);
   physics_movement_system(lobby.registry, transforms, rigidbodies, deltaTime,
                           {0, 0});
   enemy_movement_system(lobby.registry, transforms, rigidbodies, enemies,
@@ -950,7 +962,6 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
         return false;
       },
       deltaTime);
-
   projectile_collision_system(lobby.registry, transforms, colliders,
                               projectiles);
   projectile_lifetime_system(lobby.registry, projectiles, deltaTime);
@@ -1030,6 +1041,13 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
     ps.velX = proj.direction.x * proj.speed;
     ps.velY = proj.direction.y * proj.speed;
     ps.damage = static_cast<uint8_t>(proj.damage);
+
+    if (proj.chargeLevel > 0) {
+      ps.type = 2;  // Tir chargé
+    } else {
+      ps.type = 0;  // Tir normal
+    }
+
     gs.projectiles.push_back(ps);
   }
 
@@ -1044,6 +1062,7 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
     fs.state = static_cast<uint8_t>(force.state);
     SendAction(std::make_tuple(Action{ActionType::FORCE_STATE, fs}, 0, &lobby));
   }
+
   for (auto& ps : gs.players) {
     std::cout << "[DEBUG] Player " << ps.playerId << " pos=(" << ps.posX << ","
               << ps.posY << ") state=" << static_cast<int>(ps.state)

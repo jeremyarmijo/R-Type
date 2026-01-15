@@ -243,6 +243,10 @@ class MyGameScene : public Scene {
       textures.LoadTexture("projectile_player",
                            "../Client/assets/blueShoot.png");
     }
+    if (!textures.GetTexture("charged_projectile_palyer")) {
+      textures.LoadTexture("charged_projectil_palyer",
+                           "../Client/assets/charged.png");
+    }
     if (!textures.GetTexture("projectile_enemy")) {
       textures.LoadTexture("projectile_enemy",
                            "../Client/assets/projectile_enemy.png");
@@ -307,6 +311,10 @@ class MyGameScene : public Scene {
                                true);
 
     animations.CreateAnimation("projectile_player_anim", "projectile_player",
+                               {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
+                               true);
+
+    animations.CreateAnimation("projectile_charged", "projectile_player",
                                {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
                                true);
 
@@ -432,6 +440,8 @@ class MyGameScene : public Scene {
         return "projectile_player";
       case 1:
         return "projectile_enemy";
+      case 2:
+        return "charged_projectile_player";
       default:
         return "projectile_player";
     }
@@ -443,6 +453,8 @@ class MyGameScene : public Scene {
         return "projectile_player_anim";
       case 1:
         return "projectile_enemy_anim";
+      case 2:
+        return "projectile_charged";
       default:
         return "projectile_player_anim";
     }
@@ -652,7 +664,7 @@ class MyGameScene : public Scene {
   }
 
   void SpawnProjectile(uint16_t projectileId, uint8_t projectileType,
-                       Vector2 position) {
+                       Vector2 position, uint8_t chargeLevel = 0) {
     if (m_projectiles.find(projectileId) != m_projectiles.end()) {
       return;
     }
@@ -663,15 +675,19 @@ class MyGameScene : public Scene {
     Entity projectile =
         m_engine->CreateAnimatedSprite(texture, position, animation);
     GetAudio().PlaySound("shoot");
+
     auto& transform = GetRegistry().get_components<Transform>()[projectile];
     if (transform) {
-      transform->scale = {1.5f, 1.5f};
+      if (projectileType == 2) {
+        transform->scale = {3.0f, 3.0f};  // Gros projectile chargé
+      } else {
+        transform->scale = {1.5f, 1.5f};  // Projectile normal
+      }
     }
 
     m_projectiles[projectileId] = projectile;
     m_entities.push_back(projectile);
   }
-
   void RemoveProjectile(uint16_t projectileId) {
     auto it = m_projectiles.find(projectileId);
     if (it != m_projectiles.end()) {
