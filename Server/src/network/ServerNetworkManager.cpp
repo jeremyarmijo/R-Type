@@ -89,37 +89,38 @@ void ServerNetworkManager::IOThreadFunc() {
 
 void ServerNetworkManager::OnReceive(const std::vector<uint8_t> &data,
                                      const asio::ip::udp::endpoint &sender) {
-  if (data.size() < 6) {
-    std::cerr << "[ServerNetworkManager] Invalid UDP packet size\n";
-    return;
-  }
+  if (data.size() < 6) return;
 
   auto client = client_manager_.GetUDPClientByEndpoint(sender);
+  Event evt = decode.decode(data);
 
   if (!client) {
-    Event evt = decode.decode(data);
-
     const AUTH *auth = std::get_if<AUTH>(&evt.data);
+    if (!auth || evt.type != EventType::AUTH) return;
 
-    if (!auth || evt.type != EventType::AUTH) {
-      std::cerr << "[ServerNetworkManager] UDP packet from unknown sender "
-                << "(cannot associate endpoint)\n";
-      return;
+    client = client_manager_.GetClient(auth->playerId);
+    if (!client) return;
+
+    client_manager_.AssociateUDPEndpoint(auth->playerId, sender);
+    std::cout << "[Network] UDP associated for client " << auth->playerId
+              << "\n";
+  }
+
+  uint16_t last_seq = client->GetLastReceivedSeq();
+  if (static_cast<int16_t>(evt.seqNum - last_seq) <= 0) {
+    return;
+  }
+  client->UpdateLocalSequence(evt.seqNum);
+  client->UpdateRemoteAck(evt.ack, evt.ack_bits);
+
+  {
+    std::lock_guard<std::mutex> lock(client->history_mutex);
+    client->history.erase(evt.ack);
+    for (int i = 0; i < 32; ++i) {
+      if (evt.ack_bits & (1 << i)) {
+        client->history.erase(static_cast<uint16_t>(evt.ack - (i + 1)));
+      }
     }
-
-    uint16_t player_id = auth->playerId;
-
-    client = client_manager_.GetClient(player_id);
-    if (!client) {
-      std::cerr << "[ServerNetworkManager] PlayerID for non-existing client "
-                << player_id << "\n";
-      return;
-    }
-    client->UpdateLocalSequence(evt.seqNum);
-    client->UpdateRemoteAck(evt.ack, evt.ack_bits);
-    client_manager_.AssociateUDPEndpoint(player_id, sender);
-    std::cout << "[ServerNetworkManager] UDP endpoint associated for client "
-              << player_id << "\n";
   }
 
   client->UpdateLastSeen();
@@ -185,24 +186,49 @@ void ServerNetworkManager::Update() {
 
     events.pop();
   }
+
+  auto now = std::chrono::steady_clock::now();
+  for (auto &client : client_manager_.GetAllClients()) {
+    if (!client) continue;
+    std::lock_guard<std::mutex> lock(client->history_mutex);
+    for (auto it = client->history.begin(); it != client->history.end();) {
+      auto &packet = it->second;
+
+      if (packet.retry_count >= 15) {
+        it = client->history.erase(it);
+        continue;
+      }
+
+      if (now - packet.last_sent > std::chrono::milliseconds(100)) {
+        std::cout << "[RETRY] Resending critical packet seq: " << it->first
+                  << std::endl;
+        udp_server_->SendTo(packet.data, client->GetUDPEndpoint());
+        packet.last_sent = now;
+        packet.retry_count++;
+      }
+      ++it;
+    }
+  }
 }
 
-void ServerNetworkManager::SendTo(const NetworkMessage &msg, Action ac,
-                                  bool forceUdp) {
+void ServerNetworkManager::SendTo(const NetworkMessage &msg, Action ac) {
   auto client = client_manager_.GetClient(msg.client_id);
   if (!client) return;
 
   size_t protocol = UseUdp(ac.type);
 
-  if ((protocol == 0 || protocol == 1 || forceUdp) &&
-      client->HasUDPEndpoint()) {
+  if ((protocol == 0 || protocol == 1) && client->HasUDPEndpoint()) {
     uint16_t seq = client->GetNextOutSeq();
     uint16_t ack = client->GetLastReceivedSeq();
     uint32_t bits = client->GetLocalAckBits();
 
     std::vector<uint8_t> finalPacket =
         encode.encode(ac, protocol, seq, ack, bits);
-
+    if (protocol == 1) {
+      std::lock_guard<std::mutex> lock(client->history_mutex);
+      client->history[seq] = {seq, finalPacket,
+                              std::chrono::steady_clock::now(), 1};
+    }
     udp_server_->SendTo(finalPacket, client->GetUDPEndpoint());
     client->IncrementPacketsSent();
   } else if (tcp_server_) {
@@ -227,6 +253,12 @@ void ServerNetworkManager::BroadcastLobbyUDP(
 
       std::vector<uint8_t> finalPacket =
           encode.encode(ac, protocol, seq, ack, bits);
+
+      if (protocol == 1) {
+        std::lock_guard<std::mutex> lock(client->history_mutex);
+        client->history[seq] = {seq, finalPacket,
+                                std::chrono::steady_clock::now(), 1};
+      }
 
       udp_server_->SendTo(finalPacket, client->GetUDPEndpoint());
       client->IncrementPacketsSent();

@@ -2,8 +2,11 @@
 
 #include <chrono>
 #include <cstdint>
+#include <map>
 #include <optional>
 #include <string>
+#include <vector>
+
 #include <asio.hpp>
 
 
@@ -22,6 +25,16 @@ class HandleClient {
    * @param tcp_endpoint Client's TCP endpoint
    * @param username Client's username
    */
+
+  struct SentPacket {
+    uint16_t seq;
+    std::vector<uint8_t> data;
+    std::chrono::steady_clock::time_point last_sent;
+    int retry_count;
+  };
+  std::map<uint16_t, SentPacket> history;
+  std::mutex history_mutex;
+
   HandleClient(uint16_t id, const asio::ip::tcp::endpoint& tcp_endpoint,
                const std::string& username);
 

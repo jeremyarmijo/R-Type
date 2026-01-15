@@ -37,7 +37,7 @@ class INetworkManager {
    * @param msg Network message to send
    * @param sendUdp If true, use UDP; otherwise use TCP
    */
-  virtual void SendTo(const NetworkMessage &msg, Action ac, bool sendUdp) = 0;
+  virtual void SendTo(const NetworkMessage &msg, Action ac) = 0;
 
   /**
    * @brief Broadcast message via UDP to all clients

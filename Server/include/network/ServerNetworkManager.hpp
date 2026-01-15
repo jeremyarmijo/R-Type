@@ -7,6 +7,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+
 #include <asio.hpp>
 
 #include "network/ClientManager.hpp"
@@ -50,7 +51,7 @@ class ServerNetworkManager : public INetworkManager {
    * @param msg Network message to send
    * @param sendUdp If true, use UDP; otherwise use TCP
    */
-  void SendTo(const NetworkMessage &msg, Action ac, bool sendUdp) override;
+  void SendTo(const NetworkMessage &msg, Action ac) override;
 
   /**
    * @brief Broadcast a message to all clients via UDP

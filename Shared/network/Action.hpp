@@ -254,10 +254,12 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::FIRE_PRESS:
     case ActionType::FIRE_RELEASE:
     case ActionType::GAME_STATE:
-    case ActionType::BOSS_SPAWN:
     case ActionType::BOSS_UPDATE:
-    case ActionType::ENEMY_HIT:
       return 0;  // UDP
+
+    case ActionType::BOSS_SPAWN:
+    case ActionType::ENEMY_HIT:
+      return 1;  // UDP + ACK
 
     case ActionType::LOGIN_REQUEST:
     case ActionType::LOGIN_RESPONSE:

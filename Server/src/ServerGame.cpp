@@ -640,7 +640,7 @@ void ServerGame::SendPacket() {
     } else {
       NetworkMessage msg;
       msg.client_id = clientId;
-      networkManager->SendTo(msg, action, false);
+      networkManager->SendTo(msg, action);
     }
     localQueue.pop();
   }
