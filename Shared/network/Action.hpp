@@ -175,12 +175,12 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::BOSS_SPAWN:
     case ActionType::BOSS_UPDATE:
     case ActionType::ENEMY_HIT:
+    case ActionType::FORCE_STATE:
       return 0;  // UDP
     case ActionType::LOGIN_REQUEST:
     case ActionType::LOGIN_RESPONSE:
     case ActionType::GAME_START:
     case ActionType::GAME_END:
-    case ActionType::FORCE_STATE:
     case ActionType::ERROR:
       return 2;  // TCP
     default:
