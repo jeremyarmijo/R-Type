@@ -9,6 +9,7 @@
 
 #include <asio.hpp>
 
+
 #include "include/CircularBuffer.hpp"
 #include "network/Action.hpp"
 #include "network/Decoder.hpp"
@@ -40,6 +41,10 @@ class NetworkManager {
   int tcpPort = -1;
   int udpPort = -1;
   std::string serverIP;
+
+  uint16_t seqNum = 1;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
 
   asio::io_context ioContext;
   asio::ip::tcp::socket tcpSocket;

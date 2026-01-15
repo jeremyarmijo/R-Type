@@ -226,9 +226,25 @@ void NetworkManager::ReadUDP() {
 
   if (!error && bytesReceived > 0) {
     std::vector<uint8_t> packet(tempBuffer, tempBuffer + bytesReceived);
-    // SendACK(packet);
     Event evt = DecodePacket(packet);
     std::lock_guard<std::mutex> lock(mut);
+    uint16_t newSeq = evt.seqNum;
+    if (newSeq == ack) {
+    } else if (static_cast<uint16_t>(newSeq - ack) < 32768) {
+      uint16_t shift = newSeq - ack;
+      if (shift < 32) {
+        ack_bits <<= shift;
+        ack_bits |= (1 << (shift - 1));
+      } else {
+        ack_bits = 0;
+      }
+      ack = newSeq;
+    } else {
+      uint16_t shift = ack - newSeq;
+      if (shift > 0 && shift <= 32) {
+        ack_bits |= (1 << (shift - 1));
+      }
+    }
     eventBuffer.push(evt);
   } else if (error == asio::error::eof) {
     std::cout << "UDP server disconnected" << std::endl;
@@ -258,7 +274,6 @@ void NetworkManager::SendUdp(std::vector<uint8_t>& packet) {
     return;
   }
   std::cout << "UDP message Send (" << sent << " bytes)\n";
-  // sequenceNumUdp++;
 }
 
 void NetworkManager::SendTcp(std::vector<uint8_t>& packet) {
@@ -309,11 +324,20 @@ void NetworkManager::SendActionServer() {
     size_t protocol = UseUdp(action.type);
     bool sent = false;
     if ((protocol == 0 || protocol == 1) && udpConnected) {
-      std::vector<uint8_t> packet = encoder.encode(action, protocol);
+      uint16_t s, a;
+      uint32_t ab;
+      {
+        std::lock_guard<std::mutex> lock(mut);
+        seqNum++;
+        s = seqNum;
+        a = ack;
+        ab = ack_bits;
+      }
+      std::vector<uint8_t> packet = encoder.encode(action, protocol, s, a, ab);
       SendUdp(packet);
       sent = true;
     } else if (protocol == 2 && tcpConnected) {
-      std::vector<uint8_t> packet = encoder.encode(action, protocol);
+      std::vector<uint8_t> packet = encoder.encode(action, protocol, 0, 0, 0);
       SendTcp(packet);
       sent = true;
     }

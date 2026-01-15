@@ -81,7 +81,8 @@ inline uint8_t getType(const Action& a) {
 }
 
 std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP,
-                                     uint16_t seqNum, uint16_t ack) {
+                                     uint16_t seqNum, uint16_t ack,
+                                     uint32_t ack_bytes) {
   auto& func = handlers[static_cast<uint8_t>(a.type)];
   if (!func) return {};
 
@@ -89,7 +90,7 @@ std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP,
   payload.reserve(64);
   func(a, payload);
 
-  size_t headerSize = (useUDP == 0 || useUDP == 1) ? 10 : 6;
+  size_t headerSize = (useUDP == 0 || useUDP == 1) ? 14 : 6;
 
   std::vector<uint8_t> packet;
   packet.reserve(headerSize + payload.size());
@@ -105,6 +106,7 @@ std::vector<uint8_t> Encoder::encode(const Action& a, size_t useUDP,
   header.length = static_cast<uint32_t>(payload.size());
   header.seqNum = seqNum;
   header.ack = ack;
+  header.ack_bytes = ack_bytes;
 
   writeHeader(packet, header);
   packet.insert(packet.end(), payload.begin(), payload.end());
@@ -128,5 +130,9 @@ void Encoder::writeHeader(std::vector<uint8_t>& packet, const PacketHeader& h) {
     uint16_t a = htons(h.ack);
     const uint8_t* pAck = reinterpret_cast<const uint8_t*>(&a);
     packet.insert(packet.end(), pAck, pAck + 2);
+
+    uint32_t ab = htonl(h.ack_bytes);
+    const uint8_t* pAb = reinterpret_cast<const uint8_t*>(&ab);
+    packet.insert(packet.end(), pAb, pAb + 4);
   }
 }

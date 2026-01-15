@@ -20,6 +20,7 @@ struct PacketHeader {
   uint32_t length;
   uint16_t seqNum;
   uint16_t ack;
+  uint32_t ack_bytes;
 };
 
 class Encoder {
@@ -30,7 +31,7 @@ class Encoder {
   Encoder();
   void registerHandler(ActionType type, EncodePayload f);
   std::vector<uint8_t> encode(const Action& a, size_t useUDP, uint16_t seqNum,
-                              uint16_t ack);
+                              uint16_t ack, uint32_t ack_bytes);
 
  private:
   std::array<EncodePayload, 256> handlers;

@@ -245,4 +245,5 @@ struct Event {
   EventData data;
   uint16_t seqNum;
   uint16_t ack;
+  uint32_t ack_bits;
 };
