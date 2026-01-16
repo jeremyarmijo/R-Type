@@ -200,6 +200,10 @@ struct LOBBY_KICK {
   uint16_t playerId;
 };
 
+struct CLIENT_LEAVE {
+  uint16_t playerId;
+};
+
 enum class EventType : uint8_t {
   // TCP Messages
   LOGIN_REQUEST = 0x01,
@@ -219,6 +223,7 @@ enum class EventType : uint8_t {
 
   GAME_START = 0x0F,
   GAME_END = 0x10,
+  CLIENT_LEAVE = 0x11,
   ERROR_TYPE = 0x12,
 
   // UDP Messages
@@ -238,7 +243,7 @@ using EventData =
                  BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
                  LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
                  LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
-                 MESSAGE, LOBBY_KICK>;
+                 MESSAGE, LOBBY_KICK, CLIENT_LEAVE>;
 
 struct Event {
   EventType type;
