@@ -254,6 +254,9 @@ void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
 
         float spawnY = 200.0f + (playerIndex % 4) * 100.0f;
 
+        lobby->lastStates.erase(playerId);
+        lobby->playerStateCount.erase(playerId);
+
         Action startAc;
         GameStart gs;
         gs.playerSpawnX = 200.0f;
@@ -262,6 +265,11 @@ void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
         startAc.type = ActionType::GAME_START;
         startAc.data = gs;
         SendAction(std::make_tuple(startAc, playerId, nullptr));
+
+        auto currentState =
+            std::make_shared<GameState>(BuildCurrentState(*lobby));
+        ProcessAndSendState(playerId, *lobby, currentState);
+
         return;
       }
       if (nbPlayerReady == lobby->nb_player && !lobby->gameRuning) {
@@ -574,6 +582,8 @@ void ServerGame::EndGame(lobby_list& lobby) {
   ac.data = g;
 
   SendAction(std::make_tuple(ac, 0, &lobby));
+  lobby.lastStates.clear();
+  lobby.playerStateCount.clear();
   lobby.gameRuning = false;
   std::cout << "game ended!!" << std::endl;
 }
@@ -1162,52 +1172,77 @@ GameState ServerGame::CalculateDelta(const GameState& last,
   return diff;
 }
 
+void ServerGame::ProcessAndSendState(
+    uint16_t playerId, lobby_list& lobby,
+    const std::shared_ptr<GameState>& currentState) {
+  auto& lastStatePtr = lobby.lastStates[playerId];
+  auto& stateCount = lobby.playerStateCount[playerId];
+  bool isFirstPacket = false;
+
+  if (stateCount < 3) {
+    isFirstPacket = true;
+    stateCount++;
+  }
+
+  GameState deltaState;
+
+  if (isFirstPacket) {
+    deltaState = *currentState;
+
+    uint16_t fullMaskPlayer =
+        M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE;
+    for (auto& p : deltaState.players) {
+      p.mask = fullMaskPlayer;
+    }
+
+    uint16_t fullMaskEnemy =
+        M_POS_X | M_POS_Y | M_HP | M_STATE | M_TYPE | M_DIR;
+    for (auto& e : deltaState.enemies) {
+      e.mask = fullMaskEnemy;
+    }
+
+    uint16_t fullMaskProj = M_POS_X | M_POS_Y | M_DAMAGE | M_TYPE | M_OWNER;
+    for (auto& pr : deltaState.projectiles) {
+      pr.mask = fullMaskProj;
+    }
+
+  } else {
+    if (!lastStatePtr) {
+      lastStatePtr = std::make_shared<GameState>();
+    }
+    deltaState = CalculateDelta(*lastStatePtr, *currentState);
+
+    if (!deltaState.enemies.empty()) {
+      std::cout << "[SERVER][DELTA] Client " << playerId << " receives "
+                << deltaState.enemies.size()
+                << " enemy updates (Mask: " << (int)deltaState.enemies[0].mask
+                << ")" << std::endl;
+    }
+    lobby.lastStates[playerId] = std::make_shared<GameState>(*currentState);
+  }
+
+  if (isFirstPacket || !deltaState.players.empty() ||
+      !deltaState.enemies.empty() || !deltaState.projectiles.empty()) {
+    Action ac;
+    ac.type = ActionType::GAME_STATE;
+    ac.data = deltaState;
+
+    NetworkMessage msg;
+    msg.client_id = playerId;
+    networkManager->SendTo(msg, ac);
+  }
+}
+
 void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
   auto currentState = std::make_shared<GameState>(BuildCurrentState(lobby));
 
   for (auto& [playerId, ready, name] : lobby.players_list) {
-    auto& lastStatePtr = lobby.lastStates[playerId];
-    auto& stateCount = lobby.playerStateCount[playerId];
-    bool isFirstPacket = false;
+    if (playerId == 0) continue;
+    ProcessAndSendState(playerId, lobby, currentState);
+  }
 
-    if (!lastStatePtr || stateCount <= 1) {
-      lastStatePtr = std::make_shared<GameState>();
-      isFirstPacket = true;
-      stateCount++;
-    }
-
-    GameState deltaState;
-    if (isFirstPacket) {
-      deltaState = *currentState;
-
-      uint16_t fullMask =
-          M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE;
-
-      for (auto& p : deltaState.players) {
-        p.mask = fullMask;
-      }
-
-      for (auto& e : deltaState.enemies) {
-        e.mask = M_POS_X | M_POS_Y | M_HP | M_STATE | M_TYPE | M_DIR;
-      }
-
-      for (auto& pr : deltaState.projectiles) {
-        pr.mask = M_POS_X | M_POS_Y | M_DAMAGE | M_TYPE | M_OWNER;
-      }
-    } else {
-      deltaState = CalculateDelta(*lastStatePtr, *currentState);
-    }
-
-    if (isFirstPacket || !deltaState.players.empty() ||
-        !deltaState.enemies.empty() || !deltaState.projectiles.empty()) {
-      Action ac;
-      ac.type = ActionType::GAME_STATE;
-      ac.data = deltaState;
-
-      NetworkMessage msg;
-      msg.client_id = playerId;
-      networkManager->SendTo(msg, ac);
-    }
-    lobby.lastStates[playerId] = currentState;
+  for (auto& [playerId, ready, name] : lobby.spectate) {
+    if (playerId == 0) continue;
+    ProcessAndSendState(playerId, lobby, currentState);
   }
 }

@@ -125,6 +125,8 @@ class ServerGame {
    * @brief Send current world state to all connected clients
    */
   void SendWorldStateToClients(lobby_list& lobby);
+  void ProcessAndSendState(uint16_t playerId, lobby_list& lobby,
+                           const std::shared_ptr<GameState>& currentState);
   std::mutex lobbyMutex;  ///< Mutex for thread-safe lobby access
 
   bool serverRunning;  ///< Server running state flag
