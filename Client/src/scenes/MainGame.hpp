@@ -9,6 +9,7 @@
 
 #include "Player/PlayerEntity.hpp"
 #include "inputs/InputSystem.hpp"
+#include "network/DataMask.hpp"
 #include "scene/SceneManager.hpp"
 #include "settings/MultiplayerSkinManager.hpp"
 #include "systems/ProjectileSystem.hpp"
@@ -19,6 +20,11 @@
 
 class MyGameScene : public Scene {
  private:
+  Vector2 m_lastServerPosition;
+  float m_positionDiff = 50.0f;
+  std::unordered_map<uint16_t, GAME_STATE::PlayerState> m_playerStates;
+  std::unordered_map<uint16_t, GAME_STATE::EnemyState> m_enemyStates;
+  std::unordered_map<uint16_t, GAME_STATE::ProjectileState> m_projectileStates;
   std::vector<Entity> m_entities;
   Entity m_localPlayer;
   uint16_t m_localPlayerId;
@@ -97,8 +103,8 @@ class MyGameScene : public Scene {
         std::cout << "Creating local player (ID: " << m_localPlayerId
                   << ") with skin: " << selectedSkinAnim << std::endl;
 
-        float posX = GetSceneData().Get<float>("posX", 200.0f);
-        float posY = GetSceneData().Get<float>("posY", 300.0f);
+        float posX = GetSceneData().Get<float>("posX", 0);
+        float posY = GetSceneData().Get<float>("posY", 0);
 
         m_localPlayer = m_engine->CreatePlayer("player", selectedSkinAnim,
                                                {posX, posY}, 250.0f);
@@ -461,7 +467,7 @@ class MyGameScene : public Scene {
     }
   }
 
-  void UpdateEnemyPosition(uint16_t enemyId, Vector2 position) {
+  void UpdateEnemyPosition(uint16_t enemyId, Vector2 targetPos) {
     auto it = m_enemies.find(enemyId);
     if (it != m_enemies.end()) {
       Entity enemyEntity = it->second;
@@ -469,7 +475,9 @@ class MyGameScene : public Scene {
 
       if (enemyEntity < transforms.size() &&
           transforms[enemyEntity].has_value()) {
-        transforms[enemyEntity]->position = position;
+        Vector2& currentPos = transforms[enemyEntity]->position;
+        currentPos.x += (targetPos.x - currentPos.x) * 0.5f;
+        currentPos.y += (targetPos.y - currentPos.y) * 0.5f;
       }
     }
   }
@@ -537,56 +545,14 @@ class MyGameScene : public Scene {
     auto& transforms = GetRegistry().get_components<Transform>();
     auto& playerComponents = GetRegistry().get_components<PlayerEntity>();
 
-    for (const auto& playerState : playerStates) {
-      uint16_t playerId = playerState.playerId;
+    for (const auto& deltaState : playerStates) {
+      uint16_t playerId = deltaState.playerId;
 
-      if (!m_isSpectator && playerId == m_localPlayerId) {
-        if (m_localPlayer < transforms.size() &&
-            transforms[m_localPlayer].has_value()) {
-          transforms[m_localPlayer]->position.x = playerState.posX;
-          transforms[m_localPlayer]->position.y = playerState.posY;
-        }
-
-        if (m_localPlayer < playerComponents.size() &&
-            playerComponents[m_localPlayer].has_value()) {
-          playerComponents[m_localPlayer]->current =
-              static_cast<int>(playerState.hp);
-          m_healthText->SetText(
-              "Health: " + std::to_string(static_cast<int>(playerState.hp)));
-        }
-      } else {
-        auto it = m_otherPlayers.find(playerId);
-        if (it == m_otherPlayers.end()) {
-          SpawnOtherPlayer(playerId, {playerState.posX, playerState.posY});
-        } else {
-          UpdateOtherPlayerPosition(playerId,
-                                    {playerState.posX, playerState.posY});
-        }
-      }
-    }
-
-    if (m_firstState) {
-      std::unordered_set<uint16_t> activePlayerIds;
-      for (const auto& playerState : playerStates) {
-        activePlayerIds.insert(playerState.playerId);
-      }
-
-      std::vector<uint16_t> toRemove;
-      for (const auto& [playerId, entity] : m_otherPlayers) {
-        if (activePlayerIds.find(playerId) == activePlayerIds.end()) {
-          toRemove.push_back(playerId);
-        }
-      }
-
-      for (uint16_t playerId : toRemove) {
-        RemoveOtherPlayer(playerId);
-      }
-      if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() &&
-          m_isAlive) {
-        if (!m_isSpectator) {
-          std::cout << "[GAME] Local player died. Removing entity."
-                    << std::endl;
-
+      if (deltaState.mask & M_DELETE) {
+        if (playerId == m_localPlayerId && !m_isSpectator) {
+          m_isAlive = false;
+          m_isSpectator = true;
+          m_spectatorText->SetVisible(true);
           CreateExplosion(m_localPlayer);
           GetAudio().PlaySound("explosion");
           m_healthText->SetVisible(false);
@@ -595,48 +561,131 @@ class MyGameScene : public Scene {
           if (GetRegistry().is_entity_valid(m_localPlayer)) {
             GetRegistry().kill_entity(m_localPlayer);
           }
-          m_entities.erase(
-              std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
-              m_entities.end());
+        } else {
+          RemoveOtherPlayer(playerId);
         }
-        m_isAlive = false;
-        m_isSpectator = true;
-        m_spectatorText->SetVisible(true);
+        m_playerStates.erase(playerId);
+        continue;
+      }
+
+      auto& fullState = m_playerStates[playerId];
+
+      if (deltaState.mask & M_POS_X) fullState.posX = deltaState.posX;
+      if (deltaState.mask & M_POS_Y) fullState.posY = deltaState.posY;
+      if (deltaState.mask & M_HP) fullState.hp = deltaState.hp;
+      if (deltaState.mask & M_SHIELD) fullState.shield = deltaState.shield;
+      if (deltaState.mask & M_WEAPON) fullState.weapon = deltaState.weapon;
+      if (deltaState.mask & M_STATE) fullState.state = deltaState.state;
+      if (deltaState.mask & M_SPRITE) fullState.sprite = deltaState.sprite;
+      fullState.playerId = playerId;
+
+      if (!m_isSpectator && playerId == m_localPlayerId) {
+        if (m_localPlayer < transforms.size() &&
+            transforms[m_localPlayer].has_value()) {
+          auto& pos = transforms[m_localPlayer]->position;
+
+          float minX = 30.0f;
+          float maxX = 770.0f;
+          float minY = 30.0f;
+          float maxY = 570.0f;
+
+          if (pos.x < minX) pos.x = minX;
+          if (pos.x > maxX) pos.x = maxX;
+          if (pos.y < minY) pos.y = minY;
+          if (pos.y > maxY) pos.y = maxY;
+
+          Vector2 serverPos = {fullState.posX, fullState.posY};
+          Vector2 clientPos = pos;
+
+          float dx = serverPos.x - clientPos.x;
+          float dy = serverPos.y - clientPos.y;
+          float distance = std::sqrt(dx * dx + dy * dy);
+
+          if (distance > m_positionDiff) {
+            pos = serverPos;
+          } else if (distance > 1.0f) {
+            pos.x += dx * 0.3f;
+            pos.y += dy * 0.3f;
+          }
+        }
+
+        if (m_localPlayer < playerComponents.size() &&
+            playerComponents[m_localPlayer].has_value()) {
+          playerComponents[m_localPlayer]->current =
+              static_cast<int>(fullState.hp);
+          m_healthText->SetText("Health: " +
+                                std::to_string(static_cast<int>(fullState.hp)));
+        }
+        if (deltaState.mask & M_HP) {
+          if (fullState.hp <= 0 && m_isAlive) {
+            m_isAlive = false;
+            m_isSpectator = true;
+            m_spectatorText->SetVisible(true);
+            CreateExplosion(m_localPlayer);
+            GetAudio().PlaySound("explosion");
+            m_healthText->SetVisible(false);
+            m_scoreText->SetVisible(false);
+            m_levelText->SetVisible(false);
+            if (GetRegistry().is_entity_valid(m_localPlayer)) {
+              GetRegistry().kill_entity(m_localPlayer);
+            }
+          }
+        }
+      } else {
+        auto it = m_otherPlayers.find(playerId);
+        if (it == m_otherPlayers.end()) {
+          SpawnOtherPlayer(playerId, {fullState.posX, fullState.posY});
+        } else {
+          if (fullState.hp <= 0) {
+            RemoveOtherPlayer(playerId);
+          } else {
+            UpdateOtherPlayerPosition(playerId,
+                                      {fullState.posX, fullState.posY});
+          }
+        }
       }
     }
-
     m_firstState = true;
   }
 
   void UpdateEnemies(const std::vector<GAME_STATE::EnemyState>& enemies,
                      float dt) {
-    std::unordered_set<uint16_t> activeEnemyIds;
+    for (const auto& deltaState : enemies) {
+      uint16_t enemyId = deltaState.enemyId;
 
-    for (const auto& enemyState : enemies) {
-      uint16_t enemyId = enemyState.enemyId;
-      activeEnemyIds.insert(enemyId);
+      if (deltaState.mask & M_DELETE) {
+        RemoveEnemy(enemyId);
+        m_enemyStates.erase(enemyId);
+        continue;
+      }
+
+      auto& fullState = m_enemyStates[enemyId];
+
+      if (deltaState.mask & M_POS_X) fullState.posX = deltaState.posX;
+      if (deltaState.mask & M_POS_Y) fullState.posY = deltaState.posY;
+      if (deltaState.mask & M_HP) fullState.hp = deltaState.hp;
+      if (deltaState.mask & M_TYPE) fullState.enemyType = deltaState.enemyType;
+      if (deltaState.mask & M_STATE) fullState.state = deltaState.state;
+      if (deltaState.mask & M_DIR) fullState.direction = deltaState.direction;
+      fullState.enemyId = enemyId;
+
+      if (fullState.hp <= 0) {
+        RemoveEnemy(enemyId);
+        m_enemyStates.erase(enemyId);
+        continue;
+      }
 
       auto it = m_enemies.find(enemyId);
       if (it == m_enemies.end()) {
         m_nextWave = false;
-        SpawnEnemy(enemyId, enemyState.enemyType,
-                   {enemyState.posX, enemyState.posY});
+        SpawnEnemy(enemyId, fullState.enemyType,
+                   {fullState.posX, fullState.posY});
       } else {
-        UpdateEnemyPosition(enemyId, {enemyState.posX, enemyState.posY});
+        UpdateEnemyPosition(enemyId, {fullState.posX, fullState.posY});
       }
     }
 
-    std::vector<uint16_t> toRemove;
-    for (const auto& [enemyId, entity] : m_enemies) {
-      if (activeEnemyIds.find(enemyId) == activeEnemyIds.end()) {
-        toRemove.push_back(enemyId);
-      }
-    }
-
-    for (uint16_t enemyId : toRemove) {
-      RemoveEnemy(enemyId);
-    }
-    if (!m_nextWave && activeEnemyIds.size() == 0) {
+    if (!m_nextWave && m_enemies.empty()) {
       m_nextWave = true;
       m_wave += 1;
       if (m_wave == 5) {
@@ -650,52 +699,61 @@ class MyGameScene : public Scene {
 
   void UpdateProjectiles(
       const std::vector<GAME_STATE::ProjectileState>& projectiles, float dt) {
-    std::unordered_set<uint16_t> activeProjectileIds;
+    for (const auto& deltaState : projectiles) {
+      uint16_t projectileId = deltaState.projectileId;
 
-    for (const auto& projectileState : projectiles) {
-      uint16_t projectileId = projectileState.projectileId;
-      activeProjectileIds.insert(projectileId);
+      if (deltaState.mask & M_DELETE) {
+        RemoveProjectile(projectileId);
+        m_projectileStates.erase(projectileId);
+        continue;
+      }
+
+      auto& fullState = m_projectileStates[projectileId];
+
+      if (deltaState.mask & M_POS_X) fullState.posX = deltaState.posX;
+      if (deltaState.mask & M_POS_Y) fullState.posY = deltaState.posY;
+      if (deltaState.mask & M_DAMAGE) fullState.damage = deltaState.damage;
+      if (deltaState.mask & M_TYPE) fullState.type = deltaState.type;
+      if (deltaState.mask & M_OWNER) fullState.ownerId = deltaState.ownerId;
+      fullState.projectileId = projectileId;
+
+      if (fullState.damage == 0) {
+        RemoveProjectile(projectileId);
+        m_projectileStates.erase(projectileId);
+        continue;
+      }
 
       auto it = m_projectiles.find(projectileId);
       if (it == m_projectiles.end()) {
-        SpawnProjectile(projectileId, projectileState.type,
-                        {projectileState.posX, projectileState.posY});
+        SpawnProjectile(projectileId, fullState.type,
+                        {fullState.posX, fullState.posY});
       } else {
         UpdateProjectilePosition(projectileId,
-                                 {projectileState.posX, projectileState.posY});
+                                 {fullState.posX, fullState.posY});
       }
-    }
-
-    std::vector<uint16_t> toRemove;
-    for (const auto& [projectileId, entity] : m_projectiles) {
-      if (activeProjectileIds.find(projectileId) == activeProjectileIds.end()) {
-        toRemove.push_back(projectileId);
-      }
-    }
-
-    for (uint16_t projectileId : toRemove) {
-      RemoveProjectile(projectileId);
     }
   }
 
   void GetEvents(float dt) {
-    Event e = GetNetwork().PopEvent();
+    while (true) {
+      Event e = GetNetwork().PopEvent();
+      if (e.type == EventType::UNKNOWN) break;
+      if (e.type == EventType::GAME_END) {
+        ChangeScene("gameover");
+        return;
+      }
 
-    if (e.type == EventType::GAME_END) {
-      GetSceneData().Set<bool>("isSpectator", false);
-      ChangeScene("gameover");
+      std::visit(
+          [&](auto&& payload) {
+            using T = std::decay_t<decltype(payload)>;
+            if constexpr (std::is_same_v<T, GAME_STATE>) {
+              UpdatePlayers(payload.players, dt);
+              UpdateEnemies(payload.enemies, dt);
+              UpdateProjectiles(payload.projectiles, dt);
+            }
+          },
+          e.data);
     }
-    std::visit(
-        [&](auto&& payload) {
-          using T = std::decay_t<decltype(payload)>;
-
-          if constexpr (std::is_same_v<T, GAME_STATE>) {
-            UpdatePlayers(payload.players, dt);
-            UpdateEnemies(payload.enemies, dt);
-            UpdateProjectiles(payload.projectiles, dt);
-          }
-        },
-        e.data);
   }
 
   void CreateExplosion(Entity entity) {

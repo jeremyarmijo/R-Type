@@ -57,6 +57,7 @@ struct PLAYER_INPUT {
 struct GAME_STATE {
   struct PlayerState {
     uint16_t playerId;
+    uint16_t mask;
     float posX;
     float posY;
     uint8_t hp;
@@ -67,6 +68,7 @@ struct GAME_STATE {
   };
   struct EnemyState {
     uint16_t enemyId;
+    uint16_t mask;
     uint8_t enemyType;
     float posX;
     float posY;
@@ -76,6 +78,7 @@ struct GAME_STATE {
   };
   struct ProjectileState {
     uint16_t projectileId;
+    uint16_t mask;
     uint16_t ownerId;
     uint8_t type;
     float posX;

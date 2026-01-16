@@ -1,5 +1,7 @@
 #include "network/DecodeFunc.hpp"
 
+#include "network/DataMask.hpp"
+
 // #include <arpa/inet.h>
 #ifdef _WIN32
 #include <winsock2.h>
@@ -255,118 +257,169 @@ Event DecodePLAYER_INPUT(const std::vector<uint8_t>& packet) {
 Event DecodeGAME_STATE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::GAME_STATE;
-
   GAME_STATE data;
   size_t offset = 0;
+  uint32_t payloadLength;
+  uint16_t seq, ack;
+  uint32_t ack_bits;
+  uint32_t tempFloat;
 
-  uint32_t payloadLength = 0;
-  uint16_t seq = 0;
-  uint16_t ack = 0;
-  uint32_t ack_bits = 0;
-  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
-    return Event{};
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits)) {
+    return evt;
+  }
 
   evt.seqNum = seq;
   evt.ack = ack;
   evt.ack_bits = ack_bits;
 
-  uint8_t playerCount = packet[offset++];
-  data.players.reserve(playerCount);
+  // JOUEURS
+  if (offset < packet.size()) {
+    uint8_t numPlayers = packet[offset++];
+    for (int i = 0; i < numPlayers; ++i) {
+      if (offset + 4 > packet.size()) break;
 
-  for (uint8_t i = 0; i < playerCount; ++i) {
-    GAME_STATE::PlayerState player;
-    memcpy(&player.playerId, &packet[offset], sizeof(player.playerId));
-    player.playerId = ntohs(player.playerId);
-    offset += sizeof(player.playerId);
+      GAME_STATE::PlayerState p;
 
-    uint32_t temp;
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&player.posX, &temp, sizeof(player.posX));
-    offset += sizeof(temp);
+      memcpy(&p.playerId, &packet[offset], 2);
+      p.playerId = ntohs(p.playerId);
+      offset += 2;
 
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&player.posY, &temp, sizeof(player.posY));
-    offset += sizeof(temp);
+      memcpy(&p.mask, &packet[offset], 2);
+      p.mask = ntohs(p.mask);
+      offset += 2;
 
-    player.hp = packet[offset++];
-    player.shield = packet[offset++];
-    player.weapon = packet[offset++];
-    player.state = packet[offset++];
-    player.sprite = packet[offset++];
+      if (p.mask & M_POS_X) {
+        memcpy(&tempFloat, &packet[offset], 4);
+        tempFloat = ntohl(tempFloat);
+        memcpy(&p.posX, &tempFloat, 4);
+        offset += 4;
+      }
+      if (p.mask & M_POS_Y) {
+        memcpy(&tempFloat, &packet[offset], 4);
+        tempFloat = ntohl(tempFloat);
+        memcpy(&p.posY, &tempFloat, 4);
+        offset += 4;
+      }
+      if (p.mask & M_HP) {
+        if (offset >= packet.size()) break;
+        p.hp = packet[offset++];
+      }
+      if (p.mask & M_STATE) {
+        if (offset >= packet.size()) break;
+        p.state = packet[offset++];
+      }
+      if (p.mask & M_SHIELD) {
+        if (offset >= packet.size()) break;
+        p.shield = packet[offset++];
+      }
+      if (p.mask & M_WEAPON) {
+        if (offset >= packet.size()) break;
+        p.weapon = packet[offset++];
+      }
+      if (p.mask & M_SPRITE) {
+        if (offset >= packet.size()) break;
+        p.sprite = packet[offset++];
+      }
 
-    data.players.push_back(player);
+      data.players.push_back(p);
+    }
   }
 
-  uint8_t enemyCount = packet[offset++];
-  data.enemies.reserve(enemyCount);
+  // ENNEMIS
+  if (offset < packet.size()) {
+    uint8_t numEnemies = packet[offset++];
+    for (int i = 0; i < numEnemies; ++i) {
+      if (offset + 4 > packet.size()) break;
 
-  for (uint8_t i = 0; i < enemyCount; ++i) {
-    GAME_STATE::EnemyState enemy;
-    memcpy(&enemy.enemyId, &packet[offset], sizeof(enemy.enemyId));
-    enemy.enemyId = ntohs(enemy.enemyId);
-    offset += sizeof(enemy.enemyId);
+      GAME_STATE::EnemyState e;
 
-    enemy.enemyType = packet[offset++];
+      memcpy(&e.enemyId, &packet[offset], 2);
+      e.enemyId = ntohs(e.enemyId);
+      offset += 2;
 
-    uint32_t temp;
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&enemy.posX, &temp, sizeof(enemy.posX));
-    offset += sizeof(temp);
+      memcpy(&e.mask, &packet[offset], 2);
+      e.mask = ntohs(e.mask);
+      offset += 2;
 
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&enemy.posY, &temp, sizeof(enemy.posY));
-    offset += sizeof(temp);
+      if (e.mask & M_POS_X) {
+        memcpy(&tempFloat, &packet[offset], 4);
+        tempFloat = ntohl(tempFloat);
+        memcpy(&e.posX, &tempFloat, 4);
+        offset += 4;
+      }
+      if (e.mask & M_POS_Y) {
+        memcpy(&tempFloat, &packet[offset], 4);
+        tempFloat = ntohl(tempFloat);
+        memcpy(&e.posY, &tempFloat, 4);
+        offset += 4;
+      }
+      if (e.mask & M_HP) {
+        if (offset >= packet.size()) break;
+        e.hp = packet[offset++];
+      }
+      if (e.mask & M_STATE) {
+        if (offset >= packet.size()) break;
+        e.state = packet[offset++];
+      }
+      if (e.mask & M_TYPE) {
+        if (offset >= packet.size()) break;
+        e.enemyType = packet[offset++];
+      }
+      if (e.mask & M_DIR) {
+        if (offset >= packet.size()) break;
+        e.direction = (int8_t)packet[offset++];
+      }
 
-    enemy.hp = packet[offset++];
-    enemy.state = packet[offset++];
-    enemy.direction = packet[offset++];
-
-    data.enemies.push_back(enemy);
+      data.enemies.push_back(e);
+    }
   }
 
-  uint8_t projectileCount = packet[offset++];
-  data.projectiles.reserve(projectileCount);
+  // PROJECTILES
+  if (offset < packet.size()) {
+    uint8_t numProjectiles = packet[offset++];
+    for (int i = 0; i < numProjectiles; ++i) {
+      if (offset + 4 > packet.size()) break;
 
-  for (uint8_t i = 0; i < projectileCount; ++i) {
-    GAME_STATE::ProjectileState projectile;
-    memcpy(&projectile.projectileId, &packet[offset],
-           sizeof(projectile.projectileId));
-    projectile.projectileId = ntohs(projectile.projectileId);
-    offset += sizeof(projectile.projectileId);
+      GAME_STATE::ProjectileState pr;
 
-    memcpy(&projectile.ownerId, &packet[offset], sizeof(projectile.ownerId));
-    projectile.ownerId = ntohs(projectile.ownerId);
-    offset += sizeof(projectile.ownerId);
+      memcpy(&pr.projectileId, &packet[offset], 2);
+      pr.projectileId = ntohs(pr.projectileId);
+      offset += 2;
 
-    projectile.type = packet[offset++];
+      memcpy(&pr.mask, &packet[offset], 2);
+      pr.mask = ntohs(pr.mask);
+      offset += 2;
 
-    uint32_t temp;
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&projectile.posX, &temp, sizeof(projectile.posX));
-    offset += sizeof(temp);
+      if (pr.mask & M_POS_X) {
+        memcpy(&tempFloat, &packet[offset], 4);
+        tempFloat = ntohl(tempFloat);
+        memcpy(&pr.posX, &tempFloat, 4);
+        offset += 4;
+      }
+      if (pr.mask & M_POS_Y) {
+        memcpy(&tempFloat, &packet[offset], 4);
+        tempFloat = ntohl(tempFloat);
+        memcpy(&pr.posY, &tempFloat, 4);
+        offset += 4;
+      }
+      if (pr.mask & M_TYPE) {
+        if (offset >= packet.size()) break;
+        pr.type = packet[offset++];
+      }
+      if (pr.mask & M_OWNER) {
+        if (offset + 2 > packet.size()) break;
+        uint16_t owner;
+        memcpy(&owner, &packet[offset], 2);
+        pr.ownerId = ntohs(owner);
+        offset += 2;
+      }
+      if (pr.mask & M_DAMAGE) {
+        if (offset >= packet.size()) break;
+        pr.damage = packet[offset++];
+      }
 
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&projectile.posY, &temp, sizeof(projectile.posY));
-    offset += sizeof(temp);
-
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&projectile.velX, &temp, sizeof(projectile.velX));
-    offset += sizeof(temp);
-
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&projectile.velY, &temp, sizeof(projectile.velY));
-    offset += sizeof(temp);
-
-    projectile.damage = packet[offset++];
-    data.projectiles.push_back(projectile);
+      data.projectiles.push_back(pr);
+    }
   }
 
   evt.data = data;

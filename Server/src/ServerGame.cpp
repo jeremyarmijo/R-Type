@@ -18,6 +18,7 @@
 #include "components/Physics2D.hpp"
 #include "dynamicLibLoader/DLLoader.hpp"
 #include "ecs/Registry.hpp"
+#include "network/DataMask.hpp"
 #include "systems/BoundsSystem.hpp"
 #include "systems/LevelSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
@@ -241,11 +242,22 @@ void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
 
     if (found) {
       SendLobbyUpdate(*lobby);
+
       if (lobby->gameRuning && isReady) {
+        size_t playerIndex = 0;
+        for (size_t i = 0; i < lobby->players_list.size(); ++i) {
+          if (std::get<0>(lobby->players_list[i]) == playerId) {
+            playerIndex = i;
+            break;
+          }
+        }
+
+        float spawnY = 200.0f + (playerIndex % 4) * 100.0f;
+
         Action startAc;
         GameStart gs;
-        gs.playerSpawnX = 0;
-        gs.playerSpawnY = 0;
+        gs.playerSpawnX = 200.0f;
+        gs.playerSpawnY = spawnY;
         gs.scrollSpeed = 0;
         startAc.type = ActionType::GAME_START;
         startAc.data = gs;
@@ -518,6 +530,7 @@ void ServerGame::StartGame(lobby_list& lobby_list) {
   lobby_list.registry.register_component<BossPart>();
 
   for (auto& [playerId, ready, _] : lobby_list.players_list) {
+    lobby_list.lastStates[playerId] = std::make_shared<GameState>();
     float posY = 200.f + (lobby_list.m_players.size() % 4) * 100.f;
     Entity player = createPlayer(lobby_list.registry, {200, posY}, playerId);
     lobby_list.m_players[playerId] = player;
@@ -566,13 +579,18 @@ void ServerGame::EndGame(lobby_list& lobby) {
 }
 
 void ServerGame::CheckGameEnded(lobby_list& lobby) {
-  int validPlayers = 0;
-  for (auto& [id, entity] : lobby.m_players) {
-    if (lobby.registry.is_entity_valid(entity)) {
-      validPlayers += 1;
+  if (!lobby.gameRuning) return;
+
+  auto& players = lobby.registry.get_components<PlayerEntity>();
+  int alivePlayers = 0;
+
+  for (size_t i = 0; i < players.size(); ++i) {
+    if (players[i].has_value() && players[i]->isAlive) {
+      alivePlayers++;
     }
   }
-  if (validPlayers <= 0) {
+
+  if (alivePlayers <= 0 && lobby.m_players.size() > 0) {
     EndGame(lobby);
   }
 }
@@ -580,22 +598,25 @@ void ServerGame::CheckGameEnded(lobby_list& lobby) {
 void ServerGame::GameLoop(lobby_list& lobby) {
   InitWorld(lobby);
 
-  for (int i = 0; i < 100 && lobby.gameRuning; ++i) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  }
-
   const auto frameDuration = std::chrono::milliseconds(16);
   auto lastTime = std::chrono::steady_clock::now();
 
   if (lobby.gameRuning) {
-    Action ac;
-    GameStart g;
-    g.playerSpawnX = 5;
-    g.playerSpawnY = 10;
-    g.scrollSpeed = 0;
-    ac.type = ActionType::GAME_START;
-    ac.data = g;
-    SendAction(std::make_tuple(ac, 0, &lobby));
+    size_t playerIndex = 0;
+    for (auto& [playerId, ready, _] : lobby.players_list) {
+      float spawnY = 200.0f + (playerIndex % 4) * 100.0f;
+
+      Action ac;
+      GameStart g;
+      g.playerSpawnX = 200.0f;
+      g.playerSpawnY = spawnY;
+      g.scrollSpeed = 0;
+      ac.type = ActionType::GAME_START;
+      ac.data = g;
+      SendAction(std::make_tuple(ac, playerId, nullptr));
+
+      playerIndex++;
+    }
   }
 
   while (lobby.gameRuning) {
@@ -766,37 +787,13 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
     }
   }
 
-  for (size_t i = 0; i < bosses.size(); ++i) {
-    if (bosses[i].has_value()) {
-      if (i < transforms.size() && transforms[i].has_value()) {
-        std::cout << "[DEBUG] Boss " << i << " at position ("
-                  << transforms[i]->position.x << ", "
-                  << transforms[i]->position.y << ") HP=" << bosses[i]->current
-                  << std::endl;
-      } else {
-        std::cout << "[DEBUG] Boss " << i << " has NO TRANSFORM!" << std::endl;
-      }
-    }
-  }
-
-  std::cout << "[DEBUG] currentLevelIndex=" << lobby.currentLevelIndex
-            << " waitingForNextLevel=" << lobby.waitingForNextLevel
-            << " levelTransitionTimer=" << lobby.levelTransitionTimer
-            << std::endl;
-
   auto& levelsDbg = lobby.registry.get_components<LevelComponent>();
   int countLevels = 0;
   for (auto& lvl : levelsDbg) {
     if (lvl.has_value()) {
       countLevels++;
-      std::cout << "[DEBUG] LevelComponent found: currentWave="
-                << lvl->currentWave << " finishedLevel=" << lvl->finishedLevel
-                << " initialized=" << lvl->initialized << std::endl;
     }
   }
-  std::cout << "[DEBUG] LevelComponents in registry: " << countLevels
-            << std::endl;
-
   int enemyCount = 0;
   for (auto& en : enemies) {
     if (en.has_value()) enemyCount++;
@@ -805,15 +802,9 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   for (auto& bo : bosses) {
     if (bo.has_value()) bossCount++;
   }
-  std::cout << "[DEBUG] Enemies alive: " << enemyCount
-            << " Bosses alive: " << bossCount << std::endl;
 
   if (lobby.waitingForNextLevel) {
     lobby.levelTransitionTimer += deltaTime;
-    std::cout << "[DEBUG] Waiting for next level... "
-              << lobby.levelTransitionTimer << "/" << TIME_BETWEEN_LEVELS
-              << std::endl;
-
     if (lobby.levelTransitionTimer >= TIME_BETWEEN_LEVELS) {
       lobby.levelTransitionTimer = 0.0f;
       lobby.waitingForNextLevel = false;
@@ -842,20 +833,12 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   } else {
     bool levelFinished =
         update_level_system(lobby.registry, deltaTime, lobby.currentLevelIndex);
-    std::cout << "[DEBUG] update_level_system returned: " << levelFinished
-              << std::endl;
-
     if (levelFinished) {
-      std::cout << "[DEBUG] Cleaning up remaining enemies and bosses..."
-                << std::endl;
-
       std::vector<Entity> toKill;
 
       auto& enemiesCleanup = lobby.registry.get_components<Enemy>();
       for (size_t i = 0; i < enemiesCleanup.size(); ++i) {
         if (enemiesCleanup[i].has_value()) {
-          std::cout << "[DEBUG] Marking enemy at index " << i << " for cleanup"
-                    << std::endl;
           toKill.push_back(lobby.registry.entity_from_index(i));
         }
       }
@@ -863,19 +846,13 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
       auto& bossesCleanup = lobby.registry.get_components<Boss>();
       for (size_t i = 0; i < bossesCleanup.size(); ++i) {
         if (bossesCleanup[i].has_value()) {
-          std::cout << "[DEBUG] Marking boss at index " << i << " for cleanup"
-                    << std::endl;
           toKill.push_back(lobby.registry.entity_from_index(i));
         }
       }
       for (Entity e : toKill) {
-        std::cout << "[DEBUG] Killing leftover entity: "
-                  << static_cast<size_t>(e) << std::endl;
         lobby.registry.kill_entity(e);
       }
 
-      std::cout << "[DEBUG] Killing level entity: "
-                << static_cast<size_t>(lobby.currentLevelEntity) << std::endl;
       lobby.registry.kill_entity(lobby.currentLevelEntity);
 
       lobby.waitingForNextLevel = true;
@@ -916,7 +893,7 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   bounds_check_system(lobby.registry, transforms, colliders, rigidbodies);
 }
 
-void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
+GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
   auto& transforms = lobby.registry.get_components<Transform>();
   auto& players = lobby.registry.get_components<PlayerEntity>();
   auto& enemies = lobby.registry.get_components<Enemy>();
@@ -926,18 +903,30 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
 
   GameState gs;
 
-  for (auto&& [player, transform] : Zipper(players, transforms)) {
+  for (auto&& [idx, player, transform] : IndexedZipper(players, transforms)) {
+    Entity e = lobby.registry.entity_from_index(idx);
+    if (!lobby.registry.is_entity_valid(e)) continue;
+
     PlayerState ps;
     ps.playerId = player.player_id;
     ps.posX = transform.position.x;
     ps.posY = transform.position.y;
     ps.hp = static_cast<uint8_t>(player.current);
+    ps.shield = 0;
     ps.weapon = static_cast<uint8_t>(0);
     ps.state = player.isAlive ? 1 : 0;
+    ps.sprite = 0;
+
+    ps.mask =
+        M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE;
+
     gs.players.push_back(ps);
   }
 
   for (auto&& [idx, enemy, transform] : IndexedZipper(enemies, transforms)) {
+    Entity e = lobby.registry.entity_from_index(idx);
+    if (!lobby.registry.is_entity_valid(e)) continue;
+
     EnemyState es;
     es.enemyId = static_cast<uint16_t>(idx);
     es.enemyType = static_cast<uint8_t>(enemy.type);
@@ -946,10 +935,16 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
     es.hp = static_cast<uint8_t>(enemy.current);
     es.state = 1;
     es.direction = 0;
+
+    es.mask = M_POS_X | M_POS_Y | M_HP | M_STATE | M_TYPE | M_DIR;
+
     gs.enemies.push_back(es);
   }
 
   for (auto&& [idx, segment, transform] : IndexedZipper(bosspart, transforms)) {
+    Entity e = lobby.registry.entity_from_index(idx);
+    if (!lobby.registry.is_entity_valid(e)) continue;
+
     EnemyState es;
     es.enemyId = static_cast<uint16_t>(idx);
     es.enemyType = 99;
@@ -958,10 +953,14 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
     es.hp = 1;
     es.state = 1;
     es.direction = 0;
+    es.mask = M_POS_X | M_POS_Y | M_HP | M_STATE | M_TYPE;
     gs.enemies.push_back(es);
   }
 
   for (auto&& [idx, boss, transform] : IndexedZipper(bosses, transforms)) {
+    Entity e = lobby.registry.entity_from_index(idx);
+    if (!lobby.registry.is_entity_valid(e)) continue;
+
     EnemyState bs;
     bs.enemyId = static_cast<uint16_t>(idx);
     bs.enemyType = static_cast<uint8_t>(boss.type);
@@ -970,20 +969,245 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
     bs.hp = static_cast<uint8_t>(boss.current);
     bs.state = 1;
     bs.direction = 0;
+    bs.mask = M_POS_X | M_POS_Y | M_HP | M_STATE | M_TYPE;
     gs.enemies.push_back(bs);
   }
 
   for (auto&& [idx, proj, transform] : IndexedZipper(projectiles, transforms)) {
+    Entity e = lobby.registry.entity_from_index(idx);
+    if (!lobby.registry.is_entity_valid(e)) continue;
+
     ProjectileState ps;
     ps.projectileId = static_cast<uint16_t>(idx);
     ps.ownerId = proj.ownerId;
+    ps.type = 0;
     ps.posX = transform.position.x;
     ps.posY = transform.position.y;
     ps.velX = proj.direction.x * proj.speed;
     ps.velY = proj.direction.y * proj.speed;
     ps.damage = static_cast<uint8_t>(proj.damage);
+
+    ps.mask = M_POS_X | M_POS_Y | M_TYPE | M_OWNER | M_DAMAGE;
+
     gs.projectiles.push_back(ps);
   }
 
-  SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0, &lobby));
+  return gs;
+}
+
+GameState ServerGame::CalculateDelta(const GameState& last,
+                                     const GameState& current) {
+  GameState diff;
+
+  for (const auto& currP : current.players) {
+    auto it = std::find_if(
+        last.players.begin(), last.players.end(),
+        [&](const PlayerState& p) { return p.playerId == currP.playerId; });
+
+    if (it == last.players.end()) {
+      diff.players.push_back(currP);
+    } else {
+      PlayerState deltaP;
+      deltaP.playerId = currP.playerId;
+      deltaP.mask = 0;
+
+      if (std::abs(currP.posX - it->posX) > 0.01f) {
+        deltaP.posX = currP.posX;
+        deltaP.mask |= M_POS_X;
+      }
+      if (std::abs(currP.posY - it->posY) > 0.01f) {
+        deltaP.posY = currP.posY;
+        deltaP.mask |= M_POS_Y;
+      }
+      if (currP.hp != it->hp) {
+        deltaP.hp = currP.hp;
+        deltaP.mask |= M_HP;
+      }
+      if (currP.shield != it->shield) {
+        deltaP.shield = currP.shield;
+        deltaP.mask |= M_SHIELD;
+      }
+      if (currP.weapon != it->weapon) {
+        deltaP.weapon = currP.weapon;
+        deltaP.mask |= M_WEAPON;
+      }
+      if (currP.state != it->state) {
+        deltaP.state = currP.state;
+        deltaP.mask |= M_STATE;
+      }
+      if (currP.sprite != it->sprite) {
+        deltaP.sprite = currP.sprite;
+        deltaP.mask |= M_SPRITE;
+      }
+
+      if (deltaP.mask != 0) {
+        diff.players.push_back(deltaP);
+      }
+    }
+  }
+
+  for (const auto& lastP : last.players) {
+    if (std::none_of(current.players.begin(), current.players.end(),
+                     [&](const PlayerState& p) {
+                       return p.playerId == lastP.playerId;
+                     })) {
+      PlayerState deleteP;
+      deleteP.playerId = lastP.playerId;
+      deleteP.mask = M_DELETE;
+      deleteP.state = 0;
+      diff.players.push_back(deleteP);
+    }
+  }
+
+  for (const auto& currE : current.enemies) {
+    auto it = std::find_if(
+        last.enemies.begin(), last.enemies.end(),
+        [&](const EnemyState& e) { return e.enemyId == currE.enemyId; });
+
+    if (it == last.enemies.end()) {
+      diff.enemies.push_back(currE);
+    } else {
+      EnemyState deltaE;
+      deltaE.enemyId = currE.enemyId;
+      deltaE.mask = 0;
+
+      if (std::abs(currE.posX - it->posX) > 0.01f) {
+        deltaE.posX = currE.posX;
+        deltaE.mask |= M_POS_X;
+      }
+      if (std::abs(currE.posY - it->posY) > 0.01f) {
+        deltaE.posY = currE.posY;
+        deltaE.mask |= M_POS_Y;
+      }
+      if (currE.hp != it->hp) {
+        deltaE.hp = currE.hp;
+        deltaE.mask |= M_HP;
+      }
+      if (currE.enemyType != it->enemyType) {
+        deltaE.enemyType = currE.enemyType;
+        deltaE.mask |= M_TYPE;
+      }
+      if (currE.state != it->state) {
+        deltaE.state = currE.state;
+        deltaE.mask |= M_STATE;
+      }
+      if (currE.direction != it->direction) {
+        deltaE.direction = currE.direction;
+        deltaE.mask |= M_DIR;
+      }
+
+      if (deltaE.mask != 0) {
+        diff.enemies.push_back(deltaE);
+      }
+    }
+  }
+
+  for (const auto& lastE : last.enemies) {
+    if (std::none_of(
+            current.enemies.begin(), current.enemies.end(),
+            [&](const EnemyState& e) { return e.enemyId == lastE.enemyId; })) {
+      EnemyState deleteE;
+      deleteE.enemyId = lastE.enemyId;
+      deleteE.mask = M_DELETE;
+      deleteE.hp = 0;
+      diff.enemies.push_back(deleteE);
+    }
+  }
+
+  for (const auto& currPr : current.projectiles) {
+    auto it = std::find_if(last.projectiles.begin(), last.projectiles.end(),
+                           [&](const ProjectileState& pr) {
+                             return pr.projectileId == currPr.projectileId;
+                           });
+
+    if (it == last.projectiles.end()) {
+      diff.projectiles.push_back(currPr);
+    } else {
+      ProjectileState deltaPr;
+      deltaPr.projectileId = currPr.projectileId;
+      deltaPr.mask = 0;
+
+      if (std::abs(currPr.posX - it->posX) > 0.01f) {
+        deltaPr.posX = currPr.posX;
+        deltaPr.mask |= M_POS_X;
+      }
+      if (std::abs(currPr.posY - it->posY) > 0.01f) {
+        deltaPr.posY = currPr.posY;
+        deltaPr.mask |= M_POS_Y;
+      }
+      if (currPr.damage != it->damage) {
+        deltaPr.damage = currPr.damage;
+        deltaPr.mask |= M_DAMAGE;
+      }
+
+      if (deltaPr.mask != 0) {
+        diff.projectiles.push_back(deltaPr);
+      }
+    }
+  }
+
+  for (const auto& lastPr : last.projectiles) {
+    if (std::none_of(current.projectiles.begin(), current.projectiles.end(),
+                     [&](const ProjectileState& pr) {
+                       return pr.projectileId == lastPr.projectileId;
+                     })) {
+      ProjectileState deletePr;
+      deletePr.projectileId = lastPr.projectileId;
+      deletePr.mask = M_DELETE;
+      deletePr.damage = 0;
+      diff.projectiles.push_back(deletePr);
+    }
+  }
+
+  return diff;
+}
+
+void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
+  auto currentState = std::make_shared<GameState>(BuildCurrentState(lobby));
+
+  for (auto& [playerId, ready, name] : lobby.players_list) {
+    auto& lastStatePtr = lobby.lastStates[playerId];
+    auto& stateCount = lobby.playerStateCount[playerId];
+    bool isFirstPacket = false;
+
+    if (!lastStatePtr || stateCount <= 1) {
+      lastStatePtr = std::make_shared<GameState>();
+      isFirstPacket = true;
+      stateCount++;
+    }
+
+    GameState deltaState;
+    if (isFirstPacket) {
+      deltaState = *currentState;
+
+      uint16_t fullMask =
+          M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE;
+
+      for (auto& p : deltaState.players) {
+        p.mask = fullMask;
+      }
+
+      for (auto& e : deltaState.enemies) {
+        e.mask = M_POS_X | M_POS_Y | M_HP | M_STATE | M_TYPE | M_DIR;
+      }
+
+      for (auto& pr : deltaState.projectiles) {
+        pr.mask = M_POS_X | M_POS_Y | M_DAMAGE | M_TYPE | M_OWNER;
+      }
+    } else {
+      deltaState = CalculateDelta(*lastStatePtr, *currentState);
+    }
+
+    if (isFirstPacket || !deltaState.players.empty() ||
+        !deltaState.enemies.empty() || !deltaState.projectiles.empty()) {
+      Action ac;
+      ac.type = ActionType::GAME_STATE;
+      ac.data = deltaState;
+
+      NetworkMessage msg;
+      msg.client_id = playerId;
+      networkManager->SendTo(msg, ac);
+    }
+    lobby.lastStates[playerId] = currentState;
+  }
 }

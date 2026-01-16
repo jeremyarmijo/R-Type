@@ -47,6 +47,8 @@ struct lobby_list {
   Registry registry;
   std::unordered_map<uint16_t, Entity> m_players;
   std::thread gameThread;
+  std::unordered_map<uint16_t, std::shared_ptr<GameState>> lastStates;
+  std::unordered_map<uint16_t, int> playerStateCount;
 };
 
 class ServerGame {
@@ -107,6 +109,8 @@ class ServerGame {
   void SendLobbyUpdate(lobby_list& lobby);
   void RemovePlayerFromLobby(uint16_t playerId);
   lobby_list* FindPlayerLobby(uint16_t playerId);
+  GameState BuildCurrentState(lobby_list& lobby);
+  GameState CalculateDelta(const GameState& last, const GameState& current);
 
   /**
    * @brief Receive and process player input events
