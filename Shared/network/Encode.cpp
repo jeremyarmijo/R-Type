@@ -49,6 +49,8 @@ inline uint8_t getType(const Action& a) {
       return 0x0F;
     case ActionType::GAME_END:
       return 0x10;
+    case ActionType::CLIENT_LEAVE:
+      return 0x11;
     case ActionType::ERROR_SERVER:
       return 0x12;
 

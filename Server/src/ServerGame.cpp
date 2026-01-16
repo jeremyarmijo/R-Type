@@ -369,6 +369,35 @@ lobby_list* ServerGame::FindPlayerLobby(uint16_t playerId) {
   return nullptr;
 }
 
+void ServerGame::HandleClientLeave(uint16_t playerId) {
+    std::cout << "[SERVER] Handling cleanup for client " << playerId << std::endl;
+
+    lobby_list* lobby = FindPlayerLobby(playerId);
+
+    if (lobby) {
+        std::lock_guard<std::mutex> lock(lobbyMutex);
+        auto itEntity = lobby->m_players.find(playerId);
+        if (itEntity != lobby->m_players.end()) {
+            std::cout << "[ECS] Killing entity for player " << playerId << " in lobby " << lobby->lobby_id << std::endl;
+            
+            if (lobby->registry.is_entity_valid(itEntity->second)) {
+                lobby->registry.kill_entity(itEntity->second);
+            }
+            
+            lobby->m_players.erase(itEntity);
+        }
+
+        for (auto specIt = lobby->spectate.begin(); specIt != lobby->spectate.end(); ++specIt) {
+            if (std::get<0>(*specIt) == playerId) {
+                lobby->spectate.erase(specIt);
+                lobby->nb_player--;
+                break;
+            }
+        }
+    }
+    RemovePlayerFromLobby(playerId);
+}
+
 void ServerGame::SetupNetworkCallbacks() {
   networkManager->SetMessageCallback([this](const NetworkMessage& msg) {
     Event ev = decode.decode(msg.data);
@@ -428,6 +457,9 @@ void ServerGame::SetupNetworkCallbacks() {
         HandleLobbyMessage(playerId, ev);
         break;
 
+      case EventType::CLIENT_LEAVE:
+        HandleClientLeave(playerId);
+        break;
       case EventType::ERROR_TYPE: {
         auto& d = std::get<ERROR_EVNT>(ev.data);
         std::cerr << "[Network Error] Client " << playerId << ": " << d.message
@@ -693,8 +725,6 @@ void ServerGame::Run() {
   std::cout << "before main loop"<< std::endl;
 
   while (serverRunning) {
-  std::cout << "server running"<< std::endl;
-
     networkManager->Update();
     SendPacket();
 

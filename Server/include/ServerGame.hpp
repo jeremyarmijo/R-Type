@@ -153,6 +153,8 @@ class ServerGame {
    * @brief End the game and cleanup
    */
   void EndGame(lobby_list& lobby);
+
+  void HandleClientLeave(uint16_t playerId);
   /**
    * @brief Pop an event from the event queue
    * @return Optional tuple containing event and client ID

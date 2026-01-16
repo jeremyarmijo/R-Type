@@ -40,6 +40,15 @@ bool NetworkManager::Connect(const std::string& ip, int port) {
 }
 
 void NetworkManager::Disconnect() {
+  Action disconnect;
+  ClientLeave l;
+  disconnect.type = ActionType::CLIENT_LEAVE;
+  l.playerId = 0;
+  disconnect.data = l;
+
+  std::vector<uint8_t> packet = encoder.encode(disconnect, 2);
+  SendTcp(packet);
+  
   running = false;
 
   asio::error_code ec;

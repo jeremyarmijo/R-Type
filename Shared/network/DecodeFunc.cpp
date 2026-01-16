@@ -720,12 +720,32 @@ Event DecodeMESSAGE(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
+Event DecodeCLIENT_LEAVE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::CLIENT_LEAVE;
+
+  CLIENT_LEAVE data;
+  size_t offset = 2;
+
+  uint32_t payloadLength = 0;
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+
+  memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
+  data.playerId = ntohs(data.playerId);
+  offset += sizeof(data.playerId);
+
+  evt.data = data;
+  return evt;
+}
+
+
 void SetupDecoder(Decoder& decoder) {
   // TCP Messages
   decoder.registerHandler(0x01, DecodeLOGIN_REQUEST);
   decoder.registerHandler(0x02, DecodeLOGIN_RESPONSE);
   decoder.registerHandler(0x0F, DecodeGAME_START);
   decoder.registerHandler(0x10, DecodeGAME_END);
+  decoder.registerHandler(0x11, DecodeCLIENT_LEAVE);
   decoder.registerHandler(0x12, DecodeERROR);
 
   decoder.registerHandler(0x03, DecodeLOBBY_CREATE);

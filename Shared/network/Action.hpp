@@ -25,6 +25,7 @@ enum class ActionType : uint8_t {
   LOBBY_LEAVE,
   MESSAGE,
   LOBBY_KICK,
+  CLIENT_LEAVE,
 
   // Serveur → Client
   LOGIN_RESPONSE,
@@ -228,12 +229,16 @@ struct LobbyKick {
   uint16_t playerId;
 };
 
+struct ClientLeave {
+  uint16_t playerId;
+};
+
 using ActionData =
     std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick>;
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick, ClientLeave>;
 
 struct Action {
   ActionType type;
@@ -274,6 +279,7 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::GAME_END:
     case ActionType::MESSAGE:
     case ActionType::LOBBY_KICK:
+    case ActionType::CLIENT_LEAVE:
     case ActionType::ERROR_SERVER:
       return 2;  // TCP
 

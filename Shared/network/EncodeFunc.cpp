@@ -464,6 +464,19 @@ void MessageFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, msg->message.data(), msgContentLen);
 }
 
+void ClientLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* leave = std::get_if<ClientLeave>(&a.data);
+  if (!leave) return;
+
+  out.clear();
+
+  uint16_t pId = htons(leave->playerId);
+
+  out.resize(sizeof(uint16_t));
+  memcpy(out.data(), &pId, sizeof(uint16_t));
+}
+
+
 void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
@@ -489,6 +502,7 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::ENEMY_HIT, EnemyHitFunc);
   encoder.registerHandler(ActionType::LOBBY_CREATE, LobbyCreateFunc);
   encoder.registerHandler(ActionType::LOBBY_KICK, LobbyKickFunc);
+  encoder.registerHandler(ActionType::CLIENT_LEAVE, ClientLeaveFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_REQUEST, LobbyJoinRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE,
                           LobbyJoinResponseFunc);
