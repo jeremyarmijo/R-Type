@@ -142,9 +142,9 @@ class LobbyMenu : public Scene {
   }
 
   void HandleEvent(SDL_Event& event) override {
-    // if (GetUI().HandleEvent(event)) {
-    //   return;
-    // }
+    if (GetUI()->HandleEvent(event)) {
+      return;
+    }
   }
 };
 

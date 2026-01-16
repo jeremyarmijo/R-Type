@@ -27,17 +27,17 @@ int main(int argc, char* argv[]) {
         
         std::cout << "\n=== LOADING GAME SCENES ===" << std::endl;
 
-        engine.GetSceneManager().LoadSceneModule("menu", "../src/scenes/libscene_mainmenu.so");
-        engine.GetSceneManager().LoadSceneModule("game", "../src/scenes/libscene_game.so");
-        engine.GetSceneManager().LoadSceneModule("join", "../src/scenes/libscene_join.so");
-        engine.GetSceneManager().LoadSceneModule("options", "../src/scenes/libscene_options.so");
-        engine.GetSceneManager().LoadSceneModule("gameover", "../src/scenes/libscene_gameover.so");
-        engine.GetSceneManager().LoadSceneModule("wait", "../src/scenes/libscene_wait.so");
-        engine.GetSceneManager().LoadSceneModule("lobby", "../src/scenes/libscene_lobby.so");
         engine.GetSceneManager().LoadSceneModule("createLobby", "../src/scenes/libscene_createlobby.so");
-        engine.GetSceneManager().LoadSceneModule("lobbyInfoPlayer", "../src/scenes/libscene_lobbyinfoplayer.so");
+        engine.GetSceneManager().LoadSceneModule("gameover", "../src/scenes/libscene_gameover.so");
+        engine.GetSceneManager().LoadSceneModule("join", "../src/scenes/libscene_joingame.so");
+        engine.GetSceneManager().LoadSceneModule("lobby", "../src/scenes/libscene_lobby.so");
+        engine.GetSceneManager().LoadSceneModule("lobbyInfoPlayer", "../src/scenes/libscene_lobbyinfo.so");
         engine.GetSceneManager().LoadSceneModule("lobbyjoin", "../src/scenes/libscene_lobbyjoin.so");
-        engine.GetSceneManager().LoadSceneModule("lobbyPassword", "../src/scenes/libscene_password.so");
+        engine.GetSceneManager().LoadSceneModule("lobbyPassword", "../src/scenes/libscene_lobbypassword.so");
+        engine.GetSceneManager().LoadSceneModule("game", "../src/scenes/libscene_maingame.so");
+        engine.GetSceneManager().LoadSceneModule("menu", "../src/scenes/libscene_mainmenu.so");
+        engine.GetSceneManager().LoadSceneModule("options", "../src/scenes/libscene_options.so");
+        engine.GetSceneManager().LoadSceneModule("wait", "../src/scenes/libscene_waitlobby.so");
         
         std::cout << "\n=== STARTING GAME ===" << std::endl;
 

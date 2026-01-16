@@ -212,7 +212,9 @@ class LobbyJoin : public Scene {
   }
 
   void HandleEvent(SDL_Event& event) override { 
-    // GetUI().HandleEvent(event);
+    if (GetUI()->HandleEvent(event)) {
+      return;
+    }
   }
 };
 

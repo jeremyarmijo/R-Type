@@ -27,6 +27,7 @@ bool NetworkSubsystem::Initialize() {
 }
 
 void NetworkSubsystem::Shutdown() {
+  std::cout << "Shutting down Network Subsystem..." << std::endl;
   Disconnect();
   if (networkThread.joinable()) {
     networkThread.join();

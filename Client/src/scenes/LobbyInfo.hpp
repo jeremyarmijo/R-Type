@@ -227,12 +227,12 @@ class LobbyInfoPlayer : public Scene {
       uint16_t pId = GetSceneData().Get<uint16_t>("playerId", 0);
       if (pId == hostId && targetId != hostId) {
         m_kickButton =
-            GetUI().AddElement<UIButton>(610, yPos - 10, 130, 45, "KICK");
+            GetUI()->AddElement<UIButton>(610, yPos - 10, 130, 45, "KICK");
         m_kickButton->SetLayer(9);
         m_kickButton->SetOnClick([this, targetId]() {
-          GetAudio().PlaySound("button");
+          GetAudio()->PlaySound("button");
           Action leaveReq{ActionType::LOBBY_KICK, LobbyKick{targetId}};
-          GetNetwork().SendAction(leaveReq);
+          GetNetwork()->SendAction(leaveReq);
           m_kickButton->SetColors({100, 100, 100, 255}, {130, 130, 130, 255},
                                   {80, 80, 80, 220});
         });
@@ -317,7 +317,11 @@ class LobbyInfoPlayer : public Scene {
     // GetUI().Render();
   }
 
-  void HandleEvent(SDL_Event& event) override {}
+  void HandleEvent(SDL_Event& event) override {
+    if (GetUI()->HandleEvent(event)) {
+      return;
+    }
+  }
 };
 
 extern "C" {

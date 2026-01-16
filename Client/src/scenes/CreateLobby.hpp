@@ -347,7 +347,11 @@ class CreateLobby : public Scene {
     // GetUI()->Render();
   }
 
-  void HandleEvent(SDL_Event& event) override {}
+  void HandleEvent(SDL_Event& event) override {
+    if (GetUI()->HandleEvent(event)) {
+      return;
+    }
+  }
 };
 
 extern "C" {
