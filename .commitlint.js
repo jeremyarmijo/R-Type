@@ -23,6 +23,7 @@ module.exports = {
       2,
       "always",
       [
+        "documentation",
         "jobsystem",
         "engine",
         "network",

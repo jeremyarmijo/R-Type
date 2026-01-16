@@ -25,6 +25,7 @@ class LobbyInfoPlayer : public Scene {
 
   UIButton* m_readyButton;
   UIButton* m_leaveButton;
+  UIButton* m_kickButton;
   UIButton* m_chatContainer;
   UIButton* m_littelChatContainer;
   UIButton* m_hiddeChat;
@@ -37,6 +38,7 @@ class LobbyInfoPlayer : public Scene {
   bool isReady = false;
   bool isLittelChat = true;
   bool m_asStarted = false;
+  uint16_t hostId;
   std::vector<PlayerInfo> m_playersInfo;
   std::string m_lobbyName;
   uint8_t m_playerMax;
@@ -221,6 +223,20 @@ class LobbyInfoPlayer : public Scene {
         pStatus->SetLayer(10);
       }
 
+      uint16_t targetId = player.playerId;
+      uint16_t pId = GetSceneData().Get<uint16_t>("playerId", 0);
+      if (pId == hostId && targetId != hostId) {
+        m_kickButton =
+            GetUI().AddElement<UIButton>(610, yPos - 10, 130, 45, "KICK");
+        m_kickButton->SetLayer(9);
+        m_kickButton->SetOnClick([this, targetId]() {
+          GetAudio().PlaySound("button");
+          Action leaveReq{ActionType::LOBBY_KICK, LobbyKick{targetId}};
+          GetNetwork().SendAction(leaveReq);
+          m_kickButton->SetColors({100, 100, 100, 255}, {130, 130, 130, 255},
+                                  {80, 80, 80, 220});
+        });
+      }
       pName->SetLayer(10);
       yPos += 50;
     }
@@ -270,6 +286,7 @@ class LobbyInfoPlayer : public Scene {
         this->m_playerMax = data->maxPlayers;
         this->m_difficulty = data->difficulty;
         this->m_asStarted = data->asStarted;
+        this->hostId = data->hostId;
         RefreshPlayerListUI();
       }
     }
@@ -284,6 +301,13 @@ class LobbyInfoPlayer : public Scene {
       const auto* data = std::get_if<MESSAGE>(&e.data);
       message.push_back(data->playerName + " : " + data->message);
       UpdateChatDisplay(14);
+    }
+    if (e.type == EventType::LOBBY_KICK) {
+      const auto* data = std::get_if<LOBBY_KICK>(&e.data);
+      uint16_t pId = GetSceneData().Get<uint16_t>("playerId", 0);
+      if (pId == data->playerId) {
+        ChangeScene("lobby");
+      }
     }
   }
 

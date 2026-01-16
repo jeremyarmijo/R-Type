@@ -67,7 +67,7 @@ class ServerGame {
  private:
 
 #ifdef _WIN32
-  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("C:/cross-platform_rtype/R-Type/Server/src/build/libnetwork_server.dll", "EntryPointLib");
+  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("../src/build/libnetwork_server.dll", "EntryPointLib");
 #else
   DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("../src/build/libnetwork_server.so", "EntryPointLib");
 #endif
@@ -99,6 +99,7 @@ class ServerGame {
 
   void HandleLobbyCreate(uint16_t playerId, Event& ev);
   void HandleLobbyJoinRequest(uint16_t playerId, Event& ev);
+  void HandleLobbyKick(uint16_t playerId, uint16_t playerKickId);
   void HandleLobbyListRequest(uint16_t playerId);
   void HandleLobbyLeave(uint16_t playerId);
   void SendLobbyUpdate(lobby_list& lobby);
