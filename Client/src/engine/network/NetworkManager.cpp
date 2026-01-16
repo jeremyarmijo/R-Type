@@ -46,7 +46,7 @@ void NetworkManager::Disconnect() {
   l.playerId = 0;
   disconnect.data = l;
 
-  std::vector<uint8_t> packet = encoder.encode(disconnect, 2);
+  std::vector<uint8_t> packet = encoder.encode(disconnect, 2, 0, 0, 0);
   SendTcp(packet);
   
   running = false;

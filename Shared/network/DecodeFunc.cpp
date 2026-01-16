@@ -975,7 +975,15 @@ Event DecodeCLIENT_LEAVE(const std::vector<uint8_t>& packet) {
   size_t offset = 2;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
   data.playerId = ntohs(data.playerId);
