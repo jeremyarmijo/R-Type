@@ -1,6 +1,6 @@
 // Copyright 2025 Ziad
 #pragma once
-#include "../Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 
 struct Projectile {
   float damage;

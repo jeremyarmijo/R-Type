@@ -8,14 +8,19 @@
 #include <vector>
 
 #include "Player/PlayerEntity.hpp"
-#include "inputs/InputSystem.hpp"
+#include "systems/InputSystem.hpp"
+#include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
+#include "audio/AudioSubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
+#include "network/NetworkSubsystem.hpp"
 #include "settings/MultiplayerSkinManager.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WeaponSystem.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
+#include "Helpers/EntityHelper.hpp"
 
 class MyGameScene : public Scene {
  private:
@@ -31,18 +36,21 @@ class MyGameScene : public Scene {
   bool m_isInitialized;
   bool m_firstState;
   bool m_isAlive;
+  bool m_isSpectator = false;
   uint32_t m_level;
   uint32_t m_wave;
   bool m_nextWave;
   UIText* m_scoreText;
   UIText* m_healthText;
   UIText* m_levelText;
+  UIText* m_spectatorText;
+
   MultiplayerSkinManager m_skinManager;
+  PlayerSettings m_settings;
 
  public:
-  MyGameScene(GameEngine* engine, SceneManager* sceneManager)
-      : Scene(engine, sceneManager, "game"),
-        m_localPlayerId(0),
+  MyGameScene()
+      : m_localPlayerId(0),
         m_score(0),
         m_isInitialized(false),
         m_firstState(false),
@@ -52,7 +60,7 @@ class MyGameScene : public Scene {
         m_nextWave(false),
         m_scoreText(nullptr),
         m_healthText(nullptr),
-        m_levelText(nullptr) {}
+        m_levelText(nullptr) { m_name = "game"; }
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING GAME SCENE ===" << std::endl;
@@ -66,65 +74,85 @@ class MyGameScene : public Scene {
       m_isInitialized = false;
       m_firstState = false;
 
-      TextureManager& textures = GetTextures();
-      AnimationManager& animations = GetAnimations();
-      GetAudio().PlayMusic("game_music");
+      GetAudio()->PlayMusic("game_music");
 
       std::cout << "Loading textures..." << std::endl;
-      LoadGameTextures(textures);
-      CreateGameAnimations(animations);
+      LoadGameTextures();
+      CreateGameAnimations();
 
       std::cout << "Creating background..." << std::endl;
-      Entity bg1 = m_engine->CreateSprite("background", {640, 360}, -10);
-      Entity bg2 = m_engine->CreateSprite("background", {1920, 360}, -10);
+      Entity bg1 = CreateSprite(GetRegistry(), "background", {640, 360}, -10);
+      Entity bg2 = CreateSprite(GetRegistry(), "background", {1920, 360}, -10);
       m_backGrounds.push_back(bg1);
       m_backGrounds.push_back(bg2);
 
-      PlayerSettings& settings = m_engine->GetPlayerSettings();
       m_localPlayerId = GetSceneData().Get<uint16_t>("playerId", 0);
+      m_isSpectator = GetSceneData().Get<bool>("isSpectator", false);
 
-      std::string selectedSkinAnim = settings.GetSelectedSkinAnimation();
-      m_skinManager.SetLocalPlayerSkin(settings.GetSelectedSkin(),
-                                       m_localPlayerId);
+      if (!m_isSpectator) {
+        m_localPlayerId = GetSceneData().Get<uint16_t>("playerId", 0);
 
-      std::cout << "Creating local player (ID: " << m_localPlayerId
-                << ") with skin: " << selectedSkinAnim << std::endl;
+        std::string selectedSkinAnim = m_settings.GetSelectedSkinAnimation();
+        m_skinManager.SetLocalPlayerSkin(m_settings.GetSelectedSkin(),
+                                         m_localPlayerId);
 
-      float posX = GetSceneData().Get<float>("posX", 200.0f);
-      float posY = GetSceneData().Get<float>("posY", 300.0f);
+        std::cout << "Creating local player (ID: " << m_localPlayerId
+                  << ") with skin: " << selectedSkinAnim << std::endl;
 
-      m_localPlayer = m_engine->CreatePlayer("player", selectedSkinAnim,
-                                             {posX, posY}, 250.0f);
+        float posX = GetSceneData().Get<float>("posX", 200.0f);
+        float posY = GetSceneData().Get<float>("posY", 300.0f);
 
-      auto& transform =
-          GetRegistry().get_components<Transform>()[m_localPlayer];
-      if (transform) {
-        transform->scale = {2.0f, 2.0f};
+        m_localPlayer = CreatePlayer(GetRegistry(), GetRendering()->GetAnimation(selectedSkinAnim), "player", selectedSkinAnim,
+                                               {posX, posY}, 250.0f, 0);
+
+        auto& transform =
+            GetRegistry().get_components<Transform>()[m_localPlayer];
+        if (transform) {
+          transform->scale = {2.0f, 2.0f};
+        }
+
+        auto& playerComponent =
+            GetRegistry().get_components<PlayerEntity>()[m_localPlayer];
+        if (playerComponent) {
+          playerComponent->player_id = m_localPlayerId;
+          playerComponent->current = 100;
+        }
+        m_entities.push_back(m_localPlayer);
+
+        if (!GetRegistry().is_entity_valid(m_localPlayer)) {
+          std::cerr << "ERROR: Player entity is invalid after creation!"
+                    << std::endl;
+          return;
+        }
+
+      } else {
+        std::cout << "[SPECTATOR MODE] No local entity created." << std::endl;
+        m_isAlive = false;
       }
 
-      auto& playerComponent =
-          GetRegistry().get_components<PlayerEntity>()[m_localPlayer];
-      if (playerComponent) {
-        playerComponent->player_id = m_localPlayerId;
-        playerComponent->current = 100;
-      }
-      m_entities.push_back(m_localPlayer);
+      m_spectatorText = GetUI()->AddElement<UIText>(10, 10, "SPECTATOR", "", 50);
+      m_spectatorText->SetLayer(100);
 
-      if (!GetRegistry().is_entity_valid(m_localPlayer)) {
-        std::cerr << "ERROR: Player entity is invalid after creation!"
-                  << std::endl;
-        return;
-      }
-
-      // UI Elements
-      m_scoreText = GetUI().AddElement<UIText>(10, 10, "Score: 0", "", 20);
+      m_scoreText = GetUI()->AddElement<UIText>(10, 10, "Score: 0", "", 20);
       m_scoreText->SetLayer(100);
 
-      m_healthText = GetUI().AddElement<UIText>(10, 40, "Health: 100", "", 20);
+      m_healthText = GetUI()->AddElement<UIText>(10, 40, "Health: 100", "", 20);
       m_healthText->SetLayer(100);
 
-      m_levelText = GetUI().AddElement<UIText>(10, 60, "Level: 0", "", 20);
+      m_levelText = GetUI()->AddElement<UIText>(10, 60, "Level: 0", "", 20);
       m_levelText->SetLayer(100);
+
+      if (m_isSpectator) {
+        m_spectatorText->SetVisible(true);
+        m_scoreText->SetVisible(false);
+        m_healthText->SetVisible(false);
+        m_levelText->SetVisible(false);
+      } else {
+        m_spectatorText->SetVisible(false);
+        m_scoreText->SetVisible(true);
+        m_healthText->SetVisible(true);
+        m_levelText->SetVisible(true);
+      }
 
       m_isInitialized = true;
       std::cout << "Game scene initialized successfully" << std::endl;
@@ -145,7 +173,9 @@ class MyGameScene : public Scene {
     m_explosions.clear();
     m_skinManager.Clear();
     m_isInitialized = false;
+    m_isSpectator = false;
     m_firstState = false;
+    GetUI()->Clear();
     std::cout << "Game scene cleanup complete" << std::endl;
     std::cout << "==============================\n" << std::endl;
   }
@@ -169,14 +199,14 @@ class MyGameScene : public Scene {
   void Render() override {
     if (!m_isInitialized) return;
 
-    RenderSpritesLayered();
-    GetUI().Render();
+    // RenderSpritesLayered();
+    // GetUI().Render();
   }
 
   void HandleEvent(SDL_Event& event) override {
-    if (GetUI().HandleEvent(event)) {
-      return;
-    }
+    // if (GetUI().HandleEvent(event)) {
+    //   return;
+    // }
 
     // if (event.type == SDL_KEYDOWN) {
     //   if (event.key.keysym.sym == SDLK_r) {
@@ -189,41 +219,40 @@ class MyGameScene : public Scene {
     // }
   }
 
-  void LoadGameTextures(TextureManager& textures) {
-    if (!textures.GetTexture("player")) {
-      textures.LoadTexture("player", "../Client/assets/player.png");
+  void LoadGameTextures() {
+    if (!GetRendering()->GetTexture("player")) {
+      GetRendering()->LoadTexture("player", "../assets/player.png");
     }
 
-    if (!textures.GetTexture("background")) {
-      textures.LoadTexture("background", "../Client/assets/bg.jpg");
+    if (!GetRendering()->GetTexture("background")) {
+      GetRendering()->LoadTexture("background", "../assets/bg.jpg");
     }
 
-    if (!textures.GetTexture("enemy1")) {
-      textures.LoadTexture("enemy1", "../Client/assets/enemy1.png");
+    if (!GetRendering()->GetTexture("enemy1")) {
+      GetRendering()->LoadTexture("enemy1", "../assets/enemy1.png");
     }
-    if (!textures.GetTexture("enemy2")) {
-      textures.LoadTexture("enemy2", "../Client/assets/enemy2.png");
+    if (!GetRendering()->GetTexture("enemy2")) {
+      GetRendering()->LoadTexture("enemy2", "../assets/enemy2.png");
     }
-    if (!textures.GetTexture("enemy3")) {
-      textures.LoadTexture("enemy3", "../Client/assets/enemy3.png");
+    if (!GetRendering()->GetTexture("enemy3")) {
+      GetRendering()->LoadTexture("enemy3", "../assets/enemy3.png");
     }
 
-    if (!textures.GetTexture("projectile_player")) {
-      textures.LoadTexture("projectile_player",
-                           "../Client/assets/blueShoot.png");
+    if (!GetRendering()->GetTexture("projectile_player")) {
+      GetRendering()->LoadTexture("projectile_player",
+                           "../assets/blueShoot.png");
     }
-    if (!textures.GetTexture("projectile_enemy")) {
-      textures.LoadTexture("projectile_enemy",
-                           "../Client/assets/projectile_enemy.png");
+    if (!GetRendering()->GetTexture("projectile_enemy")) {
+      GetRendering()->LoadTexture("projectile_enemy",
+                           "../assets/projectile_enemy.png");
     }
-    if (!textures.GetTexture("explosion")) {
-      textures.LoadTexture("explosion",
-                           "../Client/assets/explosion.png");
+    if (!GetRendering()->GetTexture("explosion")) {
+      GetRendering()->LoadTexture("explosion", "../assets/explosion.png");
     }
   }
 
-  void CreateGameAnimations(AnimationManager& animations) {
-    animations.CreateAnimation("enemy1_anim", "enemy1",
+  void CreateGameAnimations() {
+    GetRendering()->CreateAnimation("enemy1_anim", "enemy1",
                                {{{5, 6, 20, 23}, 0.1f},
                                 {{38, 6, 20, 23}, 0.1f},
                                 {{71, 6, 20, 23}, 0.1f},
@@ -233,39 +262,39 @@ class MyGameScene : public Scene {
                                 {{203, 6, 20, 23}, 0.1f},
                                 {{236, 6, 20, 23}, 0.1f}},
                                true);
-    
-    animations.CreateAnimation("boss_anim", "boss",
+
+    GetRendering()->CreateAnimation("boss_anim", "boss",
                                {{{27, 1711, 154, 203}, 0.6f},
-                                  {{189, 1711, 154, 203}, 0.5f},
-                                  {{351, 1711, 154, 203}, 0.6f},
-                                  {{189, 1711, 154, 203}, 0.5f}},
-                               true);
-    
-    animations.CreateAnimation("explode_anim", "explosion",
-                               {{{130, 2, 30, 30}, 0.1f},
-                                  {{163, 2, 30, 30}, 0.1f},
-                                  {{194, 2, 30, 30}, 0.1f},
-                                  {{228, 2, 30, 30}, 0.1f},
-                                  {{261, 2, 30, 30}, 0.1f},
-                                  {{294, 2, 30, 30}, 0.1f}},
+                                {{189, 1711, 154, 203}, 0.5f},
+                                {{351, 1711, 154, 203}, 0.6f},
+                                {{189, 1711, 154, 203}, 0.5f}},
                                true);
 
-    animations.CreateAnimation(
+    GetRendering()->CreateAnimation("explode_anim", "explosion",
+                               {{{130, 2, 30, 30}, 0.1f},
+                                {{163, 2, 30, 30}, 0.1f},
+                                {{194, 2, 30, 30}, 0.1f},
+                                {{228, 2, 30, 30}, 0.1f},
+                                {{261, 2, 30, 30}, 0.1f},
+                                {{294, 2, 30, 30}, 0.1f}},
+                               true);
+
+    GetRendering()->CreateAnimation(
         "enemy2_anim", "enemy2",
         {{{34, 34, 31, 31}, 0.15f}, {{69, 34, 31, 31}, 0.15f}}, true);
 
-    animations.CreateAnimation("enemy3_anim", "enemy3",
+    GetRendering()->CreateAnimation("enemy3_anim", "enemy3",
                                {{{2, 67, 29, 31}, 0.2f},
                                 {{35, 67, 29, 31}, 0.2f},
                                 {{68, 67, 29, 31}, 0.2f},
                                 {{101, 67, 29, 31}, 0.2f}},
                                true);
 
-    animations.CreateAnimation("projectile_player_anim", "projectile_player",
+    GetRendering()->CreateAnimation("projectile_player_anim", "projectile_player",
                                {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
                                true);
 
-    animations.CreateAnimation(
+    GetRendering()->CreateAnimation(
         "projectile_enemy_anim", "projectile_enemy",
         {{{0, 0, 12, 12}, 0.1f}, {{12, 0, 12, 12}, 0.1f}}, true);
   }
@@ -343,7 +372,7 @@ class MyGameScene : public Scene {
               << std::endl;
 
     Entity otherPlayer =
-        m_engine->CreateAnimatedSprite("player", position, skinAnimation);
+        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(skinAnimation), "player", position, skinAnimation, 0);
 
     auto& transform = GetRegistry().get_components<Transform>()[otherPlayer];
     if (transform) {
@@ -362,7 +391,7 @@ class MyGameScene : public Scene {
     if (it != m_otherPlayers.end()) {
       Entity playerEntity = it->second;
       CreateExplosion(playerEntity);
-      GetAudio().PlaySound("explosion");
+      GetAudio()->PlaySound("explosion");
       GetRegistry().kill_entity(playerEntity);
       m_skinManager.RemovePlayer(playerId);
       m_entities.erase(
@@ -406,7 +435,7 @@ class MyGameScene : public Scene {
               << static_cast<int>(enemyType) << ") at (" << position.x << ", "
               << position.y << ")" << std::endl;
 
-    Entity enemy = m_engine->CreateAnimatedSprite(texture, position, animation);
+    Entity enemy = CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(animation), texture, position, animation, 0);
 
     auto& transform = GetRegistry().get_components<Transform>()[enemy];
     if (transform) {
@@ -425,7 +454,7 @@ class MyGameScene : public Scene {
       Entity enemyEntity = it->second;
       CreateExplosion(enemyEntity);
       GetRegistry().kill_entity(enemyEntity);
-      GetAudio().PlaySound("explosion");
+      GetAudio()->PlaySound("explosion");
       m_entities.erase(
           std::remove(m_entities.begin(), m_entities.end(), enemyEntity),
           m_entities.end());
@@ -457,8 +486,8 @@ class MyGameScene : public Scene {
     std::string animation = GetProjectileAnimation(projectileType);
 
     Entity projectile =
-        m_engine->CreateAnimatedSprite(texture, position, animation);
-    GetAudio().PlaySound("shoot");
+        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(animation), texture, position, animation, 0);
+    GetAudio()->PlaySound("shoot");
     auto& transform = GetRegistry().get_components<Transform>()[projectile];
     if (transform) {
       transform->scale = {1.5f, 1.5f};
@@ -513,7 +542,7 @@ class MyGameScene : public Scene {
     for (const auto& playerState : playerStates) {
       uint16_t playerId = playerState.playerId;
 
-      if (playerId == m_localPlayerId) {
+      if (!m_isSpectator && playerId == m_localPlayerId) {
         if (m_localPlayer < transforms.size() &&
             transforms[m_localPlayer].has_value()) {
           transforms[m_localPlayer]->position.x = playerState.posX;
@@ -524,7 +553,8 @@ class MyGameScene : public Scene {
             playerComponents[m_localPlayer].has_value()) {
           playerComponents[m_localPlayer]->current =
               static_cast<int>(playerState.hp);
-          m_healthText->SetText("Health: " + std::to_string(static_cast<int>(playerState.hp)));
+          m_healthText->SetText(
+              "Health: " + std::to_string(static_cast<int>(playerState.hp)));
         }
       } else {
         auto it = m_otherPlayers.find(playerId);
@@ -553,15 +583,27 @@ class MyGameScene : public Scene {
       for (uint16_t playerId : toRemove) {
         RemoveOtherPlayer(playerId);
       }
-      if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() && m_isAlive) {
-        CreateExplosion(m_localPlayer);
-        GetAudio().PlaySound("explosion");
-        m_healthText->SetText("Health: 0");
-        GetRegistry().kill_entity(m_localPlayer);
-        m_entities.erase(
-        std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
-        m_entities.end());
+      if (activePlayerIds.find(m_localPlayerId) == activePlayerIds.end() &&
+          m_isAlive) {
+        if (!m_isSpectator) {
+          std::cout << "[GAME] Local player died. Removing entity."
+                    << std::endl;
+
+          CreateExplosion(m_localPlayer);
+          GetAudio()->PlaySound("explosion");
+          m_healthText->SetVisible(false);
+          m_scoreText->SetVisible(false);
+          m_levelText->SetVisible(false);
+          if (GetRegistry().is_entity_valid(m_localPlayer)) {
+            GetRegistry().kill_entity(m_localPlayer);
+          }
+          m_entities.erase(
+              std::remove(m_entities.begin(), m_entities.end(), m_localPlayer),
+              m_entities.end());
+        }
         m_isAlive = false;
+        m_isSpectator = true;
+        m_spectatorText->SetVisible(true);
       }
     }
 
@@ -603,7 +645,8 @@ class MyGameScene : public Scene {
         m_wave = 0;
         m_level += 1;
       }
-      m_levelText->SetText("Level: " + std::to_string(m_level) + " Wave: " + std::to_string(m_wave));
+      m_levelText->SetText("Level: " + std::to_string(m_level) +
+                           " Wave: " + std::to_string(m_wave));
     }
   }
 
@@ -638,10 +681,12 @@ class MyGameScene : public Scene {
   }
 
   void GetEvents(float dt) {
-    Event e = GetNetwork().PopEvent();
+    Event e = GetNetwork()->PopEvent();
 
-    if (e.type == EventType::GAME_END)
+    if (e.type == EventType::GAME_END) {
+      GetSceneData().Set<bool>("isSpectator", false);
       ChangeScene("gameover");
+    }
     std::visit(
         [&](auto&& payload) {
           using T = std::decay_t<decltype(payload)>;
@@ -659,20 +704,25 @@ class MyGameScene : public Scene {
     auto& transform = GetRegistry().get_components<Transform>()[entity];
 
     Vector2 pos = transform->position;
-    Entity explosion = m_engine->CreateAnimatedSprite("explosion", pos, "explode_anim");
+    Entity explosion =
+        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation("explode_anim"), "explosion", pos, "explode_anim", 1);
 
     m_explosions[explosion] = 0.6f;
   }
 
   void RemoveExplosions(float dt) {
-    for (auto it = m_explosions.begin(); it != m_explosions.end(); ) {
-        it->second -= dt;
-        if (it->second <= 0.0f) {
-            GetRegistry().kill_entity(Entity(it->first));
-            it = m_explosions.erase(it); 
-        } else {
-            ++it; 
-        }
+    for (auto it = m_explosions.begin(); it != m_explosions.end();) {
+      it->second -= dt;
+      if (it->second <= 0.0f) {
+        GetRegistry().kill_entity(Entity(it->first));
+        it = m_explosions.erase(it);
+      } else {
+        ++it;
+      }
     }
   }
 };
+
+extern "C" {
+    Scene* CreateScene();
+}

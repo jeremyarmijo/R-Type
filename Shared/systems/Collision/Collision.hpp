@@ -6,14 +6,16 @@
 #include "Player/Enemy.hpp"
 #include "Player/PlayerEntity.hpp"
 #include "Player/Projectile.hpp"
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "ecs/Zipper.hpp"
 
-void gamePlay_Collision_system(
-    Registry& registry, SparseArray<Transform>& transforms,
-    SparseArray<BoxCollider>& colliders, SparseArray<PlayerEntity>& players,
-    SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses);
+void gamePlay_Collision_system(Registry& registry,
+                               SparseArray<Transform>& transforms,
+                               SparseArray<BoxCollider>& colliders,
+                               SparseArray<PlayerEntity>& players,
+                               SparseArray<Enemy>& enemies,
+                               SparseArray<Boss>& bosses);
 
 CollisionCategory get_entity_category(size_t entityId, Registry& registry);
 

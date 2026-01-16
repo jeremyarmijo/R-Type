@@ -2,7 +2,7 @@
 #ifndef SHARED_COMPONENTS_COLLISION_COLLISIONCONTROLLER_HPP_
 #define SHARED_COMPONENTS_COLLISION_COLLISIONCONTROLLER_HPP_
 
-#include "../../ecs/Entity.hpp"
+#include "ecs/Entity.hpp"
 
 enum class CollisionCategory {
   Unknown = 0,

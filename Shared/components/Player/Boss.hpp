@@ -2,12 +2,14 @@
 #ifndef SHARED_COMPONENTS_PLAYER_BOSS_HPP_
 #define SHARED_COMPONENTS_PLAYER_BOSS_HPP_
 
-#include "../Physics2D.hpp"
+#include "physics/Physics2D.hpp"
+#include "ecs/Entity.hpp"
+
 enum class BossType {
   BigShip,
-  Snake,       // Boss serpent multi-segments
+  Gomander_snake,       // Boss serpent multi-segments
   BydoEye,     // Boss statique qui tire beaucoup
-  Battleship,  // Boss qui spawn des ennemis
+  Bydo_Battleship,  // Boss qui spawn des ennemis
   FinalBoss    // Ultime boss
 };
 
@@ -23,8 +25,11 @@ struct Boss {
   int current;
   int hp;
   int contact_damage;
+  int segmentCount;
+
   Boss(BossType t, BossPhase p = BossPhase::Phase1, float spd = 100.f,
-       Vector2 dir = {0.f, 0.f}, float amp = 40.f, int cur = 500, int dmg = 10)
+       Vector2 dir = {0.f, 0.f}, float amp = 40.f, int cur = 500, int dmg = 10,
+       int segment = 0)
       : type(t),
         phase(p),
         direction(dir),
@@ -32,7 +37,9 @@ struct Boss {
         speed(spd),
         amplitude(amp),
         current(cur),
-        contact_damage(dmg) {}
+        contact_damage(dmg),
+        segmentCount(segment) {}
 };
+
 
 #endif  // SHARED_COMPONENTS_PLAYER_BOSS_HPP_
