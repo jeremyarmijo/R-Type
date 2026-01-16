@@ -238,6 +238,12 @@ class MyGameScene : public Scene {
     if (!textures.GetTexture("enemy3")) {
       textures.LoadTexture("enemy3", "../Client/assets/enemy3.png");
     }
+    if (!textures.GetTexture("enemy4")) {
+      textures.LoadTexture("enemy4", "../Client/assets/enemy4.png");
+    }
+    if (!textures.GetTexture("boom3")) {
+      textures.LoadTexture("boom3", "../Client/assets/boom.png");
+    }
 
     if (!textures.GetTexture("projectile_player")) {
       textures.LoadTexture("projectile_player",
@@ -265,6 +271,9 @@ class MyGameScene : public Scene {
     }
     if (!textures.GetTexture("head_boss")) {
       textures.LoadTexture("head_boss", "../Client/assets/boss_head.png");
+    }
+    if (!textures.GetTexture("enemy5")) {
+      textures.LoadTexture("enemy5", "../Client/assets/enemy5.png");
     }
   }
 
@@ -310,6 +319,18 @@ class MyGameScene : public Scene {
                                 {{101, 67, 29, 31}, 0.2f}},
                                true);
 
+    animations.CreateAnimation("enemy4_anim", "enemy4",
+                               {{{0, 0, 55, 94}, 0.2f},
+                                {{55, 0, 55, 94}, 0.2f},
+                                {{110, 0, 55, 94}, 0.2f}},
+                               true);
+
+    animations.CreateAnimation("enemy5_anim", "enemy5",
+                               {{{0, 0, 33, 29}, 0.1f},
+                                {{33, 0, 33, 29}, 0.1f},
+                                {{66, 0, 34, 29}, 0.1f}},
+                               true);
+
     animations.CreateAnimation("projectile_player_anim", "projectile_player",
                                {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
                                true);
@@ -340,13 +361,11 @@ class MyGameScene : public Scene {
                                true);
 
     animations.CreateAnimation("boss_serpent_head_up", "head_boss",
-                               {{{0, 0, 34, 32}, 0.1f},
-                                {{34, 0, 34, 32}, 0.1f},
-                                {{68, 0, 34, 32}, 0.1f},
-                                {{102, 0, 34, 32}, 0.1f},
-                                {{136, 0, 34, 32}, 0.1f},
-                                {{170, 0, 34, 32}, 0.1f},
-                                {{204, 0, 34, 32}, 0.1f}},
+                               {
+                                   {{0, 0, 34, 32}, 0.1f},
+                                   {{34, 0, 34, 32}, 0.1f},
+                                   {{68, 0, 34, 32}, 0.1f},
+                               },
                                true);
 
     animations.CreateAnimation("boss_serpent_body_anim", "boss2",
@@ -361,19 +380,36 @@ class MyGameScene : public Scene {
                                },
                                true);
 
-    animations.CreateAnimation("boss3_anim", "boss3",
+    animations.CreateAnimation("boss3_part", "boom3",
                                {{{0, 0, 587, 180}, 1.0f}}, true);
+
+    animations.CreateAnimation("boom_anim", "boom_sprite",
+                               {
+                                   {{0 * 34, 0, 34, 29}, 0.1f},  // frame 1
+                                   {{1 * 34, 0, 34, 29}, 0.1f},  // frame 2
+                                   {{2 * 34, 0, 34, 29}, 0.1f},  // frame 3
+                                   {{3 * 34, 0, 34, 29}, 0.1f},  // frame 4
+                                   {{4 * 34, 0, 34, 29}, 0.1f},  // frame 5
+                                   {{5 * 34, 0, 34, 29}, 0.1f},  // frame 6
+                                   {{6 * 34, 0, 34, 29}, 0.1f},  // frame 7
+                                   {{7 * 34, 0, 34, 29}, 0.1f},  // frame 8
+                                   {{8 * 34, 0, 34, 29}, 0.1f},  // frame 9
+                               },
+                               true);
   }
 
   std::string GetEnemyTexture(uint8_t enemyType) const {
     switch (enemyType) {
-      // Enemies normaux
       case 0:
         return "enemy1";
       case 1:
         return "enemy2";
       case 2:
         return "enemy3";
+      case 3:
+        return "enemy4";
+      case 4:
+        return "enemy5";
 
       // BossParts (90+)
       case 90:
@@ -409,6 +445,10 @@ class MyGameScene : public Scene {
         return "enemy2_anim";
       case 2:
         return "enemy3_anim";
+      case 3:
+        return "enemy4_anim";
+      case 4:
+        return "enemy5_anim";
 
       // BossParts (90+)
       case 90:

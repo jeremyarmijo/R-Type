@@ -12,6 +12,7 @@ struct BossPart {
   int hp;
   bool alive;
   uint8_t partType;  // ← AJOUTE ÇA : 0=serpent_body, 1=turret, etc.
+  float timer = 0.f;
 
   BossPart(Entity boss = Entity(0), Vector2 off = {0.f, 0.f}, int index = -1,
            float tOffset = 0.f, int health = 50, uint8_t pType = 0)
