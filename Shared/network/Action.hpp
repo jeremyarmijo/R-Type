@@ -57,10 +57,10 @@ struct PlayerInput {
   bool left;
   bool right;
   uint8_t fire;
-  bool forceToggle;
+  // bool forceToggle;
 
   PlayerInput() : up(false), down(false), left(false), right(false),
-  fire(0), forceToggle(false){}
+  fire(0)/*, forceToggle(false)*/{}
 };
 
 struct LoginResponse {

@@ -36,10 +36,10 @@ void player_input_system(Registry& registry,
       currentInputState.fire = 0;  // Rien
     }
 
-    currentInputState.forceToggle = inputManager->IsForceTogglePressed();
+    /*currentInputState.forceToggle = inputManager->IsForceTogglePressed();
     if (currentInputState.forceToggle) {
       std::cout << "[INPUT SYSTEM] FORCE TOGGLE PRESSED!" << std::endl;
-    }
+    }*/
     std::cout << "[INPUT SYSTEM] Final fire value: "
               << static_cast<int>(currentInputState.fire) << std::endl;
     if (inputManager->m_moveLeft != inputManager->m_prevMoveLeft ||
@@ -56,9 +56,9 @@ void player_input_system(Registry& registry,
                 << static_cast<int>(currentInputState.fire) << std::endl;
       networkManager->SendAction(action);
     }
-    if (currentInputState.forceToggle) {
+    /*if (currentInputState.forceToggle) {
       inputManager->ResetForceToggle();
-    }
+    }*/
   }
 
   // client side prediction
