@@ -101,6 +101,7 @@ class ServerGame {
 
   void HandleLobbyCreate(uint16_t playerId, Event& ev);
   void HandleLobbyJoinRequest(uint16_t playerId, Event& ev);
+  void HandleLobbyKick(uint16_t playerId, uint16_t playerKickId);
   void HandleLobbyListRequest(uint16_t playerId);
   void HandleLobbyLeave(uint16_t playerId);
   void SendLobbyUpdate(lobby_list& lobby);
