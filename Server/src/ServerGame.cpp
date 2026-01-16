@@ -608,7 +608,7 @@ void ServerGame::CheckGameEnded(lobby_list& lobby) {
 void ServerGame::GameLoop(lobby_list& lobby) {
   InitWorld(lobby);
 
-  const auto frameDuration = std::chrono::milliseconds(16);
+  const auto frameDuration = std::chrono::milliseconds(100);
   auto lastTime = std::chrono::steady_clock::now();
 
   if (lobby.gameRuning) {
