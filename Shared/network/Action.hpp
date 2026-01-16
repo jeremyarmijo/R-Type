@@ -28,6 +28,7 @@ enum class ActionType : uint8_t {
   CLIENT_LEAVE,
 
   // Serveur → Client
+  FORCE_STATE,
   LOGIN_RESPONSE,
   LOBBY_JOIN_RESPONSE,
   LOBBY_LIST_RESPONSE,
@@ -57,8 +58,10 @@ struct PlayerInput {
   bool left;
   bool right;
   uint8_t fire;
+  // bool forceToggle;
 
-  PlayerInput() : up(false), down(false), left(false), right(false), fire(0) {}
+  PlayerInput() : up(false), down(false), left(false), right(false),
+  fire(0)/*, forceToggle(false)*/{}
 };
 
 struct LoginResponse {
@@ -236,12 +239,20 @@ struct ClientLeave {
   uint16_t playerId;
 };
 
+struct ForceState {
+  uint16_t forceId;
+  uint16_t ownerId;
+  float posX;
+  float posY;
+  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
+};
 using ActionData =
     std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick, ClientLeave>;
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message,
+                 LobbyKick, ForceState, ClientLeave>;
 
 struct Action {
   ActionType type;
@@ -263,6 +274,7 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::FIRE_RELEASE:
     case ActionType::GAME_STATE:
     case ActionType::BOSS_UPDATE:
+    case ActionType::FORCE_STATE:
       return 0;  // UDP
 
     case ActionType::BOSS_SPAWN:

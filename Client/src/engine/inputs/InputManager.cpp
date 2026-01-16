@@ -3,9 +3,24 @@
 #include <iostream>
 
 bool InputManager::IsActionPressed(GameAction action) const {
-  if (!m_keyboardState) return false;
+  if (!m_keyboardState) {
+    std::cout << "No keyboard state!" << std::endl;
+    return false;
+  }
 
   const auto& keys = m_keyBindings.GetKeysForAction(action);
+
+  if (action == GameAction::SPECIAL) {
+    std::cout << "[IsActionPressed] Checking SPECIAL, found " << keys.size()
+              << " keys bound" << std::endl;
+    for (SDL_Scancode key : keys) {
+      std::cout << "   Key: " << static_cast<int>(key) << " ("
+                << SDL_GetScancodeName(key) << ") "
+                << "pressed=" << (m_keyboardState[key] ? "YES" : "NO")
+                << std::endl;
+    }
+  }
+
   for (SDL_Scancode key : keys) {
     if (m_keyboardState[key]) {
       return true;
@@ -25,6 +40,7 @@ void InputManager::Update() {
   m_prevMoveDown = m_moveDown;
   m_prevAction1 = m_action1;
   m_prevAction2 = m_action2;
+  m_prevAction3 = m_action3;
 
   m_moveLeft = IsActionPressed(GameAction::MOVE_LEFT);
   m_moveRight = IsActionPressed(GameAction::MOVE_RIGHT);
@@ -32,6 +48,16 @@ void InputManager::Update() {
   m_moveDown = IsActionPressed(GameAction::MOVE_DOWN);
   m_action1 = IsActionPressed(GameAction::FIRE);
   m_action2 = IsActionPressed(GameAction::SPECIAL);
+  m_action3 = IsActionPressed(GameAction::FORCE_TOGGLE);
+  m_action2 = m_keyboardState[SDL_SCANCODE_F];  // Tir chargé (SPECIAL)
+  m_action3 = m_keyboardState[SDL_SCANCODE_G];
+  if (m_action2) {
+    std::cout << "[InputManager] F KEY DETECTED VIA DIRECT CHECK!" << std::endl;
+  }
+  if (m_action3 && !m_prevAction3) {
+    std::cout << "[InputManager] G KEY (FORCE_TOGGLE) JUST PRESSED!"
+              << std::endl;
+  }
 }
 
 InputState InputManager::GetPlayerInput() {
@@ -43,7 +69,7 @@ InputState InputManager::GetPlayerInput() {
   input.moveDown = m_moveDown;
   input.action1 = m_action1;
   input.action2 = m_action2;
-
+  input.action3 = m_action3;
   return input;
 }
 

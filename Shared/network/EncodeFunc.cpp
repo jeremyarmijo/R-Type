@@ -28,8 +28,8 @@ void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out) {
   out[1] = input->down ? 1 : 0;
   out[2] = input->left ? 1 : 0;
   out[3] = input->right ? 1 : 0;
-  out[4] = input->fire ? 0x01 : 0x00;
-}
+  out[4] = input->fire;
+  }
 
 void LoginRequestFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* login = std::get_if<LoginReq>(&a.data);
@@ -462,7 +462,6 @@ void LobbyKickFunc(const Action& a, std::vector<uint8_t>& out) {
   if (!kick) return;
 
   out.clear();
-
   uint16_t pId = htons(kick->playerId);
 
   out.resize(sizeof(uint16_t));
@@ -494,6 +493,28 @@ void MessageFunc(const Action& a, std::vector<uint8_t>& out) {
   out.resize(offset + msgContentLen);
   memcpy(out.data() + offset, msg->message.data(), msgContentLen);
 }
+
+void ForceStateFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* force = std::get_if<ForceState>(&a.data);
+  if (!force) return;
+  out.resize(13);
+  size_t offset = 0;
+  uint16_t forceId = htons(force->forceId);
+
+  memcpy(out.data() + offset, &forceId, sizeof(uint16_t));
+  offset += 2;
+  uint16_t ownerId = htons(force->ownerId);
+  memcpy(out.data() + offset, &ownerId, sizeof(uint16_t));
+  offset += 2;
+  htonf(force->posX, out.data() + offset);
+  offset += 4;
+  htonf(force->posY, out.data() + offset);
+
+  offset += 4;
+  out[offset++] = force->state;
+}
+
+
 
 void ClientLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* leave = std::get_if<ClientLeave>(&a.data);
@@ -534,6 +555,7 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::LOBBY_CREATE, LobbyCreateFunc);
   encoder.registerHandler(ActionType::LOBBY_KICK, LobbyKickFunc);
   encoder.registerHandler(ActionType::CLIENT_LEAVE, ClientLeaveFunc);
+  encoder.registerHandler(ActionType::FORCE_STATE, ForceStateFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_REQUEST, LobbyJoinRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE,
                           LobbyJoinResponseFunc);

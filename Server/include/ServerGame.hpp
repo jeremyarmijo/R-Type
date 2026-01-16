@@ -86,6 +86,8 @@ class ServerGame {
   std::vector<std::unique_ptr<lobby_list>> lobbys;
   uint16_t nextLobbyId = 1;
   const float TIME_BETWEEN_LEVELS = 5.0f;
+  // std::unique_ptr<INetworkManager> networkManager; ///< Network communication
+  // manager
 
   std::queue<std::tuple<Event, uint16_t>>
       eventQueue;  ///< Queue of incoming events from clients

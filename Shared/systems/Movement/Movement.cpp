@@ -45,50 +45,123 @@ void enemy_movement_system(Registry& registry,
       break;
     }
   }
+
   for (auto&& [entityId, transform, rigidbody, enemy] :
        IndexedZipper(transforms, rigidbodies, enemies)) {
     enemy.timer += deltaTime;
     enemy.timeSinceLastShot += deltaTime;
+
     switch (enemy.type) {
-      case EnemyType::Basic:
-        rigidbody.velocity.x = 0.0f;
-        rigidbody.velocity.y = std::sin(enemy.timer * 1.5f) * enemy.amplitude;
-        if (enemy.timeSinceLastShot >= 1) {
-          Vector2 spawnPosition =
-              transform.position + Vector2{-enemy.amplitude, 0.0f};
-          Vector2 direction = {-1.0f, 0.0f};
-          spawn_projectile(registry, spawnPosition, direction, 300.f, entityId);
-          enemy.timeSinceLastShot = 0.0f;
+      case EnemyType::Basic: {
+        float t = enemy.timer * 1.5f;
+        rigidbody.velocity.x = std::sin(t * 2.f) * enemy.amplitude * 0.5f;
+        rigidbody.velocity.y =
+            std::sin(t) * std::cos(t) * enemy.amplitude * 2.f;
+
+        if (enemy.timeSinceLastShot >= 1.5f) {
+          Vector2 pos = transform.position + Vector2{-30.f, 0.f};
+          spawn_projectile(registry, pos, {-1.f, 0.f}, 300.f, entityId);
+          spawn_projectile(registry, pos, {-1.f, -0.3f}, 280.f, entityId);
+          spawn_projectile(registry, pos, {-1.f, 0.3f}, 280.f, entityId);
+          enemy.timeSinceLastShot = 0.f;
         }
         break;
-      case EnemyType::Zigzag:
-        rigidbody.velocity.x = -enemy.speed;
-        rigidbody.velocity.y = std::sin(enemy.timer * 5.f) * enemy.amplitude;
-        if (transform.position.x <= 0.0f) {
-          transform.position.x = 800 + 50.0f;
-          enemy.timer = 0.0f;
+      }
+
+      case EnemyType::Zigzag: {
+        float speedBoost = 1.f + std::abs(std::sin(enemy.timer * 2.f)) * 0.8f;
+        rigidbody.velocity.x = -enemy.speed * speedBoost;
+
+        float zigzag =
+            std::sin(enemy.timer * 8.f) + std::sin(enemy.timer * 3.f) * 0.5f;
+        rigidbody.velocity.y = zigzag * enemy.amplitude * 1.5f;
+
+        if (closestPlayerPos.has_value() && fmod(enemy.timer, 3.f) < 0.5f) {
+          float playerY = closestPlayerPos.value().y;
+          float diff = playerY - transform.position.y;
+          rigidbody.velocity.y += diff * 2.f;
+        }
+
+        if (transform.position.x <= -50.f) {
+          transform.position.x = 850.f;
+          static std::random_device rd;
+          static std::mt19937 gen(rd());
+          std::uniform_real_distribution<float> yDist(50.f, 550.f);
+          transform.position.y = yDist(gen);
+          enemy.timer = 0.f;
         }
         break;
-      case EnemyType::Chase:
+      }
+
+      case EnemyType::Chase: {
         if (closestPlayerPos.has_value()) {
-          Vector2 direction = closestPlayerPos.value() - transform.position;
+          Vector2 toPlayer = closestPlayerPos.value() - transform.position;
+          float distance = toPlayer.Length();
 
-          if (direction.Length() > 0) {
-            Vector2 velocity = direction.Normalized() * enemy.speed;
+          if (distance > 0) {
+            Vector2 dir = toPlayer.Normalized();
 
-            rigidbody.velocity.x = velocity.x;
-            rigidbody.velocity.y = velocity.y;
-          } else {
-            rigidbody.velocity.x = 0.0f;
-            rigidbody.velocity.y = 0.0f;
+            if (distance > 300.f) {
+              float spiral = enemy.timer * 4.f;
+              rigidbody.velocity.x =
+                  dir.x * enemy.speed + std::cos(spiral) * 80.f;
+              rigidbody.velocity.y =
+                  dir.y * enemy.speed + std::sin(spiral) * 80.f;
+            } else if (distance > 100.f) {
+              rigidbody.velocity.x = dir.x * enemy.speed * 1.8f;
+              rigidbody.velocity.y = dir.y * enemy.speed * 1.8f;
+            } else {
+              if (fmod(enemy.timer, 2.f) < 0.8f) {
+                rigidbody.velocity.x = -dir.x * enemy.speed * 0.5f;
+                rigidbody.velocity.y = -dir.y * enemy.speed * 0.5f;
+              } else {
+                rigidbody.velocity.x = dir.x * enemy.speed * 2.5f;
+                rigidbody.velocity.y = dir.y * enemy.speed * 2.5f;
+              }
+            }
           }
         } else {
-          rigidbody.velocity.x = -enemy.speed / 2.0f;
-          rigidbody.velocity.y = 0.0f;
+          rigidbody.velocity.x = std::cos(enemy.timer * 2.f) * enemy.speed;
+          rigidbody.velocity.y = std::sin(enemy.timer * 2.f) * enemy.speed;
         }
         break;
+      }
+      case EnemyType::mini_Green: {
+        float cycle = fmod(enemy.timer, 4.f);
+
+        if (cycle < 2.f) {
+          rigidbody.velocity.x = 0.f;
+          rigidbody.velocity.y = std::sin(enemy.timer * 3.f) * enemy.amplitude;
+        } else if (cycle < 2.8f) {
+          rigidbody.velocity.x = -enemy.speed * 3.f;
+          rigidbody.velocity.y = 0.f;
+        } else {
+          rigidbody.velocity.x = enemy.speed;
+          rigidbody.velocity.y = 0.f;
+        }
+
+        transform.position.x = std::clamp(transform.position.x, 150.f, 750.f);
+        break;
+      }
+
+      case EnemyType::Spinner: {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+
+        if (fmod(enemy.timer, 0.3f) < deltaTime) {
+          std::uniform_real_distribution<float> yDist(-1.f, 1.f);
+          enemy.direction.y = yDist(gen);
+        }
+
+        rigidbody.velocity.x = -enemy.speed * 2.f;
+        rigidbody.velocity.y = enemy.direction.y * enemy.amplitude * 3.f;
+        if (transform.position.x <= -50.f) {
+          transform.position.x = 250.f;
+          std::uniform_real_distribution<float> yPosDist(50.f, 250.f);
+          transform.position.y = yPosDist(gen);
+        }
+      } break;
     }
-    // transform.position += rigidbody.velocity * deltaTime;
   }
 }
 
@@ -176,10 +249,10 @@ void boss_movement_system(Registry& registry,
         rigidbody.velocity.x = boss.direction.x * boss.speed;
 
         if (transform.position.x <= 200.0f) {
-          boss.direction.x = 1.f;  // Repart à droite
+          boss.direction.x = 1.f;
         }
         if (transform.position.x >= 650.0f) {
-          boss.direction.x = -1.f;  // Repart à gauche
+          boss.direction.x = -1.f;
         }
         rigidbody.velocity.y =
             std::sin(boss.timer * 3.f) * boss.amplitude * 3.f;
@@ -191,19 +264,19 @@ void boss_movement_system(Registry& registry,
 
       case BossType::Bydo_Battleship: {
         if (boss.direction.x == 0.f) {
-          boss.direction.x = -1.f;  // Commence par aller à gauche
+          boss.direction.x = -1.f;
         }
         rigidbody.velocity.x =
-            boss.direction.x * boss.speed * 0.3f;  // Très lent
+            boss.direction.x * boss.speed * 0.3f;
 
         if (transform.position.x <= 400.0f) {
-          boss.direction.x = 1.f;  // Repart à droite
+          boss.direction.x = 1.f;
         }
         if (transform.position.x >= 700.0f) {
-          boss.direction.x = -1.f;  // Repart à gauche
+          boss.direction.x = -1.f;
         }
         rigidbody.velocity.y =
-            std::sin(boss.timer * 1.5f) * 15.f;  // Lent et léger
+            std::sin(boss.timer * 1.5f) * 15.f;
       } break;
 
       case BossType::FinalBoss: {
@@ -244,7 +317,6 @@ void boss_movement_system(Registry& registry,
     }
   }
 }
-
 void boss_part_system(Registry& registry, float deltaTime) {
   auto& parts = registry.get_components<BossPart>();
   auto& transforms = registry.get_components<Transform>();
@@ -276,10 +348,86 @@ void boss_part_system(Registry& registry, float deltaTime) {
       partTransform.position.y =
           bossTransform.position.y +
           std::sin(delayedTimer * 5.f) * boss.amplitude * 1.5f;
-
     } else {
       partTransform.position.x = bossTransform.position.x + part.offset.x;
       partTransform.position.y = bossTransform.position.y + part.offset.y;
+
+      part.timer += deltaTime;
+      if (part.timer >= 1.5f) {
+        Vector2 shootDir = {-1.f, 0.f};
+        spawn_projectile(registry, partTransform.position, shootDir, 280.f, i);
+        part.timer = 0.f;
+      }
+    }
+  }
+}
+
+void force_movement_system(Registry& registry,
+                           SparseArray<Transform>& transforms,
+                           SparseArray<RigidBody>& rigidbodies,
+                           SparseArray<Force>& forces,
+                           SparseArray<PlayerEntity>& players,
+                           float deltaTime) {
+  for (auto&& [forceIdx, transform, rigidbody, force] :
+       IndexedZipper(transforms, rigidbodies, forces)) {
+    if (!force.isActive) continue;
+
+    size_t playerEntityId = static_cast<size_t>(force.ownerPlayer);
+
+    std::cout << "[FORCE] forceIdx=" << forceIdx
+              << " ownerEntity=" << playerEntityId
+              << " state=" << static_cast<int>(force.state) << std::endl;
+
+    if (playerEntityId >= transforms.size() ||
+        !transforms[playerEntityId].has_value()) {
+      std::cout << "[FORCE] Player transform NOT FOUND!" << std::endl;
+      continue;
+    }
+    if (playerEntityId >= players.size() ||
+        !players[playerEntityId].has_value()) {
+      continue;
+    }
+    if (!players[playerEntityId]->isAlive) {
+      continue;
+    }
+
+    Vector2 playerPos = transforms[playerEntityId]->position;
+
+    switch (force.state) {
+      case EForceState::AttachedFront: {
+        static float floatTimer = 0.f;
+        floatTimer += deltaTime;
+
+        float floatOffsetY =
+            std::sin(floatTimer * 3.f) * 15.f;
+
+        transform.position.x = playerPos.x + force.offsetFront.x;
+        transform.position.y = playerPos.y + force.offsetFront.y;
+        rigidbody.velocity = {0.f, 0.f};
+        break;
+      }
+
+      case EForceState::AttachedBack: {
+        transform.position.x = playerPos.x + force.offsetBack.x;
+        transform.position.y = playerPos.y + force.offsetBack.y;
+        rigidbody.velocity = {0.f, 0.f};
+        break;
+      }
+
+      case EForceState::Detached: {
+        rigidbody.velocity.x = force.direction.x * force.speed;
+        rigidbody.velocity.y = force.direction.y * force.speed;
+
+        force.currentDistance += force.speed * deltaTime;
+
+        if (force.currentDistance >= force.maxDistance) {
+          rigidbody.velocity = {0.f, 0.f};
+        }
+        if (transform.position.x >= 750.f || transform.position.x <= 50.f) {
+          rigidbody.velocity = {0.f, 0.f};
+        }
+        break;
+      }
     }
   }
 }

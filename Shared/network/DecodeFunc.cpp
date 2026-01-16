@@ -561,6 +561,49 @@ Event DecodeENEMY_HIT(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
+Event DecodeFORCE_STATE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::FORCE_STATE;
+
+  FORCE_STATE data;
+  size_t offset = 2;
+
+  uint32_t payloadLength = 0;
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
+
+  memcpy(&data.forceId, &packet[offset], sizeof(data.forceId));
+  data.forceId = ntohs(data.forceId);
+  offset += sizeof(data.forceId);
+
+  memcpy(&data.ownerId, &packet[offset], sizeof(data.ownerId));
+  data.ownerId = ntohs(data.ownerId);
+  offset += sizeof(data.ownerId);
+
+  uint32_t temp;
+  memcpy(&temp, &packet[offset], sizeof(temp));
+  temp = ntohl(temp);
+  memcpy(&data.posX, &temp, sizeof(data.posX));
+  offset += sizeof(temp);
+
+  memcpy(&temp, &packet[offset], sizeof(temp));
+  temp = ntohl(temp);
+  memcpy(&data.posY, &temp, sizeof(data.posY));
+  offset += sizeof(temp);
+
+  data.state = packet[offset++];
+
+  evt.data = data;
+  return evt;
+}
+
 Event DecodeLOBBY_CREATE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::LOBBY_CREATE;
@@ -1022,4 +1065,5 @@ void SetupDecoder(Decoder& decoder) {
   decoder.registerHandler(0x23, DecodeBOSS_SPAWN);
   decoder.registerHandler(0x24, DecodeBOSS_UPDATE);
   decoder.registerHandler(0x25, DecodeENEMY_HIT);
+  decoder.registerHandler(0x26, DecodeFORCE_STATE);
 }

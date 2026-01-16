@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <functional>
 #include <vector>
-
 #include "network/Event.hpp"
 
 class Decoder {

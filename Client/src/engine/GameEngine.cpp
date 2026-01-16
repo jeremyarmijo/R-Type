@@ -12,6 +12,8 @@
 #include "Player/Enemy.hpp"
 #include "Player/EnemySpawn.hpp"
 #include "Player/Projectile.hpp"
+#include "components/BossPart.hpp"
+
 /**
  * @brief Creates of the SDL window, intializes the TextureManager class and
  * registers game components in the ECS registry
@@ -118,6 +120,7 @@ void GameEngine::RegisterComponents() {
   // Weapon & Projectile components
   m_registry.register_component<Weapon>();
   m_registry.register_component<Projectile>();
+  m_registry.register_component<BossPart>();
 
   // Network components
 

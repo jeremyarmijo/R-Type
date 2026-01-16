@@ -15,11 +15,14 @@
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
 #include "components/BossPart.hpp"
+#include "components/Force.hpp"
 #include "components/Physics2D.hpp"
 #include "dynamicLibLoader/DLLoader.hpp"
 #include "ecs/Registry.hpp"
 #include "network/DataMask.hpp"
 #include "systems/BoundsSystem.hpp"
+#include "systems/ChargedShoot.hpp"
+#include "systems/ForceCtrl.hpp"
 #include "systems/LevelSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
@@ -29,9 +32,10 @@
 ServerGame::ServerGame() : serverRunning(true) {
   SetupDecoder(decode);
   SetupEncoder(encode);
+  DLLoader<INetworkManager> loader("../src/build/libnetwork_server.so",
+                                   "EntryPointLib");
   networkManager = std::unique_ptr<INetworkManager>(loader.getInstance());
 }
-
 void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName,
                              std::string playerName, std::string mdp,
                              uint8_t difficulty, uint8_t Maxplayer) {
@@ -585,11 +589,14 @@ void ServerGame::StartGame(lobby_list& lobby_list) {
   lobby_list.registry.register_component<Projectile>();
   lobby_list.registry.register_component<LevelComponent>();
   lobby_list.registry.register_component<BossPart>();
+  lobby_list.registry.register_component<Force>();
+  std::cout << "Components registered" << std::endl;
 
   for (auto& [playerId, ready, _] : lobby_list.players_list) {
     lobby_list.lastStates[playerId] = std::make_shared<GameState>();
     float posY = 200.f + (lobby_list.m_players.size() % 4) * 100.f;
     Entity player = createPlayer(lobby_list.registry, {200, posY}, playerId);
+    Entity forceEntity = createForce(lobby_list.registry, player, {200, posY});
     lobby_list.m_players[playerId] = player;
   }
 
@@ -657,7 +664,7 @@ void ServerGame::CheckGameEnded(lobby_list& lobby) {
 void ServerGame::GameLoop(lobby_list& lobby) {
   InitWorld(lobby);
 
-  const auto frameDuration = std::chrono::milliseconds(100);
+  const auto frameDuration = std::chrono::milliseconds(16);
   auto lastTime = std::chrono::steady_clock::now();
 
   if (lobby.gameRuning) {
@@ -750,6 +757,7 @@ void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
 
 void ServerGame::Run() {
   std::cout << "before main loop" << std::endl;
+  std::cout << "before main loop" << std::endl;
 
   while (serverRunning) {
     networkManager->Update();
@@ -769,6 +777,7 @@ void ServerGame::Run() {
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
+  std::cout << "server " << std::endl;
   std::cout << "server " << std::endl;
 }
 
@@ -807,6 +816,11 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
       case EventType::PLAYER_INPUT: {
         const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
 
+        std::cout << "[SERVER INPUT] Player " << playerId
+                  << " fire=" << static_cast<int>(input.fire)
+                  << " (left=" << input.left << " right=" << input.right << ")"
+                  << std::endl;
+
         auto& players = lobby.registry.get_components<PlayerEntity>();
         auto& states = lobby.registry.get_components<InputState>();
 
@@ -817,7 +831,13 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
           state.moveRight = input.right;
           state.moveDown = input.down;
           state.moveUp = input.up;
-          state.action1 = input.fire;
+          state.action1 = (input.fire == 1);
+          state.action2 = (input.fire == 2);
+
+          if (state.action2) {
+            std::cout << "[SERVER] Player " << playerId << " is CHARGING!"
+                      << std::endl;
+          }
           break;
         }
         break;
@@ -838,6 +858,8 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   auto& colliders = lobby.registry.get_components<BoxCollider>();
   auto& projectiles = lobby.registry.get_components<Projectile>();
   auto& weapons = lobby.registry.get_components<Weapon>();
+  auto& forces = lobby.registry.get_components<Force>();
+  auto& states = lobby.registry.get_components<InputState>();
 
   for (auto&& [player] : Zipper(players)) {
     if (player.invtimer > 0.0f) {
@@ -908,6 +930,16 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
           toKill.push_back(lobby.registry.entity_from_index(i));
         }
       }
+
+      auto& bossPartsCleanup = lobby.registry.get_components<BossPart>();
+      for (size_t i = 0; i < bossPartsCleanup.size(); ++i) {
+        if (bossPartsCleanup[i].has_value()) {
+          std::cout << "[DEBUG] Marking BossPart at index " << i
+                    << " for cleanup" << std::endl;
+          toKill.push_back(lobby.registry.entity_from_index(i));
+        }
+      }
+
       for (Entity e : toKill) {
         lobby.registry.kill_entity(e);
       }
@@ -921,7 +953,9 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
                 << std::endl;
     }
   }
+
   player_movement_system(lobby.registry);
+  charged_shoot_system(lobby.registry, deltaTime);
   physics_movement_system(lobby.registry, transforms, rigidbodies, deltaTime,
                           {0, 0});
   enemy_movement_system(lobby.registry, transforms, rigidbodies, enemies,
@@ -931,6 +965,11 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   boss_part_system(lobby.registry, deltaTime);
   weapon_cooldown_system(lobby.registry, weapons, deltaTime);
   weapon_reload_system(lobby.registry, weapons, deltaTime);
+
+  force_control_system(lobby.registry, forces, states, transforms);
+  force_movement_system(lobby.registry, transforms, rigidbodies, forces,
+                        players, deltaTime);
+
   weapon_firing_system(
       lobby.registry, weapons, transforms,
       [&lobby](size_t entityId) -> bool {
@@ -943,13 +982,15 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
         return false;
       },
       deltaTime);
-
   projectile_collision_system(lobby.registry, transforms, colliders,
                               projectiles);
   projectile_lifetime_system(lobby.registry, projectiles, deltaTime);
   gamePlay_Collision_system(lobby.registry, transforms, colliders, players,
                             enemies, bosses);
   bounds_check_system(lobby.registry, transforms, colliders, rigidbodies);
+  force_collision_system(lobby.registry, transforms, colliders, forces, enemies,
+                         bosses, lobby.registry.get_components<BossPart>(),
+                         projectiles);
 }
 
 GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
@@ -959,6 +1000,7 @@ GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
   auto& bosses = lobby.registry.get_components<Boss>();
   auto& projectiles = lobby.registry.get_components<Projectile>();
   auto& bosspart = lobby.registry.get_components<BossPart>();
+  auto& forcesArr = lobby.registry.get_components<Force>();
 
   GameState gs;
 
@@ -1006,9 +1048,10 @@ GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
 
     EnemyState es;
     es.enemyId = static_cast<uint16_t>(idx);
-    es.enemyType = 99;
+    es.enemyType = 90 + segment.partType;
     es.posX = transform.position.x;
     es.posY = transform.position.y;
+
     es.hp = 1;
     es.state = 1;
     es.direction = 0;
@@ -1022,7 +1065,7 @@ GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
 
     EnemyState bs;
     bs.enemyId = static_cast<uint16_t>(idx);
-    bs.enemyType = static_cast<uint8_t>(boss.type);
+    bs.enemyType = static_cast<uint8_t>(boss.type) + 100;
     bs.posX = transform.position.x;
     bs.posY = transform.position.y;
     bs.hp = static_cast<uint8_t>(boss.current);
@@ -1046,11 +1089,35 @@ GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
     ps.velY = proj.direction.y * proj.speed;
     ps.damage = static_cast<uint8_t>(proj.damage);
 
+    if (proj.chargeLevel > 0) {
+      ps.type = 2;  // Tir chargé
+    } else {
+      ps.type = 0;  // Tir normal
+    }
+
+
     ps.mask = M_POS_X | M_POS_Y | M_TYPE | M_OWNER | M_DAMAGE;
 
     gs.projectiles.push_back(ps);
   }
 
+  for (auto&& [idx, force, transform] : IndexedZipper(forcesArr, transforms)) {
+    if (!force.isActive) continue;
+
+    ForceState fs;
+    fs.forceId = static_cast<uint16_t>(idx);
+    fs.ownerId = static_cast<uint16_t>(force.ownerPlayer);
+    fs.posX = transform.position.x;
+    fs.posY = transform.position.y;
+    fs.state = static_cast<uint8_t>(force.state);
+    SendAction(std::make_tuple(Action{ActionType::FORCE_STATE, fs}, 0, &lobby));
+  }
+
+  for (auto& ps : gs.players) {
+    std::cout << "[DEBUG] Player " << ps.playerId << " pos=(" << ps.posX << ","
+              << ps.posY << ") state=" << static_cast<int>(ps.state)
+              << std::endl;
+  }
   return gs;
 }
 
