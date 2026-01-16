@@ -1,5 +1,10 @@
 // #pragma once
 
+#include "systems/WaveSystem.hpp"
+
+#include <iostream>
+#include <random>
+
 #include "Helpers/EntityHelper.hpp"
 #include "SpawnEnemy/Spawn.hpp"
 #include "ecs/Zipper.hpp"
@@ -7,11 +12,14 @@
 Vector2 get_random_pos() {
   Vector2 pos;
 
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+  std::uniform_int_distribution<> disY(50, 500);
+
   pos.x = 750;
-  pos.y = rand() % (500 - 50 + 1) + 50;
+  pos.y = static_cast<float>(disY(gen));
   return pos;
 }
-
 Vector2 get_boss_spawn_pos() { return {700.0f, 300.0f}; }
 
 bool checkWaveEnd(Registry& registry, SparseArray<Enemy>& enemies) {

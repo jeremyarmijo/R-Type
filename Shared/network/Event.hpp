@@ -37,7 +37,7 @@ struct GAME_END {
   std::vector<Score> scores;
 };
 
-struct ERROR {
+struct ERROR_EVNT {
   uint16_t errorCode;
   std::string message;
 };
@@ -115,13 +115,111 @@ struct ENEMY_HIT {
   uint16_t hpRemaining;
 };
 
+struct MESSAGE {
+  uint16_t lobbyId;
+  std::string playerName;
+  std::string message;
+};
+
+struct LOBBY_CREATE {
+  std::string lobbyName;
+  std::string playerName;
+  std::string password;
+  uint8_t Maxplayer;
+  uint8_t difficulty;
+};
+
+struct LOBBY_JOIN_REQUEST {
+  uint16_t lobbyId;
+  std::string name;
+  std::string password;
+};
+
+struct LOBBY_JOIN_RESPONSE {
+  struct Player {
+    uint16_t playerId;
+    bool ready;
+    std::string username;
+  };
+
+  uint8_t success;
+  uint16_t lobbyId;
+  uint16_t playerId;
+  std::vector<Player> players;
+
+  uint16_t errorCode;
+  std::string errorMessage;
+};
+
+struct Lobbies {
+  uint16_t lobbyId;
+  std::string name;
+  uint8_t playerCount;
+  uint8_t maxPlayers;
+  uint8_t difficulty;
+  bool isStarted;
+  bool hasPassword;
+};
+
+struct LOBBY_LIST_RESPONSE {
+  std::vector<Lobbies> lobbies;
+};
+
+struct PLAYER_READY {
+  bool ready;
+};
+
+struct PlayerInfo {
+  uint16_t playerId;
+  bool ready;
+  std::string username;
+};
+
+struct LOBBY_UPDATE {
+  std::string name;
+  uint16_t hostId;
+  bool asStarted;
+  uint8_t maxPlayers;
+  uint8_t difficulty;
+  std::vector<PlayerInfo> playerInfo;
+};
+
+struct LOBBY_START {
+  uint8_t countdown;
+};
+
+struct LOBBY_LIST_REQUEST {
+  uint16_t playerId;
+};
+
+struct LOBBY_LEAVE {
+  uint16_t playerId;
+};
+
+struct LOBBY_KICK {
+  uint16_t playerId;
+};
+
 enum class EventType : uint8_t {
   // TCP Messages
   LOGIN_REQUEST = 0x01,
   LOGIN_RESPONSE = 0x02,
+
+  LOBBY_CREATE = 0x03,
+  LOBBY_JOIN_REQUEST = 0x04,
+  LOBBY_JOIN_RESPONSE = 0x05,
+  LOBBY_LIST_REQUEST = 0x06,
+  LOBBY_LIST_RESPONSE = 0x07,
+  PLAYER_READY = 0x08,
+  LOBBY_UPDATE = 0x09,
+  LOBBY_LEAVE = 0x0A,
+  LOBBY_START = 0x0B,
+  MESSAGE = 0x0C,
+  LOBBY_KICK = 0x0D,
+
   GAME_START = 0x0F,
   GAME_END = 0x10,
-  ERROR = 0x12,
+  ERROR_TYPE = 0x12,
 
   // UDP Messages
   PLAYER_INPUT = 0x20,
@@ -136,8 +234,11 @@ enum class EventType : uint8_t {
 
 using EventData =
     std::variant<std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, GAME_START,
-                 GAME_END, ERROR, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
-                 BOSS_UPDATE, ENEMY_HIT>;
+                 GAME_END, ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
+                 BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
+                 LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
+                 LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
+                 MESSAGE, LOBBY_KICK>;
 
 struct Event {
   EventType type;

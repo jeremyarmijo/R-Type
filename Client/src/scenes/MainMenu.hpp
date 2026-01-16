@@ -207,6 +207,7 @@ class MainMenu : public Scene {
     std::cout << "\n=== EXITING MENU SCENE ===" << std::endl;
 
     m_entities.clear();
+    GetUI().Clear();
     m_isInitialized = false;
 
     std::cout << "Menu cleanup complete" << std::endl;
@@ -227,16 +228,6 @@ class MainMenu : public Scene {
   void HandleEvent(SDL_Event& event) override {
     if (GetUI().HandleEvent(event)) {
       return;
-    }
-
-    if (event.type == SDL_KEYDOWN) {
-      if (event.key.keysym.sym == SDLK_r) {
-        std::cout << "Restarting level..." << std::endl;
-        ChangeScene("game");
-      } else if (event.key.keysym.sym == SDLK_x) {
-        std::cout << "Quitting to Game Over screen..." << std::endl;
-        ChangeScene("gameover");
-      }
     }
   }
 };

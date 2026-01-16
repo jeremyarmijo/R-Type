@@ -25,3 +25,5 @@ void boss_movement_system(Registry& registry,
                           SparseArray<Transform>& transforms,
                           SparseArray<RigidBody>& rigidbodies,
                           SparseArray<Boss>& bosses, float deltaTime);
+
+void boss_part_system(Registry& registry, float deltaTime);

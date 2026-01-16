@@ -5,7 +5,7 @@
 /**
  * @struct NetworkMessage
  * @brief Represents a network message exchanged between server and clients
- * 
+ *
  * Contains the client identifier, raw message data, and timestamp
  * for tracking and debugging purposes.
  */

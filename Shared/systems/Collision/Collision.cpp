@@ -26,10 +26,12 @@ static inline std::pair<size_t, size_t> ordered_pair(size_t a, size_t b) {
   return {b, a};
 }
 
-void gamePlay_Collision_system(
-    Registry& registry, SparseArray<Transform>& transforms,
-    SparseArray<BoxCollider>& colliders, SparseArray<PlayerEntity>& players,
-    SparseArray<Enemy>& enemies, SparseArray<Boss>& bosses) {
+void gamePlay_Collision_system(Registry& registry,
+                               SparseArray<Transform>& transforms,
+                               SparseArray<BoxCollider>& colliders,
+                               SparseArray<PlayerEntity>& players,
+                               SparseArray<Enemy>& enemies,
+                               SparseArray<Boss>& bosses) {
   std::unordered_set<std::pair<size_t, size_t>, pair_hash> collisions_now;
   std::vector<size_t> colli_entities;
   for (auto&& [ix, transform, collider] :
@@ -73,13 +75,13 @@ void gamePlay_Collision_system(
       std::cout << "[DEBUG][ENTER] Collision detected between " << entityA
                 << " and " << entityB << std::endl;
       if ((tagger == CollisionCategory::Player &&
-                it == CollisionCategory::Enemy) ||
-               (tagger == CollisionCategory::Enemy &&
-                it == CollisionCategory::Player) ||
-               (tagger == CollisionCategory::Player &&
-                it == CollisionCategory::Boss) ||
-               (tagger == CollisionCategory::Boss &&
-                it == CollisionCategory::Player)) {
+           it == CollisionCategory::Enemy) ||
+          (tagger == CollisionCategory::Enemy &&
+           it == CollisionCategory::Player) ||
+          (tagger == CollisionCategory::Player &&
+           it == CollisionCategory::Boss) ||
+          (tagger == CollisionCategory::Boss &&
+           it == CollisionCategory::Player)) {
         // A deals damage to B
         int damage_A_to_B =
             (tagger == CollisionCategory::Enemy && enemies[entityA].has_value())
@@ -196,7 +198,8 @@ void apply_damage_to_entity(Registry& registry, size_t targetId, float damage,
   //             << std::endl;
 
   //   if (boss.current <= 0) {
-  //     // if (attackerId < players.size() && players[attackerId].has_value()) {
+  //     // if (attackerId < players.size() && players[attackerId].has_value())
+  //     {
   //     // players[attackerId]->score += boss.scoreValue;
   //     //}
   //     registry.kill_entity(Entity(targetId));
