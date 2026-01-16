@@ -24,7 +24,7 @@ bool ServerNetworkManager::Initialize(uint16_t tcp_port, uint16_t udp_port,
         });
     tcp_server_->SetUDPPort(udp_port);
     tcp_server_->SetUDPPort(udp_port);
-    
+
     tcp_server_->SetLoginCallback(
       [this](uint32_t client_id, const std::string &username,
         const asio::ip::tcp::endpoint &endpoint) {

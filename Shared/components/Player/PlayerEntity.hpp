@@ -17,7 +17,7 @@ struct PlayerShoot {
     if (chargeTime >= 0.5f) return 1;  // Petit chargé
     return 0;  // Normal
   }
-  
+
   void Reset() {
     isCharging = false;
     chargeTime = 0.0f;
