@@ -76,4 +76,22 @@ class INetworkManager {
    * @param callback Function to call when client disconnects
    */
   virtual void SetDisconnectionCallback(DisconnectionCallback callback) = 0;
+
+  /**
+   * @brief Get user information from database
+   * @param username Username to search for
+   * @param password Output parameter for user's password
+   * @param score Output parameter for user's score
+   * @return true if user found, false otherwise
+   */
+  virtual bool GetUser(const std::string& username, std::string& password, int& score) = 0;
+
+  /**
+   * @brief Add a new user to database
+   * @param username Username for the new user
+   * @param password Password for the new user
+   * @param score Initial score for the new user
+   * @return true if user added successfully, false otherwise
+   */
+  virtual bool AddUser(const std::string& username, const std::string& password, int score) = 0;
 };
