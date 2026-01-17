@@ -11,7 +11,7 @@
 
 const float TIME_BETWEEN_WAVES = 3.0f;
 
-inline std::vector<LevelComponent> createLevels() {
+std::vector<LevelComponent> createLevels() {
   std::vector<LevelComponent> levels;
 
   // Level 1

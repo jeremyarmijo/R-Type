@@ -234,9 +234,8 @@ class MainMenu : public Scene {
     }
   }
 
-  std::unordered_map<uint16_t, Entity>& GetPlayers() override {
-    std::unordered_map<uint16_t, Entity> list;
-    return list;
+  std::unordered_map<uint16_t, Entity> GetPlayers() override {
+    return std::unordered_map<uint16_t, Entity>(); 
   }
 };
 

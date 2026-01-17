@@ -49,7 +49,7 @@ class RtypeScene : public Scene {
 
   void HandleEvent(SDL_Event& event) override;
 
-  std::unordered_map<uint16_t, Entity>& GetPlayers() override {
+  std::unordered_map<uint16_t, Entity> GetPlayers() override {
     return m_players;
   }
 };

@@ -466,7 +466,7 @@ void ServerGame::SetupNetworkCallbacks() {
 
     std::lock_guard<std::mutex> lock(lobbyMutex);
     for (auto& lobby : lobbys) {
-        auto& m_players = lobby->m_gameScene->GetPlayers();
+        auto m_players = lobby->m_gameScene->GetPlayers();
         auto it = m_players.find(client_id);
         if (it != m_players.end()) {
           Entity playerEntity = it->second;
@@ -556,7 +556,8 @@ void ServerGame::EndGame(lobby_list& lobby) {
 }
 
 void ServerGame::CheckGameEnded(lobby_list& lobby) {
-  auto& m_players = lobby.m_gameScene->GetPlayers();
+  auto m_players = lobby.m_engine.GetCurrentScene()->GetPlayers();
+  std::cout << "got players" << std::endl;
   Registry& registry = lobby.m_engine.GetRegistry();
   
   int validPlayers = 0;
@@ -603,6 +604,7 @@ void ServerGame::GameLoop(lobby_list& lobby) {
     lobby.m_engine.Update(deltaTime);
     SendWorldStateToClients(lobby);
     CheckGameEnded(lobby);
+    std::cout << "lobby" << std::endl;
 
     auto frameTime = std::chrono::steady_clock::now() - currentTime;
     if (frameTime < frameDuration && lobby.gameRuning) {

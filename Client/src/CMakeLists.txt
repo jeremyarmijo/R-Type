@@ -42,9 +42,9 @@ add_scene_lib(LobbyInfo     "scenes/LobbyInfo.cpp")
 add_scene_lib(LobbyJoin     "scenes/LobbyJoin.cpp")
 add_scene_lib(LobbyPassword "scenes/LobbyPassword.cpp")
 
-add_scene_lib(RTypeScene    "scenes/RtypeScene.cpp" "../../Shared/systems/LevelSystem.cpp") 
+add_scene_lib(MainGame      "scenes/MainGame.cpp" "../../Shared/systems/InputSystem.cpp" "../../Shared/systems/LevelSystem.cpp" "../../Shared/systems/Movement/Movement.cpp" "../../Shared/systems/PhysicsSystem.cpp" "../../Shared/systems/WeaponSystem.cpp" "../../Shared/systems/ProjectileSystem.cpp" "../../Shared/systems/Collision/Collision.cpp" "../../Shared/systems/BoundsSystem.cpp")
+add_scene_lib(RTypeScene    "scenes/RtypeScene.cpp" "../../Shared/systems/LevelSystem.cpp" "../../Shared/systems/Movement/Movement.cpp" "../../Shared/systems/PhysicsSystem.cpp" "../../Shared/systems/WeaponSystem.cpp" "../../Shared/systems/ProjectileSystem.cpp" "../../Shared/systems/Collision/Collision.cpp" "../../Shared/systems/BoundsSystem.cpp") 
 
-add_scene_lib(MainGame      "scenes/MainGame.cpp" "../../Shared/systems/InputSystem.cpp")
 add_scene_lib(MainMenu      "scenes/MainMenu.cpp")
 add_scene_lib(Options       "scenes/Options.cpp")
 add_scene_lib(WaitLobby     "scenes/WaitLobby.cpp")

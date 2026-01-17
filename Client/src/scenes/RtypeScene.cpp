@@ -271,7 +271,7 @@ void RtypeScene::SendWorldStateToClients() {
   auto& bosspart = GetRegistry().get_components<BossPart>();
 
   GameState gs;
-
+  std::cout << "send" << std::endl;
   for (auto&& [player, transform] : Zipper(players, transforms)) {
     PlayerState ps;
     ps.playerId = player.player_id;
@@ -330,8 +330,9 @@ void RtypeScene::SendWorldStateToClients() {
     ps.damage = static_cast<uint8_t>(proj.damage);
     gs.projectiles.push_back(ps);
   }
-
+  std::cout << "setting data" << std::endl;
   data.Set("game_state", gs);
+  std::cout << "set data" << std::endl;
 }
 
 

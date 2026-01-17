@@ -21,6 +21,7 @@
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
 #include "Helpers/EntityHelper.hpp"
+#include "systems/BoundsSystem.hpp"
 
 class MyGameScene : public Scene {
  private:
@@ -187,9 +188,11 @@ class MyGameScene : public Scene {
     auto& transforms = GetRegistry().get_components<Transform>();
     auto& projectiles = GetRegistry().get_components<Projectile>();
     auto& colliders = GetRegistry().get_components<BoxCollider>();
+    auto& rigidbodies = GetRegistry().get_components<RigidBody>();
 
     // Weapon systems
     player_input_system(GetRegistry(), GetInput(), GetNetwork());
+    bounds_check_system(GetRegistry(), transforms, colliders, rigidbodies);
     weapon_cooldown_system(GetRegistry(), weapons, deltaTime);
     weapon_reload_system(GetRegistry(), weapons, deltaTime);
     RemoveExplosions(deltaTime);
@@ -723,9 +726,8 @@ class MyGameScene : public Scene {
     }
   }
 
-  std::unordered_map<uint16_t, Entity>& GetPlayers() override {
-    std::unordered_map<uint16_t, Entity> list;
-    return list;
+  std::unordered_map<uint16_t, Entity> GetPlayers() override {
+    return std::unordered_map<uint16_t, Entity>(); 
   }
 };
 

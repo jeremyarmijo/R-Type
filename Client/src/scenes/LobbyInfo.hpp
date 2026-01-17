@@ -44,6 +44,7 @@ class LobbyInfoPlayer : public Scene {
   uint8_t m_playerMax;
   uint8_t m_difficulty;
   uint8_t m_lobbyId;
+  std::unordered_map<uint16_t, Entity> m_list;
 
   void UpdateChatDisplay(int maxMessages) {
     int startY = 540;
@@ -294,7 +295,7 @@ class LobbyInfoPlayer : public Scene {
       const auto* data = std::get_if<GAME_START>(&e.data);
       GetSceneData().Set("posX", data->playerSpawnX);
       GetSceneData().Set("posY", data->playerSpawnY);
-      std::this_thread::sleep_for(std::chrono::seconds(2));
+      // std::this_thread::sleep_for(std::chrono::seconds(2));
       ChangeScene("game");
     }
     if (e.type == EventType::MESSAGE) {
@@ -323,9 +324,8 @@ class LobbyInfoPlayer : public Scene {
     }
   }
 
-  std::unordered_map<uint16_t, Entity>& GetPlayers() override {
-    std::unordered_map<uint16_t, Entity> list;
-    return list;
+  std::unordered_map<uint16_t, Entity> GetPlayers() override {
+    return m_list; 
   }
 };
 

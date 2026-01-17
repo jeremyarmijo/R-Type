@@ -3,11 +3,12 @@
 #include "input/InputSubsystem.hpp"
 #include "network/NetworkSubsystem.hpp"
 #include "Player/PlayerEntity.hpp"
+#include "systems/InputSystem.hpp"
 
 // Functional player input system
-inline void player_input_system(Registry& registry,
+void player_input_system(Registry& registry,
                                 InputSubsystem* input,
-                                NetworkSubsystem* network = nullptr) {
+                                NetworkSubsystem* network) {
     if (!input) return;
     
     auto& playerEntities = registry.get_components<PlayerEntity>();
