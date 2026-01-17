@@ -168,6 +168,8 @@ void apply_damage_to_entity(Registry& registry, size_t targetId, float damage,
       player.current -= static_cast<int>(damage);
       if (player.current <= 0) {
         player.isAlive = false;
+        std::cout << "[DEATH] Player " << player.player_id 
+                << " died with score: " << player.score << std::endl;
         registry.kill_entity(Entity(targetId));
       } else {
         player.invtimer = 0.5f;

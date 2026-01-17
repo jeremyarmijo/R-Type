@@ -28,6 +28,9 @@
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WaveSystem.hpp"
 #include "systems/WeaponSystem.hpp"
+#include "components/TileMap.hpp"
+#include "systems/MapGenerator.hpp"
+#include "Collision/MapCollisionSystem.hpp"
 
 ServerGame::ServerGame() : serverRunning(true) {
   SetupDecoder(decode);
@@ -571,7 +574,7 @@ void ServerGame::StartGame(lobby_list& lobby_list) {
   lobby_list.registry.register_component<Transform>();
   lobby_list.registry.register_component<RigidBody>();
   lobby_list.registry.register_component<BoxCollider>();
-
+  lobby_list.registry.register_component<TileMap>();
   // Player components
   lobby_list.registry.register_component<PlayerEntity>();
   lobby_list.registry.register_component<InputState>();
@@ -590,6 +593,19 @@ void ServerGame::StartGame(lobby_list& lobby_list) {
   lobby_list.registry.register_component<BossPart>();
   lobby_list.registry.register_component<Force>();
   std::cout << "Components registered" << std::endl;
+
+
+  lobby_list.currentMap = generateSimpleMap(0, 800, 600);
+    lobby_list.mapEntity = createMapEntity(
+        lobby_list.registry,
+        lobby_list.currentMap.width,
+        lobby_list.currentMap.height,
+        lobby_list.currentMap.scrollSpeed,
+        lobby_list.currentMap.tiles
+    );
+    lobby_list.mapSent = false;
+    std::cout << "[StartGame] Map created!" << std::endl;
+
 
   for (auto& [playerId, ready, _] : lobby_list.players_list) {
     lobby_list.lastStates[playerId] = std::make_shared<GameState>();
@@ -627,12 +643,49 @@ void ServerGame::SendAction(std::tuple<Action, uint16_t, lobby_list*> ac) {
   std::lock_guard<std::mutex> lock(queueMutex);
   actionQueue.push(std::move(ac));
 }
-void ServerGame::EndGame(lobby_list& lobby) {
-  if (!lobby.gameRuning) return;
+void ServerGame::EndGame(lobby_list& lobby, bool victory) {
+  std::cout << "[EndGame] START - victory=" << victory << std::endl;
+  
+  if (!lobby.gameRuning) {
+    std::cout << "[EndGame] Game not running, return" << std::endl;
+    return;
+  }
 
   Action ac;
   GameEnd g;
-  g.victory = false;
+  g.victory = victory;
+  
+  // Collecte les scores sauvegardés
+  std::vector<std::pair<uint16_t, uint32_t>> allScores;
+  
+  for (auto& [playerId, ready, name] : lobby.players_list) {
+    uint32_t score = 0;
+    
+    // Cherche dans playerScores (sauvegardé à chaque frame)
+    auto it = lobby.playerScores.find(playerId);
+    if (it != lobby.playerScores.end()) {
+      score = it->second;
+    }
+    
+    allScores.push_back({playerId, score});
+    std::cout << "[EndGame] Player " << playerId << " score: " << score << std::endl;
+  }
+  
+  // Trie par score décroissant
+  std::sort(allScores.begin(), allScores.end(),
+            [](auto& a, auto& b) { return a.second > b.second; });
+
+  uint8_t rank = 1;
+  for (auto& [playerId, score] : allScores) {
+    GameEndScore ges;
+    ges.playerId = playerId;
+    ges.score = score;
+    ges.rank = rank++;
+    g.scores.push_back(ges);
+  }
+  
+  std::cout << "[EndGame] Sending " << g.scores.size() << " scores" << std::endl;
+  
   ac.type = ActionType::GAME_END;
   ac.data = g;
 
@@ -640,9 +693,9 @@ void ServerGame::EndGame(lobby_list& lobby) {
   lobby.lastStates.clear();
   lobby.playerStateCount.clear();
   lobby.gameRuning = false;
-  std::cout << "game ended!!" << std::endl;
+  
+  std::cout << "[EndGame] DONE" << std::endl;
 }
-
 void ServerGame::CheckGameEnded(lobby_list& lobby) {
   if (!lobby.gameRuning) return;
 
@@ -884,19 +937,14 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
       lobby.levelTransitionTimer = 0.0f;
       lobby.waitingForNextLevel = false;
       lobby.currentLevelIndex++;
+       std::cout << "[DEBUG] currentLevelIndex now = " << lobby.currentLevelIndex 
+                << " / " << lobby.levelsData.size() << std::endl; 
 
-      if (lobby.currentLevelIndex >=
-          static_cast<int>(lobby.levelsData.size())) {
-        Action ac;
-        GameEnd g;
-        g.victory = true;
-        ac.type = ActionType::GAME_END;
-        ac.data = g;
-        SendAction(std::make_tuple(ac, 0, &lobby));
-        lobby.gameRuning = false;
-        std::cout << "[Game] VICTORY! All levels completed!" << std::endl;
-        return;
-      }
+     if (lobby.currentLevelIndex >= static_cast<int>(lobby.levelsData.size())) {
+      std::cout << "[DEBUG] *** VICTORY CONDITION MET! CALLING EndGame ***" << std::endl;  // ← AJOUTE
+      EndGame(lobby, true);
+    return;
+  }
 
       lobby.currentLevelEntity = createLevelEntity(
           lobby.registry, lobby.levelsData[lobby.currentLevelIndex]);
@@ -952,6 +1000,7 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   charged_shoot_system(lobby.registry, deltaTime);
   physics_movement_system(lobby.registry, transforms, rigidbodies, deltaTime,
                           {0, 0});
+  tilemap_collision_system(lobby.registry);
   enemy_movement_system(lobby.registry, transforms, rigidbodies, enemies,
                         players, deltaTime);
   boss_movement_system(lobby.registry, transforms, rigidbodies, bosses,
@@ -986,6 +1035,29 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
                          bosses, lobby.registry.get_components<BossPart>(),
                          projectiles);
 }
+
+
+void ServerGame::SendMapToClients(lobby_list& lobby) {
+    if (lobby.mapSent) return;  // Ne pas renvoyer si déjà envoyé
+    
+    Action ac;
+    MapData mapData;
+    mapData.width = lobby.currentMap.width;
+    mapData.height = lobby.currentMap.height;
+    mapData.scrollSpeed = lobby.currentMap.scrollSpeed;
+    mapData.tiles = lobby.currentMap.tiles;
+    
+    ac.type = ActionType::SEND_MAP;
+    ac.data = mapData;
+    
+    SendAction(std::make_tuple(ac, 0, &lobby));
+    lobby.mapSent = true;
+    
+    std::cout << "[Server] Map sent to clients (" 
+              << mapData.width << "x" << mapData.height 
+              << " tiles, " << mapData.tiles.size() << " bytes)" << std::endl;
+}
+
 
 GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
   auto& transforms = lobby.registry.get_components<Transform>();

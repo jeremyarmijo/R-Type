@@ -16,6 +16,7 @@
 #include "network/DecodeFunc.hpp"
 #include "network/EncodeFunc.hpp"
 #include "network/ServerNetworkManager.hpp"
+#include "components/TileMap.hpp"
 
 /**
  * @class ServerGame
@@ -40,12 +41,16 @@ struct lobby_list {
   bool gameRuning = false;
   bool hasPassword = false;
   std::vector<LevelComponent> levelsData;
+  TileMap currentMap;
+  Entity mapEntity;
+  bool mapSent = false;
   int currentLevelIndex = 0;
   bool waitingForNextLevel = false;
   float levelTransitionTimer = 0.0f;
   Entity currentLevelEntity;
   Registry registry;
   std::unordered_map<uint16_t, Entity> m_players;
+  std::unordered_map<uint16_t, uint32_t> playerScores;
   std::thread gameThread;
   std::unordered_map<uint16_t, std::shared_ptr<GameState>> lastStates;
   std::unordered_map<uint16_t, int> playerStateCount;
@@ -111,6 +116,7 @@ class ServerGame {
   void HandleLobbyLeave(uint16_t playerId);
   void SendLobbyUpdate(lobby_list& lobby);
   void RemovePlayerFromLobby(uint16_t playerId);
+  void SendMapToClients(lobby_list& lobby);
   lobby_list* FindPlayerLobby(uint16_t playerId);
   GameState BuildCurrentState(lobby_list& lobby);
   GameState CalculateDelta(const GameState& last, const GameState& current);
@@ -163,7 +169,7 @@ class ServerGame {
   /**
    * @brief End the game and cleanup
    */
-  void EndGame(lobby_list& lobby);
+ void EndGame(lobby_list& lobby, bool victory) ;
 
   void HandleClientLeave(uint16_t playerId);
   /**

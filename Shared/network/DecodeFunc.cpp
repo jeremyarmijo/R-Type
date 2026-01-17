@@ -980,6 +980,35 @@ Event DecodeLOBBY_LEAVE(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
+Event DecodeMAP_DATA(const std::vector<uint8_t>& packet) {
+    Event evt;
+    evt.type = EventType::SEND_MAP;
+    MAP_DATA data;
+  size_t offset = 2;
+  uint32_t payloadLength = 0;
+  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+
+  memcpy(&data.width, &packet[offset], sizeof(uint16_t));
+  data.width = ntohs(data.width);
+  offset += sizeof(uint16_t);
+  memcpy(&data.height, &packet[offset], sizeof(uint16_t));
+  data.height = ntohs(data.height);
+
+  offset += sizeof(uint16_t);
+  uint32_t temp;
+  memcpy(&temp, &packet[offset], sizeof(uint32_t));
+  temp = ntohl(temp);
+  memcpy(&data.scrollSpeed, &temp, sizeof(float));
+  offset += sizeof(float);
+  uint32_t tilesSize = payloadLength - 8;
+  if (tilesSize > 0) {
+    data.tiles.resize(tilesSize);
+    memcpy(data.tiles.data(), &packet[offset], tilesSize);
+  }
+  evt.data = data;
+  return evt;
+}
+
 Event DecodeMESSAGE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::MESSAGE;
@@ -1062,7 +1091,7 @@ void SetupDecoder(Decoder& decoder) {
   decoder.registerHandler(0x0B, DecodeLOBBY_START);
   decoder.registerHandler(0x0C, DecodeMESSAGE);
   decoder.registerHandler(0x0D, DecodeLOBBY_KICK);
-
+  decoder.registerHandler(0x0E, DecodeMAP_DATA);
   // UDP Messages
   decoder.registerHandler(0x20, DecodePLAYER_INPUT);
   decoder.registerHandler(0x21, DecodeGAME_STATE);

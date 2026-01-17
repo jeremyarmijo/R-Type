@@ -141,6 +141,15 @@ void enemy_movement_system(Registry& registry,
         }
 
         transform.position.x = std::clamp(transform.position.x, 150.f, 750.f);
+
+        enemy.timeSinceLastShot += deltaTime;
+        if (enemy.timeSinceLastShot >= 2.0f) {  // cooldown 2 secondes
+        Vector2 pos = transform.position + Vector2{-20.f, 0.f}; // offset devant lui
+        Vector2 dir = {-1.f, 0.f};  // tirer vers la gauche
+        float speed = 300.f;
+        spawn_projectile(registry, pos, dir, speed, entityId);
+        enemy.timeSinceLastShot = 0.f;
+        }
         break;
       }
 

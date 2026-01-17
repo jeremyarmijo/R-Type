@@ -16,15 +16,18 @@ std::vector<LevelComponent> createLevels() {
 
   // Level 1
   levels.emplace_back(std::vector<Wave>{
-      Wave{{EnemyType::Basic},
+      Wave{{
+        
+        
+      },
            {3},
            {{700, 100}, {700, 200}, {700, 300}},
            false,
            std::nullopt,
            0},
       Wave{{EnemyType::Basic, EnemyType::Zigzag, EnemyType::mini_Green},
-           {2, 2},
-           {{700, 120}, {700, 220}, {700, 320}, {700, 420}},
+          {2, 2,1},  // mini_Green = 1 spawn
+         {{700, 120}, {700, 200}, {700, 300}, {700, 380}, {700, 450}},
            false,
            std::nullopt,
            0},
@@ -161,7 +164,7 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
         createBoss(registry, btype, bossPos, BossPhase::Phase1, bossHP);
 
     if (btype == BossType::Gomander_snake) {
-      for (int i = 0; i < 20; ++i) {
+      for (int i = 0; i < 4; ++i) {
         Vector2 segmentPos = {bossPos.x + (i + 1) * 40.f, bossPos.y};
         createBossPart(registry, bossEntity, segmentPos, {0.f, 0.f}, i,
                        (i + 1) * 0.15f, 50, {30.f, 30.f}, 1);
@@ -206,16 +209,9 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
                 : wave.spawnPositions[totalSpawned %
                                       wave.spawnPositions.size()];
 
-        Entity e = createEnemy(registry, type, spawnPos);
 
-        auto& enemiesArr = registry.get_components<Enemy>();
-        size_t eid = static_cast<size_t>(e);
-        if (eid < enemiesArr.size() && enemiesArr[eid].has_value()) {
-          enemiesArr[eid]->speed *= speedMultiplier;
-          enemiesArr[eid]->current =
-              static_cast<int>(enemiesArr[eid]->current *
-                               (1.0f + 0.2f * static_cast<float>(levelIndex)));
-        }
+        float hpMultiplier = 1.0f + 0.2f * static_cast<float>(levelIndex);
+        Entity e = createEnemy(registry, type, spawnPos, speedMultiplier, hpMultiplier);
         totalSpawned++;
       }
     }

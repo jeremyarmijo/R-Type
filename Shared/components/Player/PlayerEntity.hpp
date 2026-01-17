@@ -34,7 +34,7 @@ struct PlayerEntity {
   float invtimer;
   Weapon weapon;
   bool hasForce;
-  int score;
+  uint32_t score = 0;
   PlayerShoot shoot;
 
   PlayerEntity(int id = 0, float s = 150.f, int cur = 100, int mx = 100,

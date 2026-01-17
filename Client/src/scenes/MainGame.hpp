@@ -18,6 +18,36 @@
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
 
+enum class TileType : uint8_t {
+    EMPTY = 0,
+    GROUND = 1,
+    WALL = 2,
+    CEILING = 3,
+    PLATFORM = 4,
+};
+
+struct TileMap {
+    uint16_t width = 0;
+    uint16_t height = 0;
+    uint16_t tileSize = 32;
+    float scrollSpeed = 50.0f;
+    float scrollOffset = 0.0f;
+    std::vector<uint8_t> tiles;
+    bool isLoaded = false;
+    
+    TileType getTile(int x, int y) const {
+        if (x < 0 || x >= static_cast<int>(width) || 
+            y < 0 || y >= static_cast<int>(height)) {
+            return TileType::EMPTY;
+        }
+        return static_cast<TileType>(tiles[y * width + x]);
+    }
+    
+    void update(float deltaTime) {
+        scrollOffset += scrollSpeed * deltaTime;
+    }
+};
+
 class MyGameScene : public Scene {
  private:
   Vector2 m_lastServerPosition;
@@ -27,6 +57,7 @@ class MyGameScene : public Scene {
   std::unordered_map<uint16_t, GAME_STATE::ProjectileState> m_projectileStates;
   std::vector<Entity> m_entities;
   Entity m_localPlayer;
+  Entity m_mapEntity;
   uint16_t m_localPlayerId;
   std::vector<Entity> m_backGrounds;
   std::unordered_map<uint16_t, Entity> m_otherPlayers;
@@ -49,7 +80,7 @@ class MyGameScene : public Scene {
 
   MultiplayerSkinManager m_skinManager;
   std::unordered_map<uint16_t, std::vector<Entity>> m_compositeEnemies;
-
+  bool m_mapReceived = false;
  public:
   MyGameScene(GameEngine* engine, SceneManager* sceneManager)
       : Scene(engine, sceneManager, "game"),
@@ -65,7 +96,7 @@ class MyGameScene : public Scene {
         m_healthText(nullptr),
         m_levelText(nullptr) {}
 
-  void OnEnter() override {
+void OnEnter() override {
     std::cout << "\n=== ENTERING GAME SCENE ===" << std::endl;
 
     try {
@@ -76,7 +107,43 @@ class MyGameScene : public Scene {
       m_score = 0;
       m_isInitialized = false;
       m_firstState = false;
+      // NOUVEAU CODE ECS
+// NOUVEAU CODE ECS
+m_mapReceived = false;
 
+// Enregistrer le composant TileMap dans le registry
+GetRegistry().register_component<TileMap>();
+
+NetworkManager& network = GetNetwork();
+if (network.HasMapData()) {
+    std::cout << "[GAME] ✅ Loading map via ECS..." << std::endl;
+    
+    // Créer une entité pour la map
+    m_mapEntity = GetRegistry().spawn_entity();
+    
+    // Ajouter le composant TileMap à cette entité
+    GetRegistry().add_component<TileMap>(m_mapEntity, TileMap{});
+    
+    // Récupérer le composant et le remplir
+    auto& tilemaps = GetRegistry().get_components<TileMap>();
+    auto& tilemap = tilemaps[m_mapEntity].value();
+    
+    tilemap.width = network.GetMapWidth();
+    tilemap.height = network.GetMapHeight();
+    tilemap.scrollSpeed = network.GetMapScrollSpeed();
+    tilemap.tiles = network.GetMapTiles();
+    tilemap.tileSize = 32;
+    tilemap.scrollOffset = 0.0f;
+    tilemap.isLoaded = true;
+    
+    m_mapReceived = true;
+    
+    std::cout << "[GAME] Map loaded via ECS: " 
+              << tilemap.width << "x" << tilemap.height 
+              << " (" << tilemap.tiles.size() << " tiles)" << std::endl;
+      } else {
+          std::cout << "[GAME] ⚠️ No map data available yet!" << std::endl;
+      }
       TextureManager& textures = GetTextures();
       AnimationManager& animations = GetAnimations();
       GetAudio().PlayMusic("game_music");
@@ -182,6 +249,8 @@ class MyGameScene : public Scene {
     m_isInitialized = false;
     m_isSpectator = false;
     m_firstState = false;
+
+    m_mapReceived = false;
     GetUI().Clear();
     std::cout << "Game scene cleanup complete" << std::endl;
     std::cout << "==============================\n" << std::endl;
@@ -200,13 +269,20 @@ class MyGameScene : public Scene {
     weapon_reload_system(GetRegistry(), weapons, deltaTime);
     RemoveExplosions(deltaTime);
     MoveBackground(deltaTime);
+    auto& tilemaps = GetRegistry().get_components<TileMap>();
+      for (auto& tilemap : tilemaps) {
+    if (tilemap.has_value() && tilemap->isLoaded) {
+        tilemap->scrollOffset += tilemap->scrollSpeed * deltaTime;
+    }
+}
     GetEvents(deltaTime);
+    UpdateScore(); 
   }
 
   void Render() override {
     if (!m_isInitialized) return;
-
     RenderSpritesLayered();
+    RenderTileMap();
     GetUI().Render();
   }
 
@@ -250,7 +326,9 @@ class MyGameScene : public Scene {
     if (!textures.GetTexture("boom3")) {
       textures.LoadTexture("boom3", "../Client/assets/boom.png");
     }
-
+    if (!textures.GetTexture("projectile_mini_green")) {
+      textures.LoadTexture("projectile_mini_green", "../Client/assets/shootUp.png");
+    }
     if (!textures.GetTexture("projectile_player")) {
       textures.LoadTexture("projectile_player",
                            "../Client/assets/blueShoot.png");
@@ -488,6 +566,7 @@ class MyGameScene : public Scene {
         return "projectile_enemy";
       case 2:
         return "charged_projectile_player";
+      case 3: "projectile_mini_green";
       default:
         return "projectile_player";
     }
@@ -501,6 +580,8 @@ class MyGameScene : public Scene {
         return "projectile_enemy_anim";
       case 2:
         return "projectile_charged";
+      case 3:
+        return "projectile_player_anim"; 
       default:
         return "projectile_player_anim";
     }
@@ -578,6 +659,18 @@ class MyGameScene : public Scene {
     }
   }
 
+void UpdateScore() {
+    if (m_isSpectator || !m_isAlive || !m_scoreText) return;
+
+    auto& playerComponents = GetRegistry().get_components<PlayerEntity>();
+
+    if (m_localPlayer < playerComponents.size() && playerComponents[m_localPlayer].has_value()) {
+        int score = playerComponents[m_localPlayer]->score;
+        m_scoreText->SetText("Score: " + std::to_string(score));
+    }
+}
+
+
   void SpawnEnemy(uint16_t enemyId, uint8_t enemyType, Vector2 position) {
     if (m_enemies.find(enemyId) != m_enemies.end()) {
       return;
@@ -614,7 +707,11 @@ class MyGameScene : public Scene {
           std::remove(m_entities.begin(), m_entities.end(), enemyEntity),
           m_entities.end());
       m_enemies.erase(it);
-      std::cout << "Removed enemy " << enemyId << std::endl;
+      /*std::cout << "Removed enemy " << enemyId << std::endl;
+       auto& playerComp = GetRegistry().get_components<PlayerEntity>()[m_localPlayer];
+        if (playerComp && playerComp->isAlive) {
+            playerComp->score += 10;  // 10 points par ennemi
+        }*/
     }
   }
 
@@ -726,7 +823,7 @@ class MyGameScene : public Scene {
 
     auto& transform = GetRegistry().get_components<Transform>()[projectile];
     if (transform) {
-      if (projectileType == 2) {
+      if (projectileType == 3) {
         transform->scale = {3.0f, 3.0f};  // Gros projectile chargé
       } else {
         transform->scale = {1.5f, 1.5f};  // Projectile normal
@@ -772,6 +869,53 @@ class MyGameScene : public Scene {
       }
     }
   }
+
+void RenderTileMap() {
+    auto& tilemaps = GetRegistry().get_components<TileMap>();
+    
+    for (auto& tilemap : tilemaps) {
+        if (!tilemap.has_value() || !tilemap->isLoaded) continue;
+        
+        SDL_Renderer* renderer = GetRenderer();
+        
+        int startTileX = static_cast<int>(tilemap->scrollOffset / tilemap->tileSize);
+        int endTileX = startTileX + (800 / tilemap->tileSize) + 2;
+        
+        for (int y = 0; y < static_cast<int>(tilemap->height); ++y) {
+            for (int x = startTileX; x < endTileX && x < static_cast<int>(tilemap->width); ++x) {
+                TileType type = tilemap->getTile(x, y);
+                
+                if (type == TileType::EMPTY) continue;
+                
+                int screenX = static_cast<int>(x * tilemap->tileSize - tilemap->scrollOffset);
+                int screenY = y * tilemap->tileSize;
+                
+                switch (type) {
+                    case TileType::GROUND:
+                        SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
+                        break;
+                    case TileType::WALL:
+                        SDL_SetRenderDrawColor(renderer, 128, 128, 128, 255);
+                        break;
+                    case TileType::CEILING:
+                        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+                        break;
+                    case TileType::PLATFORM:
+                        SDL_SetRenderDrawColor(renderer, 160, 82, 45, 255);
+                        break;
+                    default:
+                        continue;
+                }
+                
+                SDL_Rect tileRect = {screenX, screenY, 
+                                     static_cast<int>(tilemap->tileSize), 
+                                     static_cast<int>(tilemap->tileSize)};
+                
+                SDL_RenderFillRect(renderer, &tileRect);
+            }
+        }
+    }
+}
 
   void UpdatePlayers(const std::vector<GAME_STATE::PlayerState>& playerStates,
                      float dt) {
@@ -975,38 +1119,68 @@ class MyGameScene : public Scene {
   }
 
   void GetEvents(float dt) {
+    // Boucle pour traiter TOUS les événements en attente
     while (true) {
-      Event e = GetNetwork().PopEvent();
-      if (e.type == EventType::UNKNOWN) break;
-      if (e.type == EventType::GAME_END) {
-        ChangeScene("gameover");
-        return;
-      }
+        Event e = GetNetwork().PopEvent();
+        
+        if (e.type == EventType::UNKNOWN) {
+            break;
+        }
 
-      if (e.type == EventType::GAME_END) ChangeScene("gameover");
-
-      std::visit(
-          [&](auto&& payload) {
-            using T = std::decay_t<decltype(payload)>;
-            if constexpr (std::is_same_v<T, GAME_STATE>) {
-              UpdatePlayers(payload.players, dt);
-              UpdateEnemies(payload.enemies, dt);
-              UpdateProjectiles(payload.projectiles, dt);
-            } else if constexpr (std::is_same_v<T, FORCE_STATE>) {
-              // DEBUG
-              auto it = m_forces.find(payload.forceId);
-              if (it == m_forces.end()) {
-                SpawnForce(payload.forceId, payload.ownerId,
-                           {payload.posX, payload.posY});
-              } else {
-                UpdateForcePosition(payload.forceId,
-                                    {payload.posX, payload.posY});
-              }
-            }
-          },
-          e.data);
+        if (e.type == EventType::GAME_END) {
+             const auto& gameEnd = std::get<GAME_END>(e.data);
+            
+             std::cout << "[CLIENT] GAME_END reçu!" << std::endl;
+              std::cout << "[CLIENT] Victory: " << (int)gameEnd.victory << std::endl;
+              std::cout << "[CLIENT] Scores count: " << gameEnd.scores.size() << std::endl;
+              
+              for (const auto& s : gameEnd.scores) {
+                  std::cout << "[CLIENT] Score - Player " << s.playerId 
+                            << " = " << s.score << " (rank " << (int)s.rank << ")" << std::endl;
     }
-  }
+
+            // Passer les données à GameOverScene
+            GetSceneData().Set<bool>("victory", gameEnd.victory == 1);
+            
+            // Convertir les scores pour les passer
+            std::vector<std::tuple<uint16_t, uint32_t, uint8_t>> scores;
+            for (const auto& s : gameEnd.scores) {
+                scores.push_back({s.playerId, s.score, s.rank});
+            }
+            GetSceneData().Set("scores", scores);
+            GetSceneData().Set<bool>("isSpectator", false);
+            
+            ChangeScene("gameover");
+            return;
+        }
+
+        std::visit(
+            [&](auto&& payload) {
+                using T = std::decay_t<decltype(payload)>;
+
+                if constexpr (std::is_same_v<T, GAME_STATE>) {
+                    std::cout << "[CLIENT] GAME_STATE recu!" << std::endl;
+                    UpdatePlayers(payload.players, dt);
+                    UpdateEnemies(payload.enemies, dt);
+                    UpdateProjectiles(payload.projectiles, dt);
+                } 
+                else if constexpr (std::is_same_v<T, FORCE_STATE>) {
+
+                    auto it = m_forces.find(payload.forceId);
+                    if (it == m_forces.end()) {
+                        SpawnForce(payload.forceId, payload.ownerId,
+                                   {payload.posX, payload.posY});
+                    } else {
+                        UpdateForcePosition(payload.forceId,
+                                            {payload.posX, payload.posY});
+                    }
+                }
+
+            },
+            e.data);
+    }
+}
+
   void CreateExplosion(Entity entity) {
     auto& transform = GetRegistry().get_components<Transform>()[entity];
 

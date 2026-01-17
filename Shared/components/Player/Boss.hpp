@@ -26,6 +26,7 @@ struct Boss {
   int hp;
   int contact_damage;
   int segmentCount;
+  uint32_t scoreValue;
 
   Boss(BossType t, BossPhase p = BossPhase::Phase1, float spd = 100.f,
        Vector2 dir = {0.f, 0.f}, float amp = 40.f, int cur = 500, int dmg = 10,

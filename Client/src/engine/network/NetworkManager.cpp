@@ -144,14 +144,20 @@ void NetworkManager::AuthAction() {
   SendAction(ac);
   std::cout << "AUTH UDP (playerId = " << playerId << ")\n";
 }
-
 void NetworkManager::ProcessTCPRecvBuffer() {
   while (recvTcpBuffer.size() >= 6) {
+    std::cout << "[TCP DEBUG] Packet type: 0x" << std::hex 
+              << static_cast<int>(recvTcpBuffer[0]) << std::dec 
+              << " buffer size: " << recvTcpBuffer.size() << std::endl;
+
     uint32_t packetSize;
     memcpy(&packetSize, &recvTcpBuffer[2], sizeof(packetSize));
     packetSize = ntohl(packetSize);
 
+    std::cout << "[TCP DEBUG] Payload size: " << packetSize << std::endl;
+
     if (recvTcpBuffer.size() < 6 + packetSize) {
+      std::cout << "[TCP DEBUG] Incomplete packet, waiting..." << std::endl;
       return;
     }
 
@@ -162,6 +168,25 @@ void NetworkManager::ProcessTCPRecvBuffer() {
                         recvTcpBuffer.begin() + 6 + packetSize);
 
     Event evt = DecodePacket(packet);
+    
+    std::cout << "[TCP DEBUG] Decoded event type: " << static_cast<int>(evt.type) << std::endl;
+
+    // ✅ TRAITER MAP_DATA ICI DIRECTEMENT
+    if (evt.type == EventType::SEND_MAP) {
+      const auto* mapData = std::get_if<MAP_DATA>(&evt.data);
+      if (mapData) {
+        std::cout << "[NETWORK] ✅ MAP_DATA stored! " << mapData->width << "x" 
+                  << mapData->height << " (" << mapData->tiles.size() << " tiles)" << std::endl;
+        
+        mapDataReceived = true;
+        mapWidth = mapData->width;
+        mapHeight = mapData->height;
+        mapScrollSpeed = mapData->scrollSpeed;
+        mapTiles = mapData->tiles;
+      }
+      // On push quand même dans le buffer au cas où une scène veut le traiter
+    }
+
     if (evt.type == EventType::LOGIN_RESPONSE) {
       const auto* input = std::get_if<LOGIN_RESPONSE>(&evt.data);
       if (!input) return;
@@ -172,6 +197,7 @@ void NetworkManager::ProcessTCPRecvBuffer() {
         AuthAction();
       }
     }
+    
     std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
   }
