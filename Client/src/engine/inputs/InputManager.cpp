@@ -11,8 +11,6 @@ bool InputManager::IsActionPressed(GameAction action) const {
   const auto& keys = m_keyBindings.GetKeysForAction(action);
 
   if (action == GameAction::SPECIAL) {
-    std::cout << "[IsActionPressed] Checking SPECIAL, found " << keys.size()
-              << " keys bound" << std::endl;
     for (SDL_Scancode key : keys) {
       std::cout << "   Key: " << static_cast<int>(key) << " ("
                 << SDL_GetScancodeName(key) << ") "

@@ -293,7 +293,6 @@ class LobbyInfoPlayer : public Scene {
       const auto* data = std::get_if<GAME_START>(&e.data);
       GetSceneData().Set("posX", data->playerSpawnX);
       GetSceneData().Set("posY", data->playerSpawnY);
-      std::this_thread::sleep_for(std::chrono::seconds(2));
       ChangeScene("game");
     }
     if (e.type == EventType::MESSAGE) {

@@ -9,18 +9,17 @@ enum DataMask : uint16_t {
   M_HP = 1 << 2,
   M_STATE = 1 << 3,
 
-  // Player
   M_SHIELD = 1 << 4,
   M_WEAPON = 1 << 5,
   M_SPRITE = 1 << 6,
-  M_SCORE = 1 << 12,
+  M_SCORE = 1 << 7,
 
-  //  Enemy / Projectile
-  M_TYPE = 1 << 7,
-  M_DIR = 1 << 8,
-  M_VELOCITY = 1 << 9,
-  M_OWNER = 1 << 10,
-  M_DAMAGE = 1 << 11,
+  // Enemy / Projectile
+  M_TYPE = 1 << 8,
+  M_DIR = 1 << 9,
+  M_VELOCITY = 1 << 10,
+  M_OWNER = 1 << 11,
+  M_DAMAGE = 1 << 12,
 
   // destruction
   M_DELETE = 1 << 15

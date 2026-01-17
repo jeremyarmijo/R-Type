@@ -60,8 +60,12 @@ struct PlayerInput {
   uint8_t fire;
   // bool forceToggle;
 
-  PlayerInput() : up(false), down(false), left(false), right(false),
-  fire(0)/*, forceToggle(false)*/{}
+  PlayerInput()
+      : up(false),
+        down(false),
+        left(false),
+        right(false),
+        fire(0) /*, forceToggle(false)*/ {}
 };
 
 struct LoginResponse {
@@ -252,8 +256,8 @@ using ActionData =
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit, LobbyListRequest, LobbyLeave, Message,
-                 LobbyKick, ForceState, ClientLeave>;
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick,
+                 ForceState, ClientLeave>;
 
 struct Action {
   ActionType type;

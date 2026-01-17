@@ -850,8 +850,10 @@ class MyGameScene : public Scene {
           m_healthText->SetText("Health: " +
 
                                 std::to_string(static_cast<int>(fullState.hp)));
-          m_scoreText->SetText("Score: " + 
-            std::to_string(static_cast<int>(fullState.score)));
+          playerComponents[m_localPlayer]->score =
+              static_cast<int>(fullState.score);
+          m_scoreText->SetText(
+              "Score: " + std::to_string(static_cast<int>(fullState.score)));
         }
         if (deltaState.mask & M_HP) {
           if (fullState.hp <= 0 && m_isAlive) {
@@ -981,35 +983,26 @@ class MyGameScene : public Scene {
         return;
       }
 
-      // DEBUG : Affiche le type d'événement reçu
-    std::cout << "[DEBUG] Event type: " << static_cast<int>(e.type)
-              << std::endl;
+      if (e.type == EventType::GAME_END) ChangeScene("gameover");
 
-    if (e.type == EventType::GAME_END) ChangeScene("gameover");
-
-    std::visit(
+      std::visit(
           [&](auto&& payload) {
             using T = std::decay_t<decltype(payload)>;
             if constexpr (std::is_same_v<T, GAME_STATE>) {
-              std::cout << "[CLIENT] GAME_STATE recu!" << std::endl;
-            UpdatePlayers(payload.players, dt);
+              UpdatePlayers(payload.players, dt);
               UpdateEnemies(payload.enemies, dt);
               UpdateProjectiles(payload.projectiles, dt);
             } else if constexpr (std::is_same_v<T, FORCE_STATE>) {
-            // DEBUG
-            std::cout << "[DEBUG] FORCE_STATE recu! forceId=" << payload.forceId
-                      << " pos=(" << payload.posX << ", " << payload.posY << ")"
-                      << std::endl;
-
-            auto it = m_forces.find(payload.forceId);
-            if (it == m_forces.end()) {
-              SpawnForce(payload.forceId, payload.ownerId,
-                         {payload.posX, payload.posY});
-            } else {
-              UpdateForcePosition(payload.forceId,
-                                  {payload.posX, payload.posY});
+              // DEBUG
+              auto it = m_forces.find(payload.forceId);
+              if (it == m_forces.end()) {
+                SpawnForce(payload.forceId, payload.ownerId,
+                           {payload.posX, payload.posY});
+              } else {
+                UpdateForcePosition(payload.forceId,
+                                    {payload.posX, payload.posY});
+              }
             }
-          }
           },
           e.data);
     }

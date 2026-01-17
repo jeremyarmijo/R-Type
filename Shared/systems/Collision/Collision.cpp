@@ -74,8 +74,6 @@ void gamePlay_Collision_system(Registry& registry,
 
       Collision collision(Entity(entityA), Entity(entityB), tagger, it);
 
-      std::cout << "[DEBUG][ENTER] Collision detected between " << entityA
-                << " and " << entityB << std::endl;
       if ((tagger == CollisionCategory::Player &&
            it == CollisionCategory::Enemy) ||
           (tagger == CollisionCategory::Enemy &&
@@ -133,9 +131,6 @@ void gamePlay_Collision_system(Registry& registry,
         } catch (...) {
         }
       }
-
-      std::cout << "[DEBUG][EXIT] Collision ended between " << a << " and " << b
-                << std::endl;
     }
   }
 

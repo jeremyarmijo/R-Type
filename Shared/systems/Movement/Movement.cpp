@@ -266,8 +266,7 @@ void boss_movement_system(Registry& registry,
         if (boss.direction.x == 0.f) {
           boss.direction.x = -1.f;
         }
-        rigidbody.velocity.x =
-            boss.direction.x * boss.speed * 0.3f;
+        rigidbody.velocity.x = boss.direction.x * boss.speed * 0.3f;
 
         if (transform.position.x <= 400.0f) {
           boss.direction.x = 1.f;
@@ -275,8 +274,7 @@ void boss_movement_system(Registry& registry,
         if (transform.position.x >= 700.0f) {
           boss.direction.x = -1.f;
         }
-        rigidbody.velocity.y =
-            std::sin(boss.timer * 1.5f) * 15.f;
+        rigidbody.velocity.y = std::sin(boss.timer * 1.5f) * 15.f;
       } break;
 
       case BossType::FinalBoss: {
@@ -374,10 +372,6 @@ void force_movement_system(Registry& registry,
 
     size_t playerEntityId = static_cast<size_t>(force.ownerPlayer);
 
-    std::cout << "[FORCE] forceIdx=" << forceIdx
-              << " ownerEntity=" << playerEntityId
-              << " state=" << static_cast<int>(force.state) << std::endl;
-
     if (playerEntityId >= transforms.size() ||
         !transforms[playerEntityId].has_value()) {
       std::cout << "[FORCE] Player transform NOT FOUND!" << std::endl;
@@ -398,8 +392,7 @@ void force_movement_system(Registry& registry,
         static float floatTimer = 0.f;
         floatTimer += deltaTime;
 
-        float floatOffsetY =
-            std::sin(floatTimer * 3.f) * 15.f;
+        float floatOffsetY = std::sin(floatTimer * 3.f) * 15.f;
 
         transform.position.x = playerPos.x + force.offsetFront.x;
         transform.position.y = playerPos.y + force.offsetFront.y;

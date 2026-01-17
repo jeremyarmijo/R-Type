@@ -1,5 +1,6 @@
 #include "network/EncodeFunc.hpp"
 
+#include <iostream>
 #include <vector>
 
 #include "network/DataMask.hpp"
@@ -29,7 +30,7 @@ void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out) {
   out[2] = input->left ? 1 : 0;
   out[3] = input->right ? 1 : 0;
   out[4] = input->fire;
-  }
+}
 
 void LoginRequestFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* login = std::get_if<LoginReq>(&a.data);
@@ -83,8 +84,9 @@ void GameStateFunc(const Action& a, std::vector<uint8_t>& out) {
     if (p.mask & M_WEAPON) out.push_back(p.weapon);
     if (p.mask & M_SPRITE) out.push_back(p.sprite);
     if (p.mask & M_SCORE) {
+      uint32_t score = htonl(p.score);
       uint8_t tmp[4];
-      htonf(p.score, tmp);
+      memcpy(tmp, &score, 4);
       out.insert(out.end(), tmp, tmp + 4);
     }
   }
@@ -519,8 +521,6 @@ void ForceStateFunc(const Action& a, std::vector<uint8_t>& out) {
   out[offset++] = force->state;
 }
 
-
-
 void ClientLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* leave = std::get_if<ClientLeave>(&a.data);
   if (!leave) return;
@@ -532,7 +532,6 @@ void ClientLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
   out.resize(sizeof(uint16_t));
   memcpy(out.data(), &pId, sizeof(uint16_t));
 }
-
 
 void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);

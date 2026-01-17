@@ -91,7 +91,6 @@ class Registry {
     m_entities.push_back(e);
     m_valid_entities.insert(e);
 
-    std::cout << "Spawned entity: " << static_cast<size_t>(e) << std::endl;
 
     return e;
   }
@@ -109,7 +108,6 @@ class Registry {
       return;
     }
 
-    std::cout << "Killing entity: " << static_cast<size_t>(e) << std::endl;
 
     for (auto& erase_fn : m_erase_functions) {
       try {

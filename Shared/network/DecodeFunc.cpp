@@ -1042,7 +1042,6 @@ Event DecodeCLIENT_LEAVE(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
-
 void SetupDecoder(Decoder& decoder) {
   // TCP Messages
   decoder.registerHandler(0x01, DecodeLOGIN_REQUEST);

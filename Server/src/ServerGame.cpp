@@ -394,32 +394,31 @@ lobby_list* ServerGame::FindPlayerLobby(uint16_t playerId) {
 }
 
 void ServerGame::HandleClientLeave(uint16_t playerId) {
-    std::cout << "[SERVER] Handling cleanup for client " << playerId << std::endl;
+  std::cout << "[SERVER] Handling cleanup for client " << playerId << std::endl;
 
-    lobby_list* lobby = FindPlayerLobby(playerId);
+  lobby_list* lobby = FindPlayerLobby(playerId);
 
-    if (lobby) {
-        std::lock_guard<std::mutex> lock(lobbyMutex);
-        auto itEntity = lobby->m_players.find(playerId);
-        if (itEntity != lobby->m_players.end()) {
-            std::cout << "[ECS] Killing entity for player " << playerId << " in lobby " << lobby->lobby_id << std::endl;
-            
-            if (lobby->registry.is_entity_valid(itEntity->second)) {
-                lobby->registry.kill_entity(itEntity->second);
-            }
-            
-            lobby->m_players.erase(itEntity);
-        }
+  if (lobby) {
+    std::lock_guard<std::mutex> lock(lobbyMutex);
+    auto itEntity = lobby->m_players.find(playerId);
+    if (itEntity != lobby->m_players.end()) {
+      if (lobby->registry.is_entity_valid(itEntity->second)) {
+        lobby->registry.kill_entity(itEntity->second);
+      }
 
-        for (auto specIt = lobby->spectate.begin(); specIt != lobby->spectate.end(); ++specIt) {
-            if (std::get<0>(*specIt) == playerId) {
-                lobby->spectate.erase(specIt);
-                lobby->nb_player--;
-                break;
-            }
-        }
+      lobby->m_players.erase(itEntity);
     }
-    RemovePlayerFromLobby(playerId);
+
+    for (auto specIt = lobby->spectate.begin(); specIt != lobby->spectate.end();
+         ++specIt) {
+      if (std::get<0>(*specIt) == playerId) {
+        lobby->spectate.erase(specIt);
+        lobby->nb_player--;
+        break;
+      }
+    }
+  }
+  RemovePlayerFromLobby(playerId);
 }
 
 void ServerGame::HandleLoginResponse(uint16_t playerId, Event& ev) {
@@ -816,11 +815,6 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
       case EventType::PLAYER_INPUT: {
         const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
 
-        std::cout << "[SERVER INPUT] Player " << playerId
-                  << " fire=" << static_cast<int>(input.fire)
-                  << " (left=" << input.left << " right=" << input.right << ")"
-                  << std::endl;
-
         auto& players = lobby.registry.get_components<PlayerEntity>();
         auto& states = lobby.registry.get_components<InputState>();
 
@@ -1017,9 +1011,10 @@ GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
     ps.weapon = static_cast<uint8_t>(0);
     ps.state = player.isAlive ? 1 : 0;
     ps.sprite = 0;
+    ps.score = 12356;
 
-    ps.mask =
-        M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE | M_SCORE;
+    ps.mask = M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON |
+              M_SPRITE | M_SCORE;
 
     gs.players.push_back(ps);
   }
@@ -1095,7 +1090,6 @@ GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
       ps.type = 0;  // Tir normal
     }
 
-
     ps.mask = M_POS_X | M_POS_Y | M_TYPE | M_OWNER | M_DAMAGE;
 
     gs.projectiles.push_back(ps);
@@ -1111,12 +1105,6 @@ GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
     fs.posY = transform.position.y;
     fs.state = static_cast<uint8_t>(force.state);
     SendAction(std::make_tuple(Action{ActionType::FORCE_STATE, fs}, 0, &lobby));
-  }
-
-  for (auto& ps : gs.players) {
-    std::cout << "[DEBUG] Player " << ps.playerId << " pos=(" << ps.posX << ","
-              << ps.posY << ") state=" << static_cast<int>(ps.state)
-              << std::endl;
   }
   return gs;
 }
@@ -1299,7 +1287,7 @@ void ServerGame::ProcessAndSendState(
   auto& stateCount = lobby.playerStateCount[playerId];
   bool isFirstPacket = false;
 
-  if (stateCount < 3) {
+  if (stateCount < 10) {
     isFirstPacket = true;
     stateCount++;
   }
@@ -1309,11 +1297,8 @@ void ServerGame::ProcessAndSendState(
   if (isFirstPacket) {
     deltaState = *currentState;
 
-    uint16_t fullMaskPlayer =
-        M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE | M_SCORE;
-    for (auto& p : deltaState.players) {
-      p.mask = fullMaskPlayer;
-    }
+    uint16_t fullMaskPlayer = M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD |
+                              M_WEAPON | M_SPRITE | M_SCORE;
 
     uint16_t fullMaskEnemy =
         M_POS_X | M_POS_Y | M_HP | M_STATE | M_TYPE | M_DIR;
@@ -1331,13 +1316,6 @@ void ServerGame::ProcessAndSendState(
       lastStatePtr = std::make_shared<GameState>();
     }
     deltaState = CalculateDelta(*lastStatePtr, *currentState);
-
-    if (!deltaState.enemies.empty()) {
-      std::cout << "[SERVER][DELTA] Client " << playerId << " receives "
-                << deltaState.enemies.size()
-                << " enemy updates (Mask: " << (int)deltaState.enemies[0].mask
-                << ")" << std::endl;
-    }
     lobby.lastStates[playerId] = std::make_shared<GameState>(*currentState);
   }
 

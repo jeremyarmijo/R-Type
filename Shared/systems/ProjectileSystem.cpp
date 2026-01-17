@@ -135,8 +135,6 @@ void projectile_collision_system(Registry& registry,
 
     std::string ownerType = get_owner_type(projectile.ownerId);
     if (ownerType == "Unknown") {
-      std::cout << "Warning: Projectile " << projIdx << " has unknown owner "
-                << projectile.ownerId << std::endl;
       continue;
     }
 

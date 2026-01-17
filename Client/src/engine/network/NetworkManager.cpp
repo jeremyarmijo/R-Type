@@ -48,7 +48,7 @@ void NetworkManager::Disconnect() {
 
   std::vector<uint8_t> packet = encoder.encode(disconnect, 2, 0, 0, 0);
   SendTcp(packet);
-  
+
   running = false;
 
   asio::error_code ec;
@@ -296,7 +296,6 @@ void NetworkManager::SendUdp(std::vector<uint8_t>& packet) {
     udpConnected = false;
     return;
   }
-  std::cout << "UDP message Send (" << sent << " bytes)\n";
 }
 
 void NetworkManager::SendTcp(std::vector<uint8_t>& packet) {
