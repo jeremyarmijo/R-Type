@@ -101,7 +101,7 @@ class ServerNetworkManager : public INetworkManager {
   bool GetUser(const std::string& username, std::string& password, int& score) override;
 
   /**
-   * @brief Add a new user to database
+   * @brief Add a new user and update if it exists in the database
    * @param username Username for the new user
    * @param password Password for the new user
    * @param score Initial score for the new user
