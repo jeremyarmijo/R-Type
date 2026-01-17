@@ -17,11 +17,6 @@ CPMAddPackage(
     "SDL_STATIC OFF"
     "SDL_PULSEAUDIO ON"
     "SDL_ALSA ON"
-    "SDL_PIPEWIRE OFF"
-    "SDL_AUDIO OFF"
-    "SDL_VIDEO OFF"
-    "SDL_JOYSTICK OFF"
-    "SDL_HAPTIC OFF"
 )
 
 CPMAddPackage(
