@@ -1,6 +1,5 @@
 #pragma once
 
-#include <asio.hpp>
 #include <cstring>
 #include <map>
 #include <mutex>
@@ -8,6 +7,8 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <asio.hpp>
+
 
 #include "include/CircularBuffer.hpp"
 #include "network/Action.hpp"
