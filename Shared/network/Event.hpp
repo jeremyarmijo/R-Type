@@ -65,7 +65,7 @@ struct GAME_STATE {
     uint8_t weapon;
     uint8_t state;
     uint8_t sprite;
-    uint32_t score;
+    uint32_t score = 0;
   };
   struct EnemyState {
     uint16_t enemyId;

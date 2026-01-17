@@ -1011,7 +1011,7 @@ GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
     ps.weapon = static_cast<uint8_t>(0);
     ps.state = player.isAlive ? 1 : 0;
     ps.sprite = 0;
-    ps.score = 12356;
+    ps.score = player.score;
 
     ps.mask = M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON |
               M_SPRITE | M_SCORE;
@@ -1287,7 +1287,7 @@ void ServerGame::ProcessAndSendState(
   auto& stateCount = lobby.playerStateCount[playerId];
   bool isFirstPacket = false;
 
-  if (stateCount < 10) {
+  if (stateCount < 3) {
     isFirstPacket = true;
     stateCount++;
   }
