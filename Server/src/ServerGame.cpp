@@ -228,9 +228,12 @@ void ServerGame::ResetLobbyReadyStatus(lobby_list& lobby) {
 void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
   std::lock_guard<std::mutex> lock(lobbyMutex);
 
+  lobby_list* l;
+
   for (auto& lobby : lobbys) {
     uint16_t nbPlayerReady = 0;
     bool found = false;
+    bool isSpectate = false;
 
     for (auto& player : lobby->players_list) {
       if (std::get<0>(player) == playerId) {
@@ -246,6 +249,8 @@ void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
       if (std::get<0>(player) == playerId) {
         std::get<1>(player) = isReady;
         found = true;
+        isSpectate = true;
+        l = lobby.get();;
       }
     }
 
@@ -263,6 +268,17 @@ void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
 
         float spawnY = 200.0f + (playerIndex % 4) * 100.0f;
 
+        if (isSpectate) {
+          SendMapToClients(playerId, *l);
+          Action startAc;
+          GameStart gs;
+          gs.playerSpawnX = 200.0f;
+          gs.playerSpawnY = spawnY;
+          gs.scrollSpeed = 0;
+          startAc.type = ActionType::GAME_START;
+          startAc.data = gs;
+          SendAction(std::make_tuple(startAc, playerId, nullptr));
+        }
         lobby->lastStates.erase(playerId);
         lobby->playerStateCount.erase(playerId);
 
@@ -673,7 +689,7 @@ void ServerGame::GameLoop(lobby_list& lobby) {
 
   if (lobby.gameRuning) {
     size_t playerIndex = 0;
-    SendMapToClients(lobby);
+    SendMapToLobby(lobby);
     for (auto& [playerId, ready, _] : lobby.players_list) {
       float spawnY = 200.0f + (playerIndex % 4) * 100.0f;
 
@@ -997,7 +1013,7 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
 }
 
 
-void ServerGame::SendMapToClients(lobby_list& lobby) {
+void ServerGame::SendMapToLobby(lobby_list& lobby) {
     if (lobby.mapSent) return;
     
     Action ac;
@@ -1011,6 +1027,27 @@ void ServerGame::SendMapToClients(lobby_list& lobby) {
     ac.data = mapData;
     
     SendAction(std::make_tuple(ac, 0, &lobby));
+    lobby.mapSent = true;
+    
+    std::cout << "[Server] Map sent to clients (" 
+              << mapData.width << "x" << mapData.height 
+              << " tiles, " << mapData.tiles.size() << " bytes)" << std::endl;
+}
+
+void ServerGame::SendMapToClients(uint16_t playerId, lobby_list& lobby) {
+    if (lobby.mapSent) return;
+    
+    Action ac;
+    MapData mapData;
+    mapData.width = lobby.currentMap.width;
+    mapData.height = lobby.currentMap.height;
+    mapData.scrollSpeed = lobby.currentMap.scrollSpeed;
+    mapData.tiles = lobby.currentMap.tiles;
+    
+    ac.type = ActionType::SEND_MAP;
+    ac.data = mapData;
+    
+    SendAction(std::make_tuple(ac, playerId, &lobby));
     lobby.mapSent = true;
     
     std::cout << "[Server] Map sent to clients (" 

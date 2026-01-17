@@ -116,7 +116,8 @@ class ServerGame {
   void HandleLobbyLeave(uint16_t playerId);
   void SendLobbyUpdate(lobby_list& lobby);
   void RemovePlayerFromLobby(uint16_t playerId);
-  void SendMapToClients(lobby_list& lobby);
+  void SendMapToClients(uint16_t playerId, lobby_list& lobby);
+  void SendMapToLobby(lobby_list& lobby);
   lobby_list* FindPlayerLobby(uint16_t playerId);
   GameState BuildCurrentState(lobby_list& lobby);
   GameState CalculateDelta(const GameState& last, const GameState& current);
