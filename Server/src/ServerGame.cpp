@@ -688,8 +688,6 @@ void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
 }
 
 void ServerGame::Run() {
-  std::cout << "before main loop"<< std::endl;
-
   while (serverRunning) {
 
     networkManager->Update();
