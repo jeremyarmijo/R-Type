@@ -19,33 +19,31 @@
 #include "ui/UIText.hpp"
 
 enum class TileType : uint8_t {
-    EMPTY = 0,
-    GROUND = 1,
-    WALL = 2,
-    CEILING = 3,
-    PLATFORM = 4,
+  EMPTY = 0,
+  GROUND = 1,
+  WALL = 2,
+  CEILING = 3,
+  PLATFORM = 4,
 };
 
 struct TileMap {
-    uint16_t width = 0;
-    uint16_t height = 0;
-    uint16_t tileSize = 32;
-    float scrollSpeed = 50.0f;
-    float scrollOffset = 0.0f;
-    std::vector<uint8_t> tiles;
-    bool isLoaded = false;
-    
-    TileType getTile(int x, int y) const {
-        if (x < 0 || x >= static_cast<int>(width) || 
-            y < 0 || y >= static_cast<int>(height)) {
-            return TileType::EMPTY;
-        }
-        return static_cast<TileType>(tiles[y * width + x]);
+  uint16_t width = 0;
+  uint16_t height = 0;
+  uint16_t tileSize = 32;
+  float scrollSpeed = 50.0f;
+  float scrollOffset = 0.0f;
+  std::vector<uint8_t> tiles;
+  bool isLoaded = false;
+
+  TileType getTile(int x, int y) const {
+    if (x < 0 || x >= static_cast<int>(width) || y < 0 ||
+        y >= static_cast<int>(height)) {
+      return TileType::EMPTY;
     }
-    
-    void update(float deltaTime) {
-        scrollOffset += scrollSpeed * deltaTime;
-    }
+    return static_cast<TileType>(tiles[y * width + x]);
+  }
+
+  void update(float deltaTime) { scrollOffset += scrollSpeed * deltaTime; }
 };
 
 class MyGameScene : public Scene {
@@ -85,6 +83,17 @@ class MyGameScene : public Scene {
   uint16_t m_mapHeight = 0;
   float m_mapScrollSpeed = 0;
   std::vector<uint8_t> m_mapTiles;
+
+  struct InterpolatedState {
+    Vector2 currentPos;
+    Vector2 targetPos;
+    float interpolationTime = 0.0f;
+    float INTERPOLATION_DURATION = 0.1f;
+  };
+
+  std::unordered_map<uint16_t, InterpolatedState> m_playerInterpolation;
+  std::unordered_map<uint16_t, InterpolatedState> m_enemyInterpolation;
+
  public:
   MyGameScene(GameEngine* engine, SceneManager* sceneManager)
       : Scene(engine, sceneManager, "game"),
@@ -100,7 +109,7 @@ class MyGameScene : public Scene {
         m_healthText(nullptr),
         m_levelText(nullptr) {}
 
-void OnEnter() override {
+  void OnEnter() override {
     std::cout << "\n=== ENTERING GAME SCENE ===" << std::endl;
 
     try {
@@ -112,46 +121,46 @@ void OnEnter() override {
       m_isInitialized = false;
       m_firstState = false;
       // NOUVEAU CODE ECS
-// NOUVEAU CODE ECS
+      // NOUVEAU CODE ECS
 
-  m_mapDataReceived = GetSceneData().Get<bool>("mapDataReceived", false);
-  m_mapWidth = GetSceneData().Get<uint16_t>("mapWidth", 0);
-  m_mapHeight = GetSceneData().Get<uint16_t>("mapHeight", 0);
-  m_mapScrollSpeed = GetSceneData().Get<float>("mapScrollSpeed", 0);
-  m_mapTiles = GetSceneData().Get<std::vector<uint8_t>>("mapTiles", {});
+      m_mapDataReceived = GetSceneData().Get<bool>("mapDataReceived", false);
+      m_mapWidth = GetSceneData().Get<uint16_t>("mapWidth", 0);
+      m_mapHeight = GetSceneData().Get<uint16_t>("mapHeight", 0);
+      m_mapScrollSpeed = GetSceneData().Get<float>("mapScrollSpeed", 0);
+      m_mapTiles = GetSceneData().Get<std::vector<uint8_t>>("mapTiles", {});
 
-// Enregistrer le composant TileMap dans le registry
-GetRegistry().register_component<TileMap>();
+      // Enregistrer le composant TileMap dans le registry
+      GetRegistry().register_component<TileMap>();
 
-NetworkManager& network = GetNetwork();
-if (m_mapDataReceived) {
-    std::cout << "[GAME] ✅ Loading map via ECS..." << std::endl;
-    
-    // Créer une entité pour la map
-    m_mapEntity = GetRegistry().spawn_entity();
-    
-    // Ajouter le composant TileMap à cette entité
-    GetRegistry().add_component<TileMap>(m_mapEntity, TileMap{});
-    
-    // Récupérer le composant et le remplir
-    auto& tilemaps = GetRegistry().get_components<TileMap>();
-    auto& tilemap = tilemaps[m_mapEntity].value();
-    
-    tilemap.width = m_mapWidth;
-    tilemap.height = m_mapHeight;
-    tilemap.scrollSpeed = m_mapScrollSpeed;
-    tilemap.tiles = m_mapTiles;
-    tilemap.tileSize = 32;
-    tilemap.scrollOffset = 0.0f;
-    tilemap.isLoaded = true;
-    
-    m_mapDataReceived = true;
-    
-    std::cout << "[GAME] Map loaded via ECS: " 
-              << tilemap.width << "x" << tilemap.height 
-              << " (" << tilemap.tiles.size() << " tiles)" << std::endl;
+      NetworkManager& network = GetNetwork();
+      if (m_mapDataReceived) {
+        std::cout << "[GAME] Loading map via ECS..." << std::endl;
+
+        // Créer une entité pour la map
+        m_mapEntity = GetRegistry().spawn_entity();
+
+        // Ajouter le composant TileMap à cette entité
+        GetRegistry().add_component<TileMap>(m_mapEntity, TileMap{});
+
+        // Récupérer le composant et le remplir
+        auto& tilemaps = GetRegistry().get_components<TileMap>();
+        auto& tilemap = tilemaps[m_mapEntity].value();
+
+        tilemap.width = m_mapWidth;
+        tilemap.height = m_mapHeight;
+        tilemap.scrollSpeed = m_mapScrollSpeed;
+        tilemap.tiles = m_mapTiles;
+        tilemap.tileSize = 32;
+        tilemap.scrollOffset = 0.0f;
+        tilemap.isLoaded = true;
+
+        m_mapDataReceived = true;
+
+        std::cout << "[GAME] Map loaded via ECS: " << tilemap.width << "x"
+                  << tilemap.height << " (" << tilemap.tiles.size() << " tiles)"
+                  << std::endl;
       } else {
-          std::cout << "[GAME] ⚠️ No map data available yet!" << std::endl;
+        std::cout << "[GAME] No map data available yet!" << std::endl;
       }
       TextureManager& textures = GetTextures();
       AnimationManager& animations = GetAnimations();
@@ -255,6 +264,8 @@ if (m_mapDataReceived) {
     m_forces.clear();
     m_explosions.clear();
     m_skinManager.Clear();
+    m_playerInterpolation.clear();
+    m_enemyInterpolation.clear();
     m_isInitialized = false;
     m_isSpectator = false;
     m_firstState = false;
@@ -263,7 +274,6 @@ if (m_mapDataReceived) {
     GetSceneData().Set("mapDataReceived", false);
     m_mapTiles.clear();
     GetSceneData().Set("mapTiles", m_mapTiles);
-
 
     GetUI().Clear();
     std::cout << "Game scene cleanup complete" << std::endl;
@@ -284,13 +294,13 @@ if (m_mapDataReceived) {
     RemoveExplosions(deltaTime);
     MoveBackground(deltaTime);
     auto& tilemaps = GetRegistry().get_components<TileMap>();
-      for (auto& tilemap : tilemaps) {
-    if (tilemap.has_value() && tilemap->isLoaded) {
+    for (auto& tilemap : tilemaps) {
+      if (tilemap.has_value() && tilemap->isLoaded) {
         tilemap->scrollOffset += tilemap->scrollSpeed * deltaTime;
+      }
     }
-}
+    InterpolateEntities(deltaTime);
     GetEvents(deltaTime);
-    //UpdateScore(); 
   }
 
   void Render() override {
@@ -341,7 +351,8 @@ if (m_mapDataReceived) {
       textures.LoadTexture("boom3", "../Client/assets/boom.png");
     }
     if (!textures.GetTexture("projectile_mini_green")) {
-      textures.LoadTexture("projectile_mini_green", "../Client/assets/shootUp.png");
+      textures.LoadTexture("projectile_mini_green",
+                           "../Client/assets/shootUp.png");
     }
     if (!textures.GetTexture("projectile_player")) {
       textures.LoadTexture("projectile_player",
@@ -580,7 +591,8 @@ if (m_mapDataReceived) {
         return "projectile_enemy";
       case 2:
         return "charged_projectile_player";
-      case 3: "projectile_mini_green";
+      case 3:
+        "projectile_mini_green";
       default:
         return "projectile_player";
     }
@@ -595,7 +607,7 @@ if (m_mapDataReceived) {
       case 2:
         return "projectile_charged";
       case 3:
-        return "projectile_player_anim"; 
+        return "projectile_player_anim";
       default:
         return "projectile_player_anim";
     }
@@ -649,6 +661,8 @@ if (m_mapDataReceived) {
           m_entities.end());
       m_otherPlayers.erase(it);
 
+      m_playerInterpolation.erase(playerId);
+
       std::cout << "Removed player " << playerId << std::endl;
     } else {
       std::cout << "Attempted to remove non-existent player " << playerId
@@ -656,7 +670,7 @@ if (m_mapDataReceived) {
     }
   }
 
-  void UpdateOtherPlayerPosition(uint16_t playerId, Vector2 position) {
+  void UpdateOtherPlayerPosition(uint16_t playerId, Vector2 targetPosition) {
     auto it = m_otherPlayers.find(playerId);
     if (it != m_otherPlayers.end()) {
       Entity playerEntity = it->second;
@@ -664,17 +678,24 @@ if (m_mapDataReceived) {
 
       if (playerEntity < transforms.size() &&
           transforms[playerEntity].has_value()) {
-        transforms[playerEntity]->position = position;
+        auto& interpState = m_playerInterpolation[playerId];
+
+        if (interpState.interpolationTime == 0.0f) {
+          interpState.currentPos = transforms[playerEntity]->position;
+        } else {
+          interpState.currentPos = transforms[playerEntity]->position;
+        }
+
+        interpState.targetPos = targetPosition;
+        interpState.interpolationTime = 0.0f;
       }
     } else {
       std::cout << "Player " << playerId << " not found, spawning..."
                 << std::endl;
-      SpawnOtherPlayer(playerId, position);
+      SpawnOtherPlayer(playerId, targetPosition);
+      m_playerInterpolation[playerId] = {targetPosition, targetPosition, 0.0f};
     }
   }
-
-
-
 
   void SpawnEnemy(uint16_t enemyId, uint8_t enemyType, Vector2 position) {
     if (m_enemies.find(enemyId) != m_enemies.end()) {
@@ -712,11 +733,67 @@ if (m_mapDataReceived) {
           std::remove(m_entities.begin(), m_entities.end(), enemyEntity),
           m_entities.end());
       m_enemies.erase(it);
+      m_enemyInterpolation.erase(enemyId);
       /*std::cout << "Removed enemy " << enemyId << std::endl;
-       auto& playerComp = GetRegistry().get_components<PlayerEntity>()[m_localPlayer];
-        if (playerComp && playerComp->isAlive) {
-            playerComp->score += 10;  // 10 points par ennemi
+       auto& playerComp =
+       GetRegistry().get_components<PlayerEntity>()[m_localPlayer]; if
+       (playerComp && playerComp->isAlive) { playerComp->score += 10;  // 10
+       points par ennemi
         }*/
+    }
+  }
+
+  void InterpolateEntities(float deltaTime) {
+    auto& transforms = GetRegistry().get_components<Transform>();
+
+    // Interpolation des joueurs
+    for (auto& [playerId, interpState] : m_playerInterpolation) {
+      auto it = m_otherPlayers.find(playerId);
+      if (it == m_otherPlayers.end()) continue;
+
+      Entity playerEntity = it->second;
+      if (playerEntity >= transforms.size() ||
+          !transforms[playerEntity].has_value())
+        continue;
+
+      interpState.interpolationTime += deltaTime;
+      float t = std::min(1.0f, interpState.interpolationTime /
+                                   interpState.INTERPOLATION_DURATION);
+
+      Vector2 interpolatedPos;
+      interpolatedPos.x =
+          interpState.currentPos.x +
+          (interpState.targetPos.x - interpState.currentPos.x) * t;
+      interpolatedPos.y =
+          interpState.currentPos.y +
+          (interpState.targetPos.y - interpState.currentPos.y) * t;
+
+      transforms[playerEntity]->position = interpolatedPos;
+    }
+
+    // Interpolation des ennemis
+    for (auto& [enemyId, interpState] : m_enemyInterpolation) {
+      auto it = m_enemies.find(enemyId);
+      if (it == m_enemies.end()) continue;
+
+      Entity enemyEntity = it->second;
+      if (enemyEntity >= transforms.size() ||
+          !transforms[enemyEntity].has_value())
+        continue;
+
+      interpState.interpolationTime += deltaTime;
+      float t = std::min(1.0f, interpState.interpolationTime /
+                                   interpState.INTERPOLATION_DURATION);
+
+      Vector2 interpolatedPos;
+      interpolatedPos.x =
+          interpState.currentPos.x +
+          (interpState.targetPos.x - interpState.currentPos.x) * t;
+      interpolatedPos.y =
+          interpState.currentPos.y +
+          (interpState.targetPos.y - interpState.currentPos.y) * t;
+
+      transforms[enemyEntity]->position = interpolatedPos;
     }
   }
 
@@ -728,9 +805,16 @@ if (m_mapDataReceived) {
 
       if (enemyEntity < transforms.size() &&
           transforms[enemyEntity].has_value()) {
-        Vector2& currentPos = transforms[enemyEntity]->position;
-        currentPos.x += (targetPos.x - currentPos.x) * 0.5f;
-        currentPos.y += (targetPos.y - currentPos.y) * 0.5f;
+        auto& interpState = m_enemyInterpolation[enemyId];
+
+        if (interpState.interpolationTime == 0.0f) {
+          interpState.currentPos = transforms[enemyEntity]->position;
+        } else {
+          interpState.currentPos = transforms[enemyEntity]->position;
+        }
+
+        interpState.targetPos = targetPos;
+        interpState.interpolationTime = 0.0f;
       }
     }
   }
@@ -875,52 +959,55 @@ if (m_mapDataReceived) {
     }
   }
 
-void RenderTileMap() {
+  void RenderTileMap() {
     auto& tilemaps = GetRegistry().get_components<TileMap>();
-    
+
     for (auto& tilemap : tilemaps) {
-        if (!tilemap.has_value() || !tilemap->isLoaded) continue;
-        
-        SDL_Renderer* renderer = GetRenderer();
-        
-        int startTileX = static_cast<int>(tilemap->scrollOffset / tilemap->tileSize);
-        int endTileX = startTileX + (800 / tilemap->tileSize) + 2;
-        
-        for (int y = 0; y < static_cast<int>(tilemap->height); ++y) {
-            for (int x = startTileX; x < endTileX && x < static_cast<int>(tilemap->width); ++x) {
-                TileType type = tilemap->getTile(x, y);
-                
-                if (type == TileType::EMPTY) continue;
-                
-                int screenX = static_cast<int>(x * tilemap->tileSize - tilemap->scrollOffset);
-                int screenY = y * tilemap->tileSize;
-                
-                switch (type) {
-                    case TileType::GROUND:
-                        SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
-                        break;
-                    case TileType::WALL:
-                        SDL_SetRenderDrawColor(renderer, 128, 128, 128, 255);
-                        break;
-                    case TileType::CEILING:
-                        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-                        break;
-                    case TileType::PLATFORM:
-                        SDL_SetRenderDrawColor(renderer, 160, 82, 45, 255);
-                        break;
-                    default:
-                        continue;
-                }
-                
-                SDL_Rect tileRect = {screenX, screenY, 
-                                     static_cast<int>(tilemap->tileSize), 
-                                     static_cast<int>(tilemap->tileSize)};
-                
-                SDL_RenderFillRect(renderer, &tileRect);
-            }
+      if (!tilemap.has_value() || !tilemap->isLoaded) continue;
+
+      SDL_Renderer* renderer = GetRenderer();
+
+      int startTileX =
+          static_cast<int>(tilemap->scrollOffset / tilemap->tileSize);
+      int endTileX = startTileX + (800 / tilemap->tileSize) + 2;
+
+      for (int y = 0; y < static_cast<int>(tilemap->height); ++y) {
+        for (int x = startTileX;
+             x < endTileX && x < static_cast<int>(tilemap->width); ++x) {
+          TileType type = tilemap->getTile(x, y);
+
+          if (type == TileType::EMPTY) continue;
+
+          int screenX =
+              static_cast<int>(x * tilemap->tileSize - tilemap->scrollOffset);
+          int screenY = y * tilemap->tileSize;
+
+          switch (type) {
+            case TileType::GROUND:
+              SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
+              break;
+            case TileType::WALL:
+              SDL_SetRenderDrawColor(renderer, 128, 128, 128, 255);
+              break;
+            case TileType::CEILING:
+              SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+              break;
+            case TileType::PLATFORM:
+              SDL_SetRenderDrawColor(renderer, 160, 82, 45, 255);
+              break;
+            default:
+              continue;
+          }
+
+          SDL_Rect tileRect = {screenX, screenY,
+                               static_cast<int>(tilemap->tileSize),
+                               static_cast<int>(tilemap->tileSize)};
+
+          SDL_RenderFillRect(renderer, &tileRect);
         }
+      }
     }
-}
+  }
 
   void UpdatePlayers(const std::vector<GAME_STATE::PlayerState>& playerStates,
                      float dt) {
@@ -1126,77 +1213,76 @@ void RenderTileMap() {
   void GetEvents(float dt) {
     // Boucle pour traiter TOUS les événements en attente
     while (true) {
-        Event e = GetNetwork().PopEvent();
-        
-        if (e.type == EventType::UNKNOWN) {
-            break;
+      Event e = GetNetwork().PopEvent();
+
+      if (e.type == EventType::UNKNOWN) {
+        break;
+      }
+
+      if (e.type == EventType::SEND_MAP) {
+        const auto* mapData = std::get_if<MAP_DATA>(&e.data);
+        if (mapData) {
+          std::cout << "[NETWORK] MAP_DATA stored! " << mapData->width << "x"
+                    << mapData->height << " (" << mapData->tiles.size()
+                    << " tiles)" << std::endl;
+          m_mapDataReceived = true;
+          m_mapWidth = mapData->width;
+          m_mapHeight = mapData->height;
+          m_mapScrollSpeed = mapData->scrollSpeed;
+          m_mapTiles = mapData->tiles;
+        }
+      }
+
+      if (e.type == EventType::GAME_END) {
+        const auto& gameEnd = std::get<GAME_END>(e.data);
+
+        std::cout << "[CLIENT] GAME_END reçu!" << std::endl;
+        std::cout << "[CLIENT] Victory: " << (int)gameEnd.victory << std::endl;
+        std::cout << "[CLIENT] Scores count: " << gameEnd.scores.size()
+                  << std::endl;
+
+        for (const auto& s : gameEnd.scores) {
+          std::cout << "[CLIENT] Score - Player " << s.playerId << " = "
+                    << s.score << " (rank " << (int)s.rank << ")" << std::endl;
         }
 
-        if (e.type == EventType::SEND_MAP) {
-          const auto* mapData = std::get_if<MAP_DATA>(&e.data);
-          if (mapData) {
-            std::cout << "[NETWORK] MAP_DATA stored! " << mapData->width << "x" 
-                    << mapData->height << " (" << mapData->tiles.size() << " tiles)" << std::endl;
-            m_mapDataReceived = true;
-            m_mapWidth = mapData->width;
-            m_mapHeight = mapData->height;
-            m_mapScrollSpeed = mapData->scrollSpeed;
-            m_mapTiles = mapData->tiles;
-          }
+        // Passer les données à GameOverScene
+        GetSceneData().Set<bool>("victory", gameEnd.victory == 1);
+
+        // Convertir les scores pour les passer
+        std::vector<std::tuple<uint16_t, uint32_t, uint8_t>> scores;
+        for (const auto& s : gameEnd.scores) {
+          scores.push_back({s.playerId, s.score, s.rank});
         }
+        GetSceneData().Set("scores", scores);
+        GetSceneData().Set<bool>("isSpectator", false);
 
-        if (e.type == EventType::GAME_END) {
-             const auto& gameEnd = std::get<GAME_END>(e.data);
-            
-             std::cout << "[CLIENT] GAME_END reçu!" << std::endl;
-              std::cout << "[CLIENT] Victory: " << (int)gameEnd.victory << std::endl;
-              std::cout << "[CLIENT] Scores count: " << gameEnd.scores.size() << std::endl;
-              
-              for (const auto& s : gameEnd.scores) {
-                  std::cout << "[CLIENT] Score - Player " << s.playerId 
-                            << " = " << s.score << " (rank " << (int)s.rank << ")" << std::endl;
-    }
+        ChangeScene("gameover");
+        return;
+      }
 
-            // Passer les données à GameOverScene
-            GetSceneData().Set<bool>("victory", gameEnd.victory == 1);
-            
-            // Convertir les scores pour les passer
-            std::vector<std::tuple<uint16_t, uint32_t, uint8_t>> scores;
-            for (const auto& s : gameEnd.scores) {
-                scores.push_back({s.playerId, s.score, s.rank});
+      std::visit(
+          [&](auto&& payload) {
+            using T = std::decay_t<decltype(payload)>;
+
+            if constexpr (std::is_same_v<T, GAME_STATE>) {
+              UpdatePlayers(payload.players, dt);
+              UpdateEnemies(payload.enemies, dt);
+              UpdateProjectiles(payload.projectiles, dt);
+            } else if constexpr (std::is_same_v<T, FORCE_STATE>) {
+              auto it = m_forces.find(payload.forceId);
+              if (it == m_forces.end()) {
+                SpawnForce(payload.forceId, payload.ownerId,
+                           {payload.posX, payload.posY});
+              } else {
+                UpdateForcePosition(payload.forceId,
+                                    {payload.posX, payload.posY});
+              }
             }
-            GetSceneData().Set("scores", scores);
-            GetSceneData().Set<bool>("isSpectator", false);
-            
-            ChangeScene("gameover");
-            return;
-        }
-
-        std::visit(
-            [&](auto&& payload) {
-                using T = std::decay_t<decltype(payload)>;
-
-                if constexpr (std::is_same_v<T, GAME_STATE>) {
-                    UpdatePlayers(payload.players, dt);
-                    UpdateEnemies(payload.enemies, dt);
-                    UpdateProjectiles(payload.projectiles, dt);
-                } 
-                else if constexpr (std::is_same_v<T, FORCE_STATE>) {
-
-                    auto it = m_forces.find(payload.forceId);
-                    if (it == m_forces.end()) {
-                        SpawnForce(payload.forceId, payload.ownerId,
-                                   {payload.posX, payload.posY});
-                    } else {
-                        UpdateForcePosition(payload.forceId,
-                                            {payload.posX, payload.posY});
-                    }
-                }
-
-            },
-            e.data);
+          },
+          e.data);
     }
-}
+  }
 
   void CreateExplosion(Entity entity) {
     auto& transform = GetRegistry().get_components<Transform>()[entity];
