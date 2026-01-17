@@ -290,7 +290,7 @@ if (m_mapDataReceived) {
     }
 }
     GetEvents(deltaTime);
-    UpdateScore(); 
+    //UpdateScore(); 
   }
 
   void Render() override {
@@ -673,16 +673,7 @@ if (m_mapDataReceived) {
     }
   }
 
-void UpdateScore() {
-    if (m_isSpectator || !m_isAlive || !m_scoreText) return;
 
-    auto& playerComponents = GetRegistry().get_components<PlayerEntity>();
-
-    if (m_localPlayer < playerComponents.size() && playerComponents[m_localPlayer].has_value()) {
-        int score = playerComponents[m_localPlayer]->score;
-        m_scoreText->SetText("Score: " + std::to_string(score));
-    }
-}
 
 
   void SpawnEnemy(uint16_t enemyId, uint8_t enemyType, Vector2 position) {
@@ -1008,7 +999,11 @@ void RenderTileMap() {
           m_healthText->SetText("Health: " +
 
                                 std::to_string(static_cast<int>(fullState.hp)));
-       }
+          playerComponents[m_localPlayer]->score =
+              static_cast<int>(fullState.score);
+          m_scoreText->SetText(
+              "Score: " + std::to_string(static_cast<int>(fullState.score)));
+        }
         if (deltaState.mask & M_HP) {
           if (fullState.hp <= 0 && m_isAlive) {
             m_isAlive = false;
