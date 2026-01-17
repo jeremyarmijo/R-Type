@@ -13,7 +13,6 @@
 #include "Player/Projectile.hpp"
 #include "physics/Physics2D.hpp"
 #include "ecs/Zipper.hpp"
-#include "inputs/InputManager.hpp"
 #include "systems/ProjectileSystem.hpp"
 
 void player_movement_system(Registry& registry) {

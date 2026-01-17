@@ -1,13 +1,13 @@
 #pragma once
 #include "ecs/Registry.hpp"
 #include "input/InputSubsystem.hpp"
-#include "include/NetworkManager.hpp"
+#include "network/NetworkSubsystem.hpp"
 #include "Player/PlayerEntity.hpp"
 
 // Functional player input system
 inline void player_input_system(Registry& registry,
                                 InputSubsystem* input,
-                                NetworkManager* network = nullptr) {
+                                NetworkSubsystem* network = nullptr) {
     if (!input) return;
     
     auto& playerEntities = registry.get_components<PlayerEntity>();

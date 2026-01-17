@@ -16,6 +16,7 @@
 #include "network/EncodeFunc.hpp"
 #include "network/ServerNetworkManager.hpp"
 #include "dynamicLibLoader/DLLoader.hpp"
+#include "engine/GameEngine.hpp"
 
 /**
  * @class ServerGame
@@ -39,14 +40,16 @@ struct lobby_list {
   bool players_ready = false;
   bool gameRuning = false;
   bool hasPassword = false;
-  std::vector<LevelComponent> levelsData;
-  int currentLevelIndex = 0;
-  bool waitingForNextLevel = false;
-  float levelTransitionTimer = 0.0f;
-  Entity currentLevelEntity;
-  Registry registry;
-  std::unordered_map<uint16_t, Entity> m_players;
+  // std::vector<LevelComponent> levelsData;
+  // int currentLevelIndex = 0;
+  // bool waitingForNextLevel = false;
+  // float levelTransitionTimer = 0.0f;
+  // Entity currentLevelEntity;
+  // Registry registry;
+  // std::unordered_map<uint16_t, Entity> m_players;
   std::thread gameThread;
+  GameEngine m_engine;
+  Scene* m_gameScene = nullptr;
 };
 
 class ServerGame {

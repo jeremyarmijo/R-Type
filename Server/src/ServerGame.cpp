@@ -24,6 +24,7 @@
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WaveSystem.hpp"
 #include "systems/WeaponSystem.hpp"
+#include "scene/Scene.hpp"
 
 ServerGame::ServerGame() : serverRunning(true) {
   SetupDecoder(decode);
@@ -46,6 +47,21 @@ void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName,
   l->hasPassword = !mdp.empty();
   l->nb_player = 1;
   l->players_list.push_back(std::make_tuple(playerId, false, playerName));
+
+  if (!l->m_engine.Initialize("Server Lobby", 0, 0)) {
+    std::cerr << "Failed to initialize lobby engine!" << std::endl;
+    return;
+  }
+
+  if (!l->m_engine.GetSceneManager().LoadSceneModule("rtype", "../../Client/src/scenes/libscene_rtypescene.so")) {
+    std::cerr << "Failed to load game scene!" << std::endl;
+    return;
+  }
+
+  l->m_gameScene = l->m_engine.GetSceneManager().GetCurrentScene();
+  if (l->m_gameScene) {
+    std::cout << "scene loaded:" << l->m_gameScene->GetName() << std::endl;
+  }
 
   std::cout << "[Lobby] Player " << playerId << " created lobby " << l->lobby_id
             << std::endl;
@@ -450,12 +466,13 @@ void ServerGame::SetupNetworkCallbacks() {
 
     std::lock_guard<std::mutex> lock(lobbyMutex);
     for (auto& lobby : lobbys) {
-      auto it = lobby->m_players.find(client_id);
-      if (it != lobby->m_players.end()) {
-        Entity playerEntity = it->second;
-        lobby->registry.kill_entity(playerEntity);
-        lobby->m_players.erase(it);
-      }
+        auto& m_players = lobby->m_gameScene->GetPlayers();
+        auto it = m_players.find(client_id);
+        if (it != m_players.end()) {
+          Entity playerEntity = it->second;
+          lobby->m_engine.GetRegistry().kill_entity(playerEntity);
+          m_players.erase(it);
+        }
     }
   });
 }
@@ -493,47 +510,21 @@ void ServerGame::InitWorld(lobby_list& lobby) {
   //           << std::endl;
 }
 
-void ServerGame::StartGame(lobby_list& lobby_list) {
-  // Physics components
-  lobby_list.registry.register_component<Transform>();
-  lobby_list.registry.register_component<RigidBody>();
-  lobby_list.registry.register_component<BoxCollider>();
+void ServerGame::StartGame(lobby_list& lobby) {
+  // if (!lobby.m_gameScene) {
+  //   std::cerr << "No game scene loaded!" << std::endl;
+  //   return;
+  // }
 
-  // Player components
-  lobby_list.registry.register_component<PlayerEntity>();
-  lobby_list.registry.register_component<InputState>();
+  SceneData& data = lobby.m_engine.GetSceneData();
+  data.Set("players_list", lobby.players_list);
+  data.Set("difficulty", lobby.difficulty);
 
-  // Enemy / Gameplay
-  lobby_list.registry.register_component<Enemy>();
-  lobby_list.registry.register_component<Boss>();
-  lobby_list.registry.register_component<Items>();
-  lobby_list.registry.register_component<Collision>();
-  lobby_list.registry.register_component<EnemySpawning>();
-
-  // Weapon & Projectile components
-  lobby_list.registry.register_component<Weapon>();
-  lobby_list.registry.register_component<Projectile>();
-  lobby_list.registry.register_component<LevelComponent>();
-  lobby_list.registry.register_component<BossPart>();
-
-  for (auto& [playerId, ready, _] : lobby_list.players_list) {
-    float posY = 200.f + (lobby_list.m_players.size() % 4) * 100.f;
-    Entity player = createPlayer(lobby_list.registry, {200, posY}, playerId);
-    lobby_list.m_players[playerId] = player;
-  }
-
-  lobby_list.levelsData = createLevels();
-  lobby_list.currentLevelIndex = 0;
-  lobby_list.waitingForNextLevel = false;
-  lobby_list.levelTransitionTimer = 0.0f;
-  lobby_list.currentLevelEntity = createLevelEntity(
-      lobby_list.registry, lobby_list.levelsData[lobby_list.currentLevelIndex]);
-  std::cout << "[StartGame] Level " << lobby_list.currentLevelIndex + 1
-            << " created" << std::endl;
+  lobby.m_engine.ChangeScene("rtype");
 
   std::cout << "Lobby full! Starting the game!!!!\n";
-  lobby_list.gameThread =
-      std::thread(&ServerGame::GameLoop, this, std::ref(lobby_list));
+  lobby.gameThread =
+      std::thread(&ServerGame::GameLoop, this, std::ref(lobby));
 }
 
 std::optional<std::tuple<Event, uint16_t>> ServerGame::PopEvent() {
@@ -565,21 +556,24 @@ void ServerGame::EndGame(lobby_list& lobby) {
 }
 
 void ServerGame::CheckGameEnded(lobby_list& lobby) {
+  auto& m_players = lobby.m_gameScene->GetPlayers();
+  Registry& registry = lobby.m_engine.GetRegistry();
+  
   int validPlayers = 0;
-  for (auto& [id, entity] : lobby.m_players) {
-    if (lobby.registry.is_entity_valid(entity)) {
+  for (auto& [id, entity] : m_players) {
+    if (registry.is_entity_valid(entity)) {
       validPlayers += 1;
     }
   }
+  
   if (validPlayers <= 0) {
     EndGame(lobby);
   }
 }
 
 void ServerGame::GameLoop(lobby_list& lobby) {
-  InitWorld(lobby);
 
-  for (int i = 0; i < 100 && lobby.gameRuning; ++i) {
+  for (int i = 0; i < 50 && lobby.gameRuning; ++i) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 
@@ -597,6 +591,8 @@ void ServerGame::GameLoop(lobby_list& lobby) {
     SendAction(std::make_tuple(ac, 0, &lobby));
   }
 
+  std::cout << "game starting" << std::endl;
+
   while (lobby.gameRuning) {
     auto currentTime = std::chrono::steady_clock::now();
     float deltaTime =
@@ -604,7 +600,7 @@ void ServerGame::GameLoop(lobby_list& lobby) {
     lastTime = currentTime;
 
     ReceivePlayerInputs(lobby);
-    UpdateGameState(lobby, deltaTime);
+    lobby.m_engine.Update(deltaTime);
     SendWorldStateToClients(lobby);
     CheckGameEnded(lobby);
 
@@ -668,11 +664,11 @@ void ServerGame::SendPacket() {
 }
 
 void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
-  lobby.registry = Registry{};
-  lobby.m_players.clear();
-  lobby.currentLevelIndex = 0;
-  lobby.waitingForNextLevel = false;
-  lobby.levelTransitionTimer = 0.0f;
+  // lobby.registry = Registry{};
+  // lobby.m_players.clear();
+  // lobby.currentLevelIndex = 0;
+  // lobby.waitingForNextLevel = false;
+  // lobby.levelTransitionTimer = 0.0f;
 
   for (auto& player : lobby.players_list) {
     std::get<1>(player) = false;
@@ -693,7 +689,6 @@ void ServerGame::Run() {
   std::cout << "before main loop"<< std::endl;
 
   while (serverRunning) {
-  std::cout << "server running"<< std::endl;
 
     networkManager->Update();
     SendPacket();
@@ -746,267 +741,43 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
   while (auto evOpt = PopEventLobby(lobby)) {
     auto [event, playerId] = evOpt.value();
 
-    switch (event.type) {
-      case EventType::PLAYER_INPUT: {
-        const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
+    // switch (event.type) {
+    //   case EventType::PLAYER_INPUT: {
+    //     const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
 
-        auto& players = lobby.registry.get_components<PlayerEntity>();
-        auto& states = lobby.registry.get_components<InputState>();
+    //     auto& players = lobby.registry.get_components<PlayerEntity>();
+    //     auto& states = lobby.registry.get_components<InputState>();
 
-        for (auto&& [player, state] : Zipper(players, states)) {
-          if (player.player_id != playerId) continue;
+    //     for (auto&& [player, state] : Zipper(players, states)) {
+    //       if (player.player_id != playerId) continue;
 
-          state.moveLeft = input.left;
-          state.moveRight = input.right;
-          state.moveDown = input.down;
-          state.moveUp = input.up;
-          state.action1 = input.fire;
-          break;
-        }
-        break;
-      }
+    //       state.moveLeft = input.left;
+    //       state.moveRight = input.right;
+    //       state.moveDown = input.down;
+    //       state.moveUp = input.up;
+    //       state.action1 = input.fire;
+    //       break;
+    //     }
+    //     break;
+    //   }
 
-      default:
-        break;
-    }
+    //   default:
+    //     break;
+    // }
+    SceneData& data = lobby.m_engine.GetSceneData();
+    data.Set("last_input_event", event);
+    data.Set("last_input_player", playerId);
   }
 }
 
 void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
-  auto& transforms = lobby.registry.get_components<Transform>();
-  auto& rigidbodies = lobby.registry.get_components<RigidBody>();
-  auto& players = lobby.registry.get_components<PlayerEntity>();
-  auto& enemies = lobby.registry.get_components<Enemy>();
-  auto& bosses = lobby.registry.get_components<Boss>();
-  auto& colliders = lobby.registry.get_components<BoxCollider>();
-  auto& projectiles = lobby.registry.get_components<Projectile>();
-  auto& weapons = lobby.registry.get_components<Weapon>();
-
-  for (auto&& [player] : Zipper(players)) {
-    if (player.invtimer > 0.0f) {
-      player.invtimer -= deltaTime;
-      if (player.invtimer < 0.0f) player.invtimer = 0.0f;
-    }
-  }
-
-  for (size_t i = 0; i < bosses.size(); ++i) {
-    if (bosses[i].has_value()) {
-      if (i < transforms.size() && transforms[i].has_value()) {
-        std::cout << "[DEBUG] Boss " << i << " at position ("
-                  << transforms[i]->position.x << ", "
-                  << transforms[i]->position.y << ") HP=" << bosses[i]->current
-                  << std::endl;
-      } else {
-        std::cout << "[DEBUG] Boss " << i << " has NO TRANSFORM!" << std::endl;
-      }
-    }
-  }
-
-  std::cout << "[DEBUG] currentLevelIndex=" << lobby.currentLevelIndex
-            << " waitingForNextLevel=" << lobby.waitingForNextLevel
-            << " levelTransitionTimer=" << lobby.levelTransitionTimer
-            << std::endl;
-
-  auto& levelsDbg = lobby.registry.get_components<LevelComponent>();
-  int countLevels = 0;
-  for (auto& lvl : levelsDbg) {
-    if (lvl.has_value()) {
-      countLevels++;
-      std::cout << "[DEBUG] LevelComponent found: currentWave="
-                << lvl->currentWave << " finishedLevel=" << lvl->finishedLevel
-                << " initialized=" << lvl->initialized << std::endl;
-    }
-  }
-  std::cout << "[DEBUG] LevelComponents in registry: " << countLevels
-            << std::endl;
-
-  int enemyCount = 0;
-  for (auto& en : enemies) {
-    if (en.has_value()) enemyCount++;
-  }
-  int bossCount = 0;
-  for (auto& bo : bosses) {
-    if (bo.has_value()) bossCount++;
-  }
-  std::cout << "[DEBUG] Enemies alive: " << enemyCount
-            << " Bosses alive: " << bossCount << std::endl;
-
-  if (lobby.waitingForNextLevel) {
-    lobby.levelTransitionTimer += deltaTime;
-    std::cout << "[DEBUG] Waiting for next level... "
-              << lobby.levelTransitionTimer << "/" << TIME_BETWEEN_LEVELS
-              << std::endl;
-
-    if (lobby.levelTransitionTimer >= TIME_BETWEEN_LEVELS) {
-      lobby.levelTransitionTimer = 0.0f;
-      lobby.waitingForNextLevel = false;
-      lobby.currentLevelIndex++;
-
-      if (lobby.currentLevelIndex >=
-          static_cast<int>(lobby.levelsData.size())) {
-        Action ac;
-        GameEnd g;
-        g.victory = true;
-        ac.type = ActionType::GAME_END;
-        ac.data = g;
-        SendAction(std::make_tuple(ac, 0, &lobby));
-        lobby.gameRuning = false;
-        std::cout << "[Game] VICTORY! All levels completed!" << std::endl;
-        return;
-      }
-
-      lobby.currentLevelEntity = createLevelEntity(
-          lobby.registry, lobby.levelsData[lobby.currentLevelIndex]);
-      std::cout << "[Game] Level " << (lobby.currentLevelIndex + 1)
-                << " created (Entity "
-                << static_cast<size_t>(lobby.currentLevelEntity) << ")"
-                << std::endl;
-    }
-  } else {
-    bool levelFinished =
-        update_level_system(lobby.registry, deltaTime, lobby.currentLevelIndex);
-    std::cout << "[DEBUG] update_level_system returned: " << levelFinished
-              << std::endl;
-
-    if (levelFinished) {
-      std::cout << "[DEBUG] Cleaning up remaining enemies and bosses..."
-                << std::endl;
-
-      std::vector<Entity> toKill;
-
-      auto& enemiesCleanup = lobby.registry.get_components<Enemy>();
-      for (size_t i = 0; i < enemiesCleanup.size(); ++i) {
-        if (enemiesCleanup[i].has_value()) {
-          std::cout << "[DEBUG] Marking enemy at index " << i << " for cleanup"
-                    << std::endl;
-          toKill.push_back(lobby.registry.entity_from_index(i));
-        }
-      }
-
-      auto& bossesCleanup = lobby.registry.get_components<Boss>();
-      for (size_t i = 0; i < bossesCleanup.size(); ++i) {
-        if (bossesCleanup[i].has_value()) {
-          std::cout << "[DEBUG] Marking boss at index " << i << " for cleanup"
-                    << std::endl;
-          toKill.push_back(lobby.registry.entity_from_index(i));
-        }
-      }
-      for (Entity e : toKill) {
-        std::cout << "[DEBUG] Killing leftover entity: "
-                  << static_cast<size_t>(e) << std::endl;
-        lobby.registry.kill_entity(e);
-      }
-
-      std::cout << "[DEBUG] Killing level entity: "
-                << static_cast<size_t>(lobby.currentLevelEntity) << std::endl;
-      lobby.registry.kill_entity(lobby.currentLevelEntity);
-
-      lobby.waitingForNextLevel = true;
-      lobby.levelTransitionTimer = 0.0f;
-      std::cout << "[Game] Level " << (lobby.currentLevelIndex + 1)
-                << " finished! Waiting " << TIME_BETWEEN_LEVELS << " seconds..."
-                << std::endl;
-    }
-  }
-  player_movement_system(lobby.registry);
-  physics_movement_system(lobby.registry, transforms, rigidbodies, deltaTime,
-                          {0, 0});
-  enemy_movement_system(lobby.registry, transforms, rigidbodies, enemies,
-                        players, deltaTime);
-  boss_movement_system(lobby.registry, transforms, rigidbodies, bosses,
-                       deltaTime);
-  boss_part_system(lobby.registry, deltaTime);
-  weapon_cooldown_system(lobby.registry, weapons, deltaTime);
-  weapon_reload_system(lobby.registry, weapons, deltaTime);
-  weapon_firing_system(
-      lobby.registry, weapons, transforms,
-      [&lobby](size_t entityId) -> bool {
-        auto& playerEntity = lobby.registry.get_components<PlayerEntity>();
-        if (entityId < playerEntity.size() &&
-            playerEntity[entityId].has_value()) {
-          auto& state = lobby.registry.get_components<InputState>()[entityId];
-          return state->action1;
-        }
-        return false;
-      },
-      deltaTime);
-
-  projectile_collision_system(lobby.registry, transforms, colliders,
-                              projectiles);
-  projectile_lifetime_system(lobby.registry, projectiles, deltaTime);
-  gamePlay_Collision_system(lobby.registry, transforms, colliders, players,
-                            enemies, bosses);
-  bounds_check_system(lobby.registry, transforms, colliders, rigidbodies);
 }
 
 void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
-  auto& transforms = lobby.registry.get_components<Transform>();
-  auto& players = lobby.registry.get_components<PlayerEntity>();
-  auto& enemies = lobby.registry.get_components<Enemy>();
-  auto& bosses = lobby.registry.get_components<Boss>();
-  auto& projectiles = lobby.registry.get_components<Projectile>();
-  auto& bosspart = lobby.registry.get_components<BossPart>();
+  SceneData& data = lobby.m_engine.GetSceneData();
 
-  GameState gs;
-
-  for (auto&& [player, transform] : Zipper(players, transforms)) {
-    PlayerState ps;
-    ps.playerId = player.player_id;
-    ps.posX = transform.position.x;
-    ps.posY = transform.position.y;
-    ps.hp = static_cast<uint8_t>(player.current);
-    ps.weapon = static_cast<uint8_t>(0);
-    ps.state = player.isAlive ? 1 : 0;
-    gs.players.push_back(ps);
+  if (data.Has("game_state")) {
+    GameState gs = data.Get<GameState>("game_state");
+    SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0, &lobby));
   }
-
-  for (auto&& [idx, enemy, transform] : IndexedZipper(enemies, transforms)) {
-    EnemyState es;
-    es.enemyId = static_cast<uint16_t>(idx);
-    es.enemyType = static_cast<uint8_t>(enemy.type);
-    es.posX = transform.position.x;
-    es.posY = transform.position.y;
-    es.hp = static_cast<uint8_t>(enemy.current);
-    es.state = 1;
-    es.direction = 0;
-    gs.enemies.push_back(es);
-  }
-
-  for (auto&& [idx, segment, transform] : IndexedZipper(bosspart, transforms)) {
-    EnemyState es;
-    es.enemyId = static_cast<uint16_t>(idx);
-    es.enemyType = 99;
-    es.posX = transform.position.x;
-    es.posY = transform.position.y;
-    es.hp = 1;
-    es.state = 1;
-    es.direction = 0;
-    gs.enemies.push_back(es);
-  }
-
-  for (auto&& [idx, boss, transform] : IndexedZipper(bosses, transforms)) {
-    EnemyState bs;
-    bs.enemyId = static_cast<uint16_t>(idx);
-    bs.enemyType = static_cast<uint8_t>(boss.type);
-    bs.posX = transform.position.x;
-    bs.posY = transform.position.y;
-    bs.hp = static_cast<uint8_t>(boss.current);
-    bs.state = 1;
-    bs.direction = 0;
-    gs.enemies.push_back(bs);
-  }
-
-  for (auto&& [idx, proj, transform] : IndexedZipper(projectiles, transforms)) {
-    ProjectileState ps;
-    ps.projectileId = static_cast<uint16_t>(idx);
-    ps.ownerId = proj.ownerId;
-    ps.posX = transform.position.x;
-    ps.posY = transform.position.y;
-    ps.velX = proj.direction.x * proj.speed;
-    ps.velY = proj.direction.y * proj.speed;
-    ps.damage = static_cast<uint8_t>(proj.damage);
-    gs.projectiles.push_back(ps);
-  }
-
-  SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0, &lobby));
 }

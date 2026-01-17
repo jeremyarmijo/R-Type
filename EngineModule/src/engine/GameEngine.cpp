@@ -8,6 +8,8 @@
 #include "Collision/Items.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
+#include "Player/PlayerEntity.hpp"
+#include "Player/Weapon.hpp"
 #include "Player/EnemySpawn.hpp"
 #include "Player/Projectile.hpp"
 
@@ -33,20 +35,20 @@ bool GameEngine::Initialize(const std::string& title, int width, int height) {
     
     // Register core components
 
-//   // Player components
-//   m_registry.register_component<PlayerEntity>();
-//   m_registry.register_component<InputState>();
+  // Player components
+  m_registry.register_component<PlayerEntity>();
+  m_registry.register_component<InputState>();
 
-//   // Enemy / Gameplay
-//   m_registry.register_component<Enemy>();
-//   m_registry.register_component<Boss>();
-//   m_registry.register_component<Items>();
-//   m_registry.register_component<Collision>();
-//   m_registry.register_component<EnemySpawning>();
+  // Enemy / Gameplay
+  m_registry.register_component<Enemy>();
+  m_registry.register_component<Boss>();
+  m_registry.register_component<Items>();
+  m_registry.register_component<Collision>();
+  m_registry.register_component<EnemySpawning>();
 
-//   // Weapon & Projectile components
-//   m_registry.register_component<Weapon>();
-//   m_registry.register_component<Projectile>();
+  // Weapon & Projectile components
+  m_registry.register_component<Weapon>();
+  m_registry.register_component<Projectile>();
     
     std::cout << "Core components registered" << std::endl;
     std::cout << "Engine initialized - waiting for subsystems" << std::endl;

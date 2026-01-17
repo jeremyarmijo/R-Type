@@ -1,6 +1,8 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <string>
+#include <unordered_map>
+#include "ecs/Entity.hpp"
 
 class GameEngine;
 class SceneManager;
@@ -30,6 +32,8 @@ public:
     virtual void Update(float deltaTime) = 0;
     virtual void Render() = 0;
     virtual void HandleEvent(SDL_Event& event) {}
+
+    virtual std::unordered_map<uint16_t, Entity>& GetPlayers() = 0;
 
     const std::string& GetName() const { return m_name; }
 

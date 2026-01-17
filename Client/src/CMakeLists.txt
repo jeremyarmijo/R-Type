@@ -3,40 +3,48 @@ project(RTypeScenes)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# 1. Dependencies
 find_package(SDL2 REQUIRED)
-find_library(ENGINE_LIB  NAMES engine_core PATHS "${CMAKE_SOURCE_DIR}/../../EngineModule/build/" NO_DEFAULT_PATH)
+find_library(ENGINE_LIB NAMES engine_core PATHS "${CMAKE_SOURCE_DIR}/../../EngineModule/build/" NO_DEFAULT_PATH)
 
-# 2. Include Paths
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/
+    ${CMAKE_CURRENT_SOURCE_DIR}/scenes/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../EngineModule/src/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../EngineModule/src/subsystems/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../EngineModule/src/subsystems/rendering/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Shared/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Shared/systems/
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Shared/components/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Shared/components/ 
     ${SDL2_INCLUDE_DIRS}
 )
 
-file(GLOB SCENE_SOURCES "scenes/*.cpp")
+function(add_scene_lib SCENE_NAME)
+    add_library(${SCENE_NAME}_target SHARED ${ARGN})
 
-foreach(SOURCE_FILE ${SCENE_SOURCES})
-    get_filename_component(BASE_NAME ${SOURCE_FILE} NAME_WE)
-    
-    string(TOLOWER ${BASE_NAME} LOW_NAME)
+    target_link_libraries(${SCENE_NAME}_target PRIVATE ${SDL2_LIBRARIES} ${ENGINE_LIB})
 
-    add_library(${BASE_NAME}_target SHARED ${SOURCE_FILE})
-
-    target_link_libraries(${BASE_NAME}_target PRIVATE 
-        ${SDL2_LIBRARIES}
-        ${ENGINE_LIB} 
-    )
-
-    set_target_properties(${BASE_NAME}_target PROPERTIES 
+    string(TOLOWER ${SCENE_NAME} LOW_NAME)
+    set_target_properties(${SCENE_NAME}_target PROPERTIES 
         PREFIX "" 
         OUTPUT_NAME "libscene_${LOW_NAME}"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../scenes/"
     )
-endforeach()
+endfunction()
+
+
+add_scene_lib(CreateLobby   "scenes/CreateLobby.cpp")
+add_scene_lib(GameOver      "scenes/GameOver.cpp")
+add_scene_lib(JoinGame      "scenes/JoinGame.cpp")
+add_scene_lib(Lobby         "scenes/Lobby.cpp")
+add_scene_lib(LobbyInfo     "scenes/LobbyInfo.cpp")
+add_scene_lib(LobbyJoin     "scenes/LobbyJoin.cpp")
+add_scene_lib(LobbyPassword "scenes/LobbyPassword.cpp")
+
+add_scene_lib(RTypeScene    "scenes/RtypeScene.cpp" "../../Shared/systems/LevelSystem.cpp") 
+
+add_scene_lib(MainGame      "scenes/MainGame.cpp" "../../Shared/systems/InputSystem.cpp")
+add_scene_lib(MainMenu      "scenes/MainMenu.cpp")
+add_scene_lib(Options       "scenes/Options.cpp")
+add_scene_lib(WaitLobby     "scenes/WaitLobby.cpp")

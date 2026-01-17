@@ -17,6 +17,11 @@ CPMAddPackage(
     "SDL_STATIC OFF"
     "SDL_PULSEAUDIO ON"
     "SDL_ALSA ON"
+    "SDL_PIPEWIRE OFF"
+    "SDL_AUDIO OFF"
+    "SDL_VIDEO OFF"
+    "SDL_JOYSTICK OFF"
+    "SDL_HAPTIC OFF"
 )
 
 CPMAddPackage(
@@ -76,21 +81,27 @@ file(GLOB_RECURSE SOURCES
 
 add_executable(RTYPE_Server ${SOURCES})
 
+find_library(ENGINE_LIB  NAMES engine_core         PATHS "${CMAKE_SOURCE_DIR}/../EngineModule/build/" NO_DEFAULT_PATH)
+find_library(RENDER_LIB  NAMES subsystem_rendering PATHS "${CMAKE_SOURCE_DIR}/../EngineModule/build/" NO_DEFAULT_PATH)
+find_library(AUDIO_LIB   NAMES subsystem_audio     PATHS "${CMAKE_SOURCE_DIR}/../EngineModule/build/" NO_DEFAULT_PATH)
+find_library(INPUT_LIB   NAMES subsystem_input     PATHS "${CMAKE_SOURCE_DIR}/../EngineModule/build/" NO_DEFAULT_PATH)
+find_library(NETWORK_LIB NAMES subsystem_network   PATHS "${CMAKE_SOURCE_DIR}/../EngineModule/build/" NO_DEFAULT_PATH)
+
 target_include_directories(RTYPE_Server PRIVATE
-    ${PROJECT_SOURCE_DIR}/../Client/src/engine/
-    ${PROJECT_SOURCE_DIR}/../Shared
-    ${PROJECT_SOURCE_DIR}/../Shared/components
+    ${PROJECT_SOURCE_DIR}/../Shared/
+    ${PROJECT_SOURCE_DIR}/../Shared/components/
     ${PROJECT_SOURCE_DIR}/include/
     ${PROJECT_SOURCE_DIR}/../Shared/systems/
     ${PROJECT_SOURCE_DIR}/../Shared/dynamicLibLoader/
     ${PROJECT_SOURCE_DIR}/
-    ${PROJECT_SOURCE_DIR}/../Client/src/engine/network/
+    ${PROJECT_SOURCE_DIR}/../EngineModule/src/subsystems/
+    ${PROJECT_SOURCE_DIR}/../EngineModule/src/
 )
 
-target_link_libraries(RTYPE_Server PRIVATE SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer asio)
+target_link_libraries(RTYPE_Server PRIVATE ${ENGINE_LIB} ${RENDER_LIB} ${AUDIO_LIB} ${INPUT_LIB} ${NETWORK_LIB} SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer asio)
 
 if(WIN32)
-  target_link_libraries(RTYPE_Server PRIVATE SDL2::SDL2main ws2_32 wsock32)
+  target_link_libraries(RTYPE_Server PRIVATE ${ENGINE_LIB} ${RENDER_LIB} ${AUDIO_LIB} ${INPUT_LIB} ${NETWORK_LIB} SDL2::SDL2main ws2_32 wsock32)
 endif()
 
 target_compile_options(RTYPE_Server PRIVATE -Wall -Wextra)

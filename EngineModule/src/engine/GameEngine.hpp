@@ -68,8 +68,8 @@ public:
     int GetWindowWidth() const { return m_windowWidth; }
     int GetWindowHeight() const { return m_windowHeight; }
     float GetDeltaTime() const { return m_deltaTime; }
+    void Update(float deltaTime);
 
 private:
-    void Update(float deltaTime);
     void HandleEvents();
 };

@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 
         engine.ChangeScene("menu");
         
-        engine. Run();
+        engine.Run();
         
         std::cout << "\n=== GAME ENDED ===" << std::endl;
         

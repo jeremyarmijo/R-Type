@@ -189,6 +189,7 @@ class MyGameScene : public Scene {
     auto& colliders = GetRegistry().get_components<BoxCollider>();
 
     // Weapon systems
+    player_input_system(GetRegistry(), GetInput(), GetNetwork());
     weapon_cooldown_system(GetRegistry(), weapons, deltaTime);
     weapon_reload_system(GetRegistry(), weapons, deltaTime);
     RemoveExplosions(deltaTime);
@@ -720,6 +721,11 @@ class MyGameScene : public Scene {
         ++it;
       }
     }
+  }
+
+  std::unordered_map<uint16_t, Entity>& GetPlayers() override {
+    std::unordered_map<uint16_t, Entity> list;
+    return list;
   }
 };
 

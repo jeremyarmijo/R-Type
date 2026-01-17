@@ -389,6 +389,11 @@ class OptionsScene : public Scene {
       UpdateBindingDisplay(row.action);
     }
   }
+
+  std::unordered_map<uint16_t, Entity>& GetPlayers() override {
+    std::unordered_map<uint16_t, Entity> list;
+    return list;
+  }
 };
 
 extern "C" {

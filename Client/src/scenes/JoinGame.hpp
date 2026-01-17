@@ -171,6 +171,11 @@ class JoinGame : public Scene {
       return;
     }
   }
+
+  std::unordered_map<uint16_t, Entity>& GetPlayers() override {
+    std::unordered_map<uint16_t, Entity> list;
+    return list;
+  }
 };
 
 extern "C" {
