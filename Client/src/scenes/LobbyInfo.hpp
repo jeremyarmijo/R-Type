@@ -289,6 +289,18 @@ class LobbyInfoPlayer : public Scene {
         RefreshPlayerListUI();
       }
     }
+    if (e.type == EventType::SEND_MAP) {
+      const auto* mapData = std::get_if<MAP_DATA>(&e.data);
+      if (mapData) {
+        std::cout << "[NETWORK] MAP_DATA stored! " << mapData->width << "x" 
+                << mapData->height << " (" << mapData->tiles.size() << " tiles)" << std::endl;
+        GetSceneData().Set("mapDataReceived", true);
+        GetSceneData().Set("mapWidth", mapData->width);
+        GetSceneData().Set("mapHeight",mapData->height);
+        GetSceneData().Set("mapScrollSpeed",mapData->scrollSpeed);
+        GetSceneData().Set("mapTiles",mapData->tiles);
+      }
+    }
     if (e.type == EventType::GAME_START) {
       const auto* data = std::get_if<GAME_START>(&e.data);
       GetSceneData().Set("posX", data->playerSpawnX);

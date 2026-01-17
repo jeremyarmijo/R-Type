@@ -171,22 +171,6 @@ void NetworkManager::ProcessTCPRecvBuffer() {
     
     std::cout << "[TCP DEBUG] Decoded event type: " << static_cast<int>(evt.type) << std::endl;
 
-    // ✅ TRAITER MAP_DATA ICI DIRECTEMENT
-    if (evt.type == EventType::SEND_MAP) {
-      const auto* mapData = std::get_if<MAP_DATA>(&evt.data);
-      if (mapData) {
-        std::cout << "[NETWORK] ✅ MAP_DATA stored! " << mapData->width << "x" 
-                  << mapData->height << " (" << mapData->tiles.size() << " tiles)" << std::endl;
-        
-        mapDataReceived = true;
-        mapWidth = mapData->width;
-        mapHeight = mapData->height;
-        mapScrollSpeed = mapData->scrollSpeed;
-        mapTiles = mapData->tiles;
-      }
-      // On push quand même dans le buffer au cas où une scène veut le traiter
-    }
-
     if (evt.type == EventType::LOGIN_RESPONSE) {
       const auto* input = std::get_if<LOGIN_RESPONSE>(&evt.data);
       if (!input) return;

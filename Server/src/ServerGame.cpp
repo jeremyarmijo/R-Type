@@ -266,19 +266,6 @@ void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
         lobby->lastStates.erase(playerId);
         lobby->playerStateCount.erase(playerId);
 
-        Action startAc;
-        GameStart gs;
-        gs.playerSpawnX = 200.0f;
-        gs.playerSpawnY = spawnY;
-        gs.scrollSpeed = 0;
-        startAc.type = ActionType::GAME_START;
-        startAc.data = gs;
-        SendAction(std::make_tuple(startAc, playerId, nullptr));
-
-        auto currentState =
-            std::make_shared<GameState>(BuildCurrentState(*lobby));
-        ProcessAndSendState(playerId, *lobby, currentState);
-
         return;
       }
       if (nbPlayerReady == lobby->nb_player && !lobby->gameRuning) {
@@ -686,6 +673,7 @@ void ServerGame::GameLoop(lobby_list& lobby) {
 
   if (lobby.gameRuning) {
     size_t playerIndex = 0;
+    SendMapToClients(lobby);
     for (auto& [playerId, ready, _] : lobby.players_list) {
       float spawnY = 200.0f + (playerIndex % 4) * 100.0f;
 
@@ -698,6 +686,9 @@ void ServerGame::GameLoop(lobby_list& lobby) {
       ac.data = g;
       SendAction(std::make_tuple(ac, playerId, nullptr));
 
+       auto currentState =
+            std::make_shared<GameState>(BuildCurrentState(lobby));
+        ProcessAndSendState(playerId, lobby, currentState);
       playerIndex++;
     }
   }
@@ -1007,7 +998,7 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
 
 
 void ServerGame::SendMapToClients(lobby_list& lobby) {
-    if (lobby.mapSent) return;  // Ne pas renvoyer si déjà envoyé
+    if (lobby.mapSent) return;
     
     Action ac;
     MapData mapData;

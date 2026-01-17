@@ -35,12 +35,12 @@ class NetworkManager {
 
   void SendAction(Action action);
   Event PopEvent();
-  bool HasMapData() const { return mapDataReceived; }
+  /*bool HasMapData() const { return mapDataReceived; }
     uint16_t GetMapWidth() const { return mapWidth; }
     uint16_t GetMapHeight() const { return mapHeight; }
     float GetMapScrollSpeed() const { return mapScrollSpeed; }
     const std::vector<uint8_t>& GetMapTiles() const { return mapTiles; }
-    void ClearMapData() { mapDataReceived = false; mapTiles.clear(); }
+    void ClearMapData() { mapDataReceived = false; mapTiles.clear(); }*/
  private:
   std::mutex mut;
   bool tcpConnected = false;
@@ -62,11 +62,6 @@ class NetworkManager {
   asio::ip::tcp::socket tcpSocket;
   asio::ip::udp::socket udpSocket;
   asio::ip::udp::endpoint udpEndpoint;
-  bool mapDataReceived = false;
-  uint16_t mapWidth = 0;
-  uint16_t mapHeight = 0;
-  float mapScrollSpeed = 0.0f;
-  std::vector<uint8_t> mapTiles;
 
   std::thread networkThread;
 

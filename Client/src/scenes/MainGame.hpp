@@ -80,7 +80,11 @@ class MyGameScene : public Scene {
 
   MultiplayerSkinManager m_skinManager;
   std::unordered_map<uint16_t, std::vector<Entity>> m_compositeEnemies;
-  bool m_mapReceived = false;
+  bool m_mapDataReceived = false;
+  uint16_t m_mapWidth = 0;
+  uint16_t m_mapHeight = 0;
+  float m_mapScrollSpeed = 0;
+  std::vector<uint8_t> m_mapTiles;
  public:
   MyGameScene(GameEngine* engine, SceneManager* sceneManager)
       : Scene(engine, sceneManager, "game"),
@@ -109,13 +113,18 @@ void OnEnter() override {
       m_firstState = false;
       // NOUVEAU CODE ECS
 // NOUVEAU CODE ECS
-m_mapReceived = false;
+
+  m_mapDataReceived = GetSceneData().Get<bool>("mapDataReceived", false);
+  m_mapWidth = GetSceneData().Get<uint16_t>("mapWidth", 0);
+  m_mapHeight = GetSceneData().Get<uint16_t>("mapHeight", 0);
+  m_mapScrollSpeed = GetSceneData().Get<float>("mapScrollSpeed", 0);
+  m_mapTiles = GetSceneData().Get<std::vector<uint8_t>>("mapTiles", {});
 
 // Enregistrer le composant TileMap dans le registry
 GetRegistry().register_component<TileMap>();
 
 NetworkManager& network = GetNetwork();
-if (network.HasMapData()) {
+if (m_mapDataReceived) {
     std::cout << "[GAME] ✅ Loading map via ECS..." << std::endl;
     
     // Créer une entité pour la map
@@ -128,15 +137,15 @@ if (network.HasMapData()) {
     auto& tilemaps = GetRegistry().get_components<TileMap>();
     auto& tilemap = tilemaps[m_mapEntity].value();
     
-    tilemap.width = network.GetMapWidth();
-    tilemap.height = network.GetMapHeight();
-    tilemap.scrollSpeed = network.GetMapScrollSpeed();
-    tilemap.tiles = network.GetMapTiles();
+    tilemap.width = m_mapWidth;
+    tilemap.height = m_mapHeight;
+    tilemap.scrollSpeed = m_mapScrollSpeed;
+    tilemap.tiles = m_mapTiles;
     tilemap.tileSize = 32;
     tilemap.scrollOffset = 0.0f;
     tilemap.isLoaded = true;
     
-    m_mapReceived = true;
+    m_mapDataReceived = true;
     
     std::cout << "[GAME] Map loaded via ECS: " 
               << tilemap.width << "x" << tilemap.height 
@@ -250,7 +259,12 @@ if (network.HasMapData()) {
     m_isSpectator = false;
     m_firstState = false;
 
-    m_mapReceived = false;
+    m_mapDataReceived = false;
+    GetSceneData().Set("mapDataReceived", false);
+    m_mapTiles.clear();
+    GetSceneData().Set("mapTiles", m_mapTiles);
+
+
     GetUI().Clear();
     std::cout << "Game scene cleanup complete" << std::endl;
     std::cout << "==============================\n" << std::endl;
@@ -994,11 +1008,7 @@ void RenderTileMap() {
           m_healthText->SetText("Health: " +
 
                                 std::to_string(static_cast<int>(fullState.hp)));
-          playerComponents[m_localPlayer]->score =
-              static_cast<int>(fullState.score);
-          m_scoreText->SetText(
-              "Score: " + std::to_string(static_cast<int>(fullState.score)));
-        }
+       }
         if (deltaState.mask & M_HP) {
           if (fullState.hp <= 0 && m_isAlive) {
             m_isAlive = false;
@@ -1127,6 +1137,19 @@ void RenderTileMap() {
             break;
         }
 
+        if (e.type == EventType::SEND_MAP) {
+          const auto* mapData = std::get_if<MAP_DATA>(&e.data);
+          if (mapData) {
+            std::cout << "[NETWORK] MAP_DATA stored! " << mapData->width << "x" 
+                    << mapData->height << " (" << mapData->tiles.size() << " tiles)" << std::endl;
+            m_mapDataReceived = true;
+            m_mapWidth = mapData->width;
+            m_mapHeight = mapData->height;
+            m_mapScrollSpeed = mapData->scrollSpeed;
+            m_mapTiles = mapData->tiles;
+          }
+        }
+
         if (e.type == EventType::GAME_END) {
              const auto& gameEnd = std::get<GAME_END>(e.data);
             
@@ -1159,7 +1182,6 @@ void RenderTileMap() {
                 using T = std::decay_t<decltype(payload)>;
 
                 if constexpr (std::is_same_v<T, GAME_STATE>) {
-                    std::cout << "[CLIENT] GAME_STATE recu!" << std::endl;
                     UpdatePlayers(payload.players, dt);
                     UpdateEnemies(payload.enemies, dt);
                     UpdateProjectiles(payload.projectiles, dt);
