@@ -1019,7 +1019,7 @@ GameState ServerGame::BuildCurrentState(lobby_list& lobby) {
     ps.sprite = 0;
 
     ps.mask =
-        M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE;
+        M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE | M_SCORE;
 
     gs.players.push_back(ps);
   }
@@ -1165,6 +1165,10 @@ GameState ServerGame::CalculateDelta(const GameState& last,
         deltaP.sprite = currP.sprite;
         deltaP.mask |= M_SPRITE;
       }
+      if (currP.score != it->score) {
+        deltaP.score = currP.score;
+        deltaP.mask |= M_SCORE;
+      }
 
       if (deltaP.mask != 0) {
         diff.players.push_back(deltaP);
@@ -1306,7 +1310,7 @@ void ServerGame::ProcessAndSendState(
     deltaState = *currentState;
 
     uint16_t fullMaskPlayer =
-        M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE;
+        M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD | M_WEAPON | M_SPRITE | M_SCORE;
     for (auto& p : deltaState.players) {
       p.mask = fullMaskPlayer;
     }

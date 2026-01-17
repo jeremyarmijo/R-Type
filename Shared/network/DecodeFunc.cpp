@@ -262,7 +262,7 @@ Event DecodeGAME_STATE(const std::vector<uint8_t>& packet) {
   uint32_t payloadLength;
   uint16_t seq, ack;
   uint32_t ack_bits;
-  uint32_t tempFloat;
+  uint32_t temp32;
 
   if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits)) {
     return evt;
@@ -289,15 +289,15 @@ Event DecodeGAME_STATE(const std::vector<uint8_t>& packet) {
       offset += 2;
 
       if (p.mask & M_POS_X) {
-        memcpy(&tempFloat, &packet[offset], 4);
-        tempFloat = ntohl(tempFloat);
-        memcpy(&p.posX, &tempFloat, 4);
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&p.posX, &temp32, 4);
         offset += 4;
       }
       if (p.mask & M_POS_Y) {
-        memcpy(&tempFloat, &packet[offset], 4);
-        tempFloat = ntohl(tempFloat);
-        memcpy(&p.posY, &tempFloat, 4);
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&p.posY, &temp32, 4);
         offset += 4;
       }
       if (p.mask & M_HP) {
@@ -319,6 +319,12 @@ Event DecodeGAME_STATE(const std::vector<uint8_t>& packet) {
       if (p.mask & M_SPRITE) {
         if (offset >= packet.size()) break;
         p.sprite = packet[offset++];
+      }
+      if (p.mask & M_SCORE) {
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&p.score, &temp32, 4);
+        offset += 4;
       }
 
       data.players.push_back(p);
@@ -342,15 +348,15 @@ Event DecodeGAME_STATE(const std::vector<uint8_t>& packet) {
       offset += 2;
 
       if (e.mask & M_POS_X) {
-        memcpy(&tempFloat, &packet[offset], 4);
-        tempFloat = ntohl(tempFloat);
-        memcpy(&e.posX, &tempFloat, 4);
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&e.posX, &temp32, 4);
         offset += 4;
       }
       if (e.mask & M_POS_Y) {
-        memcpy(&tempFloat, &packet[offset], 4);
-        tempFloat = ntohl(tempFloat);
-        memcpy(&e.posY, &tempFloat, 4);
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&e.posY, &temp32, 4);
         offset += 4;
       }
       if (e.mask & M_HP) {
@@ -391,15 +397,15 @@ Event DecodeGAME_STATE(const std::vector<uint8_t>& packet) {
       offset += 2;
 
       if (pr.mask & M_POS_X) {
-        memcpy(&tempFloat, &packet[offset], 4);
-        tempFloat = ntohl(tempFloat);
-        memcpy(&pr.posX, &tempFloat, 4);
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&pr.posX, &temp32, 4);
         offset += 4;
       }
       if (pr.mask & M_POS_Y) {
-        memcpy(&tempFloat, &packet[offset], 4);
-        tempFloat = ntohl(tempFloat);
-        memcpy(&pr.posY, &tempFloat, 4);
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&pr.posY, &temp32, 4);
         offset += 4;
       }
       if (pr.mask & M_TYPE) {

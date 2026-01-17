@@ -82,6 +82,11 @@ void GameStateFunc(const Action& a, std::vector<uint8_t>& out) {
     if (p.mask & M_SHIELD) out.push_back(p.shield);
     if (p.mask & M_WEAPON) out.push_back(p.weapon);
     if (p.mask & M_SPRITE) out.push_back(p.sprite);
+    if (p.mask & M_SCORE) {
+      uint8_t tmp[4];
+      htonf(p.score, tmp);
+      out.insert(out.end(), tmp, tmp + 4);
+    }
   }
 
   // ENNEMIS

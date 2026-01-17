@@ -806,6 +806,7 @@ class MyGameScene : public Scene {
       if (deltaState.mask & M_POS_X) fullState.posX = deltaState.posX;
       if (deltaState.mask & M_POS_Y) fullState.posY = deltaState.posY;
       if (deltaState.mask & M_HP) fullState.hp = deltaState.hp;
+      if (deltaState.mask & M_SCORE) fullState.score = deltaState.score;
       if (deltaState.mask & M_SHIELD) fullState.shield = deltaState.shield;
       if (deltaState.mask & M_WEAPON) fullState.weapon = deltaState.weapon;
       if (deltaState.mask & M_STATE) fullState.state = deltaState.state;
@@ -849,6 +850,8 @@ class MyGameScene : public Scene {
           m_healthText->SetText("Health: " +
 
                                 std::to_string(static_cast<int>(fullState.hp)));
+          m_scoreText->SetText("Score: " + 
+            std::to_string(static_cast<int>(fullState.score)));
         }
         if (deltaState.mask & M_HP) {
           if (fullState.hp <= 0 && m_isAlive) {

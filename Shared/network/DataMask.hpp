@@ -13,6 +13,7 @@ enum DataMask : uint16_t {
   M_SHIELD = 1 << 4,
   M_WEAPON = 1 << 5,
   M_SPRITE = 1 << 6,
+  M_SCORE = 1 << 12,
 
   //  Enemy / Projectile
   M_TYPE = 1 << 7,
