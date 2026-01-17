@@ -643,49 +643,13 @@ void ServerGame::SendAction(std::tuple<Action, uint16_t, lobby_list*> ac) {
   std::lock_guard<std::mutex> lock(queueMutex);
   actionQueue.push(std::move(ac));
 }
-void ServerGame::EndGame(lobby_list& lobby, bool victory) {
-  std::cout << "[EndGame] START - victory=" << victory << std::endl;
-  
-  if (!lobby.gameRuning) {
-    std::cout << "[EndGame] Game not running, return" << std::endl;
-    return;
-  }
+
+void ServerGame::EndGame(lobby_list& lobby) {
+  if (!lobby.gameRuning) return;
 
   Action ac;
   GameEnd g;
-  g.victory = victory;
-  
-  // Collecte les scores sauvegardés
-  std::vector<std::pair<uint16_t, uint32_t>> allScores;
-  
-  for (auto& [playerId, ready, name] : lobby.players_list) {
-    uint32_t score = 0;
-    
-    // Cherche dans playerScores (sauvegardé à chaque frame)
-    auto it = lobby.playerScores.find(playerId);
-    if (it != lobby.playerScores.end()) {
-      score = it->second;
-    }
-    
-    allScores.push_back({playerId, score});
-    std::cout << "[EndGame] Player " << playerId << " score: " << score << std::endl;
-  }
-  
-  // Trie par score décroissant
-  std::sort(allScores.begin(), allScores.end(),
-            [](auto& a, auto& b) { return a.second > b.second; });
-
-  uint8_t rank = 1;
-  for (auto& [playerId, score] : allScores) {
-    GameEndScore ges;
-    ges.playerId = playerId;
-    ges.score = score;
-    ges.rank = rank++;
-    g.scores.push_back(ges);
-  }
-  
-  std::cout << "[EndGame] Sending " << g.scores.size() << " scores" << std::endl;
-  
+  g.victory = false;
   ac.type = ActionType::GAME_END;
   ac.data = g;
 
@@ -693,9 +657,10 @@ void ServerGame::EndGame(lobby_list& lobby, bool victory) {
   lobby.lastStates.clear();
   lobby.playerStateCount.clear();
   lobby.gameRuning = false;
-  
-  std::cout << "[EndGame] DONE" << std::endl;
+  std::cout << "game ended!!" << std::endl;
+
 }
+
 void ServerGame::CheckGameEnded(lobby_list& lobby) {
   if (!lobby.gameRuning) return;
 
@@ -937,14 +902,19 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
       lobby.levelTransitionTimer = 0.0f;
       lobby.waitingForNextLevel = false;
       lobby.currentLevelIndex++;
-       std::cout << "[DEBUG] currentLevelIndex now = " << lobby.currentLevelIndex 
-                << " / " << lobby.levelsData.size() << std::endl; 
 
-     if (lobby.currentLevelIndex >= static_cast<int>(lobby.levelsData.size())) {
-      std::cout << "[DEBUG] *** VICTORY CONDITION MET! CALLING EndGame ***" << std::endl;  // ← AJOUTE
-      EndGame(lobby, true);
-    return;
-  }
+      if (lobby.currentLevelIndex >=
+          static_cast<int>(lobby.levelsData.size())) {
+        Action ac;
+        GameEnd g;
+        g.victory = true;
+        ac.type = ActionType::GAME_END;
+        ac.data = g;
+        SendAction(std::make_tuple(ac, 0, &lobby));
+        lobby.gameRuning = false;
+        std::cout << "[Game] VICTORY! All levels completed!" << std::endl;
+        return;
+      }
 
       lobby.currentLevelEntity = createLevelEntity(
           lobby.registry, lobby.levelsData[lobby.currentLevelIndex]);
@@ -1000,7 +970,6 @@ void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
   charged_shoot_system(lobby.registry, deltaTime);
   physics_movement_system(lobby.registry, transforms, rigidbodies, deltaTime,
                           {0, 0});
-  tilemap_collision_system(lobby.registry);
   enemy_movement_system(lobby.registry, transforms, rigidbodies, enemies,
                         players, deltaTime);
   boss_movement_system(lobby.registry, transforms, rigidbodies, bosses,

@@ -169,7 +169,7 @@ class ServerGame {
   /**
    * @brief End the game and cleanup
    */
- void EndGame(lobby_list& lobby, bool victory) ;
+void EndGame(lobby_list& lobby);
 
   void HandleClientLeave(uint16_t playerId);
   /**
