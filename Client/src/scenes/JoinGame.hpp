@@ -6,7 +6,11 @@
 #include <vector>
 
 #include "engine/GameEngine.hpp"
+#include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
+#include "network/NetworkSubsystem.hpp"
+#include "audio/AudioSubsystem.hpp"
+#include "Helpers/EntityHelper.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIImage.hpp"
 #include "ui/UIManager.hpp"
@@ -26,14 +30,13 @@ class JoinGame : public Scene {
   std::string username;
 
  public:
-  JoinGame(GameEngine* engine, SceneManager* sceneManager)
-      : Scene(engine, sceneManager, "menu"),
-        m_isInitialized(false),
+  JoinGame()
+      : m_isInitialized(false),
         m_settingsTransition(false),
         m_usernameInput(nullptr),
         m_serverInput(nullptr),
         m_joinButton(nullptr),
-        m_backButton(nullptr) {}
+        m_backButton(nullptr) { m_name = "joinGame"; }
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING MAIN MENU SCENE ===" << std::endl;
@@ -41,28 +44,28 @@ class JoinGame : public Scene {
     try {
       m_isInitialized = false;
 
-      Entity background = m_engine->CreateSprite("background", {400, 300}, -10);
+      Entity background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
       m_entities.push_back(background);
       std::cout << "Creating animated sprite..." << std::endl;
-      Entity boss = m_engine->CreateAnimatedSprite("boss", {600, 300}, "boss");
+      Entity boss = CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation("boss"), "boss", {600, 300}, "boss");
       auto& playerTransform =
           m_engine->GetRegistry().get_components<Transform>()[boss];
       if (playerTransform) playerTransform->scale = {2.0f, 2.0f};
       m_entities.push_back(boss);
       Entity bossChild =
-          m_engine->CreateAnimatedSprite("boss", {622, 317}, "bosschild");
+          CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation("bosschild"), "boss", {622, 317}, "bosschild");
       auto& bosschild =
           m_engine->GetRegistry().get_components<Transform>()[bossChild];
       if (bosschild) bosschild->scale = {2.1f, 2.1f};
       m_entities.push_back(bossChild);
 
       std::cout << "Creating UI Elements..." << std::endl;
-      auto* text = GetUI().AddElement<UIText>(50, 40, "R-Type", "", 50,
+      auto* text = GetUI()->AddElement<UIText>(50, 40, "R-Type", "", 50,
                                               SDL_Color{255, 255, 255, 255});
       text->SetVisible(true);
       text->SetLayer(10);
 
-      m_usernameInput = GetUI().AddElement<UITextInput>(
+      m_usernameInput = GetUI()->AddElement<UITextInput>(
           70, 125, 300, 50, "Username (e.g., Space Cowboy)");
       m_usernameInput->SetMaxLength(50);
       m_usernameInput->SetText("Space Cowboy");
@@ -73,7 +76,7 @@ class JoinGame : public Scene {
       m_usernameInput->SetLayer(9);
       m_usernameInput->SetVisible(true);
 
-      m_serverInput = GetUI().AddElement<UITextInput>(
+      m_serverInput = GetUI()->AddElement<UITextInput>(
           70, 200, 300, 50, "Server IP (e.g., 127.0.0.1)");
       m_serverInput->SetMaxLength(50);
       m_serverInput->SetText("127.0.0.1");
@@ -84,10 +87,10 @@ class JoinGame : public Scene {
       m_serverInput->SetVisible(true);
 
       m_joinButton =
-          GetUI().AddElement<UIButton>(70, 275, 200, 50, "Join Game");
+          GetUI()->AddElement<UIButton>(70, 275, 200, 50, "Join Game");
       m_joinButton->SetLayer(9);
       m_joinButton->SetOnClick([this]() {
-        GetAudio().PlaySound("button");
+        GetAudio()->PlaySound("button");
         std::string serverIP = m_serverInput->GetText();
         username = m_usernameInput->GetText();
 
@@ -102,19 +105,19 @@ class JoinGame : public Scene {
           return;
         }
 
-        GetNetwork().Connect(serverIP, 4242);
+        GetNetwork()->Connect(serverIP, 4242);
         Action loginRequest{ActionType::LOGIN_REQUEST,
                             LoginReq{username, "hashedpassword"}};
-        GetNetwork().SendAction(loginRequest);
+        GetNetwork()->SendAction(loginRequest);
       });
       m_joinButton->SetColors({50, 150, 50, 255}, {70, 170, 70, 255},
                               {30, 130, 30, 255});
       m_joinButton->SetVisible(true);
 
-      m_backButton = GetUI().AddElement<UIButton>(70, 350, 200, 50, "Back");
+      m_backButton = GetUI()->AddElement<UIButton>(70, 350, 200, 50, "Back");
       m_backButton->SetLayer(9);
       m_backButton->SetOnClick([this]() {
-        GetAudio().PlaySound("button");
+        GetAudio()->PlaySound("button");
         std::cout << "Back to main menu..." << std::endl;
         ChangeScene("menu");
       });
@@ -136,7 +139,7 @@ class JoinGame : public Scene {
     std::cout << "\n=== EXITING JOIN GAME SCENE ===" << std::endl;
 
     m_entities.clear();
-    GetUI().Clear();
+    GetUI()->Clear();
     m_isInitialized = false;
 
     std::cout << "Join game cleanup complete" << std::endl;
@@ -146,7 +149,7 @@ class JoinGame : public Scene {
   void Update(float deltaTime) override {
     if (!m_isInitialized) return;
 
-    Event e = GetNetwork().PopEvent();
+    Event e = GetNetwork()->PopEvent();
     if (e.type == EventType::LOGIN_RESPONSE) {
       const auto* data = std::get_if<LOGIN_RESPONSE>(&e.data);
       if (data->success == 0) return;
@@ -159,13 +162,21 @@ class JoinGame : public Scene {
   void Render() override {
     if (!m_isInitialized) return;
 
-    RenderSpritesLayered();
-    GetUI().Render();
+    // RenderSpritesLayered();
+    // GetUI().Render();
   }
 
   void HandleEvent(SDL_Event& event) override {
-    if (GetUI().HandleEvent(event)) {
+    if (GetUI()->HandleEvent(event)) {
       return;
     }
   }
+
+  std::unordered_map<uint16_t, Entity> GetPlayers() override {
+    return std::unordered_map<uint16_t, Entity>(); 
+  }
 };
+
+extern "C" {
+    Scene* CreateScene();
+}

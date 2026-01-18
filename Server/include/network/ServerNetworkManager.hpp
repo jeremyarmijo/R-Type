@@ -10,6 +10,7 @@
 
 #include <asio.hpp>
 
+#include "db/IDatabase.hpp"
 #include "network/ClientManager.hpp"
 #include "network/Decoder.hpp"
 #include "network/Encoder.hpp"
@@ -93,6 +94,24 @@ class ServerNetworkManager : public INetworkManager {
   void SetDisconnectionCallback(DisconnectionCallback callback) override;
 
   /**
+   * @brief Get user information from database
+   * @param username Username to search for
+   * @param password Output parameter for user's password
+   * @param score Output parameter for user's score
+   * @return true if user found, false otherwise
+   */
+  bool GetUser(const std::string& username, std::string& password, int& score) override;
+
+  /**
+   * @brief Add a new user and update if it exists in the database
+   * @param username Username for the new user
+   * @param password Password for the new user
+   * @param score Initial score for the new user
+   * @return true if user added successfully, false otherwise
+   */
+  bool AddUser(const std::string& username, const std::string& password, int score) override;
+
+  /**
    * @brief Set game started state
    * @param strated True if game has started, false otherwise
    */
@@ -137,6 +156,7 @@ class ServerNetworkManager : public INetworkManager {
   Encoder encode;
   Decoder decode;
 
+  std::unique_ptr<IDatabase> db;
   bool GameStarted = false;      ///< Game started state flag
   asio::io_context io_context_;  ///< ASIO I/O context for async operations
   std::unique_ptr<asio::io_context::work>

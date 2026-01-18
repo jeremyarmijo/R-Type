@@ -17,6 +17,8 @@
 #include "network/EncodeFunc.hpp"
 #include "network/ServerNetworkManager.hpp"
 #include "components/TileMap.hpp"
+#include "dynamicLibLoader/DLLoader.hpp"
+#include "engine/GameEngine.hpp"
 
 /**
  * @class ServerGame
@@ -54,6 +56,8 @@ struct lobby_list {
   std::thread gameThread;
   std::unordered_map<uint16_t, std::shared_ptr<GameState>> lastStates;
   std::unordered_map<uint16_t, int> playerStateCount;
+  GameEngine m_engine;
+  Scene* m_gameScene = nullptr;
 };
 
 class ServerGame {
@@ -135,8 +139,7 @@ class ServerGame {
    * @brief Send current world state to all connected clients
    */
   void SendWorldStateToClients(lobby_list& lobby);
-  void ProcessAndSendState(uint16_t playerId, lobby_list& lobby,
-                           const std::shared_ptr<GameState>& currentState);
+  void ProcessAndSendState(uint16_t playerId, lobby_list& lobby);
   std::mutex lobbyMutex;  ///< Mutex for thread-safe lobby access
 
   bool serverRunning;  ///< Server running state flag

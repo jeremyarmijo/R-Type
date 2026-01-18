@@ -4,13 +4,13 @@
 #include "Player/PlayerEntity.hpp"
 #include "components/BossPart.hpp"
 #include "components/Force.hpp"
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "components/Player/Boss.hpp"
 #include "components/Player/Enemy.hpp"
 #include "ecs/Registry.hpp"
 #include "ecs/SparseArray.hpp"
 #include "ecs/Zipper.hpp"
-#include "inputs/InputManager.hpp"
+#include "input/InputSubsystem.hpp"
 
 void force_control_system(Registry& registry, SparseArray<Force>& forces,
                           SparseArray<InputState>& states,

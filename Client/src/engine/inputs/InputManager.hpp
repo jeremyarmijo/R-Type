@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "ecs/Zipper.hpp"
 #include "graphics/RenderComponents.hpp"

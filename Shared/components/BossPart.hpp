@@ -1,7 +1,7 @@
 #ifndef SHARED_COMPONENTS_BOSSPART_HPP_
 #define SHARED_COMPONENTS_BOSSPART_HPP_
 
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "ecs/Entity.hpp"
 
 struct BossPart {

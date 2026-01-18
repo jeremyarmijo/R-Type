@@ -11,7 +11,7 @@
 #include "Player/Enemy.hpp"
 #include "components/BossPart.hpp"
 #include "ecs/Zipper.hpp"
-#include "graphics/RenderComponents.hpp"
+#include "rendering/RenderingSubsystem.hpp"
 #include "systems/Collision/Collision.hpp"
 #include "systems/PhysicsSystem.hpp"
 

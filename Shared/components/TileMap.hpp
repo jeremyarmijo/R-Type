@@ -2,7 +2,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
-#include "components/Physics2D.hpp"  // Pour Vector2
+#include "physics/Physics2D.hpp"  // Pour Vector2
 
 enum class TileType : uint8_t {
     EMPTY = 0,
@@ -19,6 +19,7 @@ struct TileMap {
     float scrollSpeed = 50.0f;
     float scrollOffset = 0.0f;
     std::vector<uint8_t> tiles;
+    bool isLoaded = false;
     
     TileType getTile(int x, int y) const {
         if (x < 0 || x >= static_cast<int>(width) || 

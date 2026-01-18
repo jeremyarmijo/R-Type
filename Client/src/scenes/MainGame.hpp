@@ -8,43 +8,21 @@
 #include <vector>
 
 #include "Player/PlayerEntity.hpp"
-#include "inputs/InputSystem.hpp"
 #include "network/DataMask.hpp"
+#include "systems/InputSystem.hpp"
+#include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
+#include "audio/AudioSubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
+#include "network/NetworkSubsystem.hpp"
 #include "settings/MultiplayerSkinManager.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WeaponSystem.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
-
-enum class TileType : uint8_t {
-  EMPTY = 0,
-  GROUND = 1,
-  WALL = 2,
-  CEILING = 3,
-  PLATFORM = 4,
-};
-
-struct TileMap {
-  uint16_t width = 0;
-  uint16_t height = 0;
-  uint16_t tileSize = 32;
-  float scrollSpeed = 50.0f;
-  float scrollOffset = 0.0f;
-  std::vector<uint8_t> tiles;
-  bool isLoaded = false;
-
-  TileType getTile(int x, int y) const {
-    if (x < 0 || x >= static_cast<int>(width) || y < 0 ||
-        y >= static_cast<int>(height)) {
-      return TileType::EMPTY;
-    }
-    return static_cast<TileType>(tiles[y * width + x]);
-  }
-
-  void update(float deltaTime) { scrollOffset += scrollSpeed * deltaTime; }
-};
+#include "Helpers/EntityHelper.hpp"
+#include "systems/BoundsSystem.hpp"
 
 class MyGameScene : public Scene {
  private:
@@ -93,11 +71,11 @@ class MyGameScene : public Scene {
 
   std::unordered_map<uint16_t, InterpolatedState> m_playerInterpolation;
   std::unordered_map<uint16_t, InterpolatedState> m_enemyInterpolation;
+  PlayerSettings m_settings;
 
  public:
-  MyGameScene(GameEngine* engine, SceneManager* sceneManager)
-      : Scene(engine, sceneManager, "game"),
-        m_localPlayerId(0),
+  MyGameScene()
+      : m_localPlayerId(0),
         m_score(0),
         m_isInitialized(false),
         m_firstState(false),
@@ -107,7 +85,7 @@ class MyGameScene : public Scene {
         m_nextWave(false),
         m_scoreText(nullptr),
         m_healthText(nullptr),
-        m_levelText(nullptr) {}
+        m_levelText(nullptr) { m_name = "game"; }
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING GAME SCENE ===" << std::endl;
@@ -131,8 +109,6 @@ class MyGameScene : public Scene {
 
       // Enregistrer le composant TileMap dans le registry
       GetRegistry().register_component<TileMap>();
-
-      NetworkManager& network = GetNetwork();
       if (m_mapDataReceived) {
         std::cout << "[GAME] Loading map via ECS..." << std::endl;
 
@@ -162,17 +138,15 @@ class MyGameScene : public Scene {
       } else {
         std::cout << "[GAME] No map data available yet!" << std::endl;
       }
-      TextureManager& textures = GetTextures();
-      AnimationManager& animations = GetAnimations();
-      GetAudio().PlayMusic("game_music");
+      GetAudio()->PlayMusic("game_music");
 
       std::cout << "Loading textures..." << std::endl;
-      LoadGameTextures(textures);
-      CreateGameAnimations(animations);
+      LoadGameTextures();
+      CreateGameAnimations();
 
       std::cout << "Creating background..." << std::endl;
-      Entity bg1 = m_engine->CreateSprite("background", {640, 360}, -10);
-      Entity bg2 = m_engine->CreateSprite("background", {1920, 360}, -10);
+      Entity bg1 = CreateSprite(GetRegistry(), "background", {640, 360}, -10);
+      Entity bg2 = CreateSprite(GetRegistry(), "background", {1920, 360}, -10);
       m_backGrounds.push_back(bg1);
       m_backGrounds.push_back(bg2);
 
@@ -180,11 +154,10 @@ class MyGameScene : public Scene {
       m_isSpectator = GetSceneData().Get<bool>("isSpectator", false);
 
       if (!m_isSpectator) {
-        PlayerSettings& settings = m_engine->GetPlayerSettings();
         m_localPlayerId = GetSceneData().Get<uint16_t>("playerId", 0);
 
-        std::string selectedSkinAnim = settings.GetSelectedSkinAnimation();
-        m_skinManager.SetLocalPlayerSkin(settings.GetSelectedSkin(),
+        std::string selectedSkinAnim = m_settings.GetSelectedSkinAnimation();
+        m_skinManager.SetLocalPlayerSkin(m_settings.GetSelectedSkin(),
                                          m_localPlayerId);
 
         std::cout << "Creating local player (ID: " << m_localPlayerId
@@ -193,8 +166,8 @@ class MyGameScene : public Scene {
         float posX = GetSceneData().Get<float>("posX", 0);
         float posY = GetSceneData().Get<float>("posY", 0);
 
-        m_localPlayer = m_engine->CreatePlayer("player", selectedSkinAnim,
-                                               {posX, posY}, 250.0f);
+        m_localPlayer = CreatePlayer(GetRegistry(), GetRendering()->GetAnimation(selectedSkinAnim), "player", selectedSkinAnim,
+                                               {posX, posY}, 250.0f, 0);
 
         auto& transform =
             GetRegistry().get_components<Transform>()[m_localPlayer];
@@ -221,16 +194,16 @@ class MyGameScene : public Scene {
         m_isAlive = false;
       }
 
-      m_spectatorText = GetUI().AddElement<UIText>(10, 10, "SPECTATOR", "", 50);
+      m_spectatorText = GetUI()->AddElement<UIText>(10, 10, "SPECTATOR", "", 50);
       m_spectatorText->SetLayer(100);
 
-      m_scoreText = GetUI().AddElement<UIText>(10, 10, "Score: 0", "", 20);
+      m_scoreText = GetUI()->AddElement<UIText>(10, 10, "Score: 0", "", 20);
       m_scoreText->SetLayer(100);
 
-      m_healthText = GetUI().AddElement<UIText>(10, 40, "Health: 100", "", 20);
+      m_healthText = GetUI()->AddElement<UIText>(10, 40, "Health: 100", "", 20);
       m_healthText->SetLayer(100);
 
-      m_levelText = GetUI().AddElement<UIText>(10, 60, "Level: 0", "", 20);
+      m_levelText = GetUI()->AddElement<UIText>(10, 60, "Level: 0", "", 20);
       m_levelText->SetLayer(100);
 
       if (m_isSpectator) {
@@ -275,7 +248,7 @@ class MyGameScene : public Scene {
     m_mapTiles.clear();
     GetSceneData().Set("mapTiles", m_mapTiles);
 
-    GetUI().Clear();
+    GetUI()->Clear();
     std::cout << "Game scene cleanup complete" << std::endl;
     std::cout << "==============================\n" << std::endl;
   }
@@ -287,8 +260,11 @@ class MyGameScene : public Scene {
     auto& transforms = GetRegistry().get_components<Transform>();
     auto& projectiles = GetRegistry().get_components<Projectile>();
     auto& colliders = GetRegistry().get_components<BoxCollider>();
+    auto& rigidbodies = GetRegistry().get_components<RigidBody>();
 
     // Weapon systems
+    player_input_system(GetRegistry(), GetInput(), GetNetwork());
+    bounds_check_system(GetRegistry(), transforms, colliders, rigidbodies);
     weapon_cooldown_system(GetRegistry(), weapons, deltaTime);
     weapon_reload_system(GetRegistry(), weapons, deltaTime);
     RemoveExplosions(deltaTime);
@@ -305,15 +281,12 @@ class MyGameScene : public Scene {
 
   void Render() override {
     if (!m_isInitialized) return;
-    RenderSpritesLayered();
-    RenderTileMap();
-    GetUI().Render();
   }
 
   void HandleEvent(SDL_Event& event) override {
-    if (GetUI().HandleEvent(event)) {
-      return;
-    }
+    // if (GetUI().HandleEvent(event)) {
+    //   return;
+    // }
 
     // if (event.type == SDL_KEYDOWN) {
     //   if (event.key.keysym.sym == SDLK_r) {
@@ -326,68 +299,77 @@ class MyGameScene : public Scene {
     // }
   }
 
-  void LoadGameTextures(TextureManager& textures) {
-    if (!textures.GetTexture("player")) {
-      textures.LoadTexture("player", "../Client/assets/player.png");
+  void LoadGameTextures() {
+    if (!GetRendering()->GetTexture("player")) {
+      GetRendering()->LoadTexture("player", "../assets/player.png");
     }
 
-    if (!textures.GetTexture("background")) {
-      textures.LoadTexture("background", "../Client/assets/bg.jpg");
+    if (!GetRendering()->GetTexture("background")) {
+      GetRendering()->LoadTexture("background", "../assets/bg.jpg");
     }
 
-    if (!textures.GetTexture("enemy1")) {
-      textures.LoadTexture("enemy1", "../Client/assets/enemy1.png");
+    if (!GetRendering()->GetTexture("enemy1")) {
+      GetRendering()->LoadTexture("enemy1", "../assets/enemy1.png");
     }
-    if (!textures.GetTexture("enemy2")) {
-      textures.LoadTexture("enemy2", "../Client/assets/enemy2.png");
+    if (!GetRendering()->GetTexture("enemy2")) {
+      GetRendering()->LoadTexture("enemy2", "../assets/enemy2.png");
     }
-    if (!textures.GetTexture("enemy3")) {
-      textures.LoadTexture("enemy3", "../Client/assets/enemy3.png");
+    if (!GetRendering()->GetTexture("enemy3")) {
+      GetRendering()->LoadTexture("enemy3", "../assets/enemy3.png");
     }
-    if (!textures.GetTexture("enemy4")) {
-      textures.LoadTexture("enemy4", "../Client/assets/enemy4.png");
+    if (!GetRendering()->GetTexture("enemy4")) {
+      GetRendering()->LoadTexture("enemy4", "../assets/enemy4.png");
     }
-    if (!textures.GetTexture("boom3")) {
-      textures.LoadTexture("boom3", "../Client/assets/boom.png");
+    if (!GetRendering()->GetTexture("boom3")) {
+      GetRendering()->LoadTexture("boom3", "../assets/boom.png");
     }
-    if (!textures.GetTexture("projectile_mini_green")) {
-      textures.LoadTexture("projectile_mini_green",
-                           "../Client/assets/shootUp.png");
+    if (!GetRendering()->GetTexture("projectile_mini_green")) {
+      GetRendering()->LoadTexture("projectile_mini_green",
+                           "../assets/shootUp.png");
     }
-    if (!textures.GetTexture("projectile_player")) {
-      textures.LoadTexture("projectile_player",
-                           "../Client/assets/blueShoot.png");
+    if (!GetRendering()->GetTexture("projectile_player")) {
+      GetRendering()->LoadTexture("projectile_player",
+                           "../assets/blueShoot.png");
     }
-    if (!textures.GetTexture("charged_projectile_palyer")) {
-      textures.LoadTexture("charged_projectil_palyer",
-                           "../Client/assets/charged.png");
+    if (!GetRendering()->GetTexture("charged_projectile_palyer")) {
+      GetRendering()->LoadTexture("charged_projectil_palyer",
+                           "../assets/charged.png");
     }
-    if (!textures.GetTexture("projectile_enemy")) {
-      textures.LoadTexture("projectile_enemy",
-                           "../Client/assets/projectile_enemy.png");
+    if (!GetRendering()->GetTexture("projectile_enemy")) {
+      GetRendering()->LoadTexture("projectile_enemy",
+                           "../assets/projectile_enemy.png");
     }
-    if (!textures.GetTexture("explosion")) {
-      textures.LoadTexture("explosion", "../Client/assets/explosion.png");
+
+    if (!GetRendering()->GetTexture("projectile_player")) {
+      GetRendering()->LoadTexture("projectile_player",
+                           "../assets/blueShoot.png");
     }
-    if (!textures.GetTexture("force")) {
-      textures.LoadTexture("force", "../Client/assets/force.png");
+    if (!GetRendering()->GetTexture("projectile_enemy")) {
+      GetRendering()->LoadTexture("projectile_enemy",
+                           "../assets/projectile_enemy.png");
     }
-    if (!textures.GetTexture("boss2")) {
-      textures.LoadTexture("boss2", "../Client/assets/boss2.png");
+    if (!GetRendering()->GetTexture("explosion")) {
+      GetRendering()->LoadTexture("explosion", "../assets/explosion.png");
     }
-    if (!textures.GetTexture("boss3")) {
-      textures.LoadTexture("boss3", "../Client/assets/boss3.png");
+    if (!GetRendering()->GetTexture("force")) {
+      GetRendering()->LoadTexture("force", "../assets/force.png");
     }
-    if (!textures.GetTexture("head_boss")) {
-      textures.LoadTexture("head_boss", "../Client/assets/boss_head.png");
+    if (!GetRendering()->GetTexture("boss2")) {
+      GetRendering()->LoadTexture("boss2", "../assets/boss2.png");
     }
-    if (!textures.GetTexture("enemy5")) {
-      textures.LoadTexture("enemy5", "../Client/assets/enemy5.png");
+    if (!GetRendering()->GetTexture("boss3")) {
+      GetRendering()->LoadTexture("boss3", "../assets/boss3.png");
+    }
+    if (!GetRendering()->GetTexture("head_boss")) {
+      GetRendering()->LoadTexture("head_boss", "../assets/boss_head.png");
+    }
+    if (!GetRendering()->GetTexture("enemy5")) {
+      GetRendering()->LoadTexture("enemy5", "../assets/enemy5.png");
     }
   }
 
-  void CreateGameAnimations(AnimationManager& animations) {
-    animations.CreateAnimation("enemy1_anim", "enemy1",
+  void CreateGameAnimations() {
+    GetRendering()->CreateAnimation("enemy1_anim", "enemy1",
                                {{{5, 6, 20, 23}, 0.1f},
                                 {{38, 6, 20, 23}, 0.1f},
                                 {{71, 6, 20, 23}, 0.1f},
@@ -398,7 +380,7 @@ class MyGameScene : public Scene {
                                 {{236, 6, 20, 23}, 0.1f}},
                                true);
 
-    animations.CreateAnimation("boss_anim", "boss",
+    GetRendering()->CreateAnimation("boss_anim", "boss",
                                {{{27, 1711, 154, 203}, 0.6f},
                                 {{189, 1711, 154, 203}, 0.5f},
                                 {{351, 1711, 154, 203}, 0.6f},
@@ -408,7 +390,7 @@ class MyGameScene : public Scene {
                                 {{189, 1711, 154, 203}, 0.5f}},
                                true);
 
-    animations.CreateAnimation("explode_anim", "explosion",
+    GetRendering()->CreateAnimation("explode_anim", "explosion",
                                {{{130, 2, 30, 30}, 0.1f},
                                 {{163, 2, 30, 30}, 0.1f},
                                 {{194, 2, 30, 30}, 0.1f},
@@ -417,42 +399,42 @@ class MyGameScene : public Scene {
                                 {{294, 2, 30, 30}, 0.1f}},
                                true);
 
-    animations.CreateAnimation(
+    GetRendering()->CreateAnimation(
         "enemy2_anim", "enemy2",
         {{{34, 34, 31, 31}, 0.15f}, {{69, 34, 31, 31}, 0.15f}}, true);
 
-    animations.CreateAnimation("enemy3_anim", "enemy3",
+    GetRendering()->CreateAnimation("enemy3_anim", "enemy3",
                                {{{2, 67, 29, 31}, 0.2f},
                                 {{35, 67, 29, 31}, 0.2f},
                                 {{68, 67, 29, 31}, 0.2f},
                                 {{101, 67, 29, 31}, 0.2f}},
                                true);
 
-    animations.CreateAnimation("enemy4_anim", "enemy4",
+    GetRendering()->CreateAnimation("enemy4_anim", "enemy4",
                                {{{0, 0, 55, 94}, 0.2f},
                                 {{55, 0, 55, 94}, 0.2f},
                                 {{110, 0, 55, 94}, 0.2f}},
                                true);
 
-    animations.CreateAnimation("enemy5_anim", "enemy5",
+    GetRendering()->CreateAnimation("enemy5_anim", "enemy5",
                                {{{0, 0, 33, 29}, 0.1f},
                                 {{33, 0, 33, 29}, 0.1f},
                                 {{66, 0, 34, 29}, 0.1f}},
                                true);
 
-    animations.CreateAnimation("projectile_player_anim", "projectile_player",
+    GetRendering()->CreateAnimation("projectile_player_anim", "projectile_player",
                                {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
                                true);
 
-    animations.CreateAnimation("projectile_charged", "projectile_player",
+    GetRendering()->CreateAnimation("projectile_charged", "projectile_player",
                                {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
                                true);
 
-    animations.CreateAnimation(
+    GetRendering()->CreateAnimation(
         "projectile_enemy_anim", "projectile_enemy",
         {{{0, 0, 12, 12}, 0.1f}, {{12, 0, 12, 12}, 0.1f}}, true);
 
-    animations.CreateAnimation("force_anim", "force",
+    GetRendering()->CreateAnimation("force_anim", "force",
                                {
                                    {{0, 0, 30, 25}, 0.08f},
                                    {{30, 0, 30, 25}, 0.08f},
@@ -469,7 +451,7 @@ class MyGameScene : public Scene {
                                },
                                true);
 
-    animations.CreateAnimation("boss_serpent_head_up", "head_boss",
+    GetRendering()->CreateAnimation("boss_serpent_head_up", "head_boss",
                                {
                                    {{0, 0, 34, 32}, 0.1f},
                                    {{34, 0, 34, 32}, 0.1f},
@@ -477,7 +459,7 @@ class MyGameScene : public Scene {
                                },
                                true);
 
-    animations.CreateAnimation("boss_serpent_body_anim", "boss2",
+    GetRendering()->CreateAnimation("boss_serpent_body_anim", "boss2",
                                {
                                    {{0, 0, 34, 29}, 0.1f},
                                    {{34, 0, 34, 29}, 0.1f},
@@ -489,10 +471,10 @@ class MyGameScene : public Scene {
                                },
                                true);
 
-    animations.CreateAnimation("boss3_part", "boom3",
+    GetRendering()->CreateAnimation("boss3_part", "boom3",
                                {{{0, 0, 587, 180}, 1.0f}}, true);
 
-    animations.CreateAnimation("boom_anim", "boom_sprite",
+    GetRendering()->CreateAnimation("boom_anim", "boom_sprite",
                                {
                                    {{0 * 34, 0, 34, 29}, 0.1f},  // frame 1
                                    {{1 * 34, 0, 34, 29}, 0.1f},  // frame 2
@@ -520,7 +502,6 @@ class MyGameScene : public Scene {
       case 4:
         return "enemy5";
 
-      // BossParts (90+)
       case 90:
         return "boss";  // default part
       case 91:
@@ -528,7 +509,6 @@ class MyGameScene : public Scene {
       case 92:
         return "boss3";  // turret
 
-      // Bosses (100+)
       case 100:
         return "boss";  // FinalBoss
       case 101:
@@ -634,7 +614,7 @@ class MyGameScene : public Scene {
               << std::endl;
 
     Entity otherPlayer =
-        m_engine->CreateAnimatedSprite("player", position, skinAnimation);
+        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(skinAnimation), "player", position, skinAnimation, 0);
 
     auto& transform = GetRegistry().get_components<Transform>()[otherPlayer];
     if (transform) {
@@ -653,7 +633,7 @@ class MyGameScene : public Scene {
     if (it != m_otherPlayers.end()) {
       Entity playerEntity = it->second;
       CreateExplosion(playerEntity);
-      GetAudio().PlaySound("explosion");
+      GetAudio()->PlaySound("explosion");
       GetRegistry().kill_entity(playerEntity);
       m_skinManager.RemovePlayer(playerId);
       m_entities.erase(
@@ -709,7 +689,7 @@ class MyGameScene : public Scene {
               << static_cast<int>(enemyType) << ") at (" << position.x << ", "
               << position.y << ")" << std::endl;
 
-    Entity enemy = m_engine->CreateAnimatedSprite(texture, position, animation);
+    Entity enemy = CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(animation), texture, position, animation, 0);
 
     auto& transform = GetRegistry().get_components<Transform>()[enemy];
     if (transform) {
@@ -728,7 +708,7 @@ class MyGameScene : public Scene {
       Entity enemyEntity = it->second;
       CreateExplosion(enemyEntity);
       GetRegistry().kill_entity(enemyEntity);
-      GetAudio().PlaySound("explosion");
+      GetAudio()->PlaySound("explosion");
       m_entities.erase(
           std::remove(m_entities.begin(), m_entities.end(), enemyEntity),
           m_entities.end());
@@ -829,7 +809,7 @@ class MyGameScene : public Scene {
               << std::endl;
 
     Entity force =
-        m_engine->CreateAnimatedSprite("force", position, "force_anim");
+        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation("force_anim"), "force", position, "force_anim");
 
     auto& transform = GetRegistry().get_components<Transform>()[force];
     if (transform) {
@@ -907,9 +887,8 @@ class MyGameScene : public Scene {
     std::string animation = GetProjectileAnimation(projectileType);
 
     Entity projectile =
-        m_engine->CreateAnimatedSprite(texture, position, animation);
-    GetAudio().PlaySound("shoot");
-
+        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(animation), texture, position, animation, 0);
+    GetAudio()->PlaySound("shoot");
     auto& transform = GetRegistry().get_components<Transform>()[projectile];
     if (transform) {
       if (projectileType == 3) {
@@ -959,56 +938,6 @@ class MyGameScene : public Scene {
     }
   }
 
-  void RenderTileMap() {
-    auto& tilemaps = GetRegistry().get_components<TileMap>();
-
-    for (auto& tilemap : tilemaps) {
-      if (!tilemap.has_value() || !tilemap->isLoaded) continue;
-
-      SDL_Renderer* renderer = GetRenderer();
-
-      int startTileX =
-          static_cast<int>(tilemap->scrollOffset / tilemap->tileSize);
-      int endTileX = startTileX + (800 / tilemap->tileSize) + 2;
-
-      for (int y = 0; y < static_cast<int>(tilemap->height); ++y) {
-        for (int x = startTileX;
-             x < endTileX && x < static_cast<int>(tilemap->width); ++x) {
-          TileType type = tilemap->getTile(x, y);
-
-          if (type == TileType::EMPTY) continue;
-
-          int screenX =
-              static_cast<int>(x * tilemap->tileSize - tilemap->scrollOffset);
-          int screenY = y * tilemap->tileSize;
-
-          switch (type) {
-            case TileType::GROUND:
-              SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
-              break;
-            case TileType::WALL:
-              SDL_SetRenderDrawColor(renderer, 128, 128, 128, 255);
-              break;
-            case TileType::CEILING:
-              SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-              break;
-            case TileType::PLATFORM:
-              SDL_SetRenderDrawColor(renderer, 160, 82, 45, 255);
-              break;
-            default:
-              continue;
-          }
-
-          SDL_Rect tileRect = {screenX, screenY,
-                               static_cast<int>(tilemap->tileSize),
-                               static_cast<int>(tilemap->tileSize)};
-
-          SDL_RenderFillRect(renderer, &tileRect);
-        }
-      }
-    }
-  }
-
   void UpdatePlayers(const std::vector<GAME_STATE::PlayerState>& playerStates,
                      float dt) {
     auto& transforms = GetRegistry().get_components<Transform>();
@@ -1023,7 +952,7 @@ class MyGameScene : public Scene {
           m_isSpectator = true;
           m_spectatorText->SetVisible(true);
           CreateExplosion(m_localPlayer);
-          GetAudio().PlaySound("explosion");
+          GetAudio()->PlaySound("explosion");
           m_healthText->SetVisible(false);
           m_scoreText->SetVisible(false);
           m_levelText->SetVisible(false);
@@ -1097,7 +1026,7 @@ class MyGameScene : public Scene {
             m_isSpectator = true;
             m_spectatorText->SetVisible(true);
             CreateExplosion(m_localPlayer);
-            GetAudio().PlaySound("explosion");
+            GetAudio()->PlaySound("explosion");
             m_healthText->SetVisible(false);
             m_scoreText->SetVisible(false);
             m_levelText->SetVisible(false);
@@ -1213,7 +1142,7 @@ class MyGameScene : public Scene {
   void GetEvents(float dt) {
     // Boucle pour traiter TOUS les événements en attente
     while (true) {
-      Event e = GetNetwork().PopEvent();
+      Event e = GetNetwork()->PopEvent();
 
       if (e.type == EventType::UNKNOWN) {
         break;
@@ -1289,8 +1218,7 @@ class MyGameScene : public Scene {
 
     Vector2 pos = transform->position;
     Entity explosion =
-
-        m_engine->CreateAnimatedSprite("explosion", pos, "explode_anim");
+        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation("explode_anim"), "explosion", pos, "explode_anim", 1);
 
     m_explosions[explosion] = 0.6f;
   }
@@ -1344,7 +1272,7 @@ class MyGameScene : public Scene {
       segmentPos.x -= i * 30;  // espace entre les segments
 
       Entity segment =
-          m_engine->CreateAnimatedSprite(texture, segmentPos, animation);
+          CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(animation), texture, segmentPos, animation);
 
       auto& transform = GetRegistry().get_components<Transform>()[segment];
       if (transform) {
@@ -1373,4 +1301,11 @@ class MyGameScene : public Scene {
       }
     }
   }
+  std::unordered_map<uint16_t, Entity> GetPlayers() override {
+    return std::unordered_map<uint16_t, Entity>(); 
+  }
 };
+
+extern "C" {
+    Scene* CreateScene();
+}

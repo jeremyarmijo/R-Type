@@ -3,7 +3,7 @@
 #define SHARED_SYSTEMS_SPAWNENEMY_SPAWN_HPP_
 
 #include "Player/EnemySpawn.hpp"
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "ecs/Zipper.hpp"
 

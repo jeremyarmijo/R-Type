@@ -4,7 +4,7 @@
 
 #include "Collision/CollisionController.hpp"
 #include "Player/Weapon.hpp"
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 
 struct PlayerShoot {
   bool isCharging = false;

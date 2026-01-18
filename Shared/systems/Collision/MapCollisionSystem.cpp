@@ -2,7 +2,7 @@
 
 #include "ecs/Registry.hpp"
 #include "components/TileMap.hpp"
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "Player/PlayerEntity.hpp"
 #include "Player/Enemy.hpp"
 #include "ecs/SparseArray.hpp"

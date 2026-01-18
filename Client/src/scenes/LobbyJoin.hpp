@@ -6,10 +6,15 @@
 #include <vector>
 
 #include "engine/GameEngine.hpp"
+#include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
+#include "rendering/RenderingSubsystem.hpp"
+#include "network/NetworkSubsystem.hpp"
+#include "audio/AudioSubsystem.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UIText.hpp"
+#include "Helpers/EntityHelper.hpp"
 
 class LobbyJoin : public Scene {
  private:
@@ -30,40 +35,40 @@ class LobbyJoin : public Scene {
   void SendLobbyListRequest() {
     Action listReq{ActionType::LOBBY_LIST_REQUEST,
                    LobbyListRequest{m_PlayerId}};
-    GetNetwork().SendAction(listReq);
+    GetNetwork()->SendAction(listReq);
   }
 
   void RefreshLobbyListUI() {
-    GetUI().Clear();
+    GetUI()->Clear();
 
-    auto* title = GetUI().AddElement<UIText>(50, 40, "AVAILABLE LOBBIES", "",
+    auto* title = GetUI()->AddElement<UIText>(50, 40, "AVAILABLE LOBBIES", "",
                                              50, SDL_Color{255, 255, 255, 255});
     title->SetVisible(true);
     title->SetLayer(10);
 
-    m_backButton = GetUI().AddElement<UIButton>(50, 100, 100, 40, "BACK");
+    m_backButton = GetUI()->AddElement<UIButton>(50, 100, 100, 40, "BACK");
     m_backButton->SetLayer(9);
     m_backButton->SetOnClick([this]() {
-      GetAudio().PlaySound("button");
+      GetAudio()->PlaySound("button");
       ChangeScene("lobby");
     });
     m_backButton->SetColors({150, 50, 50, 255}, {170, 70, 70, 255},
                             {130, 30, 30, 255});
 
     m_publicLobbyButton =
-        GetUI().AddElement<UIButton>(550, 100, 120, 40, "PUBLIC");
+        GetUI()->AddElement<UIButton>(550, 100, 120, 40, "PUBLIC");
     m_publicLobbyButton->SetLayer(9);
     m_publicLobbyButton->SetOnClick([this]() {
-      GetAudio().PlaySound("button");
+      GetAudio()->PlaySound("button");
       isPrivate = false;
       SendLobbyListRequest();
     });
 
     m_privateLobbyButton =
-        GetUI().AddElement<UIButton>(680, 100, 120, 40, "PRIVATE");
+        GetUI()->AddElement<UIButton>(680, 100, 120, 40, "PRIVATE");
     m_privateLobbyButton->SetLayer(9);
     m_privateLobbyButton->SetOnClick([this]() {
-      GetAudio().PlaySound("button");
+      GetAudio()->PlaySound("button");
       isPrivate = true;
       SendLobbyListRequest();
     });
@@ -80,11 +85,11 @@ class LobbyJoin : public Scene {
                                       {150, 150, 150, 255}, {80, 80, 80, 255});
     }
 
-    auto* h1 = GetUI().AddElement<UIText>(100, 160, "LOBBY NAME", "", 18,
+    auto* h1 = GetUI()->AddElement<UIText>(100, 160, "LOBBY NAME", "", 18,
                                           SDL_Color{150, 150, 150, 255});
-    auto* h2 = GetUI().AddElement<UIText>(380, 160, "STATUS", "", 18,
+    auto* h2 = GetUI()->AddElement<UIText>(380, 160, "STATUS", "", 18,
                                           SDL_Color{150, 150, 150, 255});
-    auto* h3 = GetUI().AddElement<UIText>(600, 160, "PLAYERS", "", 18,
+    auto* h3 = GetUI()->AddElement<UIText>(600, 160, "PLAYERS", "", 18,
                                           SDL_Color{150, 150, 150, 255});
 
     int yOffset = 190;
@@ -105,7 +110,7 @@ class LobbyJoin : public Scene {
       buttonLabel += "            ";
       buttonLabel += playerCount;
 
-      auto* btn = GetUI().AddElement<UIButton>(100, yOffset, buttonWidth,
+      auto* btn = GetUI()->AddElement<UIButton>(100, yOffset, buttonWidth,
                                                buttonHeight, buttonLabel);
       btn->SetLayer(10);
 
@@ -116,7 +121,7 @@ class LobbyJoin : public Scene {
       }
 
       btn->SetOnClick([this, lobby]() {
-        GetAudio().PlaySound("button");
+        GetAudio()->PlaySound("button");
         std::string pName = GetSceneData().Get<std::string>("playerName", "");
         if (isPrivate) {
           GetSceneData().Set("lobbyId", lobby.lobbyId);
@@ -126,7 +131,7 @@ class LobbyJoin : public Scene {
         }
         Action joinAction{ActionType::LOBBY_JOIN_REQUEST,
                           LobbyJoinRequest{lobby.lobbyId, pName, ""}};
-        GetNetwork().SendAction(joinAction);
+        GetNetwork()->SendAction(joinAction);
       });
 
       yOffset += 60;
@@ -135,14 +140,13 @@ class LobbyJoin : public Scene {
   }
 
  public:
-  LobbyJoin(GameEngine* engine, SceneManager* sceneManager)
-      : Scene(engine, sceneManager, "lobbyjoin"),
-        m_isInitialized(false),
+  LobbyJoin()
+      : m_isInitialized(false),
         m_publicLobbyButton(nullptr),
         m_privateLobbyButton(nullptr),
         m_backButton(nullptr),
         m_refreshTimer(0.0f),
-        m_needsUIRefresh(false) {}
+        m_needsUIRefresh(false) { m_name = "lobbyjoin"; }
 
   void OnEnter() override {
     try {
@@ -150,11 +154,11 @@ class LobbyJoin : public Scene {
       m_refreshTimer = 0.0f;
       m_needsUIRefresh = false;
 
-      if (!GetTextures().GetTexture("background")) {
-        GetTextures().LoadTexture("background", "../Client/assets/bg.jpg");
+      if (!GetRendering()->GetTexture("background")) {
+        GetRendering()->LoadTexture("background", "../assets/bg.jpg");
       }
 
-      Entity background = m_engine->CreateSprite("background", {400, 300}, -10);
+      Entity background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
       m_entities.push_back(background);
 
       m_PlayerId = GetSceneData().Get<uint16_t>("playerId", 0);
@@ -168,7 +172,7 @@ class LobbyJoin : public Scene {
 
   void OnExit() override {
     m_entities.clear();
-    GetUI().Clear();
+    GetUI()->Clear();
     m_isInitialized = false;
   }
 
@@ -181,7 +185,7 @@ class LobbyJoin : public Scene {
       m_refreshTimer = 0.0f;
     }
 
-    Event e = GetNetwork().PopEvent();
+    Event e = GetNetwork()->PopEvent();
     if (e.type == EventType::LOBBY_LIST_RESPONSE) {
       const auto* data = std::get_if<LOBBY_LIST_RESPONSE>(&e.data);
       if (data) {
@@ -203,9 +207,21 @@ class LobbyJoin : public Scene {
 
   void Render() override {
     if (!m_isInitialized) return;
-    RenderSpritesLayered();
-    GetUI().Render();
+    // RenderSpritesLayered();
+    // GetUI().Render();
   }
 
-  void HandleEvent(SDL_Event& event) override { GetUI().HandleEvent(event); }
+  void HandleEvent(SDL_Event& event) override { 
+    if (GetUI()->HandleEvent(event)) {
+      return;
+    }
+  }
+
+  std::unordered_map<uint16_t, Entity> GetPlayers() override {
+    return std::unordered_map<uint16_t, Entity>(); 
+  }
 };
+
+extern "C" {
+    Scene* CreateScene();
+}

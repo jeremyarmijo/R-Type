@@ -44,7 +44,6 @@ void charged_shoot_system(Registry& registry, float deltaTime) {
         float speed = 400.0f + chargeLevel * 100.0f;
         Uint32 baseDamage = 10 + (chargeLevel * 5);
 
-        // ✅ Crée le projectile avec createProjectile
         Entity projectile = createProjectile(
             registry, spawnPos, direction, speed, baseDamage,
             true,        // isPlayerProjectile

@@ -3,7 +3,12 @@
 #include <iostream>
 #include <vector>
 #include <tuple>
+
+#include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
+#include "audio/AudioSubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
+#include "Helpers/EntityHelper.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UIText.hpp"
 
@@ -14,11 +19,10 @@ private:
     std::vector<std::tuple<uint16_t, uint32_t, uint8_t>> m_scores;  // playerId, score, rank
     bool m_isInitialized;
 
-public:
-    GameOverScene(GameEngine* engine, SceneManager* sceneManager)
-        : Scene(engine, sceneManager, "gameover"),
-          m_isVictory(false),
-          m_isInitialized(false) {}
+ public:
+  GameOverScene()
+      : m_isVictory(false),
+        m_isInitialized(false) { m_name = "GameOver"; }
 
     void OnEnter() override {
         std::cout << "\n=== GAME OVER ===" << std::endl;
@@ -27,22 +31,22 @@ public:
         m_isVictory = GetSceneData().Get<bool>("victory", false);
         m_scores = GetSceneData().Get<std::vector<std::tuple<uint16_t, uint32_t, uint8_t>>>("scores", {});
 
-        GetAudio().LoadMusic("gameover_music", "../Client/assets/gameover_music.ogg");
-        GetAudio().PlayMusic("gameover_music", 0);
+        GetAudio()->LoadMusic("gameover_music", "../assets/gameover_music.ogg");
+        GetAudio()->PlayMusic("gameover_music", 0);
 
         // Background
-        Entity background = m_engine->CreateSprite("background", {400, 300}, -10);
+        Entity background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
         m_entities.push_back(background);
 
         // Titre Victory ou Game Over
         std::string title = m_isVictory ? "VICTORY!" : "GAME OVER...";
         SDL_Color titleColor = m_isVictory ? SDL_Color{0, 255, 0, 255} : SDL_Color{255, 0, 0, 255};
         
-        auto* titleText = GetUI().AddElement<UIText>(250, 80, title, "", 50, titleColor);
+        auto* titleText = GetUI()->AddElement<UIText>(250, 80, title, "", 50, titleColor);
         titleText->SetLayer(10);
 
         // Tableau des scores
-        auto* scoresTitle = GetUI().AddElement<UIText>(280, 150, "SCORES", "", 30, SDL_Color{255, 255, 0, 255});
+        auto* scoresTitle = GetUI()->AddElement<UIText>(280, 150, "SCORES", "", 30, SDL_Color{255, 255, 0, 255});
         scoresTitle->SetLayer(10);
 
         int yPos = 200;
@@ -56,7 +60,7 @@ public:
             // Couleur différente pour le premier
             SDL_Color color = (rank == 1) ? SDL_Color{255, 215, 0, 255} : SDL_Color{255, 255, 255, 255};
             
-            auto* scoreText = GetUI().AddElement<UIText>(180, yPos, line, "", 25, color);
+            auto* scoreText = GetUI()->AddElement<UIText>(180, yPos, line, "", 25, color);
             scoreText->SetLayer(10);
             
             yPos += 40;
@@ -64,12 +68,12 @@ public:
 
         // Si pas de scores (fallback)
         if (m_scores.empty()) {
-            auto* noScores = GetUI().AddElement<UIText>(250, 250, "No scores available", "", 20, SDL_Color{200, 200, 200, 255});
+            auto* noScores = GetUI()->AddElement<UIText>(250, 250, "No scores available", "", 20, SDL_Color{200, 200, 200, 255});
             noScores->SetLayer(10);
         }
 
         // Instructions retour
-        auto* returnText = GetUI().AddElement<UIText>(
+        auto* returnText = GetUI()->AddElement<UIText>(
             110, 450, "Press SPACE to return to Lobby", "", 25,
             SDL_Color{200, 200, 200, 255});
         returnText->SetLayer(10);
@@ -92,7 +96,7 @@ public:
         }
         m_entities.clear();
         m_scores.clear();
-        GetUI().Clear();
+        GetUI()->Clear();
         m_isInitialized = false;
     }
 
@@ -100,8 +104,8 @@ public:
 
     void Render() override {
         if (!m_isInitialized) return;
-        RenderSpritesLayered();
-        GetUI().Render();
+        // RenderSpritesLayered();
+        // GetUI()->Render();
     }
 
     void HandleEvent(SDL_Event& event) override {
@@ -113,4 +117,12 @@ public:
             }
         }
     }
+
+  std::unordered_map<uint16_t, Entity> GetPlayers() override {
+    return std::unordered_map<uint16_t, Entity>(); 
+  }
 };
+
+extern "C" {
+    Scene* CreateScene();
+}

@@ -2,7 +2,7 @@
 #ifndef SHARED_COMPONENTS_PLAYER_BOSS_HPP_
 #define SHARED_COMPONENTS_PLAYER_BOSS_HPP_
 
-#include "../Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "ecs/Entity.hpp"
 
 enum class BossType {

@@ -1,7 +1,7 @@
 // Copyright 2025 Dalia Guiz
 #pragma once
 #include "components/Force.hpp"
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "components/Player/Boss.hpp"
 #include "components/Player/Enemy.hpp"
 #include "components/Player/PlayerEntity.hpp"

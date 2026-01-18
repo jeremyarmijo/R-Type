@@ -2,90 +2,55 @@
 #include <vector>
 
 #include "engine/GameEngine.hpp"
-#include "scene/SceneManager.hpp"
-#include "scenes/CreateLobby.hpp"
-#include "scenes/GameOver.hpp"
-#include "scenes/JoinGame.hpp"
-#include "scenes/Lobby.hpp"
-#include "scenes/LobbyInfo.hpp"
-#include "scenes/LobbyJoin.hpp"
-#include "scenes/MainGame.hpp"
-#include "scenes/MainMenu.hpp"
-#include "scenes/Options.hpp"
-#include "scenes/WaitLobby.hpp"
-#include "scenes/LobbyPassword.hpp"
-#include "ui/UIButton.hpp"
-#include "ui/UIImage.hpp"
-#include "ui/UIText.hpp"
-
-class MyGame {
- private:
-  GameEngine m_engine;
-  SceneManager m_sceneManager;
-
- public:
-  bool Initialize() {
-    std::cout << "=== INITIALIZING GAME ===" << std::endl;
-
-    if (!m_engine.Initialize("R-Type Game", 800, 600)) {
-      std::cerr << "ERROR: Failed to initialize engine!" << std::endl;
-      return false;
-    }
-
-    m_engine.SetSceneManager(&m_sceneManager);
-    m_sceneManager.SetRegistry(&m_engine.GetRegistry());
-
-    std::cout << "Registering scenes..." << std::endl;
-    m_sceneManager.RegisterScene<JoinGame>("join", &m_engine, &m_sceneManager);
-    m_sceneManager.RegisterScene<MainMenu>("menu", &m_engine, &m_sceneManager);
-    m_sceneManager.RegisterScene<OptionsScene>("options", &m_engine,
-                                               &m_sceneManager);
-    m_sceneManager.RegisterScene<MyGameScene>("game", &m_engine,
-                                              &m_sceneManager);
-    m_sceneManager.RegisterScene<GameOverScene>("gameover", &m_engine,
-                                                &m_sceneManager);
-    m_sceneManager.RegisterScene<WaitLobby>("wait", &m_engine, &m_sceneManager);
-    m_sceneManager.RegisterScene<LobbyMenu>("lobby", &m_engine,
-                                            &m_sceneManager);
-    m_sceneManager.RegisterScene<CreateLobby>("createLobby", &m_engine,
-                                              &m_sceneManager);
-    m_sceneManager.RegisterScene<LobbyInfoPlayer>("lobbyInfoPlayer", &m_engine,
-                                                  &m_sceneManager);
-    m_sceneManager.RegisterScene<LobbyJoin>("lobbyjoin", &m_engine,
-                                            &m_sceneManager);
-    m_sceneManager.RegisterScene<LobbyPassword>("lobbyPassword", &m_engine,
-                                            &m_sceneManager);
-
-    std::cout << "Starting initial scene..." << std::endl;
-    m_sceneManager.ChangeScene("menu");
-
-    std::cout << "Initialization complete!\n" << std::endl;
-    return true;
-  }
-
-  void Run() { m_engine.Run(); }
-
-  void Shutdown() {
-    std::cout << "=== SHUTTING DOWN ===" << std::endl;
-    m_engine.Shutdown();
-  }
-};
+#include "physics/PhysicsSystem.hpp"
+#include "dynamicLibLoader/DLLoader.hpp"
+#include "engine/ISubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
 
 int main(int argc, char* argv[]) {
-  MyGame game;
+    try {
+        GameEngine engine;
 
-  if (!game.Initialize()) {
-    std::cerr << "Failed to initialize!" << std::endl;
-    return -1;
-  }
+        if (!engine.Initialize("R-Type Game", 800, 600)) {
+            std::cerr << "Failed to initialize engine!" << std::endl;
+            return -1;
+        }
+        
+        std::cout << "\n=== LOADING SUBSYSTEMS ===" << std::endl;
 
-  try {
-    game.Run();
-  } catch (const std::exception& e) {
-    std::cerr << "FATAL ERROR: " << e.what() << std::endl;
-    return -1;
-  }
-  game.Shutdown();
+        engine.LoadSubsystem(SubsystemType::RENDERING, "../../EngineModule/build/libsubsystem_rendering.so");
+        engine.LoadSubsystem(SubsystemType::AUDIO, "../../EngineModule/build/libsubsystem_audio.so");
+        engine.LoadSubsystem(SubsystemType::INPUT, "../../EngineModule/build/libsubsystem_input.so");
+        engine.LoadSubsystem(SubsystemType::PHYSICS, "../../EngineModule/build/libsubsystem_physics.so");
+        engine.LoadSubsystem(SubsystemType::MESSAGING, "../../EngineModule/build/libsubsystem_messaging.so");
+        engine.LoadSubsystem(SubsystemType::NETWORK, "../../EngineModule/build/libsubsystem_network.so");
+        
+        std::cout << "\n=== LOADING GAME SCENES ===" << std::endl;
 
-  return 0;
+        engine.GetSceneManager().LoadSceneModule("createLobby", "../src/scenes/libscene_createlobby.so");
+        engine.GetSceneManager().LoadSceneModule("gameover", "../src/scenes/libscene_gameover.so");
+        engine.GetSceneManager().LoadSceneModule("join", "../src/scenes/libscene_joingame.so");
+        engine.GetSceneManager().LoadSceneModule("lobby", "../src/scenes/libscene_lobby.so");
+        engine.GetSceneManager().LoadSceneModule("lobbyInfoPlayer", "../src/scenes/libscene_lobbyinfo.so");
+        engine.GetSceneManager().LoadSceneModule("lobbyjoin", "../src/scenes/libscene_lobbyjoin.so");
+        engine.GetSceneManager().LoadSceneModule("lobbyPassword", "../src/scenes/libscene_lobbypassword.so");
+        engine.GetSceneManager().LoadSceneModule("game", "../src/scenes/libscene_maingame.so");
+        engine.GetSceneManager().LoadSceneModule("menu", "../src/scenes/libscene_mainmenu.so");
+        engine.GetSceneManager().LoadSceneModule("options", "../src/scenes/libscene_options.so");
+        engine.GetSceneManager().LoadSceneModule("wait", "../src/scenes/libscene_waitlobby.so");
+        
+        std::cout << "\n=== STARTING GAME ===" << std::endl;
+
+        engine.ChangeScene("menu");
+        
+        engine.Run();
+        
+        std::cout << "\n=== GAME ENDED ===" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "FATAL ERROR: " << e.what() << std::endl;
+        return -1;
+    }
+    
+    return 0;
 }

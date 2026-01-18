@@ -11,10 +11,11 @@
 #include "components/BossPart.hpp"
 #include "components/Force.hpp"
 #include "components/Levels.hpp"
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "ecs/Registry.hpp"
-#include "inputs/InputManager.hpp"
 #include "components/TileMap.hpp"
+#include "input/InputSubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
 
 static const Vector2 PLAYER_SIZE{32.f, 32.f};
 static const Vector2 ENEMY_BASIC_SIZE{40.f, 40.f};
@@ -188,7 +189,6 @@ inline Entity createForce(Registry& registry, Entity playerEntity,
 }
 
 
-// Helper pour créer la map
 inline Entity createMapEntity(Registry& registry, uint16_t mapWidth, 
                                uint16_t mapHeight, float scrollSpeed,
                                const std::vector<uint8_t>& tiles,
@@ -211,7 +211,6 @@ inline Entity createMapEntity(Registry& registry, uint16_t mapWidth,
     return mapEntity;
 }
 
-// Helper pour générer une map simple (sol en bas)
 inline TileMap generateSimpleMap(int levelIndex, uint16_t screenWidth = 800, 
                                   uint16_t screenHeight = 600) {
     TileMap map;
@@ -223,13 +222,11 @@ inline TileMap generateSimpleMap(int levelIndex, uint16_t screenWidth = 800,
     map.init(mapWidth, mapHeight, tileSize);
     map.scrollSpeed = 50.0f + (levelIndex * 10.0f);
 
-    // ✅ PLAFOND = 2 premières lignes (TOUJOURS, pas seulement level >= 1)
     for (int x = 0; x < mapWidth; ++x) {
         map.setTile(x, 0, TileType::CEILING);
         map.setTile(x, 1, TileType::CEILING);
     }
 
-    // ✅ SOL = 2 dernières lignes
     int groundY = mapHeight - 2;
     for (int x = 0; x < mapWidth; ++x) {
         map.setTile(x, groundY, TileType::GROUND);
@@ -239,7 +236,6 @@ inline TileMap generateSimpleMap(int levelIndex, uint16_t screenWidth = 800,
     std::cout << "[MapGenerator] Creating map " << mapWidth << "x" << mapHeight 
               << " for level " << levelIndex << std::endl;
 
-    // Trous dans le sol (niveau 1+)
     if (levelIndex >= 1) {
         srand(static_cast<unsigned>(levelIndex * 12345));
         int numHoles = 3 + levelIndex * 2;
@@ -253,9 +249,7 @@ inline TileMap generateSimpleMap(int levelIndex, uint16_t screenWidth = 800,
         }
     }
 
-    // ✅ OBSTACLES optionnels (plateformes, murs)
     if (levelIndex >= 1) {
-        // Quelques plateformes au milieu
         int numPlatforms = 2 + levelIndex;
         for (int i = 0; i < numPlatforms; ++i) {
             int platX = 40 + (rand() % (mapWidth - 80));
@@ -271,4 +265,80 @@ inline TileMap generateSimpleMap(int levelIndex, uint16_t screenWidth = 800,
               << " tiles (ceiling + ground)" << std::endl;
     
     return map;
+}
+/**
+ * @brief Creates a sprite
+ *
+ * @param textureKey texture key in the texture manager
+ * @param position spawn coordinates
+ * @param layer position sprite on different layers for rendering
+ * @return Entity
+ */
+inline Entity CreateSprite(Registry& registry, const std::string& textureKey, Vector2 position,
+                                int layer = 0) {
+  Entity entity = registry.spawn_entity();
+
+  registry.emplace_component<Transform>(entity, position, Vector2{1, 1},
+                                          0.0f);
+  registry.emplace_component<Sprite>(entity, textureKey, SDL_Rect{0, 0, 0, 0},
+                                       Vector2{0.5f, 0.5f}, layer);
+  return entity;
+}
+
+/**
+ * @brief Creates a sprite with physics components; rigidBody and boxCollider
+ *
+ * @param textureKey texture key in the texture manager
+ * @param position spawn coordinates
+ * @param size size of the box collider
+ * @param isStatic
+ * @return Entity
+ */
+inline Entity CreatePhysicsObject(Registry& registry, const std::string& textureKey,
+                                       Vector2 position, Vector2 size,
+                                       bool isStatic, int layer) {
+  Entity entity = CreateSprite(registry, textureKey, position, layer = 0);
+
+  registry.emplace_component<RigidBody>(entity, 1.0f, 0.5f, isStatic);
+  registry.emplace_component<BoxCollider>(entity, size.x, size.y);
+
+  return entity;
+}
+
+inline Entity CreateAnimatedSprite(Registry& registry, const AnimationClip* clip, const std::string& textureKey,
+                                        Vector2 position,
+                                        const std::string& animationKey,
+                                        int layer = 0) {
+  Entity entity = CreateSprite(registry, textureKey, position, layer);
+
+  registry.emplace_component<Animation>(entity, animationKey, true);
+  auto& sprite = registry.get_components<Sprite>()[entity];
+  auto& animation = registry.get_components<Animation>()[entity];
+
+  if (clip && !clip->frames.empty()) {
+    animation->currentFrame = 0;
+    animation->currentTime = 0;
+    animation->isPlaying = true;
+
+    sprite->sourceRect = clip->frames[0].sourceRect;
+  } else {
+    std::cerr << "CreateAnimatedSprite ERROR: Animation not found: "
+              << animationKey << std::endl;
+  }
+
+  return entity;
+}
+
+inline Entity CreatePlayer(Registry& registry, const AnimationClip* clip, const std::string& textureKey,
+                                const std::string& animationKey,
+                                Vector2 position, float moveSpeed, int layer = 0) {
+  Entity player = CreateAnimatedSprite(registry, clip, textureKey, position, animationKey, layer);
+
+  registry.emplace_component<RigidBody>(player, 1.0f, 0.5f, false);
+  registry.emplace_component<BoxCollider>(player, 60.0f, 32.0f);
+  registry.emplace_component<PlayerEntity>(player, moveSpeed);
+
+  registry.add_component<Weapon>(player, Weapon());
+
+  return player;
 }

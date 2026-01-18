@@ -1,5 +1,5 @@
 #pragma once
-#include "../Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 
 struct Projectile {
   float damage;
