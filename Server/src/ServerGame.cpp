@@ -53,10 +53,17 @@ void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName,
     return;
   }
 
+#ifdef _WIN32
+  if (!l->m_engine.GetSceneManager().LoadSceneModule("rtype", "../../Client/src/scenes/libscene_rtypescene.dll")) {
+    std::cerr << "Failed to load game scene!" << std::endl;
+    return;
+  }
+#else
   if (!l->m_engine.GetSceneManager().LoadSceneModule("rtype", "../../Client/src/scenes/libscene_rtypescene.so")) {
     std::cerr << "Failed to load game scene!" << std::endl;
     return;
   }
+#endif
 
   l->m_gameScene = l->m_engine.GetSceneManager().GetCurrentScene();
   if (l->m_gameScene) {
