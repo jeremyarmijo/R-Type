@@ -7,11 +7,12 @@
 #include <string>
 #include <thread>
 #include <vector>
+
 #include <asio.hpp>
 
 #include "engine/ISubsystem.hpp"
-#include "network/CircularBuffer.hpp"
 #include "network/Action.hpp"
+#include "network/CircularBuffer.hpp"
 #include "network/Decoder.hpp"
 #include "network/Encoder.hpp"
 #include "network/Event.hpp"
@@ -36,7 +37,7 @@ class NetworkSubsystem : public ISubsystem {
   const char* GetName() const override { return "Network"; }
   SubsystemType GetType() const override { return SubsystemType::NETWORK; }
   const char* GetVersion() const override { return "1.0.0"; }
-  
+
   bool Connect(const std::string& ip, int port);
   void Disconnect();
 
@@ -106,5 +107,5 @@ class NetworkSubsystem : public ISubsystem {
 };
 
 extern "C" {
-    ISubsystem* CreateSubsystem();
+ISubsystem* CreateSubsystem();
 }

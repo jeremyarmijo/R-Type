@@ -1,23 +1,30 @@
 #include "scenes/RtypeScene.hpp"
-#include "systems/LevelSystem.hpp"
+
+
+#include <string>
+#include <vector>
+#include <iostream>
+
+#include "Collision/Collision.hpp"
+#include "Movement/Movement.hpp"
 #include "ecs/Zipper.hpp"
+#include "network/DataMask.hpp"
 #include "systems/BoundsSystem.hpp"
+#include "systems/ChargedShoot.hpp"
+#include "systems/ForceCtrl.hpp"
 #include "systems/LevelSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WaveSystem.hpp"
 #include "systems/WeaponSystem.hpp"
-#include "Movement/Movement.hpp"
-#include "Collision/Collision.hpp"
-#include "network/DataMask.hpp"
-#include "systems/ChargedShoot.hpp"
-#include "systems/ForceCtrl.hpp"
 
 RtypeScene::RtypeScene() { m_name = "rtype server scene"; }
 
 void RtypeScene::OnEnter() {
   SceneData& data = GetSceneData();
-  auto players_list = data.Get<std::vector<std::tuple<uint16_t, bool, std::string>>>("players_list");
+  auto players_list =
+      data.Get<std::vector<std::tuple<uint16_t, bool, std::string>>>(
+          "players_list");
   // Physics components
   GetRegistry().register_component<Transform>();
   GetRegistry().register_component<RigidBody>();
@@ -43,13 +50,9 @@ void RtypeScene::OnEnter() {
   GetRegistry().register_component<Force>();
 
   currentMap = generateSimpleMap(0, 800, 600);
-  mapEntity = createMapEntity(
-      GetRegistry(),
-      currentMap.width,
-      currentMap.height,
-      currentMap.scrollSpeed,
-      currentMap.tiles
-  );
+  mapEntity =
+      createMapEntity(GetRegistry(), currentMap.width, currentMap.height,
+                      currentMap.scrollSpeed, currentMap.tiles);
   mapSent = false;
 
   MapData mapData;
@@ -58,7 +61,7 @@ void RtypeScene::OnEnter() {
   mapData.scrollSpeed = currentMap.scrollSpeed;
   mapData.tiles = currentMap.tiles;
   data.Set("send_map", mapData);
-    
+
   mapSent = true;
   std::cout << "[StartGame] Map created!" << std::endl;
 
@@ -72,24 +75,22 @@ void RtypeScene::OnEnter() {
   currentLevelIndex = 0;
   waitingForNextLevel = false;
   levelTransitionTimer = 0.0f;
-  currentLevelEntity = createLevelEntity(
-      GetRegistry(), levelsData[currentLevelIndex]);
-  std::cout << "[StartGame] Level " << currentLevelIndex + 1
-            << " created" << std::endl;
+  currentLevelEntity =
+      createLevelEntity(GetRegistry(), levelsData[currentLevelIndex]);
+  std::cout << "[StartGame] Level " << currentLevelIndex + 1 << " created"
+            << std::endl;
 
   std::cout << "Lobby full! Starting the game!!!!\n";
-//   lobby_list.gameThread =
-//       std::thread(&ServerGame::GameLoop, this, std::ref(lobby_list));
+  //   lobby_list.gameThread =
+  //       std::thread(&ServerGame::GameLoop, this, std::ref(lobby_list));
 }
 
-void RtypeScene::OnExit() {
-    m_players.clear();
-}
+void RtypeScene::OnExit() { m_players.clear(); }
 
 void RtypeScene::Update(float deltaTime) {
-    ReceivePlayerInputs();
-    UpdateGameState(deltaTime);
-    BuildCurrentState();
+  ReceivePlayerInputs();
+  UpdateGameState(deltaTime);
+  BuildCurrentState();
 }
 
 void RtypeScene::ReceivePlayerInputs() {
@@ -98,16 +99,16 @@ void RtypeScene::ReceivePlayerInputs() {
   if (data.Has("last_input_event")) {
     Event event = data.Get<Event>("last_input_event");
     uint16_t playerId = data.Get<uint16_t>("last_input_player");
-    
+
     if (event.type == EventType::PLAYER_INPUT) {
       const PLAYER_INPUT& input = std::get<PLAYER_INPUT>(event.data);
-      
+
       auto& players = GetRegistry().get_components<PlayerEntity>();
       auto& states = GetRegistry().get_components<InputState>();
-      
+
       for (auto&& [player, state] : Zipper(players, states)) {
         if (player.player_id != playerId) continue;
-        
+
         state.moveLeft = input.left;
         state.moveRight = input.right;
         state.moveDown = input.down;
@@ -165,27 +166,24 @@ void RtypeScene::UpdateGameState(float deltaTime) {
       waitingForNextLevel = false;
       currentLevelIndex++;
 
-      if (currentLevelIndex >=
-          static_cast<int>(levelsData.size())) {
+      if (currentLevelIndex >= static_cast<int>(levelsData.size())) {
         data.Set("game_ended", true);
         data.Set("victory", true);
         std::cout << "[Game] VICTORY! All levels completed!" << std::endl;
         return;
       }
 
-      currentLevelEntity = createLevelEntity(
-          GetRegistry(), levelsData[currentLevelIndex]);
+      currentLevelEntity =
+          createLevelEntity(GetRegistry(), levelsData[currentLevelIndex]);
       std::cout << "[Game] Level " << (currentLevelIndex + 1)
                 << " created (Entity "
-                << static_cast<size_t>(currentLevelEntity) << ")"
-                << std::endl;
+                << static_cast<size_t>(currentLevelEntity) << ")" << std::endl;
     }
   } else {
     bool levelFinished =
         update_level_system(GetRegistry(), deltaTime, currentLevelIndex);
 
     if (levelFinished) {
-
       std::vector<Entity> toKill;
 
       auto& enemiesCleanup = GetRegistry().get_components<Enemy>();
@@ -236,8 +234,8 @@ void RtypeScene::UpdateGameState(float deltaTime) {
   weapon_cooldown_system(GetRegistry(), weapons, deltaTime);
   weapon_reload_system(GetRegistry(), weapons, deltaTime);
   force_control_system(GetRegistry(), forces, states, transforms);
-  force_movement_system(GetRegistry(), transforms, rigidbodies, forces,
-                        players, deltaTime);
+  force_movement_system(GetRegistry(), transforms, rigidbodies, forces, players,
+                        deltaTime);
   weapon_firing_system(
       GetRegistry(), weapons, transforms,
       [this](size_t entityId) -> bool {
@@ -387,9 +385,6 @@ void RtypeScene::BuildCurrentState() {
 
 void RtypeScene::HandleEvent(SDL_Event& event) {}
 
-
 extern "C" {
-    Scene* CreateScene() {
-        return new RtypeScene();
-    }
+Scene* CreateScene() { return new RtypeScene(); }
 }
