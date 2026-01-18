@@ -11,8 +11,8 @@
 #include "Player/Enemy.hpp"
 #include "Player/PlayerEntity.hpp"
 #include "Player/Projectile.hpp"
-#include "physics/Physics2D.hpp"
 #include "ecs/Zipper.hpp"
+#include "physics/Physics2D.hpp"
 #include "systems/ProjectileSystem.hpp"
 
 void player_movement_system(Registry& registry) {
@@ -143,11 +143,12 @@ void enemy_movement_system(Registry& registry,
 
         enemy.timeSinceLastShot += deltaTime;
         if (enemy.timeSinceLastShot >= 2.0f) {  // cooldown 2 secondes
-        Vector2 pos = transform.position + Vector2{-20.f, 0.f}; // offset devant lui
-        Vector2 dir = {-1.f, 0.f};  // tirer vers la gauche
-        float speed = 300.f;
-        spawn_projectile(registry, pos, dir, speed, entityId);
-        enemy.timeSinceLastShot = 0.f;
+          Vector2 pos =
+              transform.position + Vector2{-20.f, 0.f};  // offset devant lui
+          Vector2 dir = {-1.f, 0.f};                     // tirer vers la gauche
+          float speed = 300.f;
+          spawn_projectile(registry, pos, dir, speed, entityId);
+          enemy.timeSinceLastShot = 0.f;
         }
         break;
       }

@@ -51,8 +51,8 @@ void projectile_lifetime_system(Registry& registry,
   }
 }
 
-void apply_projectile_damage(Registry& registry, size_t targetId,
-                             float damage, size_t attackerId) {
+void apply_projectile_damage(Registry& registry, size_t targetId, float damage,
+                             size_t attackerId) {
   auto& players = registry.get_components<PlayerEntity>();
   auto& enemies = registry.get_components<Enemy>();
   auto& bosses = registry.get_components<Boss>();
@@ -78,9 +78,10 @@ void apply_projectile_damage(Registry& registry, size_t targetId,
     if (enemy.current <= 0) {
       if (attackerId < players.size() && players[attackerId].has_value()) {
         players[attackerId]->score += enemy.scoreValue;
-        std::cout << "[SCORE] Player " << players[attackerId]->player_id 
-                  << " gained " << enemy.scoreValue 
-                  << " points! Total: " << players[attackerId]->score << std::endl;
+        std::cout << "[SCORE] Player " << players[attackerId]->player_id
+                  << " gained " << enemy.scoreValue
+                  << " points! Total: " << players[attackerId]->score
+                  << std::endl;
       }
       registry.kill_entity(Entity(targetId));
     }
@@ -92,9 +93,10 @@ void apply_projectile_damage(Registry& registry, size_t targetId,
     if (boss.current <= 0) {
       if (attackerId < players.size() && players[attackerId].has_value()) {
         players[attackerId]->score += boss.scoreValue;
-        std::cout << "[SCORE] Player " << players[attackerId]->player_id 
-                  << " killed BOSS! +" << boss.scoreValue 
-                  << " points! Total: " << players[attackerId]->score << std::endl;
+        std::cout << "[SCORE] Player " << players[attackerId]->player_id
+                  << " killed BOSS! +" << boss.scoreValue
+                  << " points! Total: " << players[attackerId]->score
+                  << std::endl;
       }
       registry.kill_entity(Entity(targetId));
     }
@@ -183,7 +185,8 @@ void projectile_collision_system(Registry& registry,
 
       if (check_collision(projTransform, projCollider, targetTransform,
                           targetCollider)) {
-        apply_projectile_damage(registry, targetIdx, projectile.damage, projectile.ownerId);
+        apply_projectile_damage(registry, targetIdx, projectile.damage,
+                                projectile.ownerId);
         projectile.isActive = false;
         registry.kill_entity(Entity(projIdx));
         break;

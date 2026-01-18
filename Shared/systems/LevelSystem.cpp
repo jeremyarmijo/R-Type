@@ -17,17 +17,15 @@ std::vector<LevelComponent> createLevels() {
   // Level 1
   levels.emplace_back(std::vector<Wave>{
       Wave{{
-        
-        
-      },
+           },
            {3},
            {{700, 100}, {700, 200}, {700, 300}},
            false,
            std::nullopt,
            0},
       Wave{{EnemyType::Basic, EnemyType::Zigzag, EnemyType::mini_Green},
-          {2, 2,1},  // mini_Green = 1 spawn
-         {{700, 120}, {700, 200}, {700, 300}, {700, 380}, {700, 450}},
+           {2, 2, 1},  // mini_Green = 1 spawn
+           {{700, 120}, {700, 200}, {700, 300}, {700, 380}, {700, 450}},
            false,
            std::nullopt,
            0},
@@ -209,9 +207,9 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
                 : wave.spawnPositions[totalSpawned %
                                       wave.spawnPositions.size()];
 
-
         float hpMultiplier = 1.0f + 0.2f * static_cast<float>(levelIndex);
-        Entity e = createEnemy(registry, type, spawnPos, speedMultiplier, hpMultiplier);
+        Entity e = createEnemy(registry, type, spawnPos, speedMultiplier,
+                               hpMultiplier);
         totalSpawned++;
       }
     }
