@@ -28,6 +28,7 @@ enum class ActionType : uint8_t {
   CLIENT_LEAVE,
 
   // Serveur → Client
+  LEVEL_TRANSITION,
   FORCE_STATE,
   LOGIN_RESPONSE,
   LOBBY_JOIN_RESPONSE,
@@ -260,13 +261,18 @@ struct ForceState {
   float posY;
   uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
 };
+
+struct LevelTransition {
+  uint8_t levelNumber;
+};
+
 using ActionData =
     std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
                  EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick,
-                 ForceState, MapData, ClientLeave>;
+                 ForceState, MapData, ClientLeave, LevelTransition>;
 
 struct Action {
   ActionType type;
@@ -293,6 +299,7 @@ inline size_t UseUdp(ActionType type) {
 
     case ActionType::BOSS_SPAWN:
     case ActionType::ENEMY_HIT:
+    case ActionType::LEVEL_TRANSITION:
       return 1;  // UDP + ACK
 
     case ActionType::LOGIN_REQUEST:
