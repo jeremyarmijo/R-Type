@@ -1164,8 +1164,6 @@ class MyGameScene : public Scene {
       if (e.type == EventType::LEVEL_TRANSITION) {
         const auto* lt = std::get_if<LEVEL_TRANSITION>(&e.data);
         if (lt) {
-          std::cout << "[CLIENT] CHANGING TO LEVEL TRANSITION SCENE: "
-                    << static_cast<int>(lt)->levelNumber << std::endl;
           GetSceneData().Set("nextLevel", lt->levelNumber);
           ChangeScene("levelTransition");
           return;
