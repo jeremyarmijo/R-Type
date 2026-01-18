@@ -1,7 +1,8 @@
 #include "ui/UIImage.hpp"
-#include "rendering/RenderingSubsystem.hpp"
 
 #include <iostream>
+
+#include "rendering/RenderingSubsystem.hpp"
 
 void UIImage::Render(SDL_Renderer* renderer, RenderingSubsystem* renderSys) {
   if (!m_visible) return;

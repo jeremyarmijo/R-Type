@@ -1,8 +1,9 @@
 #include "ui/UIButton.hpp"
-#include "rendering/RenderingSubsystem.hpp"
 
 #include <iostream>
 #include <string>
+
+#include "rendering/RenderingSubsystem.hpp"
 
 UIButton::~UIButton() {
   if (m_textTexture) {
@@ -57,8 +58,7 @@ bool UIButton::LoadFont() {
   }
 
   if (m_fontPath.empty()) {
-    const char* defaultFonts[] = {"../assets/Font.ttf",
-                                  "assets/Font.ttf"};
+    const char* defaultFonts[] = {"../assets/Font.ttf", "assets/Font.ttf"};
 
     for (const char* path : defaultFonts) {
       m_font = TTF_OpenFont(path, m_fontSize);

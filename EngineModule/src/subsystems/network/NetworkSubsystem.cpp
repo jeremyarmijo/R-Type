@@ -16,9 +16,7 @@ NetworkSubsystem::NetworkSubsystem()
       eventBuffer(50),
       actionBuffer(50) {}
 
-NetworkSubsystem::~NetworkSubsystem() {
-  Shutdown();
-}
+NetworkSubsystem::~NetworkSubsystem() { Shutdown(); }
 
 bool NetworkSubsystem::Initialize() {
   SetupDecoder(decoder);
@@ -34,8 +32,7 @@ void NetworkSubsystem::Shutdown() {
   }
 }
 
-void NetworkSubsystem::Update(float deltaTime) {
-}
+void NetworkSubsystem::Update(float deltaTime) {}
 
 bool NetworkSubsystem::Connect(const std::string& ip, int port) {
   serverIP = ip;
@@ -51,6 +48,15 @@ bool NetworkSubsystem::Connect(const std::string& ip, int port) {
 }
 
 void NetworkSubsystem::Disconnect() {
+  Action disconnect;
+  ClientLeave l;
+  disconnect.type = ActionType::CLIENT_LEAVE;
+  l.playerId = 0;
+  disconnect.data = l;
+
+  std::vector<uint8_t> packet = encoder.encode(disconnect, 2, 0, 0, 0);
+  SendTcp(packet);
+
   running = false;
 
   asio::error_code ec;
@@ -149,11 +155,18 @@ void NetworkSubsystem::AuthAction() {
 
 void NetworkSubsystem::ProcessTCPRecvBuffer() {
   while (recvTcpBuffer.size() >= 6) {
+    std::cout << "[TCP DEBUG] Packet type: 0x" << std::hex
+              << static_cast<int>(recvTcpBuffer[0]) << std::dec
+              << " buffer size: " << recvTcpBuffer.size() << std::endl;
+
     uint32_t packetSize;
     memcpy(&packetSize, &recvTcpBuffer[2], sizeof(packetSize));
     packetSize = ntohl(packetSize);
 
+    std::cout << "[TCP DEBUG] Payload size: " << packetSize << std::endl;
+
     if (recvTcpBuffer.size() < 6 + packetSize) {
+      std::cout << "[TCP DEBUG] Incomplete packet, waiting..." << std::endl;
       return;
     }
 
@@ -164,6 +177,10 @@ void NetworkSubsystem::ProcessTCPRecvBuffer() {
                         recvTcpBuffer.begin() + 6 + packetSize);
 
     Event evt = DecodePacket(packet);
+
+    std::cout << "[TCP DEBUG] Decoded event type: "
+              << static_cast<int>(evt.type) << std::endl;
+
     if (evt.type == EventType::LOGIN_RESPONSE) {
       const auto* input = std::get_if<LOGIN_RESPONSE>(&evt.data);
       if (!input) return;
@@ -174,6 +191,7 @@ void NetworkSubsystem::ProcessTCPRecvBuffer() {
         AuthAction();
       }
     }
+
     std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
   }
@@ -237,10 +255,40 @@ void NetworkSubsystem::ReadUDP() {
 
   if (!error && bytesReceived > 0) {
     std::vector<uint8_t> packet(tempBuffer, tempBuffer + bytesReceived);
-    // SendACK(packet);
     Event evt = DecodePacket(packet);
     std::lock_guard<std::mutex> lock(mut);
-    eventBuffer.push(evt);
+    uint16_t newSeq = evt.seqNum;
+    bool isDuplicate = false;
+
+    if (newSeq == ack) {
+      isDuplicate = true;
+    } else if (static_cast<uint16_t>(newSeq - ack) < 32768) {
+      uint16_t shift = newSeq - ack;
+      if (shift < 32) {
+        ack_bits <<= shift;
+        ack_bits |= (1 << (shift - 1));
+      } else {
+        ack_bits = 0;
+      }
+      ack = newSeq;
+    } else {
+      uint16_t shift = ack - newSeq;
+      if (shift > 0 && shift <= 32) {
+        if (ack_bits & (1 << (shift - 1))) {
+          isDuplicate = true;
+        }
+        ack_bits |= (1 << (shift - 1));
+      } else {
+        isDuplicate = true;
+      }
+    }
+    clientHistory.erase(evt.ack);
+    for (int i = 0; i < 32; ++i) {
+      if (evt.ack_bits & (1 << i)) {
+        clientHistory.erase(static_cast<uint16_t>(evt.ack - (i + 1)));
+      }
+    }
+    if (!isDuplicate) eventBuffer.push(evt);
   } else if (error == asio::error::eof) {
     std::cout << "UDP server disconnected" << std::endl;
     udpConnected = false;
@@ -268,8 +316,6 @@ void NetworkSubsystem::SendUdp(std::vector<uint8_t>& packet) {
     udpConnected = false;
     return;
   }
-  std::cout << "UDP message Send (" << sent << " bytes)\n";
-  // sequenceNumUdp++;
 }
 
 void NetworkSubsystem::SendTcp(std::vector<uint8_t>& packet) {
@@ -303,39 +349,69 @@ void NetworkSubsystem::SendTcp(std::vector<uint8_t>& packet) {
 }
 
 void NetworkSubsystem::SendActionServer() {
-  std::unique_lock<std::mutex> lock(mut);
-  size_t bufferSize = actionBuffer.size();
+  while (true) {
+    Action action;
+    bool hasAction = false;
 
-  for (size_t i = 0; i < bufferSize; ++i) {
-    auto opt = actionBuffer.peek();
-    if (!opt.has_value()) break;
+    {
+      std::lock_guard<std::mutex> lock(mut);
+      if (auto opt = actionBuffer.peek()) {
+        action = opt.value();
+        hasAction = true;
+      }
+    }
 
-    const Action& action = opt.value();
+    if (!hasAction) break;
+
     size_t protocol = UseUdp(action.type);
-
     bool sent = false;
     if ((protocol == 0 || protocol == 1) && udpConnected) {
-      std::vector<uint8_t> packet = encoder.encode(action, protocol);
-
-      lock.unlock();
+      uint16_t s, a;
+      uint32_t ab;
+      {
+        std::lock_guard<std::mutex> lock(mut);
+        s = ++seqNum;
+        a = ack;
+        ab = ack_bits;
+      }
+      std::vector<uint8_t> packet = encoder.encode(action, protocol, s, a, ab);
+      if (protocol == 1) {
+        std::lock_guard<std::mutex> lock(mut);
+        clientHistory[s] = {s, packet, std::chrono::steady_clock::now(), 0};
+      }
       SendUdp(packet);
-      lock.lock();
-
       sent = true;
     } else if (protocol == 2 && tcpConnected) {
-      std::vector<uint8_t> packet = encoder.encode(action, protocol);
-
-      lock.unlock();
+      std::vector<uint8_t> packet = encoder.encode(action, protocol, 0, 0, 0);
       SendTcp(packet);
-      lock.lock();
-
       sent = true;
     }
 
     if (sent) {
+      std::lock_guard<std::mutex> lock(mut);
       actionBuffer.pop();
     } else {
       break;
+    }
+  }
+}
+
+void NetworkSubsystem::HandleRetransmission() {
+  std::lock_guard<std::mutex> lock(mut);
+  auto now = std::chrono::steady_clock::now();
+
+  for (auto it = clientHistory.begin(); it != clientHistory.end();) {
+    if (now - it->second.lastSent > std::chrono::milliseconds(100)) {
+      if (it->second.retryCount < 15) {
+        SendUdp(it->second.data);
+        it->second.lastSent = now;
+        it->second.retryCount++;
+        ++it;
+      } else {
+        it = clientHistory.erase(it);
+      }
+    } else {
+      ++it;
     }
   }
 }
@@ -356,6 +432,7 @@ void NetworkSubsystem::ThreadLoop() {
     }
     if (udpConnected && udpPort != -1) {
       ReadUDP();
+      HandleRetransmission();
     }
     SendActionServer();
 
@@ -380,8 +457,6 @@ __declspec(dllexport) ISubsystem* CreateSubsystem() {
 }
 #else
 extern "C" {
-    ISubsystem* CreateSubsystem() {
-        return new NetworkSubsystem();
-    }
+ISubsystem* CreateSubsystem() { return new NetworkSubsystem(); }
 }
 #endif

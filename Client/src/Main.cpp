@@ -1,15 +1,15 @@
 #include <iostream>
 #include <vector>
 
-#include "engine/GameEngine.hpp"
-#include "physics/PhysicsSystem.hpp"
 #include "dynamicLibLoader/DLLoader.hpp"
+#include "engine/GameEngine.hpp"
 #include "engine/ISubsystem.hpp"
+#include "physics/PhysicsSystem.hpp"
 #include "rendering/RenderingSubsystem.hpp"
 
 int main(int argc, char* argv[]) {
-    try {
-        GameEngine engine;
+  try {
+    GameEngine engine;
 
         if (!engine.Initialize("R-Type Game", 800, 600)) {
             std::cerr << "Failed to initialize engine!" << std::endl;
@@ -72,6 +72,6 @@ int main(int argc, char* argv[]) {
         std::cerr << "FATAL ERROR: " << e.what() << std::endl;
         return -1;
     }
-    
-    return 0;
+
+  return 0;
 }

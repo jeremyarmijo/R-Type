@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <map>
 #include <mutex>
 #include <queue>
 #include <string>
@@ -9,8 +10,8 @@
 #include <asio.hpp>
 
 #include "engine/ISubsystem.hpp"
-#include "network/CircularBuffer.hpp"
 #include "network/Action.hpp"
+#include "network/CircularBuffer.hpp"
 #include "network/Decoder.hpp"
 #include "network/Encoder.hpp"
 #include "network/Event.hpp"
@@ -18,6 +19,13 @@
 
 class NETWORK_API NetworkSubsystem : public ISubsystem {
  public:
+  struct SentPacket {
+    uint16_t seq;
+    std::vector<uint8_t> data;
+    std::chrono::steady_clock::time_point lastSent;
+    int retryCount;
+  };
+  std::map<uint16_t, SentPacket> clientHistory;
   NetworkSubsystem();
   ~NetworkSubsystem() override;
 
@@ -29,7 +37,7 @@ class NETWORK_API NetworkSubsystem : public ISubsystem {
   const char* GetName() const override { return "Network"; }
   SubsystemType GetType() const override { return SubsystemType::NETWORK; }
   const char* GetVersion() const override { return "1.0.0"; }
-  
+
   bool Connect(const std::string& ip, int port);
   void Disconnect();
 
@@ -37,7 +45,12 @@ class NETWORK_API NetworkSubsystem : public ISubsystem {
 
   void SendAction(Action action);
   Event PopEvent();
-
+  /*bool HasMapData() const { return mapDataReceived; }
+    uint16_t GetMapWidth() const { return mapWidth; }
+    uint16_t GetMapHeight() const { return mapHeight; }
+    float GetMapScrollSpeed() const { return mapScrollSpeed; }
+    const std::vector<uint8_t>& GetMapTiles() const { return mapTiles; }
+    void ClearMapData() { mapDataReceived = false; mapTiles.clear(); }*/
  private:
   std::mutex mut;
   bool tcpConnected = false;
@@ -50,6 +63,10 @@ class NETWORK_API NetworkSubsystem : public ISubsystem {
   int tcpPort = -1;
   int udpPort = -1;
   std::string serverIP;
+
+  uint16_t seqNum = 1;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
 
   asio::io_context ioContext;
   asio::ip::tcp::socket tcpSocket;
@@ -76,6 +93,7 @@ class NETWORK_API NetworkSubsystem : public ISubsystem {
 
   Decoder decoder;
   Event DecodePacket(std::vector<uint8_t>& packet);
+  void HandleRetransmission();
 
   std::vector<uint8_t> recvTcpBuffer;
   CircularBuffer<Event> eventBuffer;
@@ -93,6 +111,6 @@ __declspec(dllexport) ISubsystem* CreateSubsystem();
 }
 #else
 extern "C" {
-    ISubsystem* CreateSubsystem();
+ISubsystem* CreateSubsystem();
 }
 #endif

@@ -11,12 +11,13 @@
 #include <vector>
 
 #include "components/Levels.hpp"
+#include "components/TileMap.hpp"
+#include "dynamicLibLoader/DLLoader.hpp"
 #include "ecs/Registry.hpp"
+#include "engine/GameEngine.hpp"
 #include "network/DecodeFunc.hpp"
 #include "network/EncodeFunc.hpp"
 #include "network/ServerNetworkManager.hpp"
-#include "dynamicLibLoader/DLLoader.hpp"
-#include "engine/GameEngine.hpp"
 
 /**
  * @class ServerGame
@@ -40,14 +41,20 @@ struct lobby_list {
   bool players_ready = false;
   bool gameRuning = false;
   bool hasPassword = false;
-  // std::vector<LevelComponent> levelsData;
-  // int currentLevelIndex = 0;
-  // bool waitingForNextLevel = false;
-  // float levelTransitionTimer = 0.0f;
-  // Entity currentLevelEntity;
-  // Registry registry;
-  // std::unordered_map<uint16_t, Entity> m_players;
+  std::vector<LevelComponent> levelsData;
+  TileMap currentMap;
+  Entity mapEntity;
+  bool mapSent = false;
+  int currentLevelIndex = 0;
+  bool waitingForNextLevel = false;
+  float levelTransitionTimer = 0.0f;
+  Entity currentLevelEntity;
+  Registry registry;
+  std::unordered_map<uint16_t, Entity> m_players;
+  std::unordered_map<uint16_t, uint32_t> playerScores;
   std::thread gameThread;
+  std::unordered_map<uint16_t, std::shared_ptr<GameState>> lastStates;
+  std::unordered_map<uint16_t, int> playerStateCount;
   GameEngine m_engine;
   Scene* m_gameScene = nullptr;
 };
@@ -68,13 +75,15 @@ class ServerGame {
   void Shutdown();
 
  private:
-
 #ifdef _WIN32
-  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("../src/build/libnetwork_server.dll", "EntryPointLib");
+  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>(
+      "../src/build/libnetwork_server.dll", "EntryPointLib");
 #else
-  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>("../src/build/libnetwork_server.so", "EntryPointLib");
+  DLLoader<INetworkManager> loader = DLLoader<INetworkManager>(
+      "../src/build/libnetwork_server.so", "EntryPointLib");
 #endif
- std::unique_ptr<INetworkManager> networkManager;  ///< Network communication manager
+  std::unique_ptr<INetworkManager>
+      networkManager;  ///< Network communication manager
   Decoder decode;      ///< Decoder for incoming network messages
   Encoder encode;      ///< Encoder for outgoing network messages
   Registry registry;   ///< ECS registry for game entities
@@ -85,6 +94,8 @@ class ServerGame {
   std::vector<std::unique_ptr<lobby_list>> lobbys;
   uint16_t nextLobbyId = 1;
   const float TIME_BETWEEN_LEVELS = 5.0f;
+  // std::unique_ptr<INetworkManager> networkManager; ///< Network communication
+  // manager
 
   std::queue<std::tuple<Event, uint16_t>>
       eventQueue;  ///< Queue of incoming events from clients
@@ -100,6 +111,7 @@ class ServerGame {
   void ClearLobbyForRematch(lobby_list& lobby);
   void HandleLobbyMessage(uint16_t playerId, Event& ev);
 
+  void HandleLoginResponse(uint16_t playerId, Event& ev);
   void HandleLobbyCreate(uint16_t playerId, Event& ev);
   void HandleLobbyJoinRequest(uint16_t playerId, Event& ev);
   void HandleLobbyKick(uint16_t playerId, uint16_t playerKickId);
@@ -107,7 +119,11 @@ class ServerGame {
   void HandleLobbyLeave(uint16_t playerId);
   void SendLobbyUpdate(lobby_list& lobby);
   void RemovePlayerFromLobby(uint16_t playerId);
+  void SendMapToClients(uint16_t playerId, lobby_list& lobby);
+  void SendMapToLobby(lobby_list& lobby);
   lobby_list* FindPlayerLobby(uint16_t playerId);
+  GameState BuildCurrentState(lobby_list& lobby);
+  GameState CalculateDelta(const GameState& last, const GameState& current);
 
   /**
    * @brief Receive and process player input events
@@ -122,6 +138,7 @@ class ServerGame {
    * @brief Send current world state to all connected clients
    */
   void SendWorldStateToClients(lobby_list& lobby);
+  void ProcessAndSendState(uint16_t playerId, lobby_list& lobby);
   std::mutex lobbyMutex;  ///< Mutex for thread-safe lobby access
 
   bool serverRunning;  ///< Server running state flag
@@ -156,6 +173,8 @@ class ServerGame {
    * @brief End the game and cleanup
    */
   void EndGame(lobby_list& lobby);
+
+  void HandleClientLeave(uint16_t playerId);
   /**
    * @brief Pop an event from the event queue
    * @return Optional tuple containing event and client ID

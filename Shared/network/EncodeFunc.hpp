@@ -34,5 +34,5 @@ void PlayerReadyFunc(const Action& a, std::vector<uint8_t>& out);
 void LobbyUpdateFunc(const Action& a, std::vector<uint8_t>& out);
 void LobbyLeaveFunc(const Action& a, std::vector<uint8_t>& out);
 void LobbyStartFunc(const Action& a, std::vector<uint8_t>& out);
-
+void ForceStateFunc(const Action& a, std::vector<uint8_t>& out);
 void SetupEncoder(Encoder& encoder);

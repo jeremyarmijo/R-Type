@@ -1,10 +1,13 @@
 #include "network/EncodeFunc.hpp"
 
+#include <iostream>
 #include <vector>
+
+#include "network/DataMask.hpp"
 
 void htonf(float value, uint8_t* out) {
   uint32_t asInt;
-  static_assert(sizeof(float) == sizeof(uint32_t), "float doit faire 4 bytes");
+  static_assert(sizeof(float) == sizeof(uint32_t));
   std::memcpy(&asInt, &value, sizeof(float));
   asInt = htonl(asInt);
   std::memcpy(out, &asInt, sizeof(uint32_t));
@@ -26,7 +29,7 @@ void PlayerInputFunc(const Action& a, std::vector<uint8_t>& out) {
   out[1] = input->down ? 1 : 0;
   out[2] = input->left ? 1 : 0;
   out[3] = input->right ? 1 : 0;
-  out[4] = input->fire ? 0x01 : 0x00;
+  out[4] = input->fire;
 }
 
 void LoginRequestFunc(const Action& a, std::vector<uint8_t>& out) {
@@ -51,63 +54,98 @@ void GameStateFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* state = std::get_if<GameState>(&a.data);
   if (!state) return;
   out.clear();
-  size_t offset = 0;
-  uint8_t playerCount = static_cast<uint8_t>(state->players.size());
-  out.resize(offset + 1, 0);
-  out[offset++] = playerCount;
-  for (const auto& player : state->players) {
-    out.resize(offset + 15, 0);
-    uint16_t playerId = htons(player.playerId);
-    memcpy(out.data() + offset, &playerId, sizeof(playerId));
-    offset += 2;
-    htonf(player.posX, out.data() + offset);
-    offset += 4;
-    htonf(player.posY, out.data() + offset);
-    offset += 4;
-    out[offset++] = player.hp;
-    out[offset++] = player.shield;
-    out[offset++] = player.weapon;
-    out[offset++] = player.state;
-    out[offset++] = player.sprite;
+
+  uint8_t buffer2[2];
+
+  // JOUEURS
+  out.push_back(static_cast<uint8_t>(state->players.size()));
+  for (const auto& p : state->players) {
+    uint16_t id = htons(p.playerId);
+    memcpy(buffer2, &id, 2);
+    out.insert(out.end(), buffer2, buffer2 + 2);
+
+    uint16_t mask = htons(p.mask);
+    memcpy(buffer2, &mask, 2);
+    out.insert(out.end(), buffer2, buffer2 + 2);
+
+    if (p.mask & M_POS_X) {
+      uint8_t tmp[4];
+      htonf(p.posX, tmp);
+      out.insert(out.end(), tmp, tmp + 4);
+    }
+    if (p.mask & M_POS_Y) {
+      uint8_t tmp[4];
+      htonf(p.posY, tmp);
+      out.insert(out.end(), tmp, tmp + 4);
+    }
+    if (p.mask & M_HP) out.push_back(p.hp);
+    if (p.mask & M_STATE) out.push_back(p.state);
+    if (p.mask & M_SHIELD) out.push_back(p.shield);
+    if (p.mask & M_WEAPON) out.push_back(p.weapon);
+    if (p.mask & M_SPRITE) out.push_back(p.sprite);
+    if (p.mask & M_SCORE) {
+      uint32_t score = htonl(p.score);
+      uint8_t tmp[4];
+      memcpy(tmp, &score, 4);
+      out.insert(out.end(), tmp, tmp + 4);
+    }
   }
-  uint8_t enemyCount = static_cast<uint8_t>(state->enemies.size());
-  out.resize(offset + 1, 0);
-  out[offset++] = enemyCount;
-  for (const auto& enemy : state->enemies) {
-    out.resize(offset + 14, 0);
-    uint16_t enemyId = htons(enemy.enemyId);
-    memcpy(out.data() + offset, &enemyId, sizeof(enemyId));
-    offset += 2;
-    out[offset++] = enemy.enemyType;
-    htonf(enemy.posX, out.data() + offset);
-    offset += 4;
-    htonf(enemy.posY, out.data() + offset);
-    offset += 4;
-    out[offset++] = enemy.hp;
-    out[offset++] = enemy.state;
-    out[offset++] = static_cast<int8_t>(enemy.direction);
+
+  // ENNEMIS
+  out.push_back(static_cast<uint8_t>(state->enemies.size()));
+  for (const auto& e : state->enemies) {
+    uint16_t id = htons(e.enemyId);
+    memcpy(buffer2, &id, 2);
+    out.insert(out.end(), buffer2, buffer2 + 2);
+
+    uint16_t mask = htons(e.mask);
+    memcpy(buffer2, &mask, 2);
+    out.insert(out.end(), buffer2, buffer2 + 2);
+
+    if (e.mask & M_POS_X) {
+      uint8_t tmp[4];
+      htonf(e.posX, tmp);
+      out.insert(out.end(), tmp, tmp + 4);
+    }
+    if (e.mask & M_POS_Y) {
+      uint8_t tmp[4];
+      htonf(e.posY, tmp);
+      out.insert(out.end(), tmp, tmp + 4);
+    }
+    if (e.mask & M_HP) out.push_back(e.hp);
+    if (e.mask & M_STATE) out.push_back(e.state);
+    if (e.mask & M_TYPE) out.push_back(e.enemyType);
+    if (e.mask & M_DIR) out.push_back(static_cast<uint8_t>(e.direction));
   }
-  uint8_t projectileCount = static_cast<uint8_t>(state->projectiles.size());
-  out.resize(offset + 1, 0);
-  out[offset++] = projectileCount;
-  for (const auto& proj : state->projectiles) {
-    out.resize(offset + 22, 0);
-    uint16_t projectileId = htons(proj.projectileId);
-    memcpy(out.data() + offset, &projectileId, sizeof(projectileId));
-    offset += 2;
-    uint16_t ownerId = htons(proj.ownerId);
-    memcpy(out.data() + offset, &ownerId, sizeof(ownerId));
-    offset += 2;
-    out[offset++] = proj.type;
-    htonf(proj.posX, out.data() + offset);
-    offset += 4;
-    htonf(proj.posY, out.data() + offset);
-    offset += 4;
-    htonf(proj.velX, out.data() + offset);
-    offset += 4;
-    htonf(proj.velY, out.data() + offset);
-    offset += 4;
-    out[offset++] = proj.damage;
+
+  // PROJECTILES
+  out.push_back(static_cast<uint8_t>(state->projectiles.size()));
+  for (const auto& pr : state->projectiles) {
+    uint16_t id = htons(pr.projectileId);
+    memcpy(buffer2, &id, 2);
+    out.insert(out.end(), buffer2, buffer2 + 2);
+
+    uint16_t mask = htons(pr.mask);
+    memcpy(buffer2, &mask, 2);
+    out.insert(out.end(), buffer2, buffer2 + 2);
+
+    if (pr.mask & M_POS_X) {
+      uint8_t tmp[4];
+      htonf(pr.posX, tmp);
+      out.insert(out.end(), tmp, tmp + 4);
+    }
+    if (pr.mask & M_POS_Y) {
+      uint8_t tmp[4];
+      htonf(pr.posY, tmp);
+      out.insert(out.end(), tmp, tmp + 4);
+    }
+    if (pr.mask & M_TYPE) out.push_back(pr.type);
+    if (pr.mask & M_OWNER) {
+      uint16_t oid = htons(pr.ownerId);
+      memcpy(buffer2, &oid, 2);
+      out.insert(out.end(), buffer2, buffer2 + 2);
+    }
+    if (pr.mask & M_DAMAGE) out.push_back(pr.damage);
   }
 }
 
@@ -431,7 +469,6 @@ void LobbyKickFunc(const Action& a, std::vector<uint8_t>& out) {
   if (!kick) return;
 
   out.clear();
-
   uint16_t pId = htons(kick->playerId);
 
   out.resize(sizeof(uint16_t));
@@ -464,6 +501,64 @@ void MessageFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, msg->message.data(), msgContentLen);
 }
 
+
+void MapDataFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* map = std::get_if<MapData>(&a.data);
+  if (!map) return;
+
+  out.clear();
+
+  uint16_t w = htons(map->width);
+  uint8_t wBytes[2];
+  memcpy(wBytes, &w, 2);
+  out.insert(out.end(), wBytes, wBytes + 2);
+
+  uint16_t h = htons(map->height);
+  uint8_t hBytes[2];
+  memcpy(hBytes, &h, 2);
+  out.insert(out.end(), hBytes, hBytes + 2);
+
+  uint8_t speedBytes[4];
+  htonf(map->scrollSpeed, speedBytes);
+  out.insert(out.end(), speedBytes, speedBytes + 4);
+
+  if (!map->tiles.empty()) {
+    out.insert(out.end(), map->tiles.begin(), map->tiles.end());
+  }
+}
+
+void ForceStateFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* force = std::get_if<ForceState>(&a.data);
+  if (!force) return;
+  out.resize(13);
+  size_t offset = 0;
+  uint16_t forceId = htons(force->forceId);
+
+  memcpy(out.data() + offset, &forceId, sizeof(uint16_t));
+  offset += 2;
+  uint16_t ownerId = htons(force->ownerId);
+  memcpy(out.data() + offset, &ownerId, sizeof(uint16_t));
+  offset += 2;
+  htonf(force->posX, out.data() + offset);
+  offset += 4;
+  htonf(force->posY, out.data() + offset);
+
+  offset += 4;
+  out[offset++] = force->state;
+}
+
+void ClientLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* leave = std::get_if<ClientLeave>(&a.data);
+  if (!leave) return;
+
+  out.clear();
+
+  uint16_t pId = htons(leave->playerId);
+
+  out.resize(sizeof(uint16_t));
+  memcpy(out.data(), &pId, sizeof(uint16_t));
+}
+
 void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
@@ -489,9 +584,12 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::ENEMY_HIT, EnemyHitFunc);
   encoder.registerHandler(ActionType::LOBBY_CREATE, LobbyCreateFunc);
   encoder.registerHandler(ActionType::LOBBY_KICK, LobbyKickFunc);
+  encoder.registerHandler(ActionType::CLIENT_LEAVE, ClientLeaveFunc);
+  encoder.registerHandler(ActionType::FORCE_STATE, ForceStateFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_REQUEST, LobbyJoinRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE,
                           LobbyJoinResponseFunc);
+    encoder.registerHandler(ActionType::SEND_MAP, MapDataFunc);
   encoder.registerHandler(ActionType::LOBBY_LIST_REQUEST, LobbyListRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_LIST_RESPONSE,
                           LobbyListResponseFunc);

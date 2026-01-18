@@ -4,18 +4,19 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
+#include "Helpers/EntityHelper.hpp"
+#include "audio/AudioSubsystem.hpp"
 #include "engine/GameEngine.hpp"
+#include "network/NetworkSubsystem.hpp"
 #include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
-#include "network/NetworkSubsystem.hpp"
-#include "audio/AudioSubsystem.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIImage.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UIText.hpp"
 #include "ui/UITextInput.hpp"
-#include "Helpers/EntityHelper.hpp"
 
 class LobbyInfoPlayer : public Scene {
  private:
@@ -61,8 +62,8 @@ class LobbyInfoPlayer : public Scene {
     RefreshPlayerListUI();
     for (auto it = message.rbegin();
          it != message.rend() && count < maxMessages; ++it) {
-      auto* msgText = GetUI()->AddElement<UIText>(xPos, startY, *it, "", 18,
-                                                 SDL_Color{255, 255, 255, 255});
+      auto* msgText = GetUI()->AddElement<UIText>(
+          xPos, startY, *it, "", 18, SDL_Color{255, 255, 255, 255});
       msgText->SetLayer(10000);
 
       startY -= 25;
@@ -81,12 +82,12 @@ class LobbyInfoPlayer : public Scene {
                            " / " +
                            std::to_string(static_cast<int>(m_playerMax));
     auto* pMax = GetUI()->AddElement<UIText>(550, 45, countStr, "", 22,
-                                            SDL_Color{200, 200, 200, 255});
+                                             SDL_Color{200, 200, 200, 255});
 
     std::string diffStr =
         "DIFFICULTY: " + std::to_string(static_cast<int>(m_difficulty));
     auto* diff = GetUI()->AddElement<UIText>(550, 75, diffStr, "", 22,
-                                            SDL_Color{200, 200, 200, 255});
+                                             SDL_Color{200, 200, 200, 255});
     if (!m_asStarted) {
       m_readyButton = GetUI()->AddElement<UIButton>(
           520, 500, 220, 60, isReady ? "NOT READY" : "READY");
@@ -175,7 +176,8 @@ class LobbyInfoPlayer : public Scene {
     m_chatInput->SetLayer(10000);
     m_chatInput->SetVisible(true);
 
-    m_leaveButton = GetUI()->AddElement<UIButton>(560, 450, 180, 45, "<- LEAVE");
+    m_leaveButton =
+        GetUI()->AddElement<UIButton>(560, 450, 180, 45, "<- LEAVE");
     m_leaveButton->SetLayer(9);
     m_leaveButton->SetOnClick([this]() {
       GetAudio()->PlaySound("button");
@@ -201,9 +203,9 @@ class LobbyInfoPlayer : public Scene {
                              {80, 80, 80, 220});
 
     auto* header = GetUI()->AddElement<UIText>(80, 130, "PLAYER NAME", "", 18,
-                                              SDL_Color{150, 150, 150, 255});
+                                               SDL_Color{150, 150, 150, 255});
     auto* status = GetUI()->AddElement<UIText>(450, 130, "STATUS", "", 18,
-                                              SDL_Color{150, 150, 150, 255});
+                                               SDL_Color{150, 150, 150, 255});
 
     int yPos = 170;
     for (const auto& player : m_playersInfo) {
@@ -214,8 +216,8 @@ class LobbyInfoPlayer : public Scene {
           80, yPos, player.username, "", 26, SDL_Color{255, 255, 255, 255});
 
       if (m_asStarted) {
-        auto* pStatus = GetUI()->AddElement<UIText>(450, yPos, "IN GAME", "", 24,
-                                                   statusColor);
+        auto* pStatus = GetUI()->AddElement<UIText>(450, yPos, "IN GAME", "",
+                                                    24, statusColor);
         pStatus->SetLayer(10);
       } else {
         auto* pStatus = GetUI()->AddElement<UIText>(
@@ -248,7 +250,9 @@ class LobbyInfoPlayer : public Scene {
       : m_isInitialized(false),
         m_settingsTransition(false),
         m_readyButton(nullptr),
-        m_leaveButton(nullptr) { m_name = "lobbyInfoPlayer"; }
+        m_leaveButton(nullptr) {
+    m_name = "lobbyInfoPlayer";
+  }
 
   void OnEnter() override {
     try {
@@ -258,7 +262,8 @@ class LobbyInfoPlayer : public Scene {
         GetRendering()->LoadTexture("background", "../assets/bg.jpg");
       }
 
-      Entity background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
+      Entity background =
+          CreateSprite(GetRegistry(), "background", {400, 300}, -10);
       m_entities.push_back(background);
 
       RefreshPlayerListUI();
@@ -291,11 +296,23 @@ class LobbyInfoPlayer : public Scene {
         RefreshPlayerListUI();
       }
     }
+    if (e.type == EventType::SEND_MAP) {
+      const auto* mapData = std::get_if<MAP_DATA>(&e.data);
+      if (mapData) {
+        std::cout << "[NETWORK] MAP_DATA stored! " << mapData->width << "x"
+                  << mapData->height << " (" << mapData->tiles.size()
+                  << " tiles)" << std::endl;
+        GetSceneData().Set("mapDataReceived", true);
+        GetSceneData().Set("mapWidth", mapData->width);
+        GetSceneData().Set("mapHeight", mapData->height);
+        GetSceneData().Set("mapScrollSpeed", mapData->scrollSpeed);
+        GetSceneData().Set("mapTiles", mapData->tiles);
+      }
+    }
     if (e.type == EventType::GAME_START) {
       const auto* data = std::get_if<GAME_START>(&e.data);
       GetSceneData().Set("posX", data->playerSpawnX);
       GetSceneData().Set("posY", data->playerSpawnY);
-      // std::this_thread::sleep_for(std::chrono::seconds(2));
       ChangeScene("game");
     }
     if (e.type == EventType::MESSAGE) {
@@ -324,9 +341,7 @@ class LobbyInfoPlayer : public Scene {
     }
   }
 
-  std::unordered_map<uint16_t, Entity> GetPlayers() override {
-    return m_list; 
-  }
+  std::unordered_map<uint16_t, Entity> GetPlayers() override { return m_list; }
 };
 
 #ifdef _WIN32
@@ -335,6 +350,6 @@ extern "C" {
 }
 #else
 extern "C" {
-    Scene* CreateScene();
+Scene* CreateScene();
 }
 #endif

@@ -15,6 +15,7 @@ enum class GameAction {
   MOVE_DOWN,
   FIRE,
   SPECIAL,
+  FORCE_TOGGLE,
   PAUSE,
   NONE
 };
@@ -27,12 +28,13 @@ class KeyBindings {
 
  public:
   KeyBindings(
-      const std::string& configPath = "../Client/src/config/keybinds.cfg")
+      const std::string& configPath = "../src/config/keybinds.cfg")
       : m_configFilePath(configPath) {
     SetDefaultBindings();
   }
 
   void SetDefaultBindings() {
+    std::cout << "[KeyBindings] SetDefaultBindings() CALLED!" << std::endl;
     ClearAllBindings();
 
     // Movement
@@ -47,9 +49,11 @@ class KeyBindings {
 
     // Actions
     BindKey(GameAction::FIRE, SDL_SCANCODE_SPACE);
-    // BindKey(GameAction::SPECIAL, SDL_SCANCODE_F);
+    BindKey(GameAction::SPECIAL, SDL_SCANCODE_F);
+    BindKey(GameAction::FORCE_TOGGLE, SDL_SCANCODE_G);
     BindKey(GameAction::PAUSE, SDL_SCANCODE_ESCAPE);
     BindKey(GameAction::PAUSE, SDL_SCANCODE_P);
+    std::cout << "[KeyBindings] SetDefaultBindings() COMPLETE!" << std::endl;
   }
 
   void BindKey(GameAction action, SDL_Scancode key) {
@@ -150,6 +154,8 @@ class KeyBindings {
         return "Special";
       case GameAction::PAUSE:
         return "Pause";
+      case GameAction::FORCE_TOGGLE:
+        return "Toggle";
       default:
         return "Unknown";
     }

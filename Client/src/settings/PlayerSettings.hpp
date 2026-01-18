@@ -12,7 +12,7 @@ class PlayerSettings {
 
  public:
   PlayerSettings(const std::string& configFile =
-                     "../Client/src/config/player_settings.cfg")
+                     "../src/config/player_settings.cfg")
       : m_selectedSkin(PlayerSkin::BLUE), m_configFile(configFile) {
     LoadFromFile();
   }

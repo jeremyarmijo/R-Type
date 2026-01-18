@@ -1,7 +1,9 @@
 #include "ui/UISolidColor.hpp"
+
 #include "rendering/RenderingSubsystem.hpp"
 
-void UISolidColor::Render(SDL_Renderer* renderer, RenderingSubsystem* renderSys) {
+void UISolidColor::Render(SDL_Renderer* renderer,
+                          RenderingSubsystem* renderSys) {
   if (!m_visible) return;
 
   SDL_Rect rect = m_rect;

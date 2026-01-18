@@ -25,8 +25,10 @@ enum class ActionType : uint8_t {
   LOBBY_LEAVE,
   MESSAGE,
   LOBBY_KICK,
+  CLIENT_LEAVE,
 
   // Serveur → Client
+  FORCE_STATE,
   LOGIN_RESPONSE,
   LOBBY_JOIN_RESPONSE,
   LOBBY_LIST_RESPONSE,
@@ -38,7 +40,8 @@ enum class ActionType : uint8_t {
   GAME_STATE,
   BOSS_SPAWN,
   BOSS_UPDATE,
-  ENEMY_HIT
+  ENEMY_HIT,
+  SEND_MAP,
 };
 
 struct AuthUDP {
@@ -56,8 +59,14 @@ struct PlayerInput {
   bool left;
   bool right;
   uint8_t fire;
+  // bool forceToggle;
 
-  PlayerInput() : up(false), down(false), left(false), right(false), fire(0) {}
+  PlayerInput()
+      : up(false),
+        down(false),
+        left(false),
+        right(false),
+        fire(0) /*, forceToggle(false)*/ {}
 };
 
 struct LoginResponse {
@@ -166,6 +175,7 @@ struct ErrorMsg {
 
 struct PlayerState {
   uint16_t playerId;
+  uint16_t mask;
   float posX;
   float posY;
   uint8_t hp;
@@ -173,10 +183,12 @@ struct PlayerState {
   uint8_t weapon;
   uint8_t state;
   uint8_t sprite;
+  uint32_t score = 0;
 };
 
 struct EnemyState {
   uint16_t enemyId;
+  uint16_t mask;
   uint8_t enemyType;
   float posX;
   float posY;
@@ -187,6 +199,7 @@ struct EnemyState {
 
 struct ProjectileState {
   uint16_t projectileId;
+  uint16_t mask;
   uint16_t ownerId;
   uint8_t type;
   float posX;
@@ -224,16 +237,36 @@ struct EnemyHit {
   uint16_t hpRemaining;
 };
 
+
+struct MapData {
+    uint16_t width;
+    uint16_t height;
+    float scrollSpeed;
+    std::vector<uint8_t> tiles;
+};
+
 struct LobbyKick {
   uint16_t playerId;
 };
 
+struct ClientLeave {
+  uint16_t playerId;
+};
+
+struct ForceState {
+  uint16_t forceId;
+  uint16_t ownerId;
+  float posX;
+  float posY;
+  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
+};
 using ActionData =
     std::variant<std::monostate, AuthUDP, LoginReq, PlayerInput, LoginResponse,
                  LobbyCreate, LobbyJoinRequest, LobbyJoinResponse,
                  LobbyListResponse, PlayerReady, LobbyUpdate, LobbyStart,
                  GameStart, GameEnd, ErrorMsg, GameState, BossSpawn, BossUpdate,
-                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick>;
+                 EnemyHit, LobbyListRequest, LobbyLeave, Message, LobbyKick,
+                 ForceState, MapData, ClientLeave>;
 
 struct Action {
   ActionType type;
@@ -254,10 +287,13 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::FIRE_PRESS:
     case ActionType::FIRE_RELEASE:
     case ActionType::GAME_STATE:
-    case ActionType::BOSS_SPAWN:
     case ActionType::BOSS_UPDATE:
-    case ActionType::ENEMY_HIT:
+    case ActionType::FORCE_STATE:
       return 0;  // UDP
+
+    case ActionType::BOSS_SPAWN:
+    case ActionType::ENEMY_HIT:
+      return 1;  // UDP + ACK
 
     case ActionType::LOGIN_REQUEST:
     case ActionType::LOGIN_RESPONSE:
@@ -274,7 +310,9 @@ inline size_t UseUdp(ActionType type) {
     case ActionType::GAME_END:
     case ActionType::MESSAGE:
     case ActionType::LOBBY_KICK:
+    case ActionType::CLIENT_LEAVE:
     case ActionType::ERROR_SERVER:
+    case ActionType::SEND_MAP:
       return 2;  // TCP
 
     default:

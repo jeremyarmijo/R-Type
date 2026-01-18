@@ -10,28 +10,34 @@
 #include "Collision/Collision.hpp"
 #include "Collision/CollisionController.hpp"
 #include "Collision/Items.hpp"
+#include "Collision/MapCollisionSystem.hpp"
 #include "Helpers/EntityHelper.hpp"
 #include "Movement/Movement.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
 #include "components/BossPart.hpp"
-#include "physics/Physics2D.hpp"
-#include "dynamicLibLoader/DLLoader.hpp"
+#include "components/Force.hpp"
+#include "components/TileMap.hpp"
 #include "ecs/Registry.hpp"
+#include "network/DataMask.hpp"
+#include "scene/Scene.hpp"
 #include "systems/BoundsSystem.hpp"
+#include "systems/ChargedShoot.hpp"
+#include "systems/ForceCtrl.hpp"
 #include "systems/LevelSystem.hpp"
+#include "systems/MapGenerator.hpp"
 #include "systems/PhysicsSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WaveSystem.hpp"
 #include "systems/WeaponSystem.hpp"
-#include "scene/Scene.hpp"
 
 ServerGame::ServerGame() : serverRunning(true) {
   SetupDecoder(decode);
   SetupEncoder(encode);
+  DLLoader<INetworkManager> loader("../src/build/libnetwork_server.so",
+                                   "EntryPointLib");
   networkManager = std::unique_ptr<INetworkManager>(loader.getInstance());
 }
-
 void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName,
                              std::string playerName, std::string mdp,
                              uint8_t difficulty, uint8_t Maxplayer) {
@@ -243,9 +249,12 @@ void ServerGame::ResetLobbyReadyStatus(lobby_list& lobby) {
 void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
   std::lock_guard<std::mutex> lock(lobbyMutex);
 
+  lobby_list* l;
+
   for (auto& lobby : lobbys) {
     uint16_t nbPlayerReady = 0;
     bool found = false;
+    bool isSpectate = false;
 
     for (auto& player : lobby->players_list) {
       if (std::get<0>(player) == playerId) {
@@ -261,20 +270,39 @@ void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
       if (std::get<0>(player) == playerId) {
         std::get<1>(player) = isReady;
         found = true;
+        isSpectate = true;
+        l = lobby.get();
       }
     }
 
     if (found) {
       SendLobbyUpdate(*lobby);
+
       if (lobby->gameRuning && isReady) {
-        Action startAc;
-        GameStart gs;
-        gs.playerSpawnX = 0;
-        gs.playerSpawnY = 0;
-        gs.scrollSpeed = 0;
-        startAc.type = ActionType::GAME_START;
-        startAc.data = gs;
-        SendAction(std::make_tuple(startAc, playerId, nullptr));
+        size_t playerIndex = 0;
+        for (size_t i = 0; i < lobby->players_list.size(); ++i) {
+          if (std::get<0>(lobby->players_list[i]) == playerId) {
+            playerIndex = i;
+            break;
+          }
+        }
+
+        float spawnY = 200.0f + (playerIndex % 4) * 100.0f;
+
+        if (isSpectate) {
+          SendMapToClients(playerId, *l);
+          Action startAc;
+          GameStart gs;
+          gs.playerSpawnX = 200.0f;
+          gs.playerSpawnY = spawnY;
+          gs.scrollSpeed = 0;
+          startAc.type = ActionType::GAME_START;
+          startAc.data = gs;
+          SendAction(std::make_tuple(startAc, playerId, nullptr));
+        }
+        lobby->lastStates.erase(playerId);
+        lobby->playerStateCount.erase(playerId);
+
         return;
       }
       if (nbPlayerReady == lobby->nb_player && !lobby->gameRuning) {
@@ -392,6 +420,49 @@ lobby_list* ServerGame::FindPlayerLobby(uint16_t playerId) {
   return nullptr;
 }
 
+void ServerGame::HandleClientLeave(uint16_t playerId) {
+  std::cout << "[SERVER] Handling cleanup for client " << playerId << std::endl;
+
+  lobby_list* lobby = FindPlayerLobby(playerId);
+
+  if (lobby) {
+    std::lock_guard<std::mutex> lock(lobbyMutex);
+    auto itEntity = lobby->m_players.find(playerId);
+    if (itEntity != lobby->m_players.end()) {
+      if (lobby->registry.is_entity_valid(itEntity->second)) {
+        lobby->registry.kill_entity(itEntity->second);
+      }
+
+      lobby->m_players.erase(itEntity);
+    }
+
+    for (auto specIt = lobby->spectate.begin(); specIt != lobby->spectate.end();
+         ++specIt) {
+      if (std::get<0>(*specIt) == playerId) {
+        lobby->spectate.erase(specIt);
+        lobby->nb_player--;
+        break;
+      }
+    }
+  }
+  RemovePlayerFromLobby(playerId);
+}
+
+void ServerGame::HandleLoginResponse(uint16_t playerId, Event& ev) {
+  const auto* login = std::get_if<LOGIN_REQUEST>(&ev.data);
+  if (!login) return;
+  LoginResponse lr;
+  lr.success = 1;
+  lr.playerId = playerId;
+  lr.udpPort = 4243;
+
+  Action res;
+  res.type = ActionType::LOGIN_RESPONSE;
+  res.data = lr;
+
+  SendAction(std::make_tuple(res, playerId, nullptr));
+}
+
 void ServerGame::SetupNetworkCallbacks() {
   networkManager->SetMessageCallback([this](const NetworkMessage& msg) {
     Event ev = decode.decode(msg.data);
@@ -412,10 +483,12 @@ void ServerGame::SetupNetworkCallbacks() {
     }
 
     switch (ev.type) {
-      case EventType::LOGIN_REQUEST:
-        std::cout << "[Network] LOGIN_REQUEST from " << playerId << std::endl;
+      case EventType::LOGIN_REQUEST: {
+        std::cout << "[ServerGame] Login request from: " << playerId
+                  << std::endl;
+        HandleLoginResponse(playerId, ev);
         break;
-
+      }
       case EventType::LOBBY_CREATE:
         std::cout << "[Network] LOBBY_CREATE from " << playerId << std::endl;
         HandleLobbyCreate(playerId, ev);
@@ -451,6 +524,9 @@ void ServerGame::SetupNetworkCallbacks() {
         HandleLobbyMessage(playerId, ev);
         break;
 
+      case EventType::CLIENT_LEAVE:
+        HandleClientLeave(playerId);
+        break;
       case EventType::ERROR_TYPE: {
         auto& d = std::get<ERROR_EVNT>(ev.data);
         std::cerr << "[Network Error] Client " << playerId << ": " << d.message
@@ -473,18 +549,19 @@ void ServerGame::SetupNetworkCallbacks() {
 
     std::lock_guard<std::mutex> lock(lobbyMutex);
     for (auto& lobby : lobbys) {
-        auto m_players = lobby->m_gameScene->GetPlayers();
-        auto it = m_players.find(client_id);
-        if (it != m_players.end()) {
-          Entity playerEntity = it->second;
-          lobby->m_engine.GetRegistry().kill_entity(playerEntity);
-          m_players.erase(it);
-        }
+      auto m_players = lobby->m_gameScene->GetPlayers();
+      auto it = m_players.find(client_id);
+      if (it != m_players.end()) {
+        Entity playerEntity = it->second;
+        lobby->m_engine.GetRegistry().kill_entity(playerEntity);
+        m_players.erase(it);
+      }
     }
   });
 }
 
-bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff, const std::string& host) {
+bool ServerGame::Initialize(uint16_t tcpPort, uint16_t udpPort, int diff,
+                            const std::string& host) {
   if (!networkManager->Initialize(tcpPort, udpPort, host)) {
     std::cerr << "Failed to initialize network manager" << std::endl;
     return false;
@@ -530,8 +607,7 @@ void ServerGame::StartGame(lobby_list& lobby) {
   lobby.m_engine.ChangeScene("rtype");
 
   std::cout << "Lobby full! Starting the game!!!!\n";
-  lobby.gameThread =
-      std::thread(&ServerGame::GameLoop, this, std::ref(lobby));
+  lobby.gameThread = std::thread(&ServerGame::GameLoop, this, std::ref(lobby));
 }
 
 std::optional<std::tuple<Event, uint16_t>> ServerGame::PopEvent() {
@@ -548,6 +624,7 @@ void ServerGame::SendAction(std::tuple<Action, uint16_t, lobby_list*> ac) {
   std::lock_guard<std::mutex> lock(queueMutex);
   actionQueue.push(std::move(ac));
 }
+
 void ServerGame::EndGame(lobby_list& lobby) {
   if (!lobby.gameRuning) return;
 
@@ -558,6 +635,8 @@ void ServerGame::EndGame(lobby_list& lobby) {
   ac.data = g;
 
   SendAction(std::make_tuple(ac, 0, &lobby));
+  lobby.lastStates.clear();
+  lobby.playerStateCount.clear();
   lobby.gameRuning = false;
   std::cout << "game ended!!" << std::endl;
 }
@@ -565,38 +644,53 @@ void ServerGame::EndGame(lobby_list& lobby) {
 void ServerGame::CheckGameEnded(lobby_list& lobby) {
   auto m_players = lobby.m_engine.GetCurrentScene()->GetPlayers();
   std::cout << "got players" << std::endl;
+  SceneData& data = lobby.m_engine.GetSceneData();
   Registry& registry = lobby.m_engine.GetRegistry();
-  
+
   int validPlayers = 0;
   for (auto& [id, entity] : m_players) {
     if (registry.is_entity_valid(entity)) {
       validPlayers += 1;
     }
   }
-  
+
   if (validPlayers <= 0) {
+    EndGame(lobby);
+    return;
+  }
+  if (data.Has("game_ended")) {
     EndGame(lobby);
   }
 }
 
 void ServerGame::GameLoop(lobby_list& lobby) {
-
   for (int i = 0; i < 50 && lobby.gameRuning; ++i) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 
-  const auto frameDuration = std::chrono::milliseconds(16);
+  const auto frameDuration = std::chrono::milliseconds(100);
   auto lastTime = std::chrono::steady_clock::now();
 
   if (lobby.gameRuning) {
-    Action ac;
-    GameStart g;
-    g.playerSpawnX = 5;
-    g.playerSpawnY = 10;
-    g.scrollSpeed = 0;
-    ac.type = ActionType::GAME_START;
-    ac.data = g;
-    SendAction(std::make_tuple(ac, 0, &lobby));
+    size_t playerIndex = 0;
+    SendMapToLobby(lobby);
+    for (auto& [playerId, ready, _] : lobby.players_list) {
+      float spawnY = 200.0f + (playerIndex % 4) * 100.0f;
+
+      Action ac;
+      GameStart g;
+      g.playerSpawnX = 200.0f;
+      g.playerSpawnY = spawnY;
+      g.scrollSpeed = 0;
+      ac.type = ActionType::GAME_START;
+      ac.data = g;
+      SendAction(std::make_tuple(ac, playerId, nullptr));
+
+      //  auto currentState =
+      //       std::make_shared<GameState>(BuildCurrentState(lobby));
+      //   ProcessAndSendState(playerId, lobby, currentState);
+      playerIndex++;
+    }
   }
 
   std::cout << "game starting" << std::endl;
@@ -629,46 +723,24 @@ void ServerGame::SendPacket() {
     localQueue.swap(actionQueue);
   }
   while (!localQueue.empty()) {
-    auto ac = localQueue.front();
-    localQueue.pop();
+    auto& [action, clientId, lobby] = localQueue.front();
 
-    Action action = std::get<0>(ac);
-    uint16_t clientId = std::get<1>(ac);
-    lobby_list* lobby = std::get<2>(ac);
-
-    NetworkMessage msg;
-    msg.client_id = clientId;
-
-    size_t protocol = UseUdp(action.type);
-
-    msg.data = encode.encode(action, protocol);
-
-    /*std::cout << "Try SEND (clientId = " << clientId
-              << ")   (protocol = " << protocol << ")" << std::endl;
-    std::cout << "Packet = ";
-    for (auto &b : msg.data) {
-      std::cout << std::hex << static_cast<int>(b) <<  " ";
-    }
-    std::cout << std::endl;*/
     if (clientId == 0 && lobby != nullptr) {
-      if (protocol == 0) {
-        networkManager->BroadcastLobbyUDP(msg, lobby->players_list);
-        networkManager->BroadcastLobbyUDP(msg, lobby->spectate);
+      size_t protocol = UseUdp(action.type);
+
+      if (protocol == 0 || protocol == 1) {
+        networkManager->BroadcastLobbyUDP(action, lobby->players_list);
+        networkManager->BroadcastLobbyUDP(action, lobby->spectate);
+      } else {
+        networkManager->BroadcastLobbyTCP(action, lobby->players_list);
+        networkManager->BroadcastLobbyTCP(action, lobby->spectate);
       }
-      if (protocol == 2) {
-        networkManager->BroadcastLobbyTCP(msg, lobby->players_list);
-        networkManager->BroadcastLobbyTCP(msg, lobby->spectate);
-      }
-      continue;
+    } else {
+      NetworkMessage msg;
+      msg.client_id = clientId;
+      networkManager->SendTo(msg, action);
     }
-    if (protocol == 0) {
-      networkManager->SendTo(msg, true);
-      continue;
-    }
-    if (protocol == 2) {
-      networkManager->SendTo(msg, false);
-      continue;
-    }
+    localQueue.pop();
   }
 }
 
@@ -695,8 +767,9 @@ void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
 }
 
 void ServerGame::Run() {
-  while (serverRunning) {
+  std::cout << "before main loop" << std::endl;
 
+  while (serverRunning) {
     networkManager->Update();
     SendPacket();
 
@@ -714,7 +787,8 @@ void ServerGame::Run() {
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
-  std::cout << "server "<< std::endl;
+  std::cout << "server " << std::endl;
+  std::cout << "server " << std::endl;
 }
 
 void ServerGame::Shutdown() {
@@ -762,7 +836,8 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
     //       state.moveRight = input.right;
     //       state.moveDown = input.down;
     //       state.moveUp = input.up;
-    //       state.action1 = input.fire;
+    //       state.action1 = (input.fire == 1);
+    //       state.action2 = (input.fire == 2);
     //       break;
     //     }
     //     break;
@@ -777,14 +852,282 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
   }
 }
 
-void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
+void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {}
+
+void ServerGame::SendMapToLobby(lobby_list& lobby) {
+  if (lobby.mapSent) return;
+  SceneData& data = lobby.m_engine.GetSceneData();
+
+  if (data.Has("send_map")) {
+    MapData mapdata = data.Get<MapData>("send_map");
+    SendAction(
+        std::make_tuple(Action{ActionType::SEND_MAP, mapdata}, 0, &lobby));
+    lobby.mapSent = true;
+
+    std::cout << "[Server] Map sent to clients (" << mapdata.width << "x"
+              << mapdata.height << " tiles, " << mapdata.tiles.size()
+              << " bytes)" << std::endl;
+  }
+}
+
+void ServerGame::SendMapToClients(uint16_t playerId, lobby_list& lobby) {
+  if (lobby.mapSent) return;
+
+  SceneData& data = lobby.m_engine.GetSceneData();
+
+  if (data.Has("send_map")) {
+    MapData mapdata = data.Get<MapData>("send_map");
+    SendAction(
+        std::make_tuple(Action{ActionType::SEND_MAP, mapdata}, 0, &lobby));
+    lobby.mapSent = true;
+
+    std::cout << "[Server] Map sent to clients (" << mapdata.width << "x"
+              << mapdata.height << " tiles, " << mapdata.tiles.size()
+              << " bytes)" << std::endl;
+  }
+}
+
+GameState ServerGame::CalculateDelta(const GameState& last,
+                                     const GameState& current) {
+  GameState diff;
+
+  for (const auto& currP : current.players) {
+    auto it = std::find_if(
+        last.players.begin(), last.players.end(),
+        [&](const PlayerState& p) { return p.playerId == currP.playerId; });
+
+    if (it == last.players.end()) {
+      diff.players.push_back(currP);
+    } else {
+      PlayerState deltaP;
+      deltaP.playerId = currP.playerId;
+      deltaP.mask = 0;
+
+      if (std::abs(currP.posX - it->posX) > 0.01f) {
+        deltaP.posX = currP.posX;
+        deltaP.mask |= M_POS_X;
+      }
+      if (std::abs(currP.posY - it->posY) > 0.01f) {
+        deltaP.posY = currP.posY;
+        deltaP.mask |= M_POS_Y;
+      }
+      if (currP.hp != it->hp) {
+        deltaP.hp = currP.hp;
+        deltaP.mask |= M_HP;
+      }
+      if (currP.shield != it->shield) {
+        deltaP.shield = currP.shield;
+        deltaP.mask |= M_SHIELD;
+      }
+      if (currP.weapon != it->weapon) {
+        deltaP.weapon = currP.weapon;
+        deltaP.mask |= M_WEAPON;
+      }
+      if (currP.state != it->state) {
+        deltaP.state = currP.state;
+        deltaP.mask |= M_STATE;
+      }
+      if (currP.sprite != it->sprite) {
+        deltaP.sprite = currP.sprite;
+        deltaP.mask |= M_SPRITE;
+      }
+      if (currP.score != it->score) {
+        deltaP.score = currP.score;
+        deltaP.mask |= M_SCORE;
+      }
+
+      if (deltaP.mask != 0) {
+        diff.players.push_back(deltaP);
+      }
+    }
+  }
+
+  for (const auto& lastP : last.players) {
+    if (std::none_of(current.players.begin(), current.players.end(),
+                     [&](const PlayerState& p) {
+                       return p.playerId == lastP.playerId;
+                     })) {
+      PlayerState deleteP;
+      deleteP.playerId = lastP.playerId;
+      deleteP.mask = M_DELETE;
+      deleteP.state = 0;
+      diff.players.push_back(deleteP);
+    }
+  }
+
+  for (const auto& currE : current.enemies) {
+    auto it = std::find_if(
+        last.enemies.begin(), last.enemies.end(),
+        [&](const EnemyState& e) { return e.enemyId == currE.enemyId; });
+
+    if (it == last.enemies.end()) {
+      diff.enemies.push_back(currE);
+    } else {
+      EnemyState deltaE;
+      deltaE.enemyId = currE.enemyId;
+      deltaE.mask = 0;
+
+      if (std::abs(currE.posX - it->posX) > 0.01f) {
+        deltaE.posX = currE.posX;
+        deltaE.mask |= M_POS_X;
+      }
+      if (std::abs(currE.posY - it->posY) > 0.01f) {
+        deltaE.posY = currE.posY;
+        deltaE.mask |= M_POS_Y;
+      }
+      if (currE.hp != it->hp) {
+        deltaE.hp = currE.hp;
+        deltaE.mask |= M_HP;
+      }
+      if (currE.enemyType != it->enemyType) {
+        deltaE.enemyType = currE.enemyType;
+        deltaE.mask |= M_TYPE;
+      }
+      if (currE.state != it->state) {
+        deltaE.state = currE.state;
+        deltaE.mask |= M_STATE;
+      }
+      if (currE.direction != it->direction) {
+        deltaE.direction = currE.direction;
+        deltaE.mask |= M_DIR;
+      }
+
+      if (deltaE.mask != 0) {
+        diff.enemies.push_back(deltaE);
+      }
+    }
+  }
+
+  for (const auto& lastE : last.enemies) {
+    if (std::none_of(
+            current.enemies.begin(), current.enemies.end(),
+            [&](const EnemyState& e) { return e.enemyId == lastE.enemyId; })) {
+      EnemyState deleteE;
+      deleteE.enemyId = lastE.enemyId;
+      deleteE.mask = M_DELETE;
+      deleteE.hp = 0;
+      diff.enemies.push_back(deleteE);
+    }
+  }
+
+  for (const auto& currPr : current.projectiles) {
+    auto it = std::find_if(last.projectiles.begin(), last.projectiles.end(),
+                           [&](const ProjectileState& pr) {
+                             return pr.projectileId == currPr.projectileId;
+                           });
+
+    if (it == last.projectiles.end()) {
+      diff.projectiles.push_back(currPr);
+    } else {
+      ProjectileState deltaPr;
+      deltaPr.projectileId = currPr.projectileId;
+      deltaPr.mask = 0;
+
+      if (std::abs(currPr.posX - it->posX) > 0.01f) {
+        deltaPr.posX = currPr.posX;
+        deltaPr.mask |= M_POS_X;
+      }
+      if (std::abs(currPr.posY - it->posY) > 0.01f) {
+        deltaPr.posY = currPr.posY;
+        deltaPr.mask |= M_POS_Y;
+      }
+      if (currPr.damage != it->damage) {
+        deltaPr.damage = currPr.damage;
+        deltaPr.mask |= M_DAMAGE;
+      }
+
+      if (deltaPr.mask != 0) {
+        diff.projectiles.push_back(deltaPr);
+      }
+    }
+  }
+
+  for (const auto& lastPr : last.projectiles) {
+    if (std::none_of(current.projectiles.begin(), current.projectiles.end(),
+                     [&](const ProjectileState& pr) {
+                       return pr.projectileId == lastPr.projectileId;
+                     })) {
+      ProjectileState deletePr;
+      deletePr.projectileId = lastPr.projectileId;
+      deletePr.mask = M_DELETE;
+      deletePr.damage = 0;
+      diff.projectiles.push_back(deletePr);
+    }
+  }
+
+  return diff;
+}
+
+void ServerGame::ProcessAndSendState(uint16_t playerId, lobby_list& lobby) {
+  auto& lastStatePtr = lobby.lastStates[playerId];
+  auto& stateCount = lobby.playerStateCount[playerId];
+  bool isFirstPacket = false;
+
+  if (stateCount < 3) {
+    isFirstPacket = true;
+    stateCount++;
+  }
+
+  GameState deltaState;
+  SceneData& data = lobby.m_engine.GetSceneData();
+
+  if (data.Has("game_state")) {
+    deltaState = data.Get<GameState>("game_state");
+  } else {
+    return;
+  }
+  if (isFirstPacket) {
+    uint16_t fullMaskPlayer = M_POS_X | M_POS_Y | M_HP | M_STATE | M_SHIELD |
+                              M_WEAPON | M_SPRITE | M_SCORE;
+
+    uint16_t fullMaskEnemy =
+        M_POS_X | M_POS_Y | M_HP | M_STATE | M_TYPE | M_DIR;
+    for (auto& e : deltaState.enemies) {
+      e.mask = fullMaskEnemy;
+    }
+
+    uint16_t fullMaskProj = M_POS_X | M_POS_Y | M_DAMAGE | M_TYPE | M_OWNER;
+    for (auto& pr : deltaState.projectiles) {
+      pr.mask = fullMaskProj;
+    }
+
+  } else {
+    if (!lastStatePtr) {
+      lastStatePtr = std::make_shared<GameState>();
+    }
+    deltaState =
+        CalculateDelta(*lastStatePtr, data.Get<GameState>("game_state"));
+    lobby.lastStates[playerId] =
+        std::make_shared<GameState>(data.Get<GameState>("game_state"));
+  }
+
+  if (isFirstPacket || !deltaState.players.empty() ||
+      !deltaState.enemies.empty() || !deltaState.projectiles.empty()) {
+    Action ac;
+    ac.type = ActionType::GAME_STATE;
+    ac.data = deltaState;
+
+    NetworkMessage msg;
+    msg.client_id = playerId;
+    networkManager->SendTo(msg, ac);
+  }
 }
 
 void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
   SceneData& data = lobby.m_engine.GetSceneData();
 
-  if (data.Has("game_state")) {
-    GameState gs = data.Get<GameState>("game_state");
-    SendAction(std::make_tuple(Action{ActionType::GAME_STATE, gs}, 0, &lobby));
+  if (data.Has("force_state")) {
+    ForceState fs = data.Get<ForceState>("force_state");
+    SendAction(std::make_tuple(Action{ActionType::FORCE_STATE, fs}, 0, &lobby));
+  }
+
+  for (auto& [playerId, ready, name] : lobby.players_list) {
+    if (playerId == 0) continue;
+    ProcessAndSendState(playerId, lobby);
+  }
+
+  for (auto& [playerId, ready, name] : lobby.spectate) {
+    if (playerId == 0) continue;
+    ProcessAndSendState(playerId, lobby);
   }
 }

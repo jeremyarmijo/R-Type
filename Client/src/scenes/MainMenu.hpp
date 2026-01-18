@@ -3,14 +3,15 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "Helpers/EntityHelper.hpp"
+#include "audio/AudioSubsystem.hpp"
 #include "engine/GameEngine.hpp"
+#include "rendering/RenderingSubsystem.hpp"
 #include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
-#include "audio/AudioSubsystem.hpp"
-#include "rendering/RenderingSubsystem.hpp"
-#include "Helpers/EntityHelper.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIImage.hpp"
 #include "ui/UIManager.hpp"
@@ -42,8 +43,8 @@ class MainMenu : public Scene {
         m_serverInput(nullptr),
         m_joinButton(nullptr),
         m_backButton(nullptr) {
-          m_name = "menu";
-        }
+    m_name = "menu";
+  }
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING MAIN MENU SCENE ===" << std::endl;
@@ -87,16 +88,20 @@ class MainMenu : public Scene {
                                   {{636, 1964, 31, 31}, 0.5f},
                                   {{603, 1964, 31, 31}, 0.6f}},
                                  true);
-      Entity background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
+      Entity background =
+          CreateSprite(GetRegistry(), "background", {400, 300}, -10);
       m_entities.push_back(background);
       std::cout << "Creating animated sprite..." << std::endl;
-      Entity boss = CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation("boss"), "boss", {600, 300}, "boss", 0);
+      Entity boss = CreateAnimatedSprite(GetRegistry(),
+                                         GetRendering()->GetAnimation("boss"),
+                                         "boss", {600, 300}, "boss", 0);
       auto& playerTransform =
           m_engine->GetRegistry().get_components<Transform>()[boss];
       if (playerTransform) playerTransform->scale = {2.0f, 2.0f};
       m_entities.push_back(boss);
-      Entity bossChild =
-          CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation("bosschild"), "boss", {622, 317}, "bosschild", 0);
+      Entity bossChild = CreateAnimatedSprite(
+          GetRegistry(), GetRendering()->GetAnimation("bosschild"), "boss",
+          {622, 317}, "bosschild", 0);
       auto& bosschild =
           m_engine->GetRegistry().get_components<Transform>()[bossChild];
       if (bosschild) bosschild->scale = {2.1f, 2.1f};
@@ -107,7 +112,7 @@ class MainMenu : public Scene {
 
       std::cout << "Creating UI Elements..." << std::endl;
       auto* text = GetUI()->AddElement<UIText>(50, 40, "R-Type", "", 50,
-                                              SDL_Color{255, 255, 255, 255});
+                                               SDL_Color{255, 255, 255, 255});
       text->SetVisible(true);
       text->SetLayer(10);
 
@@ -152,59 +157,59 @@ class MainMenu : public Scene {
 
   void createPlayerAnimations() {
     GetRendering()->CreateAnimation("blue_player", "player",
-                               {{{1, 3, 31, 13}, 0.3f},
-                                {{34, 3, 31, 13}, 0.3f},
-                                {{68, 3, 31, 13}, 0.3f},
-                                {{100, 3, 31, 13}, 0.3f},
-                                {{133, 3, 31, 13}, 0.3f},
-                                {{100, 3, 31, 13}, 0.3f},
-                                {{68, 3, 31, 13}, 0.3f},
-                                {{34, 3, 31, 13}, 0.3f}},
-                               true);
+                                    {{{1, 3, 31, 13}, 0.3f},
+                                     {{34, 3, 31, 13}, 0.3f},
+                                     {{68, 3, 31, 13}, 0.3f},
+                                     {{100, 3, 31, 13}, 0.3f},
+                                     {{133, 3, 31, 13}, 0.3f},
+                                     {{100, 3, 31, 13}, 0.3f},
+                                     {{68, 3, 31, 13}, 0.3f},
+                                     {{34, 3, 31, 13}, 0.3f}},
+                                    true);
 
     GetRendering()->CreateAnimation("pink_player", "player",
-                               {{{1, 20, 31, 13}, 0.3f},
-                                {{34, 20, 31, 13}, 0.3f},
-                                {{68, 20, 31, 13}, 0.3f},
-                                {{100, 20, 31, 13}, 0.3f},
-                                {{133, 20, 31, 13}, 0.3f},
-                                {{100, 20, 31, 13}, 0.3f},
-                                {{68, 20, 31, 13}, 0.3f},
-                                {{34, 20, 31, 13}, 0.3f}},
-                               true);
+                                    {{{1, 20, 31, 13}, 0.3f},
+                                     {{34, 20, 31, 13}, 0.3f},
+                                     {{68, 20, 31, 13}, 0.3f},
+                                     {{100, 20, 31, 13}, 0.3f},
+                                     {{133, 20, 31, 13}, 0.3f},
+                                     {{100, 20, 31, 13}, 0.3f},
+                                     {{68, 20, 31, 13}, 0.3f},
+                                     {{34, 20, 31, 13}, 0.3f}},
+                                    true);
 
     GetRendering()->CreateAnimation("green_player", "player",
-                               {{{1, 37, 31, 13}, 0.3f},
-                                {{34, 37, 31, 13}, 0.3f},
-                                {{68, 37, 31, 13}, 0.3f},
-                                {{100, 37, 31, 13}, 0.3f},
-                                {{133, 37, 31, 13}, 0.3f},
-                                {{100, 37, 31, 13}, 0.3f},
-                                {{68, 37, 31, 13}, 0.3f},
-                                {{34, 37, 31, 13}, 0.3f}},
-                               true);
+                                    {{{1, 37, 31, 13}, 0.3f},
+                                     {{34, 37, 31, 13}, 0.3f},
+                                     {{68, 37, 31, 13}, 0.3f},
+                                     {{100, 37, 31, 13}, 0.3f},
+                                     {{133, 37, 31, 13}, 0.3f},
+                                     {{100, 37, 31, 13}, 0.3f},
+                                     {{68, 37, 31, 13}, 0.3f},
+                                     {{34, 37, 31, 13}, 0.3f}},
+                                    true);
 
     GetRendering()->CreateAnimation("red_player", "player",
-                               {{{1, 54, 31, 13}, 0.3f},
-                                {{34, 54, 31, 13}, 0.3f},
-                                {{68, 54, 31, 13}, 0.3f},
-                                {{100, 54, 31, 13}, 0.3f},
-                                {{133, 54, 31, 13}, 0.3f},
-                                {{100, 54, 31, 13}, 0.3f},
-                                {{68, 54, 31, 13}, 0.3f},
-                                {{34, 54, 31, 13}, 0.3f}},
-                               true);
+                                    {{{1, 54, 31, 13}, 0.3f},
+                                     {{34, 54, 31, 13}, 0.3f},
+                                     {{68, 54, 31, 13}, 0.3f},
+                                     {{100, 54, 31, 13}, 0.3f},
+                                     {{133, 54, 31, 13}, 0.3f},
+                                     {{100, 54, 31, 13}, 0.3f},
+                                     {{68, 54, 31, 13}, 0.3f},
+                                     {{34, 54, 31, 13}, 0.3f}},
+                                    true);
 
     GetRendering()->CreateAnimation("darkblue_player", "player",
-                               {{{1, 71, 31, 13}, 0.3f},
-                                {{34, 71, 31, 13}, 0.3f},
-                                {{68, 71, 31, 13}, 0.3f},
-                                {{100, 71, 31, 13}, 0.3f},
-                                {{133, 71, 31, 13}, 0.3f},
-                                {{100, 71, 31, 13}, 0.3f},
-                                {{68, 71, 31, 13}, 0.3f},
-                                {{34, 71, 31, 13}, 0.3f}},
-                               true);
+                                    {{{1, 71, 31, 13}, 0.3f},
+                                     {{34, 71, 31, 13}, 0.3f},
+                                     {{68, 71, 31, 13}, 0.3f},
+                                     {{100, 71, 31, 13}, 0.3f},
+                                     {{133, 71, 31, 13}, 0.3f},
+                                     {{100, 71, 31, 13}, 0.3f},
+                                     {{68, 71, 31, 13}, 0.3f},
+                                     {{34, 71, 31, 13}, 0.3f}},
+                                    true);
   }
   void OnExit() override {
     std::cout << "\n=== EXITING MENU SCENE ===" << std::endl;
@@ -235,7 +240,7 @@ class MainMenu : public Scene {
   }
 
   std::unordered_map<uint16_t, Entity> GetPlayers() override {
-    return std::unordered_map<uint16_t, Entity>(); 
+    return std::unordered_map<uint16_t, Entity>();
   }
 };
 

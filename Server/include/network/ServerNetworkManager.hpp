@@ -10,8 +10,11 @@
 
 #include <asio.hpp>
 
+
 #include "db/IDatabase.hpp"
 #include "network/ClientManager.hpp"
+#include "network/Decoder.hpp"
+#include "network/Encoder.hpp"
 #include "network/INetworkManager.hpp"
 #include "network/TCPServer.hpp"
 #include "network/UDPServer.hpp"
@@ -42,7 +45,7 @@ class ServerNetworkManager : public INetworkManager {
   ~ServerNetworkManager() override;
 
   bool Initialize(uint16_t tcp_port, uint16_t udp_port,
-                  const std::string& host = "0.0.0.0") override;
+                  const std::string &host = "0.0.0.0") override;
   void Shutdown() override;
 
   /**
@@ -50,23 +53,23 @@ class ServerNetworkManager : public INetworkManager {
    * @param msg Network message to send
    * @param sendUdp If true, use UDP; otherwise use TCP
    */
-  void SendTo(const NetworkMessage& msg, bool sendUdp) override;
+  void SendTo(const NetworkMessage &msg, Action ac) override;
 
   /**
    * @brief Broadcast a message to all clients via UDP
    * @param msg Network message to broadcast
    */
   void BroadcastLobbyUDP(
-      const NetworkMessage& msg,
-      std::vector<std::tuple<uint16_t, bool, std::string>>&) override;
+      Action ac,
+      std::vector<std::tuple<uint16_t, bool, std::string>> &ids) override;
 
   /**
    * @brief Broadcast a message to all clients via TCP
    * @param msg Network message to broadcast
    */
   void BroadcastLobbyTCP(
-      const NetworkMessage& msg,
-      std::vector<std::tuple<uint16_t, bool, std::string>>&) override;
+      Action ac,
+      std::vector<std::tuple<uint16_t, bool, std::string>> &ids) override;
 
   /**
    * @brief Process incoming messages and connection events
@@ -98,7 +101,8 @@ class ServerNetworkManager : public INetworkManager {
    * @param score Output parameter for user's score
    * @return true if user found, false otherwise
    */
-  bool GetUser(const std::string& username, std::string& password, int& score) override;
+  bool GetUser(const std::string &username, std::string &password,
+               int &score) override;
 
   /**
    * @brief Add a new user and update if it exists in the database
@@ -107,7 +111,8 @@ class ServerNetworkManager : public INetworkManager {
    * @param score Initial score for the new user
    * @return true if user added successfully, false otherwise
    */
-  bool AddUser(const std::string& username, const std::string& password, int score) override;
+  bool AddUser(const std::string &username, const std::string &password,
+               int score) override;
 
   /**
    * @brief Set game started state
@@ -131,9 +136,9 @@ class ServerNetworkManager : public INetworkManager {
    * @param data Received data bytes
    * @param sender Sender endpoint
    */
-  void OnReceive(const std::vector<uint8_t>& data,
-                 const asio::ip::udp::endpoint& sender);
-  void OnReceiveTCP(uint32_t client_id, const std::vector<uint8_t>& data);
+  void OnReceive(const std::vector<uint8_t> &data,
+                 const asio::ip::udp::endpoint &sender);
+  void OnReceiveTCP(uint32_t client_id, const std::vector<uint8_t> &data);
 
   /**
    * @brief Handle TCP login event
@@ -141,14 +146,18 @@ class ServerNetworkManager : public INetworkManager {
    * @param username Client username
    * @param tcp_endpoint Client TCP endpoint
    */
-  void OnTCPLogin(uint32_t client_id, const std::string& username,
-                  const asio::ip::tcp::endpoint& tcp_endpoint);
+  void OnTCPLogin(uint32_t client_id, const std::string &username,
+                  const asio::ip::tcp::endpoint &tcp_endpoint,
+                  const std::vector<uint8_t> &data);
 
   /**
    * @brief Handle TCP disconnect event
    * @param client_id Client identifier
    */
   void OnTCPDisconnect(uint32_t client_id);
+
+  Encoder encode;
+  Decoder decode;
 
   std::unique_ptr<IDatabase> db;
   bool GameStarted = false;      ///< Game started state flag
@@ -181,11 +190,11 @@ class ServerNetworkManager : public INetworkManager {
 };
 
 #ifdef _WIN32
-  extern "C" {
-    __declspec(dllexport) INetworkManager* EntryPointLib();
-  }
+extern "C" {
+__declspec(dllexport) INetworkManager *EntryPointLib();
+}
 #else
 extern "C" {
-INetworkManager* EntryPointLib();
+INetworkManager *EntryPointLib();
 }
 #endif

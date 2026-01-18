@@ -7,55 +7,63 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
-#include "engine/ISubsystem.hpp"
 #include "ecs/Registry.hpp"
+#include "engine/ISubsystem.hpp"
 #include "physics/Physics2D.hpp"
 #include "rendering/rendering_export.hpp"
 
 struct AnimationFrame {
-    SDL_Rect sourceRect;
-    float duration;
+  SDL_Rect sourceRect;
+  float duration;
 };
 
 struct AnimationClip {
-    std::string textureKey;
-    std::vector<AnimationFrame> frames;
-    bool loop;
-    
-    explicit AnimationClip(bool shouldLoop = true) : loop(shouldLoop) {}
+  std::string textureKey;
+  std::vector<AnimationFrame> frames;
+  bool loop;
+
+  explicit AnimationClip(bool shouldLoop = true) : loop(shouldLoop) {}
 };
 
 struct Sprite {
-    std::string textureKey;
-    SDL_Rect sourceRect;
-    Vector2 pivot;
-    int layer;
-    bool visible;
-    
-    Sprite(const std::string& key = "", SDL_Rect src = {0,0,0,0},
-           Vector2 piv = {0.5f, 0.5f}, int lay = 0)
-        : textureKey(key), sourceRect(src), pivot(piv), layer(lay), visible(true) {}
+  std::string textureKey;
+  SDL_Rect sourceRect;
+  Vector2 pivot;
+  int layer;
+  bool visible;
+
+  Sprite(const std::string& key = "", SDL_Rect src = {0, 0, 0, 0},
+         Vector2 piv = {0.5f, 0.5f}, int lay = 0)
+      : textureKey(key),
+        sourceRect(src),
+        pivot(piv),
+        layer(lay),
+        visible(true) {}
 };
 
 struct Animation {
-    std::string animationKey;
-    int currentFrame;
-    float currentTime;
-    bool isPlaying;
-    bool loop;
-    
-    Animation(const std::string& key = "", bool shouldLoop = true)
-        : animationKey(key), currentFrame(0), currentTime(0.0f),
-          isPlaying(false), loop(shouldLoop) {}
+  std::string animationKey;
+  int currentFrame;
+  float currentTime;
+  bool isPlaying;
+  bool loop;
+
+explicit Animation(const std::string& key = "", bool shouldLoop = true)
+      : animationKey(key),
+        currentFrame(0),
+        currentTime(0.0f),
+        isPlaying(false),
+        loop(shouldLoop) {}
 };
 
 struct Camera {
-    Vector2 position;
-    Vector2 offset;
-    float zoom;
-    
-    Camera() : position{0, 0}, offset{0, 0}, zoom(1.0f) {}
+  Vector2 position;
+  Vector2 offset;
+  float zoom;
+
+  Camera() : position{0, 0}, offset{0, 0}, zoom(1.0f) {}
 };
 
 class UIElement;
@@ -78,42 +86,44 @@ private:
     int m_windowWidth;
     int m_windowHeight;
 
-public:
-    RenderingSubsystem();
-    ~RenderingSubsystem() override;
-    
-    bool Initialize() override;
-    void Shutdown() override;
-    void Update(float deltaTime) override;
-    void ProcessEvent(SDL_Event event) override {}
-    
-    const char* GetName() const override { return "Rendering"; }
-    SubsystemType GetType() const override { return SubsystemType::RENDERING; }
-    const char* GetVersion() const override { return "1.0.0"; }
-    
-    void SetRegistry(Registry* registry) override;
-    void SetWindowSize(int width, int height);
-    void SetWindowTitle(const std::string& title);
-    void SetCameraPosition(Vector2 pos) { m_cameraPosition = pos; }
-    Vector2 GetCameraPosition() const { return m_cameraPosition; }
-    
-    SDL_Renderer* GetRenderer() { return m_renderer; }
-    
-    bool LoadTexture(const std::string& key, const std::string& filepath);
-    SDL_Texture* GetTexture(const std::string& key);
-    void UnloadTexture(const std::string& key);
-    void GetTextureSize(const std::string& key, int& width, int& height);
-    
-    void CreateAnimation(const std::string& name, const std::string& textureKey,
-                        const std::vector<AnimationFrame>& frames, bool loop = true);
-    const AnimationClip* GetAnimation(const std::string& name) const;
-    void RemoveAnimation(const std::string& name);
-    
-    UIManager* GetUIManager() { return m_uiManager.get(); }
+ public:
+  RenderingSubsystem();
+  ~RenderingSubsystem() override;
 
-private:
-    void RenderSprites();
-    void UpdateAnimations(float deltaTime);
+  bool Initialize() override;
+  void Shutdown() override;
+  void Update(float deltaTime) override;
+  void ProcessEvent(SDL_Event event) override {}
+
+  const char* GetName() const override { return "Rendering"; }
+  SubsystemType GetType() const override { return SubsystemType::RENDERING; }
+  const char* GetVersion() const override { return "1.0.0"; }
+
+  void SetRegistry(Registry* registry) override;
+  void SetWindowSize(int width, int height);
+  void SetWindowTitle(const std::string& title);
+  void SetCameraPosition(Vector2 pos) { m_cameraPosition = pos; }
+  Vector2 GetCameraPosition() const { return m_cameraPosition; }
+
+  SDL_Renderer* GetRenderer() { return m_renderer; }
+
+  bool LoadTexture(const std::string& key, const std::string& filepath);
+  SDL_Texture* GetTexture(const std::string& key);
+  void UnloadTexture(const std::string& key);
+  void GetTextureSize(const std::string& key, int& width, int& height);
+
+  void CreateAnimation(const std::string& name, const std::string& textureKey,
+                       const std::vector<AnimationFrame>& frames,
+                       bool loop = true);
+  const AnimationClip* GetAnimation(const std::string& name) const;
+  void RemoveAnimation(const std::string& name);
+
+  UIManager* GetUIManager() { return m_uiManager.get(); }
+
+ private:
+  void RenderSprites();
+  void UpdateAnimations(float deltaTime);
+  void RenderTileMap();
 };
 
 #ifdef _WIN32
@@ -122,6 +132,6 @@ __declspec(dllexport) ISubsystem* CreateSubsystem();
 }
 #else
 extern "C" {
-    ISubsystem* CreateSubsystem();
+ISubsystem* CreateSubsystem();
 }
 #endif
