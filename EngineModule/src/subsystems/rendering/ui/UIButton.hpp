@@ -1,14 +1,15 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 
 #include <functional>
 #include <string>
 
 #include "ui/UIElement.hpp"
 #include "rendering/RenderingSubsystem.hpp"
+#include "rendering/rendering_export.hpp"
 
-class UIButton : public UIElement {
+class RENDERING_API UIButton : public UIElement {
  private:
   std::string m_text;
   std::string m_textureKey;
