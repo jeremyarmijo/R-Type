@@ -24,11 +24,9 @@ void force_control_system(Registry& registry, SparseArray<Force>& forces,
         force.state = EForceState::Detached;
         force.detachPosition = transforms[forceIdx]->position;
         force.currentDistance = 0.f;
-        std::cout << "Force DETACHED!" << std::endl;
       } else {
         force.state = EForceState::AttachedFront;
         force.currentDistance = 0.f;
-        std::cout << "Force RECALLED!" << std::endl;
       }
       input.action2 = false;
     }
@@ -51,8 +49,6 @@ void force_collision_system(
       if (check_collision(forceTransform, forceCollider, enemyTransform,
                           enemyCollider)) {
         enemy.current -= force.contactDamage;
-        std::cout << "Force hit Enemy " << enemyIdx << "! HP: " << enemy.current
-                  << std::endl;
 
         if (enemy.current <= 0) {
           registry.kill_entity(Entity(enemyIdx));
@@ -84,8 +80,6 @@ void force_collision_system(
       if (check_collision(forceTransform, forceCollider, partTransform,
                           partCollider)) {
         part.hp -= force.contactDamage;
-        std::cout << "Force hit BossPart " << partIdx << "! HP: " << part.hp
-                  << std::endl;
 
         if (part.hp <= 0) {
           part.alive = false;
@@ -111,8 +105,7 @@ void force_collision_system(
                             projCollider)) {
           proj.isActive = false;
           registry.kill_entity(Entity(projIdx));
-          std::cout << "Force BLOCKED enemy projectile " << projIdx << "!"
-                    << std::endl;
+         
         }
       }
     }

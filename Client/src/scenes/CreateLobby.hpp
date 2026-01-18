@@ -4,14 +4,15 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
+#include "Helpers/EntityHelper.hpp"
+#include "audio/AudioSubsystem.hpp"
 #include "engine/GameEngine.hpp"
+#include "network/NetworkSubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
 #include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
-#include "audio/AudioSubsystem.hpp"
-#include "rendering/RenderingSubsystem.hpp"
-#include "network/NetworkSubsystem.hpp"
-#include "Helpers/EntityHelper.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIImage.hpp"
 #include "ui/UIManager.hpp"
@@ -65,7 +66,9 @@ class CreateLobby : public Scene {
         m_lobbyNameInput(nullptr),
         m_lobbypasswordInput(nullptr),
         m_saveButton(nullptr),
-        m_backButton(nullptr) { m_name = "createLobby"; }
+        m_backButton(nullptr) {
+    m_name = "createLobby";
+  }
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING CREATE LOBBY MENU SCENE ===" << std::endl;
@@ -86,11 +89,12 @@ class CreateLobby : public Scene {
         GetRendering()->LoadTexture("background", "../assets/bg.jpg");
       }
 
-      Entity background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
+      Entity background =
+          CreateSprite(GetRegistry(), "background", {400, 300}, -10);
       m_entities.push_back(background);
 
       auto* text = GetUI()->AddElement<UIText>(50, 40, "R-Type", "", 50,
-                                              SDL_Color{255, 255, 255, 255});
+                                               SDL_Color{255, 255, 255, 255});
       text->SetVisible(true);
       text->SetLayer(10);
 
@@ -171,11 +175,12 @@ class CreateLobby : public Scene {
       m_player3Button->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
                                  {80, 80, 80, 255});
 
-      auto* text2 = GetUI()->AddElement<UIText>(200, 400, "Difficulty :", "", 20,
-                                               SDL_Color{255, 255, 255, 255});
+      auto* text2 = GetUI()->AddElement<UIText>(
+          200, 400, "Difficulty :", "", 20, SDL_Color{255, 255, 255, 255});
       text2->SetVisible(true);
 
-      m_difficulty1Button = GetUI()->AddElement<UIButton>(275, 440, 50, 35, "1");
+      m_difficulty1Button =
+          GetUI()->AddElement<UIButton>(275, 440, 50, 35, "1");
       m_difficulty1Button->SetOnClick([this]() {
         GetAudio()->PlaySound("button");
         difficulty = 1;
@@ -193,7 +198,8 @@ class CreateLobby : public Scene {
       m_difficulty1Button->SetColors({20, 40, 100, 200}, {30, 60, 150, 255},
                                      {10, 20, 60, 220});
 
-      m_difficulty2Button = GetUI()->AddElement<UIButton>(325, 440, 50, 35, "2");
+      m_difficulty2Button =
+          GetUI()->AddElement<UIButton>(325, 440, 50, 35, "2");
       m_difficulty2Button->SetOnClick([this]() {
         GetAudio()->PlaySound("button");
         difficulty = 2;
@@ -211,7 +217,8 @@ class CreateLobby : public Scene {
       m_difficulty2Button->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
                                      {80, 80, 80, 255});
 
-      m_difficulty3Button = GetUI()->AddElement<UIButton>(375, 440, 50, 35, "3");
+      m_difficulty3Button =
+          GetUI()->AddElement<UIButton>(375, 440, 50, 35, "3");
       m_difficulty3Button->SetOnClick([this]() {
         GetAudio()->PlaySound("button");
         difficulty = 3;
@@ -229,7 +236,8 @@ class CreateLobby : public Scene {
       m_difficulty3Button->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
                                      {80, 80, 80, 255});
 
-      m_difficulty4Button = GetUI()->AddElement<UIButton>(425, 440, 50, 35, "4");
+      m_difficulty4Button =
+          GetUI()->AddElement<UIButton>(425, 440, 50, 35, "4");
       m_difficulty4Button->SetOnClick([this]() {
         GetAudio()->PlaySound("button");
         difficulty = 4;
@@ -247,7 +255,8 @@ class CreateLobby : public Scene {
       m_difficulty4Button->SetColors({100, 100, 100, 255}, {150, 150, 150, 255},
                                      {80, 80, 80, 255});
 
-      m_difficulty5Button = GetUI()->AddElement<UIButton>(475, 440, 50, 35, "5");
+      m_difficulty5Button =
+          GetUI()->AddElement<UIButton>(475, 440, 50, 35, "5");
       m_difficulty5Button->SetOnClick([this]() {
         GetAudio()->PlaySound("button");
         difficulty = 5;
@@ -334,7 +343,6 @@ class CreateLobby : public Scene {
   void Update(float deltaTime) override {
     if (!m_isInitialized) return;
     Event e = GetNetwork()->PopEvent();
-    std::cout << "update" << std::endl;
     if (e.type == EventType::LOBBY_JOIN_RESPONSE) {
       const auto* data = std::get_if<LOBBY_JOIN_RESPONSE>(&e.data);
       if (data->success == 0) return;
@@ -356,10 +364,10 @@ class CreateLobby : public Scene {
   }
 
   std::unordered_map<uint16_t, Entity> GetPlayers() override {
-    return std::unordered_map<uint16_t, Entity>(); 
+    return std::unordered_map<uint16_t, Entity>();
   }
 };
 
 extern "C" {
-    Scene* CreateScene();
+Scene* CreateScene();
 }

@@ -22,14 +22,14 @@ class INetworkManager {
   virtual ~INetworkManager() = default;
 
   using MessageCallback =
-      std::function<void(const NetworkMessage &)>;  ///< Message callback type
+      std::function<void(const NetworkMessage&)>;  ///< Message callback type
   using ConnectionCallback =
       std::function<void(uint32_t client_id)>;  ///< Connection callback type
   using DisconnectionCallback =
       std::function<void(uint32_t client_id)>;  ///< Disconnection callback type
 
   virtual bool Initialize(uint16_t tcp_port, uint16_t udp_port,
-                          const std::string &host) = 0;
+                          const std::string& host) = 0;
   virtual void Shutdown() = 0;
 
   /**
@@ -37,21 +37,21 @@ class INetworkManager {
    * @param msg Network message to send
    * @param sendUdp If true, use UDP; otherwise use TCP
    */
-  virtual void SendTo(const NetworkMessage &msg, Action ac) = 0;
+  virtual void SendTo(const NetworkMessage& msg, Action ac) = 0;
 
   /**
    * @brief Broadcast message via UDP to all clients
    * @param msg Network message to broadcast
    */
   virtual void BroadcastLobbyUDP(
-      Action ac, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) = 0;
+      Action ac, std::vector<std::tuple<uint16_t, bool, std::string>>& ids) = 0;
 
   /**
    * @brief Broadcast message via TCP to all clients
    * @param msg Network message to broadcast
    */
   virtual void BroadcastLobbyTCP(
-      Action ac, std::vector<std::tuple<uint16_t, bool, std::string>> &ids) = 0;
+      Action ac, std::vector<std::tuple<uint16_t, bool, std::string>>& ids) = 0;
 
   /**
    * @brief Update network state and process events
@@ -83,7 +83,8 @@ class INetworkManager {
    * @param score Output parameter for user's score
    * @return true if user found, false otherwise
    */
-  virtual bool GetUser(const std::string& username, std::string& password, int& score) = 0;
+  virtual bool GetUser(const std::string& username, std::string& password,
+                       int& score) = 0;
 
   /**
    * @brief Add a new user to database
@@ -92,5 +93,6 @@ class INetworkManager {
    * @param score Initial score for the new user
    * @return true if user added successfully, false otherwise
    */
-  virtual bool AddUser(const std::string& username, const std::string& password, int score) = 0;
+  virtual bool AddUser(const std::string& username, const std::string& password,
+                       int score) = 0;
 };

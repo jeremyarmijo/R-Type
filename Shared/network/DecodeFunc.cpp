@@ -985,7 +985,7 @@ Event DecodeMAP_DATA(const std::vector<uint8_t>& packet) {
   evt.type = EventType::SEND_MAP;
   MAP_DATA data;
   size_t offset = 2;
-  
+
   uint32_t payloadLength = 0;
   uint16_t seq = 0;
   uint16_t ack = 0;

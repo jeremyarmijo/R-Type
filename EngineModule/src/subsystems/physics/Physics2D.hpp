@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 
 #include <cmath>
+#include <algorithm>
 
 #include "ecs/Entity.hpp"
 
@@ -59,31 +60,37 @@ struct RigidBody {
 };
 
 struct CollisionEvent {
-    Entity entityA;
-    Entity entityB;
-    Vector2 point;
-    Vector2 normal;
+  Entity entityA;
+  Entity entityB;
+  Vector2 point;
+  Vector2 normal;
 };
 
 enum CollisionLayer {
-    LAYER_PLAYER = 1 << 0,
-    LAYER_ENEMY = 1 << 1,
-    LAYER_PROJECTILE_PLAYER = 1 << 2,
-    LAYER_PROJECTILE_ENEMY = 1 << 3,
-    LAYER_WORLD = 1 << 4,
-    LAYER_PICKUP = 1 << 5
+  LAYER_PLAYER = 1 << 0,
+  LAYER_ENEMY = 1 << 1,
+  LAYER_PROJECTILE_PLAYER = 1 << 2,
+  LAYER_PROJECTILE_ENEMY = 1 << 3,
+  LAYER_WORLD = 1 << 4,
+  LAYER_PICKUP = 1 << 5
 };
 
 struct BoxCollider {
   float width, height;
   Vector2 offset;
   uint32_t layer;
-    uint32_t mask;  // What layers this collider interacts with
-    bool isTrigger; // Trigger = no physical response, just events
-    
-    BoxCollider(float w, float h, Vector2 off = {0, 0}, 
-                uint32_t lay = LAYER_WORLD, uint32_t msk = 0xFFFFFFFF, bool trigger = false)
-        : width(w), height(h), offset(off), layer(lay), mask(msk), isTrigger(trigger) {}
+  uint32_t mask;   // What layers this collider interacts with
+  bool isTrigger;  // Trigger = no physical response, just events
+
+  BoxCollider(float w, float h, Vector2 off = {0, 0},
+              uint32_t lay = LAYER_WORLD, uint32_t msk = 0xFFFFFFFF,
+              bool trigger = false)
+      : width(w),
+        height(h),
+        offset(off),
+        layer(lay),
+        mask(msk),
+        isTrigger(trigger) {}
 
   SDL_Rect GetRect(const Vector2& position) const {
     return {static_cast<int>(position.x + offset.x - width / 2),

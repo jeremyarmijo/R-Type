@@ -206,9 +206,9 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
                 : wave.spawnPositions[totalSpawned %
                                       wave.spawnPositions.size()];
 
-
         float hpMultiplier = 1.0f + 0.2f * static_cast<float>(levelIndex);
-        Entity e = createEnemy(registry, type, spawnPos, speedMultiplier, hpMultiplier);
+        Entity e = createEnemy(registry, type, spawnPos, speedMultiplier,
+                               hpMultiplier);
         totalSpawned++;
       }
     }

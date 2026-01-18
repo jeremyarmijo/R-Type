@@ -11,8 +11,8 @@
 #include "Player/Enemy.hpp"
 #include "Player/PlayerEntity.hpp"
 #include "Player/Projectile.hpp"
-#include "physics/Physics2D.hpp"
 #include "ecs/Zipper.hpp"
+#include "physics/Physics2D.hpp"
 #include "systems/ProjectileSystem.hpp"
 
 void player_movement_system(Registry& registry) {
@@ -52,20 +52,24 @@ void enemy_movement_system(Registry& registry,
 
     switch (enemy.type) {
       case EnemyType::Basic: {
-        float t = enemy.timer * 1.5f;
-        rigidbody.velocity.x = std::sin(t * 2.f) * enemy.amplitude * 0.5f;
-        rigidbody.velocity.y =
-            std::sin(t) * std::cos(t) * enemy.amplitude * 2.f;
+    float t = enemy.timer;
 
-        if (enemy.timeSinceLastShot >= 1.5f) {
-          Vector2 pos = transform.position + Vector2{-30.f, 0.f};
-          spawn_projectile(registry, pos, {-1.f, 0.f}, 300.f, entityId);
-          spawn_projectile(registry, pos, {-1.f, -0.3f}, 280.f, entityId);
-          spawn_projectile(registry, pos, {-1.f, 0.3f}, 280.f, entityId);
-          enemy.timeSinceLastShot = 0.f;
-        }
-        break;
-      }
+    // Zigzag vertical : va en haut puis en bas, oscillation sinusoïdale
+     rigidbody.velocity.x = 0.0f;
+    rigidbody.velocity.y = std::sin(t * 2.0f) * enemy.amplitude * 2.5f; 
+
+    // Tir (inchangé)
+    if (enemy.timeSinceLastShot >= 1.5f) {
+        Vector2 pos = transform.position + Vector2{-30.f, 0.f};
+        spawn_projectile(registry, pos, {-1.f, 0.f}, 300.f, entityId);
+        spawn_projectile(registry, pos, {-1.f, -0.3f}, 280.f, entityId);
+        spawn_projectile(registry, pos, {-1.f, 0.3f}, 280.f, entityId);
+        enemy.timeSinceLastShot = 0.f;
+    }
+    break;
+}
+
+
 
       case EnemyType::Zigzag: {
         float speedBoost = 1.f + std::abs(std::sin(enemy.timer * 2.f)) * 0.8f;
@@ -143,11 +147,12 @@ void enemy_movement_system(Registry& registry,
 
         enemy.timeSinceLastShot += deltaTime;
         if (enemy.timeSinceLastShot >= 2.0f) {  // cooldown 2 secondes
-        Vector2 pos = transform.position + Vector2{-20.f, 0.f}; // offset devant lui
-        Vector2 dir = {-1.f, 0.f};  // tirer vers la gauche
-        float speed = 300.f;
-        spawn_projectile(registry, pos, dir, speed, entityId);
-        enemy.timeSinceLastShot = 0.f;
+          Vector2 pos =
+              transform.position + Vector2{-20.f, 0.f};  // offset devant lui
+          Vector2 dir = {-1.f, 0.f};                     // tirer vers la gauche
+          float speed = 300.f;
+          spawn_projectile(registry, pos, dir, speed, entityId);
+          enemy.timeSinceLastShot = 0.f;
         }
         break;
       }
@@ -286,15 +291,23 @@ void boss_movement_system(Registry& registry,
       } break;
 
       case BossType::FinalBoss: {
-        rigidbody.velocity = {0.f, 0.f};
-        transform.position.x = 700.0f;
-        transform.position.y = 300.0f;
+        float amplitude = 100.f; // hauteur maximale du mouvement
+float speed = 2.f;       // vitesse du va-et-vient
+transform.position.y = 300.f + std::sin(boss.timer * speed) * amplitude;
 
-        if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
-          std::cout << "Final Boss spawning Basic Enemy!" << std::endl;
-          spawn_basic_enemy_for_boss(registry);
-          enemySpawnTimer = 0.0f;
-        }
+// Garde la position X fixe
+transform.position.x = 700.f;
+
+// Boss immobile horizontalement
+rigidbody.velocity = {0.f, 0.f};
+
+// Spawn d'ennemis comme avant
+if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
+    std::cout << "Final Boss spawning Basic Enemy!" << std::endl;
+    spawn_basic_enemy_for_boss(registry);
+    enemySpawnTimer = 0.0f;
+}
+
 
         const float PROJECTILE_FIRE_INTERVAL = 2.0f;
         const float TIME_OFFSET = 0.2f;
@@ -302,16 +315,19 @@ void boss_movement_system(Registry& registry,
         float timeMod = fmod(boss.timer, PROJECTILE_FIRE_INTERVAL);
 
         if (timeMod < 0.1f && timeMod > 0.0f) {
-          const float Y_OFFSET_RANGE = 70.0f;
-          float y1 = transform.position.y - Y_OFFSET_RANGE;
-          spawn_boss_projectile(registry, {transform.position.x, y1}, entityId);
-          float y2 = transform.position.y;
-          spawn_boss_projectile(registry, {transform.position.x - 10.0f, y2},
-                                entityId);
-          float y3 = transform.position.y + Y_OFFSET_RANGE;
-          spawn_boss_projectile(registry, {transform.position.x, y3}, entityId);
-          boss.timer += 0.5f;
-        }
+    const float Y_OFFSET_RANGE = 100.0f; // plus visible que 70
+    const int NUM_SHOTS = 5;
+
+    for (int i = 0; i < NUM_SHOTS; ++i) {
+        // variation verticale pour un tir en zigzag
+        float yOffset = (i - NUM_SHOTS / 2) * 25.f + std::sin(boss.timer * 3.f + i) * 20.f;
+        spawn_boss_projectile(registry,
+                              {transform.position.x, transform.position.y + yOffset},
+                              entityId);
+    }
+
+    boss.timer += 0.5f; // pour ne pas spammer trop vite
+}
       } break;
     }
     if (boss.type == BossType::BigShip) {

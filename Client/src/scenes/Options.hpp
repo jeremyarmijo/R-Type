@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "Helpers/EntityHelper.hpp"
+#include "audio/AudioSubsystem.hpp"
 #include "engine/GameEngine.hpp"
 #include "input/KeyBindings.hpp"
 #include "scene/Scene.hpp"
@@ -13,8 +16,6 @@
 #include "ui/UIButton.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UIText.hpp"
-#include "audio/AudioSubsystem.hpp"
-#include "Helpers/EntityHelper.hpp"
 
 class OptionsScene : public Scene {
  private:
@@ -71,8 +72,8 @@ class OptionsScene : public Scene {
         m_sfxMute(false),
         m_musicMute(false),
         m_currentSkin(PlayerSkin::BLUE) {
-          m_name = "options";
-        }
+    m_name = "options";
+  }
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING OPTIONS SCENE ===" << std::endl;
@@ -91,7 +92,7 @@ class OptionsScene : public Scene {
 
       // === SKIN SELECTION SECTION ===
       m_skinTitle = GetUI()->AddElement<UIText>(400, 80, "PLAYER SKIN", "", 28,
-                                               SDL_Color{200, 200, 200, 255});
+                                                SDL_Color{200, 200, 200, 255});
       m_skinTitle->SetAlignment(TextAlign::Center);
       m_skinTitle->SetLayer(10);
 
@@ -123,9 +124,12 @@ class OptionsScene : public Scene {
 
       m_background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
       // AnimationManager& animations = GetAnimations();
-      m_previewPlayer = CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(PlayerSettings::GetSkinAnimation(m_currentSkin)),
-          "player", {400, 220},
-          PlayerSettings::GetSkinAnimation(m_currentSkin), 0);
+      m_previewPlayer = CreateAnimatedSprite(
+          GetRegistry(),
+          GetRendering()->GetAnimation(
+              PlayerSettings::GetSkinAnimation(m_currentSkin)),
+          "player", {400, 220}, PlayerSettings::GetSkinAnimation(m_currentSkin),
+          0);
       auto& transform =
           GetRegistry().get_components<Transform>()[m_previewPlayer];
       if (transform) {
@@ -297,7 +301,7 @@ class OptionsScene : public Scene {
 
     row.actionLabel =
         GetUI()->AddElement<UIText>(150, yPos, bindings.GetActionName(action),
-                                   "", 18, SDL_Color{200, 200, 200, 255});
+                                    "", 18, SDL_Color{200, 200, 200, 255});
     row.actionLabel->SetLayer(10);
 
     std::string keyName = bindings.GetKeyNameForAction(action);
@@ -391,10 +395,10 @@ class OptionsScene : public Scene {
   }
 
   std::unordered_map<uint16_t, Entity> GetPlayers() override {
-    return std::unordered_map<uint16_t, Entity>(); 
+    return std::unordered_map<uint16_t, Entity>();
   }
 };
 
 extern "C" {
-    Scene* CreateScene();
+Scene* CreateScene();
 }

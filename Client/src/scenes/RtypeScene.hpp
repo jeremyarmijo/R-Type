@@ -2,26 +2,27 @@
 #include <SDL2/SDL.h>
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
+#include "Helpers/EntityHelper.hpp"
 #include "Player/PlayerEntity.hpp"
-#include "systems/InputSystem.hpp"
+#include "audio/AudioSubsystem.hpp"
+#include "components/TileMap.hpp"
+#include "network/NetworkSubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
 #include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
-#include "audio/AudioSubsystem.hpp"
-#include "rendering/RenderingSubsystem.hpp"
-#include "network/NetworkSubsystem.hpp"
 #include "settings/MultiplayerSkinManager.hpp"
+#include "systems/InputSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WeaponSystem.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
-#include "components/TileMap.hpp"
-#include "Helpers/EntityHelper.hpp"
 
 class RtypeScene : public Scene {
  private:
@@ -62,5 +63,5 @@ class RtypeScene : public Scene {
 };
 
 extern "C" {
-    Scene* CreateScene();
+Scene* CreateScene();
 }

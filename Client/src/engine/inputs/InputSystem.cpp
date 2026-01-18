@@ -25,6 +25,7 @@ void player_input_system(Registry& registry,
 
     if (inputManager->IsAction2Held()) {
       currentInputState.fire = 2;  // Charge (touche F ou SPECIAL)
+      std::cout << "[CLIENT] Sending fire=2 (FORCE TOGGLE)" << std::endl;
     } else if (inputManager->IsAction1Held()) {
       currentInputState.fire = 1;  // Tir normal (touche SPACE ou FIRE)
     } else {

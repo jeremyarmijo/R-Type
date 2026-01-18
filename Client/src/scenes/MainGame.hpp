@@ -1,28 +1,29 @@
 #pragma once
 #include <SDL2/SDL.h>
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
+#include "Helpers/EntityHelper.hpp"
 #include "Player/PlayerEntity.hpp"
+#include "audio/AudioSubsystem.hpp"
 #include "network/DataMask.hpp"
-#include "systems/InputSystem.hpp"
+#include "network/NetworkSubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
 #include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
-#include "audio/AudioSubsystem.hpp"
-#include "rendering/RenderingSubsystem.hpp"
-#include "network/NetworkSubsystem.hpp"
 #include "settings/MultiplayerSkinManager.hpp"
+#include "systems/BoundsSystem.hpp"
+#include "systems/InputSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WeaponSystem.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
-#include "Helpers/EntityHelper.hpp"
-#include "systems/BoundsSystem.hpp"
 
 class MyGameScene : public Scene {
  private:
@@ -85,7 +86,9 @@ class MyGameScene : public Scene {
         m_nextWave(false),
         m_scoreText(nullptr),
         m_healthText(nullptr),
-        m_levelText(nullptr) { m_name = "game"; }
+        m_levelText(nullptr) {
+    m_name = "game";
+  }
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING GAME SCENE ===" << std::endl;
@@ -166,8 +169,9 @@ class MyGameScene : public Scene {
         float posX = GetSceneData().Get<float>("posX", 0);
         float posY = GetSceneData().Get<float>("posY", 0);
 
-        m_localPlayer = CreatePlayer(GetRegistry(), GetRendering()->GetAnimation(selectedSkinAnim), "player", selectedSkinAnim,
-                                               {posX, posY}, 250.0f, 0);
+        m_localPlayer = CreatePlayer(
+            GetRegistry(), GetRendering()->GetAnimation(selectedSkinAnim),
+            "player", selectedSkinAnim, {posX, posY}, 250.0f, 0);
 
         auto& transform =
             GetRegistry().get_components<Transform>()[m_localPlayer];
@@ -194,7 +198,8 @@ class MyGameScene : public Scene {
         m_isAlive = false;
       }
 
-      m_spectatorText = GetUI()->AddElement<UIText>(10, 10, "SPECTATOR", "", 50);
+      m_spectatorText =
+          GetUI()->AddElement<UIText>(10, 10, "SPECTATOR", "", 50);
       m_spectatorText->SetLayer(100);
 
       m_scoreText = GetUI()->AddElement<UIText>(10, 10, "Score: 0", "", 20);
@@ -325,28 +330,28 @@ class MyGameScene : public Scene {
     }
     if (!GetRendering()->GetTexture("projectile_mini_green")) {
       GetRendering()->LoadTexture("projectile_mini_green",
-                           "../assets/shootUp.png");
+                                  "../assets/shootUp.png");
     }
     if (!GetRendering()->GetTexture("projectile_player")) {
       GetRendering()->LoadTexture("projectile_player",
-                           "../assets/blueShoot.png");
+                                  "../assets/blueShoot.png");
     }
     if (!GetRendering()->GetTexture("charged_projectile_palyer")) {
       GetRendering()->LoadTexture("charged_projectil_palyer",
-                           "../assets/charged.png");
+                                  "../assets/charged.png");
     }
     if (!GetRendering()->GetTexture("projectile_enemy")) {
       GetRendering()->LoadTexture("projectile_enemy",
-                           "../assets/projectile_enemy.png");
+                                  "../assets/projectile_enemy.png");
     }
 
     if (!GetRendering()->GetTexture("projectile_player")) {
       GetRendering()->LoadTexture("projectile_player",
-                           "../assets/blueShoot.png");
+                                  "../assets/blueShoot.png");
     }
     if (!GetRendering()->GetTexture("projectile_enemy")) {
       GetRendering()->LoadTexture("projectile_enemy",
-                           "../assets/projectile_enemy.png");
+                                  "../assets/projectile_enemy.png");
     }
     if (!GetRendering()->GetTexture("explosion")) {
       GetRendering()->LoadTexture("explosion", "../assets/explosion.png");
@@ -370,123 +375,123 @@ class MyGameScene : public Scene {
 
   void CreateGameAnimations() {
     GetRendering()->CreateAnimation("enemy1_anim", "enemy1",
-                               {{{5, 6, 20, 23}, 0.1f},
-                                {{38, 6, 20, 23}, 0.1f},
-                                {{71, 6, 20, 23}, 0.1f},
-                                {{104, 6, 20, 23}, 0.1f},
-                                {{137, 6, 20, 23}, 0.1f},
-                                {{170, 6, 20, 23}, 0.1f},
-                                {{203, 6, 20, 23}, 0.1f},
-                                {{236, 6, 20, 23}, 0.1f}},
-                               true);
+                                    {{{5, 6, 20, 23}, 0.1f},
+                                     {{38, 6, 20, 23}, 0.1f},
+                                     {{71, 6, 20, 23}, 0.1f},
+                                     {{104, 6, 20, 23}, 0.1f},
+                                     {{137, 6, 20, 23}, 0.1f},
+                                     {{170, 6, 20, 23}, 0.1f},
+                                     {{203, 6, 20, 23}, 0.1f},
+                                     {{236, 6, 20, 23}, 0.1f}},
+                                    true);
 
     GetRendering()->CreateAnimation("boss_anim", "boss",
-                               {{{27, 1711, 154, 203}, 0.6f},
-                                {{189, 1711, 154, 203}, 0.5f},
-                                {{351, 1711, 154, 203}, 0.6f},
-                                {{189, 1711, 154, 203}, 0.5f},
-                                {{189, 1711, 154, 203}, 0.5f},
-                                {{351, 1711, 154, 203}, 0.6f},
-                                {{189, 1711, 154, 203}, 0.5f}},
-                               true);
+                                    {{{27, 1711, 154, 203}, 0.6f},
+                                     {{189, 1711, 154, 203}, 0.5f},
+                                     {{351, 1711, 154, 203}, 0.6f},
+                                     {{189, 1711, 154, 203}, 0.5f},
+                                     {{189, 1711, 154, 203}, 0.5f},
+                                     {{351, 1711, 154, 203}, 0.6f},
+                                     {{189, 1711, 154, 203}, 0.5f}},
+                                    true);
 
     GetRendering()->CreateAnimation("explode_anim", "explosion",
-                               {{{130, 2, 30, 30}, 0.1f},
-                                {{163, 2, 30, 30}, 0.1f},
-                                {{194, 2, 30, 30}, 0.1f},
-                                {{228, 2, 30, 30}, 0.1f},
-                                {{261, 2, 30, 30}, 0.1f},
-                                {{294, 2, 30, 30}, 0.1f}},
-                               true);
+                                    {{{130, 2, 30, 30}, 0.1f},
+                                     {{163, 2, 30, 30}, 0.1f},
+                                     {{194, 2, 30, 30}, 0.1f},
+                                     {{228, 2, 30, 30}, 0.1f},
+                                     {{261, 2, 30, 30}, 0.1f},
+                                     {{294, 2, 30, 30}, 0.1f}},
+                                    true);
 
     GetRendering()->CreateAnimation(
         "enemy2_anim", "enemy2",
         {{{34, 34, 31, 31}, 0.15f}, {{69, 34, 31, 31}, 0.15f}}, true);
 
     GetRendering()->CreateAnimation("enemy3_anim", "enemy3",
-                               {{{2, 67, 29, 31}, 0.2f},
-                                {{35, 67, 29, 31}, 0.2f},
-                                {{68, 67, 29, 31}, 0.2f},
-                                {{101, 67, 29, 31}, 0.2f}},
-                               true);
+                                    {{{2, 67, 29, 31}, 0.2f},
+                                     {{35, 67, 29, 31}, 0.2f},
+                                     {{68, 67, 29, 31}, 0.2f},
+                                     {{101, 67, 29, 31}, 0.2f}},
+                                    true);
 
     GetRendering()->CreateAnimation("enemy4_anim", "enemy4",
-                               {{{0, 0, 55, 94}, 0.2f},
-                                {{55, 0, 55, 94}, 0.2f},
-                                {{110, 0, 55, 94}, 0.2f}},
-                               true);
+                                    {{{0, 0, 55, 94}, 0.2f},
+                                     {{55, 0, 55, 94}, 0.2f},
+                                     {{110, 0, 55, 94}, 0.2f}},
+                                    true);
 
     GetRendering()->CreateAnimation("enemy5_anim", "enemy5",
-                               {{{0, 0, 33, 29}, 0.1f},
-                                {{33, 0, 33, 29}, 0.1f},
-                                {{66, 0, 34, 29}, 0.1f}},
-                               true);
+                                    {{{0, 0, 33, 29}, 0.1f},
+                                     {{33, 0, 33, 29}, 0.1f},
+                                     {{66, 0, 34, 29}, 0.1f}},
+                                    true);
 
-    GetRendering()->CreateAnimation("projectile_player_anim", "projectile_player",
-                               {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
-                               true);
+    GetRendering()->CreateAnimation(
+        "projectile_player_anim", "projectile_player",
+        {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}}, true);
 
-    GetRendering()->CreateAnimation("projectile_charged", "projectile_player",
-                               {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}},
-                               true);
+    GetRendering()->CreateAnimation(
+        "projectile_charged", "projectile_player",
+        {{{1, 0, 17, 5}, 0.1f}, {{19, 0, 17, 5}, 0.1f}}, true);
 
     GetRendering()->CreateAnimation(
         "projectile_enemy_anim", "projectile_enemy",
         {{{0, 0, 12, 12}, 0.1f}, {{12, 0, 12, 12}, 0.1f}}, true);
 
     GetRendering()->CreateAnimation("force_anim", "force",
-                               {
-                                   {{0, 0, 30, 25}, 0.08f},
-                                   {{30, 0, 30, 25}, 0.08f},
-                                   {{60, 0, 30, 25}, 0.08f},
-                                   {{90, 0, 30, 25}, 0.08f},
-                                   {{120, 0, 30, 25}, 0.08f},
-                                   {{150, 0, 30, 25}, 0.08f},
-                                   {{180, 0, 30, 25}, 0.08f},
-                                   {{210, 0, 30, 25}, 0.08f},
-                                   {{240, 0, 30, 25}, 0.08f},
-                                   {{270, 0, 30, 25}, 0.08f},
-                                   {{300, 0, 30, 25}, 0.08f},
-                                   {{330, 0, 30, 25}, 0.08f},
-                               },
-                               true);
+                                    {
+                                        {{0, 0, 30, 25}, 0.08f},
+                                        {{30, 0, 30, 25}, 0.08f},
+                                        {{60, 0, 30, 25}, 0.08f},
+                                        {{90, 0, 30, 25}, 0.08f},
+                                        {{120, 0, 30, 25}, 0.08f},
+                                        {{150, 0, 30, 25}, 0.08f},
+                                        {{180, 0, 30, 25}, 0.08f},
+                                        {{210, 0, 30, 25}, 0.08f},
+                                        {{240, 0, 30, 25}, 0.08f},
+                                        {{270, 0, 30, 25}, 0.08f},
+                                        {{300, 0, 30, 25}, 0.08f},
+                                        {{330, 0, 30, 25}, 0.08f},
+                                    },
+                                    true);
 
     GetRendering()->CreateAnimation("boss_serpent_head_up", "head_boss",
-                               {
-                                   {{0, 0, 34, 32}, 0.1f},
-                                   {{34, 0, 34, 32}, 0.1f},
-                                   {{68, 0, 34, 32}, 0.1f},
-                               },
-                               true);
+                                    {
+                                        {{0, 0, 34, 32}, 0.1f},
+                                        {{34, 0, 34, 32}, 0.1f},
+                                        {{68, 0, 34, 32}, 0.1f},
+                                    },
+                                    true);
 
     GetRendering()->CreateAnimation("boss_serpent_body_anim", "boss2",
-                               {
-                                   {{0, 0, 34, 29}, 0.1f},
-                                   {{34, 0, 34, 29}, 0.1f},
-                                   {{68, 0, 34, 29}, 0.1f},
-                                   {{102, 0, 34, 29}, 0.1f},
-                                   {{136, 0, 34, 29}, 0.1f},
-                                   {{170, 0, 34, 29}, 0.1f},
-                                   {{204, 0, 34, 29}, 0.1f},
-                               },
-                               true);
+                                    {
+                                        {{0, 0, 34, 29}, 0.1f},
+                                        {{34, 0, 34, 29}, 0.1f},
+                                        {{68, 0, 34, 29}, 0.1f},
+                                        {{102, 0, 34, 29}, 0.1f},
+                                        {{136, 0, 34, 29}, 0.1f},
+                                        {{170, 0, 34, 29}, 0.1f},
+                                        {{204, 0, 34, 29}, 0.1f},
+                                    },
+                                    true);
 
     GetRendering()->CreateAnimation("boss3_part", "boom3",
-                               {{{0, 0, 587, 180}, 1.0f}}, true);
+                                    {{{0, 0, 587, 180}, 1.0f}}, true);
 
     GetRendering()->CreateAnimation("boom_anim", "boom_sprite",
-                               {
-                                   {{0 * 34, 0, 34, 29}, 0.1f},  // frame 1
-                                   {{1 * 34, 0, 34, 29}, 0.1f},  // frame 2
-                                   {{2 * 34, 0, 34, 29}, 0.1f},  // frame 3
-                                   {{3 * 34, 0, 34, 29}, 0.1f},  // frame 4
-                                   {{4 * 34, 0, 34, 29}, 0.1f},  // frame 5
-                                   {{5 * 34, 0, 34, 29}, 0.1f},  // frame 6
-                                   {{6 * 34, 0, 34, 29}, 0.1f},  // frame 7
-                                   {{7 * 34, 0, 34, 29}, 0.1f},  // frame 8
-                                   {{8 * 34, 0, 34, 29}, 0.1f},  // frame 9
-                               },
-                               true);
+                                    {
+                                        {{0 * 34, 0, 34, 29}, 0.1f},  // frame 1
+                                        {{1 * 34, 0, 34, 29}, 0.1f},  // frame 2
+                                        {{2 * 34, 0, 34, 29}, 0.1f},  // frame 3
+                                        {{3 * 34, 0, 34, 29}, 0.1f},  // frame 4
+                                        {{4 * 34, 0, 34, 29}, 0.1f},  // frame 5
+                                        {{5 * 34, 0, 34, 29}, 0.1f},  // frame 6
+                                        {{6 * 34, 0, 34, 29}, 0.1f},  // frame 7
+                                        {{7 * 34, 0, 34, 29}, 0.1f},  // frame 8
+                                        {{8 * 34, 0, 34, 29}, 0.1f},  // frame 9
+                                    },
+                                    true);
   }
 
   std::string GetEnemyTexture(uint8_t enemyType) const {
@@ -613,8 +618,9 @@ class MyGameScene : public Scene {
               << " with skin: " << PlayerSettings::GetSkinName(assignedSkin)
               << std::endl;
 
-    Entity otherPlayer =
-        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(skinAnimation), "player", position, skinAnimation, 0);
+    Entity otherPlayer = CreateAnimatedSprite(
+        GetRegistry(), GetRendering()->GetAnimation(skinAnimation), "player",
+        position, skinAnimation, 0);
 
     auto& transform = GetRegistry().get_components<Transform>()[otherPlayer];
     if (transform) {
@@ -689,7 +695,9 @@ class MyGameScene : public Scene {
               << static_cast<int>(enemyType) << ") at (" << position.x << ", "
               << position.y << ")" << std::endl;
 
-    Entity enemy = CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(animation), texture, position, animation, 0);
+    Entity enemy = CreateAnimatedSprite(GetRegistry(),
+                                        GetRendering()->GetAnimation(animation),
+                                        texture, position, animation, 0);
 
     auto& transform = GetRegistry().get_components<Transform>()[enemy];
     if (transform) {
@@ -808,8 +816,9 @@ class MyGameScene : public Scene {
               << " at (" << position.x << ", " << position.y << ")"
               << std::endl;
 
-    Entity force =
-        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation("force_anim"), "force", position, "force_anim");
+    Entity force = CreateAnimatedSprite(
+        GetRegistry(), GetRendering()->GetAnimation("force_anim"), "force",
+        position, "force_anim");
 
     auto& transform = GetRegistry().get_components<Transform>()[force];
     if (transform) {
@@ -886,8 +895,9 @@ class MyGameScene : public Scene {
     std::string texture = GetProjectileTexture(projectileType);
     std::string animation = GetProjectileAnimation(projectileType);
 
-    Entity projectile =
-        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(animation), texture, position, animation, 0);
+    Entity projectile = CreateAnimatedSprite(
+        GetRegistry(), GetRendering()->GetAnimation(animation), texture,
+        position, animation, 0);
     GetAudio()->PlaySound("shoot");
     auto& transform = GetRegistry().get_components<Transform>()[projectile];
     if (transform) {
@@ -1166,13 +1176,15 @@ class MyGameScene : public Scene {
         const auto& gameEnd = std::get<GAME_END>(e.data);
 
         std::cout << "[CLIENT] GAME_END reçu!" << std::endl;
-        std::cout << "[CLIENT] Victory: " << (int)gameEnd.victory << std::endl;
+        std::cout << "[CLIENT] Victory: " << static_cast<int>(gameEnd.victory)
+                  << std::endl;
         std::cout << "[CLIENT] Scores count: " << gameEnd.scores.size()
                   << std::endl;
 
         for (const auto& s : gameEnd.scores) {
           std::cout << "[CLIENT] Score - Player " << s.playerId << " = "
-                    << s.score << " (rank " << (int)s.rank << ")" << std::endl;
+                    << s.score << " (rank " << static_cast<int>(s.rank) << ")"
+                    << std::endl;
         }
 
         // Passer les données à GameOverScene
@@ -1217,8 +1229,9 @@ class MyGameScene : public Scene {
     auto& transform = GetRegistry().get_components<Transform>()[entity];
 
     Vector2 pos = transform->position;
-    Entity explosion =
-        CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation("explode_anim"), "explosion", pos, "explode_anim", 1);
+    Entity explosion = CreateAnimatedSprite(
+        GetRegistry(), GetRendering()->GetAnimation("explode_anim"),
+        "explosion", pos, "explode_anim", 1);
 
     m_explosions[explosion] = 0.6f;
   }
@@ -1271,8 +1284,9 @@ class MyGameScene : public Scene {
       Vector2 segmentPos = position;
       segmentPos.x -= i * 30;  // espace entre les segments
 
-      Entity segment =
-          CreateAnimatedSprite(GetRegistry(), GetRendering()->GetAnimation(animation), texture, segmentPos, animation);
+      Entity segment = CreateAnimatedSprite(
+          GetRegistry(), GetRendering()->GetAnimation(animation), texture,
+          segmentPos, animation);
 
       auto& transform = GetRegistry().get_components<Transform>()[segment];
       if (transform) {
@@ -1302,10 +1316,10 @@ class MyGameScene : public Scene {
     }
   }
   std::unordered_map<uint16_t, Entity> GetPlayers() override {
-    return std::unordered_map<uint16_t, Entity>(); 
+    return std::unordered_map<uint16_t, Entity>();
   }
 };
 
 extern "C" {
-    Scene* CreateScene();
+Scene* CreateScene();
 }

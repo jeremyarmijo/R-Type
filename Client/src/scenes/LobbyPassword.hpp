@@ -4,14 +4,15 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "Helpers/EntityHelper.hpp"
+#include "audio/AudioSubsystem.hpp"
 #include "engine/GameEngine.hpp"
+#include "network/NetworkSubsystem.hpp"
 #include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
-#include "network/NetworkSubsystem.hpp"
-#include "audio/AudioSubsystem.hpp"
-#include "Helpers/EntityHelper.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UIText.hpp"
@@ -49,7 +50,9 @@ class LobbyPassword : public Scene {
       : m_isInitialized(false),
         m_passwordInput(nullptr),
         m_joinButton(nullptr),
-        m_backButton(nullptr) { m_name = "lobbyPassword"; }
+        m_backButton(nullptr) {
+    m_name = "lobbyPassword";
+  }
 
   void OnEnter() override {
     try {
@@ -63,16 +66,16 @@ class LobbyPassword : public Scene {
           CreateSprite(GetRegistry(), "background", {400, 300}, -10));
 
       auto* title = GetUI()->AddElement<UIText>(70, 40, "PRIVATE LOBBY", "", 50,
-                                               SDL_Color{255, 255, 255, 255});
+                                                SDL_Color{255, 255, 255, 255});
       title->SetLayer(10);
 
       auto* lobbyNameDisplay =
-          GetUI()->AddElement<UIText>(70, 100, "Lobby: " + m_targetLobbyName, "",
-                                     25, SDL_Color{100, 200, 255, 255});
+          GetUI()->AddElement<UIText>(70, 100, "Lobby: " + m_targetLobbyName,
+                                      "", 25, SDL_Color{100, 200, 255, 255});
       lobbyNameDisplay->SetLayer(10);
 
       m_passwordInput = GetUI()->AddElement<UITextInput>(70, 180, 400, 50,
-                                                        "Enter Password...");
+                                                         "Enter Password...");
       m_passwordInput->SetMaxLength(32);
       m_passwordInput->SetTextColor({255, 255, 255, 255});
       m_passwordInput->SetBackgroundColor({40, 40, 50, 255});
@@ -147,10 +150,10 @@ class LobbyPassword : public Scene {
   }
 
   std::unordered_map<uint16_t, Entity> GetPlayers() override {
-    return std::unordered_map<uint16_t, Entity>(); 
+    return std::unordered_map<uint16_t, Entity>();
   }
 };
 
 extern "C" {
-    Scene* CreateScene();
+Scene* CreateScene();
 }

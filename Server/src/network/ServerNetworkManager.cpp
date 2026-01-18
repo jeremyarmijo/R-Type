@@ -7,9 +7,9 @@
 #include <utility>
 #include <vector>
 
+#include "db/Database.hpp"
 #include "network/DecodeFunc.hpp"
 #include "network/EncodeFunc.hpp"
-#include "db/Database.hpp"
 
 ServerNetworkManager::ServerNetworkManager() {
   SetupEncoder(encode);
@@ -21,16 +21,20 @@ ServerNetworkManager::ServerNetworkManager() {
     throw std::runtime_error("[Database] Failed to open r-type.db.");
   }
 
-  if (db->ExecuteQuery("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT NOT NULL, score INTEGER DEFAULT 0);")) {
+  if (db->ExecuteQuery(
+          "CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, "
+          "password TEXT NOT NULL, score INTEGER DEFAULT 0);")) {
     std::cout << "[Database] Users table ensured." << std::endl;
   } else {
     throw std::runtime_error("[Database] Failed to create users table.");
   }
   db->AddUser("testuser", "password123", 100);
-  std::string password; int score;
+  std::string password;
+  int score;
   db->GetUser("testuser", password, score);
-  std::cout << "User: testuser, Password: " << password << ", Score: " << score << std::endl;
-};
+  std::cout << "User: testuser, Password: " << password << ", Score: " << score
+            << std::endl;
+}
 
 ServerNetworkManager::~ServerNetworkManager() {
   Shutdown();
@@ -369,7 +373,8 @@ void ServerNetworkManager::OnTCPDisconnect(uint32_t client_id) {
   client_manager_.RemoveClient(client_id);
 }
 
-bool ServerNetworkManager::GetUser(const std::string& username, std::string& password, int& score) {
+bool ServerNetworkManager::GetUser(const std::string &username,
+                                   std::string &password, int &score) {
   if (!db) {
     std::cerr << "[ServerNetworkManager] Database not initialized" << std::endl;
     return false;
@@ -377,7 +382,8 @@ bool ServerNetworkManager::GetUser(const std::string& username, std::string& pas
   return db->GetUser(username, password, score);
 }
 
-bool ServerNetworkManager::AddUser(const std::string& username, const std::string& password, int score) {
+bool ServerNetworkManager::AddUser(const std::string &username,
+                                   const std::string &password, int score) {
   if (!db) {
     std::cerr << "[ServerNetworkManager] Database not initialized" << std::endl;
     return false;

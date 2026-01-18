@@ -16,9 +16,7 @@ NetworkSubsystem::NetworkSubsystem()
       eventBuffer(50),
       actionBuffer(50) {}
 
-NetworkSubsystem::~NetworkSubsystem() {
-  Shutdown();
-}
+NetworkSubsystem::~NetworkSubsystem() { Shutdown(); }
 
 bool NetworkSubsystem::Initialize() {
   SetupDecoder(decoder);
@@ -34,8 +32,7 @@ void NetworkSubsystem::Shutdown() {
   }
 }
 
-void NetworkSubsystem::Update(float deltaTime) {
-}
+void NetworkSubsystem::Update(float deltaTime) {}
 
 bool NetworkSubsystem::Connect(const std::string& ip, int port) {
   serverIP = ip;
@@ -158,8 +155,8 @@ void NetworkSubsystem::AuthAction() {
 
 void NetworkSubsystem::ProcessTCPRecvBuffer() {
   while (recvTcpBuffer.size() >= 6) {
-    std::cout << "[TCP DEBUG] Packet type: 0x" << std::hex 
-              << static_cast<int>(recvTcpBuffer[0]) << std::dec 
+    std::cout << "[TCP DEBUG] Packet type: 0x" << std::hex
+              << static_cast<int>(recvTcpBuffer[0]) << std::dec
               << " buffer size: " << recvTcpBuffer.size() << std::endl;
 
     uint32_t packetSize;
@@ -180,8 +177,9 @@ void NetworkSubsystem::ProcessTCPRecvBuffer() {
                         recvTcpBuffer.begin() + 6 + packetSize);
 
     Event evt = DecodePacket(packet);
-    
-    std::cout << "[TCP DEBUG] Decoded event type: " << static_cast<int>(evt.type) << std::endl;
+
+    std::cout << "[TCP DEBUG] Decoded event type: "
+              << static_cast<int>(evt.type) << std::endl;
 
     if (evt.type == EventType::LOGIN_RESPONSE) {
       const auto* input = std::get_if<LOGIN_RESPONSE>(&evt.data);
@@ -193,7 +191,7 @@ void NetworkSubsystem::ProcessTCPRecvBuffer() {
         AuthAction();
       }
     }
-    
+
     std::lock_guard<std::mutex> lock(mut);
     eventBuffer.push(evt);
   }
@@ -455,7 +453,5 @@ void NetworkSubsystem::SendAction(Action action) {
 }
 
 extern "C" {
-    ISubsystem* CreateSubsystem() {
-        return new NetworkSubsystem();
-    }
+ISubsystem* CreateSubsystem() { return new NetworkSubsystem(); }
 }

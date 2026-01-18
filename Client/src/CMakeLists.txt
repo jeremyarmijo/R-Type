@@ -41,9 +41,11 @@ add_scene_lib(Lobby         "scenes/Lobby.cpp")
 add_scene_lib(LobbyInfo     "scenes/LobbyInfo.cpp")
 add_scene_lib(LobbyJoin     "scenes/LobbyJoin.cpp")
 add_scene_lib(LobbyPassword "scenes/LobbyPassword.cpp")
+add_scene_lib(LevelTransition "scenes/LevelScene.cpp")
 
-add_scene_lib(MainGame      "scenes/MainGame.cpp" "../../Shared/systems/InputSystem.cpp" "../../Shared/systems/LevelSystem.cpp" "../../Shared/systems/Movement/Movement.cpp" "../../Shared/systems/PhysicsSystem.cpp" "../../Shared/systems/WeaponSystem.cpp" "../../Shared/systems/ProjectileSystem.cpp" "../../Shared/systems/Collision/Collision.cpp" "../../Shared/systems/BoundsSystem.cpp")
-add_scene_lib(RTypeScene    "scenes/RtypeScene.cpp" "../../Shared/systems/ForceCtrl.cpp" "../../Shared/systems/ChargedShoot.cpp" "../../Shared/systems/LevelSystem.cpp" "../../Shared/systems/Movement/Movement.cpp" "../../Shared/systems/PhysicsSystem.cpp" "../../Shared/systems/WeaponSystem.cpp" "../../Shared/systems/ProjectileSystem.cpp" "../../Shared/systems/Collision/Collision.cpp" "../../Shared/systems/BoundsSystem.cpp") 
+
+add_scene_lib(MainGame      "scenes/MainGame.cpp" "../../Shared/systems/InputSystem.cpp" "../../Shared/systems/LevelSystem.cpp" "../../Shared/systems/Movement/Movement.cpp" "../../Shared/systems/PhysicsSystem.cpp" "../../Shared/systems/WeaponSystem.cpp" "../../Shared/systems/ProjectileSystem.cpp" "../../Shared/systems/Collision/Collision.cpp" "../../Shared/systems/BoundsSystem.cpp" "../../Shared/systems/Collision/MapCollisionSystem.cpp")
+add_scene_lib(RTypeScene    "scenes/RtypeScene.cpp" "../../Shared/systems/ForceCtrl.cpp" "../../Shared/systems/ChargedShoot.cpp" "../../Shared/systems/LevelSystem.cpp" "../../Shared/systems/Movement/Movement.cpp" "../../Shared/systems/PhysicsSystem.cpp" "../../Shared/systems/WeaponSystem.cpp" "../../Shared/systems/ProjectileSystem.cpp" "../../Shared/systems/Collision/Collision.cpp" "../../Shared/systems/BoundsSystem.cpp"  "../../Shared/systems/Collision/MapCollisionSystem.cpp") 
 
 add_scene_lib(MainMenu      "scenes/MainMenu.cpp")
 add_scene_lib(Options       "scenes/Options.cpp")

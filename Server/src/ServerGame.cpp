@@ -10,26 +10,26 @@
 #include "Collision/Collision.hpp"
 #include "Collision/CollisionController.hpp"
 #include "Collision/Items.hpp"
+#include "Collision/MapCollisionSystem.hpp"
 #include "Helpers/EntityHelper.hpp"
 #include "Movement/Movement.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
 #include "components/BossPart.hpp"
 #include "components/Force.hpp"
+#include "components/TileMap.hpp"
 #include "ecs/Registry.hpp"
 #include "network/DataMask.hpp"
+#include "scene/Scene.hpp"
 #include "systems/BoundsSystem.hpp"
 #include "systems/ChargedShoot.hpp"
 #include "systems/ForceCtrl.hpp"
 #include "systems/LevelSystem.hpp"
+#include "systems/MapGenerator.hpp"
 #include "systems/PhysicsSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/WaveSystem.hpp"
 #include "systems/WeaponSystem.hpp"
-#include "components/TileMap.hpp"
-#include "systems/MapGenerator.hpp"
-#include "Collision/MapCollisionSystem.hpp"
-#include "scene/Scene.hpp"
 
 ServerGame::ServerGame() : serverRunning(true) {
   SetupDecoder(decode);
@@ -59,10 +59,16 @@ void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName,
     return;
   }
 
-  if (!l->m_engine.GetSceneManager().LoadSceneModule("rtype", "../../Client/src/scenes/libscene_rtypescene.so")) {
+  if (!l->m_engine.GetSceneManager().LoadSceneModule(
+          "rtype", "../../Client/src/scenes/libscene_rtypescene.so")) {
     std::cerr << "Failed to load game scene!" << std::endl;
     return;
   }
+
+  if (!l->m_engine.GetSceneManager().LoadSceneModule("levelTransition", "../../Client/src/scenes/libscene_leveltransition.so")) {
+    std::cerr << "Failed to load level transition scene!" << std::endl;
+    // Pas forcément fatal, on continue
+}
 
   l->m_gameScene = l->m_engine.GetSceneManager().GetCurrentScene();
   if (l->m_gameScene) {
@@ -264,7 +270,7 @@ void ServerGame::HandlePayerReady(uint16_t playerId, bool isReady) {
         std::get<1>(player) = isReady;
         found = true;
         isSpectate = true;
-        l = lobby.get();;
+        l = lobby.get();
       }
     }
 
@@ -542,13 +548,13 @@ void ServerGame::SetupNetworkCallbacks() {
 
     std::lock_guard<std::mutex> lock(lobbyMutex);
     for (auto& lobby : lobbys) {
-        auto m_players = lobby->m_gameScene->GetPlayers();
-        auto it = m_players.find(client_id);
-        if (it != m_players.end()) {
-          Entity playerEntity = it->second;
-          lobby->m_engine.GetRegistry().kill_entity(playerEntity);
-          m_players.erase(it);
-        }
+      auto m_players = lobby->m_gameScene->GetPlayers();
+      auto it = m_players.find(client_id);
+      if (it != m_players.end()) {
+        Entity playerEntity = it->second;
+        lobby->m_engine.GetRegistry().kill_entity(playerEntity);
+        m_players.erase(it);
+      }
     }
   });
 }
@@ -600,8 +606,7 @@ void ServerGame::StartGame(lobby_list& lobby) {
   lobby.m_engine.ChangeScene("rtype");
 
   std::cout << "Lobby full! Starting the game!!!!\n";
-  lobby.gameThread =
-      std::thread(&ServerGame::GameLoop, this, std::ref(lobby));
+  lobby.gameThread = std::thread(&ServerGame::GameLoop, this, std::ref(lobby));
 }
 
 std::optional<std::tuple<Event, uint16_t>> ServerGame::PopEvent() {
@@ -633,7 +638,6 @@ void ServerGame::EndGame(lobby_list& lobby) {
   lobby.playerStateCount.clear();
   lobby.gameRuning = false;
   std::cout << "game ended!!" << std::endl;
-
 }
 
 void ServerGame::CheckGameEnded(lobby_list& lobby) {
@@ -641,14 +645,14 @@ void ServerGame::CheckGameEnded(lobby_list& lobby) {
   std::cout << "got players" << std::endl;
   SceneData& data = lobby.m_engine.GetSceneData();
   Registry& registry = lobby.m_engine.GetRegistry();
-  
+
   int validPlayers = 0;
   for (auto& [id, entity] : m_players) {
     if (registry.is_entity_valid(entity)) {
       validPlayers += 1;
     }
   }
-  
+
   if (validPlayers <= 0) {
     EndGame(lobby);
     return;
@@ -659,7 +663,6 @@ void ServerGame::CheckGameEnded(lobby_list& lobby) {
 }
 
 void ServerGame::GameLoop(lobby_list& lobby) {
-
   for (int i = 0; i < 50 && lobby.gameRuning; ++i) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
@@ -766,7 +769,6 @@ void ServerGame::Run() {
   std::cout << "before main loop" << std::endl;
 
   while (serverRunning) {
-
     networkManager->Update();
     SendPacket();
 
@@ -849,39 +851,39 @@ void ServerGame::ReceivePlayerInputs(lobby_list& lobby) {
   }
 }
 
-void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {
-}
-
+void ServerGame::UpdateGameState(lobby_list& lobby, float deltaTime) {}
 
 void ServerGame::SendMapToLobby(lobby_list& lobby) {
-    if (lobby.mapSent) return;
-    SceneData& data = lobby.m_engine.GetSceneData();
+  if (lobby.mapSent) return;
+  SceneData& data = lobby.m_engine.GetSceneData();
 
-    if (data.Has("send_map")) {
-      MapData mapdata = data.Get<MapData>("send_map");
-      SendAction(std::make_tuple(Action{ActionType::SEND_MAP, mapdata}, 0, &lobby));
-      lobby.mapSent = true;
-      
-      std::cout << "[Server] Map sent to clients (" 
-      << mapdata.width << "x" << mapdata.height 
-      << " tiles, " << mapdata.tiles.size() << " bytes)" << std::endl;
-    }
+  if (data.Has("send_map")) {
+    MapData mapdata = data.Get<MapData>("send_map");
+    SendAction(
+        std::make_tuple(Action{ActionType::SEND_MAP, mapdata}, 0, &lobby));
+    lobby.mapSent = true;
+
+    std::cout << "[Server] Map sent to clients (" << mapdata.width << "x"
+              << mapdata.height << " tiles, " << mapdata.tiles.size()
+              << " bytes)" << std::endl;
+  }
 }
 
 void ServerGame::SendMapToClients(uint16_t playerId, lobby_list& lobby) {
-    if (lobby.mapSent) return;
-    
-    SceneData& data = lobby.m_engine.GetSceneData();
+  if (lobby.mapSent) return;
 
-    if (data.Has("send_map")) {
-      MapData mapdata = data.Get<MapData>("send_map");
-      SendAction(std::make_tuple(Action{ActionType::SEND_MAP, mapdata}, 0, &lobby));
-      lobby.mapSent = true;
-    
-    std::cout << "[Server] Map sent to clients (" 
-              << mapdata.width << "x" << mapdata.height 
-              << " tiles, " << mapdata.tiles.size() << " bytes)" << std::endl;
-    }
+  SceneData& data = lobby.m_engine.GetSceneData();
+
+  if (data.Has("send_map")) {
+    MapData mapdata = data.Get<MapData>("send_map");
+    SendAction(
+        std::make_tuple(Action{ActionType::SEND_MAP, mapdata}, 0, &lobby));
+    lobby.mapSent = true;
+
+    std::cout << "[Server] Map sent to clients (" << mapdata.width << "x"
+              << mapdata.height << " tiles, " << mapdata.tiles.size()
+              << " bytes)" << std::endl;
+  }
 }
 
 GameState ServerGame::CalculateDelta(const GameState& last,
@@ -1055,8 +1057,7 @@ GameState ServerGame::CalculateDelta(const GameState& last,
   return diff;
 }
 
-void ServerGame::ProcessAndSendState(
-    uint16_t playerId, lobby_list& lobby) {
+void ServerGame::ProcessAndSendState(uint16_t playerId, lobby_list& lobby) {
   auto& lastStatePtr = lobby.lastStates[playerId];
   auto& stateCount = lobby.playerStateCount[playerId];
   bool isFirstPacket = false;
@@ -1093,8 +1094,10 @@ void ServerGame::ProcessAndSendState(
     if (!lastStatePtr) {
       lastStatePtr = std::make_shared<GameState>();
     }
-    deltaState = CalculateDelta(*lastStatePtr, data.Get<GameState>("game_state"));
-    lobby.lastStates[playerId] = std::make_shared<GameState>(data.Get<GameState>("game_state"));
+    deltaState =
+        CalculateDelta(*lastStatePtr, data.Get<GameState>("game_state"));
+    lobby.lastStates[playerId] =
+        std::make_shared<GameState>(data.Get<GameState>("game_state"));
   }
 
   if (isFirstPacket || !deltaState.players.empty() ||
@@ -1110,7 +1113,6 @@ void ServerGame::ProcessAndSendState(
 }
 
 void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
-
   SceneData& data = lobby.m_engine.GetSceneData();
 
   if (data.Has("force_state")) {
