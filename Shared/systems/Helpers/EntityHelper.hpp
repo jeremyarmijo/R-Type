@@ -3,7 +3,6 @@
 #include <utility>
 #include <vector>
 #include <string>
-
 #include "Collision/Items.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
@@ -18,6 +17,7 @@
 #include "input/InputSubsystem.hpp"
 #include "physics/Physics2D.hpp"
 #include "rendering/RenderingSubsystem.hpp"
+#include "stdlib.h"
 
 static const Vector2 PLAYER_SIZE{32.f, 32.f};
 static const Vector2 ENEMY_BASIC_SIZE{40.f, 40.f};
@@ -240,8 +240,6 @@ inline TileMap generateSimpleMap(int levelIndex, uint16_t screenWidth = 800,
   map.init(mapWidth, mapHeight, tileSize);
   map.scrollSpeed = 50.0f + (levelIndex * 10.0f);
 
-  unsigned int seed = static_cast<unsigned int>(levelIndex * 12345);
-
   for (int x = 0; x < mapWidth; ++x) {
     map.setTile(x, 0, TileType::CEILING);
     map.setTile(x, 1, TileType::CEILING);
@@ -260,8 +258,8 @@ inline TileMap generateSimpleMap(int levelIndex, uint16_t screenWidth = 800,
     srand(static_cast<unsigned>(levelIndex * 12345));
     int numHoles = 3 + levelIndex * 2;
     for (int i = 0; i < numHoles; ++i) {
-      int holeX = 30 + (rand_r(&seed) % (mapWidth - 60));
-      int holeWidth = 2 + (rand_r(&seed) % 3);
+      int holeX = 30 + (rand() % (mapWidth - 60));
+      int holeWidth = 2 + (rand() % 3);
       for (int dx = 0; dx < holeWidth; ++dx) {
         map.setTile(holeX + dx, groundY, TileType::EMPTY);
         map.setTile(holeX + dx, groundY + 1, TileType::EMPTY);
@@ -272,9 +270,9 @@ inline TileMap generateSimpleMap(int levelIndex, uint16_t screenWidth = 800,
   if (levelIndex >= 1) {
     int numPlatforms = 2 + levelIndex;
     for (int i = 0; i < numPlatforms; ++i) {
-      int platX = 40 + (rand_r(&seed) % (mapWidth - 80));
-      int platY = 5 + (rand_r(&seed) % (mapHeight - 10));
-      int platWidth = 3 + (rand_r(&seed) % 4);
+      int platX = 40 + (rand() % (mapWidth - 80));
+      int platY = 5 + (rand() % (mapHeight - 10));
+      int platWidth = 3 + (rand() % 4);
       for (int dx = 0; dx < platWidth; ++dx) {
         map.setTile(platX + dx, platY, TileType::PLATFORM);
       }

@@ -19,6 +19,12 @@
 #include "ui/UIText.hpp"
 #include "ui/UITextInput.hpp"
 
+#ifdef _WIN32
+#ifdef PlaySound
+#undef PlaySound
+#endif
+#endif
+
 class CreateLobby : public Scene {
  private:
   bool m_isInitialized;

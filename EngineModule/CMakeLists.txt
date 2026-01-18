@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/CPM.cmake)
 
+if(NOT SDL2_FOUND)
 CPMAddPackage(
   NAME SDL2
   GITHUB_REPOSITORY libsdl-org/SDL
@@ -17,7 +18,9 @@ CPMAddPackage(
     "SDL_PULSEAUDIO ON"
     "SDL_ALSA ON"
 )
+endif()
 
+if(NOT SDL2_image_FOUND)
 CPMAddPackage(
   NAME SDL2_image
   GITHUB_REPOSITORY libsdl-org/SDL_image
@@ -25,7 +28,9 @@ CPMAddPackage(
   OPTIONS
     "SDL2IMAGE_INSTALL ON"
 )
+endif()
 
+if(NOT SDL2_ttf_FOUND)
 CPMAddPackage(
   NAME SDL2_ttf
   GITHUB_REPOSITORY libsdl-org/SDL_ttf
@@ -33,7 +38,9 @@ CPMAddPackage(
   OPTIONS
     "SDL2TTF_INSTALL ON"
 )
+endif()
 
+if(NOT SDL2_mixer_FOUND)
 CPMAddPackage(
   NAME SDL2_mixer
   GITHUB_REPOSITORY libsdl-org/SDL_mixer
@@ -51,12 +58,15 @@ CPMAddPackage(
     "SDL2MIXER_GME OFF"
     "SDL2MIXER_WAV ON"
 )
+endif()
 
+if(NOT asio_FOUND)
 CPMAddPackage(
   NAME asio
   GITHUB_REPOSITORY chriskohlhoff/asio
   GIT_TAG asio-1-30-2
 )
+endif()
 
 if(asio_ADDED)
   add_library(asio INTERFACE)
@@ -99,7 +109,6 @@ set_target_properties(engine_core PROPERTIES
     SOVERSION 1
 )
 
-# Export symbols on Windows
 if(WIN32)
     target_compile_definitions(engine_core PRIVATE ENGINE_EXPORTS)
 endif()

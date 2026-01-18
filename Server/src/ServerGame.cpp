@@ -34,8 +34,13 @@
 ServerGame::ServerGame() : serverRunning(true) {
   SetupDecoder(decode);
   SetupEncoder(encode);
+#ifdef _WIN32
+  DLLoader<INetworkManager> loader("../src/build/libnetwork_server.dll",
+                                   "EntryPointLib");
+#else
   DLLoader<INetworkManager> loader("../src/build/libnetwork_server.so",
                                    "EntryPointLib");
+#endif
   networkManager = std::unique_ptr<INetworkManager>(loader.getInstance());
 }
 void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName,

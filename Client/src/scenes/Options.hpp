@@ -17,6 +17,12 @@
 #include "ui/UIManager.hpp"
 #include "ui/UIText.hpp"
 
+#ifdef _WIN32
+#ifdef PlaySound
+#undef PlaySound
+#endif
+#endif
+
 class OptionsScene : public Scene {
  private:
   bool m_isInitialized;

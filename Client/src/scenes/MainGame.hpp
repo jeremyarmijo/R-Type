@@ -25,6 +25,12 @@
 #include "ui/UISolidColor.hpp"
 #include "ui/UIText.hpp"
 
+#ifdef _WIN32
+#ifdef PlaySound
+#undef PlaySound
+#endif
+#endif
+
 class MyGameScene : public Scene {
  private:
   Vector2 m_lastServerPosition;
