@@ -35,34 +35,32 @@ class Level : public Scene {
         m_nextLevel(nextLevel) {
     m_name = "levelTransition";
   }
-void OnEnter() override {
+  void OnEnter() override {
     std::cout << "\n=== ENTERING LEVEL TRANSITION SCENE ===" << std::endl;
-    
+
     try {
-        m_isInitialized = false;
-        m_timer = 0.f;  // Reset le timer !
-        
-        // Récupère le numéro du niveau
-        uint8_t levelNum = GetSceneData().Get<uint8_t>("nextLevel", 1);
-        m_nextLevel = "game";  // Retourne toujours au jeu après
-        
-        // Fond
-        Entity background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
-        m_entities.push_back(background);
-        
-        // Texte du niveau
-        auto* text = GetUI()->AddElement<UIText>(300, 250, 
-            "Level " + std::to_string(levelNum), "", 50, SDL_Color{255, 255, 255, 255});
-        text->SetLayer(10);
-        
-        m_isInitialized = true;
-        std::cout << "Transition to Level " << (int)levelNum << std::endl;
-        
+      m_isInitialized = false;
+      m_timer = 0.f;  // Reset le timer !
+
+      uint8_t levelNum = GetSceneData().Get<uint8_t>("nextLevel", 1);
+      m_nextLevel = "game";  // Retourne toujours au jeu après
+
+      // Fond
+      Entity background =
+          CreateSprite(GetRegistry(), "background", {400, 300}, -10);
+      m_entities.push_back(background);
+
+      auto* text = GetUI()->AddElement<UIText>(
+          300, 250, "Level " + std::to_string(levelNum), "", 50,
+          SDL_Color{255, 255, 255, 255});
+      text->SetLayer(10);
+      m_isInitialized = true;
+      std::cout << "Transition to Level " << (int)levelNum << std::endl;
     } catch (const std::exception& e) {
-        std::cerr << "CRITICAL ERROR in OnEnter: " << e.what() << std::endl;
-        m_isInitialized = false;
+      std::cerr << "CRITICAL ERROR in OnEnter: " << e.what() << std::endl;
+      m_isInitialized = false;
     }
-}
+  }
 
   void OnExit() override {
     std::cout << "\n=== EXITING LEVEL TRANSITION SCENE ===" << std::endl;
