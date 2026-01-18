@@ -51,6 +51,12 @@ private:
     bool ShouldCollide(uint32_t layerA, uint32_t maskA, uint32_t layerB, uint32_t maskB);
 };
 
+#ifdef _WIN32
+extern "C" {
+__declspec(dllexport) ISubsystem* CreateSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem();
 }
+#endif

@@ -163,9 +163,14 @@ void PhysicsSubsystem::SetRegistry(Registry* registry) {
     m_registry->register_component<RigidBody>();
     m_registry->register_component<BoxCollider>();
 }
-
+#ifdef _WIN32
+__declspec(dllexport) ISubsystem* CreateSubsystem() {
+    return new PhysicsSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem() {
         return new PhysicsSubsystem();
     }
 }
+#endif
