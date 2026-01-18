@@ -1091,7 +1091,7 @@ Event DecodeLEVEL_TRANSITION(const std::vector<uint8_t>& packet) {
   uint16_t seq = 0;
   uint16_t ack = 0;
   uint32_t ack_bits = 0;
-  
+
   if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
     return Event{};
 
@@ -1104,7 +1104,6 @@ Event DecodeLEVEL_TRANSITION(const std::vector<uint8_t>& packet) {
   evt.data = data;
   return evt;
 }
-
 
 void SetupDecoder(Decoder& decoder) {
   // TCP Messages
