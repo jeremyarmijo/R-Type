@@ -28,7 +28,7 @@ class Level : public Scene {
   std::vector<Entity> m_entities;
 
  public:
-  Level(const std::string& nextLevel)
+  explicit Level(const std::string& nextLevel)
       : m_isInitialized(false),
         m_timer(0.f),
         m_duration(2.f),  // durée de l'écran de transition
@@ -55,7 +55,8 @@ class Level : public Scene {
           SDL_Color{255, 255, 255, 255});
       text->SetLayer(10);
       m_isInitialized = true;
-      std::cout << "Transition to Level " << (int)levelNum << std::endl;
+      std::cout << "Transition to Level " << static_cast<int>(levelNum)
+                << std::endl;
     } catch (const std::exception& e) {
       std::cerr << "CRITICAL ERROR in OnEnter: " << e.what() << std::endl;
       m_isInitialized = false;

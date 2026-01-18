@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "Helpers/EntityHelper.hpp"
 #include "audio/AudioSubsystem.hpp"
@@ -296,7 +296,7 @@ class LobbyInfoPlayer : public Scene {
         RefreshPlayerListUI();
       }
     }
-    
+
     if (e.type == EventType::SEND_MAP) {
       const auto* mapData = std::get_if<MAP_DATA>(&e.data);
       if (mapData) {
@@ -332,8 +332,8 @@ class LobbyInfoPlayer : public Scene {
 
   void Render() override {
     if (!m_isInitialized) return;
-    //RenderSpritesLayered();
-    //GetUI().Render();
+    // RenderSpritesLayered();
+    // GetUI().Render();
   }
 
   void HandleEvent(SDL_Event& event) override {
