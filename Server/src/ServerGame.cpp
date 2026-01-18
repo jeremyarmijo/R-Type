@@ -756,13 +756,13 @@ void ServerGame::SendPacket() {
 }
 
 void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
- Scene* currentScene = lobby.m_engine.GetCurrentScene();
+  Scene* currentScene = lobby.m_engine.GetCurrentScene();
   if (currentScene) {
     currentScene->OnExit();
   }
-  
+
   lobby.m_engine.GetRegistry().clear_all_entities();
-  
+
   SceneData& data = lobby.m_engine.GetSceneData();
   data.Remove("game_ended");
   data.Remove("victory");
@@ -770,7 +770,7 @@ void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
   data.Remove("force_state");
   data.Remove("last_input_event");
   data.Remove("last_input_player");
-  
+
   for (auto& player : lobby.players_list) {
     std::get<1>(player) = false;
   }

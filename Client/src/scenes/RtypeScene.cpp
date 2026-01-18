@@ -1,9 +1,8 @@
 #include "scenes/RtypeScene.hpp"
 
-
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include "Collision/Collision.hpp"
 #include "Movement/Movement.hpp"
@@ -27,7 +26,8 @@ void RtypeScene::OnEnter() {
       data.Get<std::vector<std::tuple<uint16_t, bool, std::string>>>(
           "players_list");
   for (auto& [id, ready, name] : players_list) {
-    std::cout << "  - Player " << id << " (" << name << "), ready=" << ready << std::endl;
+    std::cout << "  - Player " << id << " (" << name << "), ready=" << ready
+              << std::endl;
   }
 
   m_players.clear();
@@ -102,20 +102,20 @@ void RtypeScene::OnEnter() {
 
 void RtypeScene::OnExit() {
   std::cout << "[RtypeScene] OnExit - Cleaning up scene..." << std::endl;
-  
+
   m_players.clear();
-  
+
   currentLevelIndex = 0;
   waitingForNextLevel = false;
   levelTransitionTimer = 0.0f;
   levelsData.clear();
-  
+
   playerScores.clear();
   lastStates.clear();
   playerStateCount.clear();
-  
+
   mapSent = false;
-  
+
   SceneData& data = GetSceneData();
   data.Remove("game_ended");
   data.Remove("victory");
@@ -124,7 +124,7 @@ void RtypeScene::OnExit() {
   data.Remove("send_map");
   data.Remove("last_input_event");
   data.Remove("last_input_player");
-  
+
   std::cout << "[RtypeScene] OnExit complete" << std::endl;
 }
 
