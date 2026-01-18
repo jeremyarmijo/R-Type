@@ -300,9 +300,14 @@ void InputSubsystem::DisconnectGamepad() {
         std::cout << "Gamepad disconnected" << std::endl;
     }
 }
-
+#ifdef _WIN32
+__declspec(dllexport) ISubsystem* CreateSubsystem() {
+    return new InputSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem() {
         return new InputSubsystem();
     }
 }
+#endif

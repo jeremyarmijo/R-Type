@@ -7,6 +7,7 @@
 
 #include "engine/ISubsystem.hpp"
 #include "input/KeyBindings.hpp"
+#include "input/input_export.hpp"
 
 struct InputState {
     bool moveLeft;
@@ -29,7 +30,7 @@ struct InputBinding {
     std::function<void()> callback;
 };
 
-class InputSubsystem : public ISubsystem {
+class INPUT_API InputSubsystem : public ISubsystem {
 private:
     // Keyboard state
     const Uint8* m_keyboardState;
@@ -141,7 +142,12 @@ private:
     
     bool IsActionPressed(GameAction action) const;
 };
-
+#ifdef _WIN32
+extern "C" {
+__declspec(dllexport) ISubsystem* CreateSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem();
 }
+#endif
