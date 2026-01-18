@@ -1,6 +1,12 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <dlfcn.h>
+
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <windows.h>
+#else
+    #include <dlfcn.h>
+#endif
 
 #include <memory>
 #include <string>
