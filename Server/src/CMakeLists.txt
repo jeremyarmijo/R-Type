@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/CPM.cmake)
 
+if(NOT asio_FOUND)
 CPMAddPackage(
   NAME asio
   GITHUB_REPOSITORY chriskohlhoff/asio
@@ -14,12 +15,15 @@ CPMAddPackage(
   OPTIONS
     "ASIO_STANDALONE ON"
 )
+endif()
 
+if(NOT sqlite3_FOUND)
 CPMAddPackage(
   NAME sqlite3
   URL https://www.sqlite.org/2024/sqlite-amalgamation-3450100.zip
   DOWNLOAD_ONLY YES
 )
+endif()
 
 if(asio_ADDED)
   add_library(asio INTERFACE)
