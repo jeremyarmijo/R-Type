@@ -1115,6 +1115,13 @@ void ServerGame::ProcessAndSendState(uint16_t playerId, lobby_list& lobby) {
 void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
   SceneData& data = lobby.m_engine.GetSceneData();
 
+  if (data.Has("level_transition")) {
+        LevelTransition lt = data.Get<LevelTransition>("level_transition");
+        std::cout << "[Server] Sending Level_transition";
+        SendAction(std::make_tuple(Action{ActionType::LEVEL_TRANSITION, lt}, 0, &lobby));
+        data.Remove("level_transition");
+    }
+
   if (data.Has("force_state")) {
     ForceState fs = data.Get<ForceState>("force_state");
     SendAction(std::make_tuple(Action{ActionType::FORCE_STATE, fs}, 0, &lobby));
@@ -1129,4 +1136,5 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
     if (playerId == 0) continue;
     ProcessAndSendState(playerId, lobby);
   }
+
 }
