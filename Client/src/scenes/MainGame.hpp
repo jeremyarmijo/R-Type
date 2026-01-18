@@ -1161,16 +1161,16 @@ class MyGameScene : public Scene {
         break;
       }
 
-    if (e.type == EventType::LEVEL_TRANSITION) {
-            const auto* lt = std::get_if<LEVEL_TRANSITION>(&e.data);
-            if (lt) {
-                std::cout << "[CLIENT] CHANGING TO LEVEL TRANSITION SCENE: " 
-                          << (int)lt->levelNumber << std::endl;
-                GetSceneData().Set("nextLevel", lt->levelNumber);
-                ChangeScene("levelTransition");
-                return;
-            }
+      if (e.type == EventType::LEVEL_TRANSITION) {
+        const auto* lt = std::get_if<LEVEL_TRANSITION>(&e.data);
+        if (lt) {
+          std::cout << "[CLIENT] CHANGING TO LEVEL TRANSITION SCENE: "
+                    << (int)lt->levelNumber << std::endl;
+          GetSceneData().Set("nextLevel", lt->levelNumber);
+          ChangeScene("levelTransition");
+          return;
         }
+      }
       if (e.type == EventType::SEND_MAP) {
         const auto* mapData = std::get_if<MAP_DATA>(&e.data);
         if (mapData) {

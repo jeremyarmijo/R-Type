@@ -69,11 +69,21 @@ void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName,
     std::cerr << "Failed to load game scene!" << std::endl;
     return;
   }
+//   if (!l->m_engine.GetSceneManager().LoadSceneModule
+//   ("levelTransition", "../../Client/src/scenes/libscene_leveltransition.dll")) {
+//     std::cerr << "Failed to load level transition scene!" << std::endl;
+//     // Pas forcément fatal, on continue
+// }
 #else
   if (!l->m_engine.GetSceneManager().LoadSceneModule("rtype", "../../Client/src/scenes/libscene_rtypescene.so")) {
     std::cerr << "Failed to load game scene!" << std::endl;
     return;
   }
+//   if (!l->m_engine.GetSceneManager().LoadSceneModule
+//   ("levelTransition", "../../Client/src/scenes/libscene_leveltransition.so")) {
+//     std::cerr << "Failed to load level transition scene!" << std::endl;
+//     // Pas forcément fatal, on continue
+// }
 #endif
 
   l->m_gameScene = l->m_engine.GetSceneManager().GetCurrentScene();
@@ -1142,7 +1152,8 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
   if (data.Has("level_transition")) {
         LevelTransition lt = data.Get<LevelTransition>("level_transition");
         std::cout << "[Server] Sending Level_transition";
-        SendAction(std::make_tuple(Action{ActionType::LEVEL_TRANSITION, lt}, 0, &lobby));
+        SendAction(std::make_tuple(Action{ActionType::LEVEL_TRANSITION, lt},
+        0, &lobby));
         data.Remove("level_transition");
     }
 
@@ -1160,5 +1171,4 @@ void ServerGame::SendWorldStateToClients(lobby_list& lobby) {
     if (playerId == 0) continue;
     ProcessAndSendState(playerId, lobby);
   }
-
 }

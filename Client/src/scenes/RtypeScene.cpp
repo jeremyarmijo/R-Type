@@ -260,7 +260,6 @@ void RtypeScene::UpdateGameState(float deltaTime) {
        LevelTransition lt;
       lt.levelNumber = currentLevelIndex + 2;
       data.Set("level_transition", lt);
-    
      std::cout << "[Server] Level Transition Set! " << (currentLevelIndex + 1)
               << " finished!" << std::endl;
       waitingForNextLevel = true;
