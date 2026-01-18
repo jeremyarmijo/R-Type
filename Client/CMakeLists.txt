@@ -62,11 +62,13 @@ if(NOT SDL2_mixer_FOUND)
   )
 endif()
 
+if(NOT asio_FOUND)
 CPMAddPackage(
   NAME asio
   GITHUB_REPOSITORY chriskohlhoff/asio
   GIT_TAG asio-1-30-2
 )
+endif()
 
 if(asio_ADDED)
   add_library(asio INTERFACE)
