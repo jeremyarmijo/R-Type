@@ -1,15 +1,16 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 
 #include <string>
 
 #include "ui/UIElement.hpp"
 #include "rendering/RenderingSubsystem.hpp"
+#include "rendering/rendering_export.hpp"
 
 enum class TextAlign { Left, Center, Right };
 
-class UIText : public UIElement {
+class RENDERING_API UIText : public UIElement {
  private:
   std::string m_text;
   std::string m_fontPath;
