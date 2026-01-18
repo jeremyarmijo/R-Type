@@ -142,8 +142,17 @@ for (auto& [name, sound] : m_sounds) {
 }
 m_sounds.clear();
 }
+
+#ifdef _WIN32
+extern "C" {
+__declspec(dllexport) ISubsystem* CreateSubsystem() {
+    return new AudioSubsystem();
+}
+}
+#else
 extern "C" {
 ISubsystem* CreateSubsystem() {
 return new AudioSubsystem();
 }
 }
+#endif

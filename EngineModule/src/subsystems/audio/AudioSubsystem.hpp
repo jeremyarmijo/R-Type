@@ -1,13 +1,20 @@
 #pragma once
-#include <SDL2/SDL_mixer.h>
+#include <SDL_mixer.h>
 
 #include <string>
 #include <unordered_map>
 
 #include "engine/ISubsystem.hpp"
 #include "physics/Physics2D.hpp"
+#include "audio/audio_export.hpp"
 
-class AudioSubsystem : public ISubsystem {
+#ifdef _WIN32
+#ifdef PlaySound
+#undef PlaySound
+#endif
+#endif
+
+class AUDIO_API AudioSubsystem : public ISubsystem {
 private:
     std::unordered_map<std::string, Mix_Music*> m_music;
     std::unordered_map<std::string, Mix_Chunk*> m_sounds;
@@ -52,6 +59,12 @@ private:
     void UnloadAllAudio();
 };
 
+#ifdef _WIN32
+extern "C" {
+    __declspec(dllexport) ISubsystem* CreateSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem();
 }
+#endif
