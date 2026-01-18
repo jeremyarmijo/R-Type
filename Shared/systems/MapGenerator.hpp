@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
+#include <random>
 #include <vector>
 
 #include "components/TileMap.hpp"
@@ -50,12 +51,12 @@ class MapGenerator {
 
     // Ajouter des trous dans le sol (niveau 2+)
     if (levelIndex >= 1) {
-      srand(static_cast<unsigned>(levelIndex * 12345));
+      unsigned int seed = static_cast<unsigned int>(levelIndex * 12345);
       int numHoles = 3 + levelIndex * 2;
 
       for (int i = 0; i < numHoles; ++i) {
-        int holeX = 30 + (rand() % (map.width - 60));
-        int holeWidth = 2 + (rand() % 3);
+        int holeX = 30 + (rand_r(&seed) % (map.width - 60));
+        int holeWidth = 2 + (rand_r(&seed) % 3);
 
         for (int dx = 0; dx < holeWidth; ++dx) {
           map.setTile(holeX + dx, groundStartY, TileType::EMPTY);
@@ -77,14 +78,15 @@ class MapGenerator {
   static void generateObstacles(TileMap& map, int levelIndex) {
     if (levelIndex < 1) return;  // Pas d'obstacles au niveau 1
 
-    srand(static_cast<unsigned>(levelIndex * 54321));
+    unsigned int seed = static_cast<unsigned int>(levelIndex * 54321);
     int numObstacles = 2 + levelIndex * 3;
 
     for (int i = 0; i < numObstacles; ++i) {
-      int obsX = 40 + (rand() % (map.width - 80));
-      int obsY = 4 + (rand() % (map.height - 8));  // Pas trop haut ni trop bas
-      int obsWidth = 1 + (rand() % 2);
-      int obsHeight = 2 + (rand() % 3);
+      int obsX = 40 + (rand_r(&seed) % (map.width - 80));
+      int obsY =
+          4 + (rand_r(&seed) % (map.height - 8));  // Pas trop haut ni trop bas
+      int obsWidth = 1 + (rand_r(&seed) % 2);
+      int obsHeight = 2 + (rand_r(&seed) % 3);
 
       for (int dx = 0; dx < obsWidth; ++dx) {
         for (int dy = 0; dy < obsHeight; ++dy) {
