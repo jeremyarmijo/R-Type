@@ -6,7 +6,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-
 #include <asio.hpp>
 
 #include "engine/ISubsystem.hpp"
@@ -15,8 +14,9 @@
 #include "network/Decoder.hpp"
 #include "network/Encoder.hpp"
 #include "network/Event.hpp"
+#include "network/network_export.hpp"
 
-class NetworkSubsystem : public ISubsystem {
+class NETWORK_API NetworkSubsystem : public ISubsystem {
  public:
   NetworkSubsystem();
   ~NetworkSubsystem() override;
@@ -87,7 +87,12 @@ class NetworkSubsystem : public ISubsystem {
   // uint32_t sequenceNumTcp = 0;
   void SendActionServer();
 };
-
+#ifdef _WIN32
+extern "C" {
+__declspec(dllexport) ISubsystem* CreateSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem();
 }
+#endif

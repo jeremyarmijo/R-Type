@@ -374,9 +374,14 @@ void NetworkSubsystem::SendAction(Action action) {
   std::lock_guard<std::mutex> lock(mut);
   actionBuffer.push(action);
 }
-
+#ifdef _WIN32
+__declspec(dllexport) ISubsystem* CreateSubsystem() {
+    return new NetworkSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem() {
         return new NetworkSubsystem();
     }
 }
+#endif
