@@ -3,20 +3,21 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-#include "engine/GameEngine.hpp"
-#include "scene/SceneManager.hpp"
-#include "scene/Scene.hpp"
+#include "Helpers/EntityHelper.hpp"
 #include "audio/AudioSubsystem.hpp"
-#include "rendering/RenderingSubsystem.hpp"
+#include "engine/GameEngine.hpp"
 #include "network/NetworkSubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
+#include "scene/Scene.hpp"
+#include "scene/SceneManager.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIImage.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UIText.hpp"
 #include "ui/UITextInput.hpp"
-#include "Helpers/EntityHelper.hpp"
 
 class WaitLobby : public Scene {
  private:
@@ -24,8 +25,7 @@ class WaitLobby : public Scene {
   std::vector<Entity> m_entities;
 
  public:
-  WaitLobby()
-      : m_isInitialized(false) { m_name = "wait"; }
+  WaitLobby() : m_isInitialized(false) { m_name = "wait"; }
 
   void OnEnter() override {
     std::cout << "\n=== ENTERING WAITING SCENE ===" << std::endl;
@@ -37,13 +37,14 @@ class WaitLobby : public Scene {
       if (!GetRendering()->GetTexture("background")) {
         GetRendering()->LoadTexture("background", "../assets/bg.jpg");
       }
-      Entity background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
+      Entity background =
+          CreateSprite(GetRegistry(), "background", {400, 300}, -10);
       m_entities.push_back(background);
 
       std::cout << "Creating UI Elements..." << std::endl;
       auto* text =
           GetUI()->AddElement<UIText>(70, 250, "Waiting for game start...", "",
-                                     50, SDL_Color{255, 255, 255, 255});
+                                      50, SDL_Color{255, 255, 255, 255});
       text->SetVisible(true);
       text->SetLayer(10);
 
@@ -94,10 +95,10 @@ class WaitLobby : public Scene {
   }
 
   std::unordered_map<uint16_t, Entity> GetPlayers() override {
-    return std::unordered_map<uint16_t, Entity>(); 
+    return std::unordered_map<uint16_t, Entity>();
   }
 };
 
 extern "C" {
-    Scene* CreateScene();
+Scene* CreateScene();
 }

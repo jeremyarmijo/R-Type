@@ -3,18 +3,19 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "Helpers/EntityHelper.hpp"
+#include "audio/AudioSubsystem.hpp"
 #include "engine/GameEngine.hpp"
+#include "network/NetworkSubsystem.hpp"
+#include "rendering/RenderingSubsystem.hpp"
 #include "scene/Scene.hpp"
 #include "scene/SceneManager.hpp"
-#include "rendering/RenderingSubsystem.hpp"
-#include "network/NetworkSubsystem.hpp"
-#include "audio/AudioSubsystem.hpp"
 #include "ui/UIButton.hpp"
 #include "ui/UIManager.hpp"
 #include "ui/UIText.hpp"
-#include "Helpers/EntityHelper.hpp"
 
 class LobbyJoin : public Scene {
  private:
@@ -41,8 +42,8 @@ class LobbyJoin : public Scene {
   void RefreshLobbyListUI() {
     GetUI()->Clear();
 
-    auto* title = GetUI()->AddElement<UIText>(50, 40, "AVAILABLE LOBBIES", "",
-                                             50, SDL_Color{255, 255, 255, 255});
+    auto* title = GetUI()->AddElement<UIText>(
+        50, 40, "AVAILABLE LOBBIES", "", 50, SDL_Color{255, 255, 255, 255});
     title->SetVisible(true);
     title->SetLayer(10);
 
@@ -86,11 +87,11 @@ class LobbyJoin : public Scene {
     }
 
     auto* h1 = GetUI()->AddElement<UIText>(100, 160, "LOBBY NAME", "", 18,
-                                          SDL_Color{150, 150, 150, 255});
+                                           SDL_Color{150, 150, 150, 255});
     auto* h2 = GetUI()->AddElement<UIText>(380, 160, "STATUS", "", 18,
-                                          SDL_Color{150, 150, 150, 255});
+                                           SDL_Color{150, 150, 150, 255});
     auto* h3 = GetUI()->AddElement<UIText>(600, 160, "PLAYERS", "", 18,
-                                          SDL_Color{150, 150, 150, 255});
+                                           SDL_Color{150, 150, 150, 255});
 
     int yOffset = 190;
     const int buttonWidth = 600;
@@ -111,7 +112,7 @@ class LobbyJoin : public Scene {
       buttonLabel += playerCount;
 
       auto* btn = GetUI()->AddElement<UIButton>(100, yOffset, buttonWidth,
-                                               buttonHeight, buttonLabel);
+                                                buttonHeight, buttonLabel);
       btn->SetLayer(10);
 
       if (lobby.isStarted || lobby.playerCount >= lobby.maxPlayers) {
@@ -146,7 +147,9 @@ class LobbyJoin : public Scene {
         m_privateLobbyButton(nullptr),
         m_backButton(nullptr),
         m_refreshTimer(0.0f),
-        m_needsUIRefresh(false) { m_name = "lobbyjoin"; }
+        m_needsUIRefresh(false) {
+    m_name = "lobbyjoin";
+  }
 
   void OnEnter() override {
     try {
@@ -158,7 +161,8 @@ class LobbyJoin : public Scene {
         GetRendering()->LoadTexture("background", "../assets/bg.jpg");
       }
 
-      Entity background = CreateSprite(GetRegistry(), "background", {400, 300}, -10);
+      Entity background =
+          CreateSprite(GetRegistry(), "background", {400, 300}, -10);
       m_entities.push_back(background);
 
       m_PlayerId = GetSceneData().Get<uint16_t>("playerId", 0);
@@ -211,17 +215,17 @@ class LobbyJoin : public Scene {
     // GetUI().Render();
   }
 
-  void HandleEvent(SDL_Event& event) override { 
+  void HandleEvent(SDL_Event& event) override {
     if (GetUI()->HandleEvent(event)) {
       return;
     }
   }
 
   std::unordered_map<uint16_t, Entity> GetPlayers() override {
-    return std::unordered_map<uint16_t, Entity>(); 
+    return std::unordered_map<uint16_t, Entity>();
   }
 };
 
 extern "C" {
-    Scene* CreateScene();
+Scene* CreateScene();
 }
