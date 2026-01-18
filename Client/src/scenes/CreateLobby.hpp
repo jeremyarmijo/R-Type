@@ -334,7 +334,6 @@ class CreateLobby : public Scene {
   void Update(float deltaTime) override {
     if (!m_isInitialized) return;
     Event e = GetNetwork()->PopEvent();
-    std::cout << "update" << std::endl;
     if (e.type == EventType::LOBBY_JOIN_RESPONSE) {
       const auto* data = std::get_if<LOBBY_JOIN_RESPONSE>(&e.data);
       if (data->success == 0) return;

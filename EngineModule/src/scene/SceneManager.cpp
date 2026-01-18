@@ -139,14 +139,21 @@ void SceneManager::HandleEvent(SDL_Event& event) {
 }
 
 void SceneManager::ClearAllScenes() {
+    std::cout << "Clearing all scenes..." << std::endl;
     if (m_currentScene) {
-        m_currentScene->OnExit();
+        try {
+            m_currentScene->OnExit();
+        } catch (const std::exception& e) {
+            std::cerr << "Error exiting current scene: " << e.what() << std::endl;
+        }
         m_currentScene = nullptr;
     }
-    
-    m_nextScene = nullptr;
 
-    m_scenePlugins.clear();
+    m_nextScene = nullptr;
+    m_engine->GetRegistry().clear_all_entities();
+    m_sceneData.Clear();
+    m_scenePlugins.clear(); 
+    std::cout << "All scenes cleared" << std::endl;
 }
 
 const std::string& SceneManager::GetCurrentSceneName() const {
