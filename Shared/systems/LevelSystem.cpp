@@ -24,7 +24,7 @@ std::vector<LevelComponent> createLevels() {
            0},
       Wave{{EnemyType::Basic, EnemyType::Zigzag, EnemyType::mini_Green},
            {2, 2, 1},  // mini_Green = 1 spawn
-           {{700, 120}, {700, 220}, {700, 290}, {700, 480}, {700, 450}},
+           {{700, 120}, {700, 200}, {700, 300}, {700, 380}, {700, 450}},
            false,
            std::nullopt,
            0},
