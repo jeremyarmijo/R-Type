@@ -52,13 +52,6 @@ void enemy_movement_system(Registry& registry,
 
     switch (enemy.type) {
       case EnemyType::Basic: {
-<<<<<<< HEAD
-        float t = enemy.timer * 1.5f;
-        rigidbody.velocity.x = std::sin(t * 2.f) * enemy.amplitude * 0.5f;
-        rigidbody.velocity.y =
-            std::sin(t) * std::cos(t) * enemy.amplitude * 2.f;
-
-=======
         float t = enemy.timer;
 
         // Zigzag vertical : va en haut puis en bas, oscillation sinusoïdale
@@ -66,7 +59,6 @@ void enemy_movement_system(Registry& registry,
         rigidbody.velocity.y = std::sin(t * 2.0f) * enemy.amplitude * 2.5f;
 
         // Tir (inchangé)
->>>>>>> 2cae28c (feat(gamedesign): fix force and change the behaviour of the game)
         if (enemy.timeSinceLastShot >= 1.5f) {
           Vector2 pos = transform.position + Vector2{-30.f, 0.f};
           spawn_projectile(registry, pos, {-1.f, 0.f}, 300.f, entityId);
@@ -314,12 +306,6 @@ void boss_movement_system(Registry& registry,
       } break;
 
       case BossType::FinalBoss: {
-<<<<<<< HEAD
-        rigidbody.velocity = {0.f, 0.f};
-        transform.position.x = 700.0f;
-        transform.position.y = 300.0f;
-
-=======
         float amplitude = 100.f;  // hauteur maximale du mouvement
         float speed = 2.f;        // vitesse du va-et-vient
         transform.position.y = 300.f + std::sin(boss.timer * speed) * amplitude;
@@ -331,7 +317,6 @@ void boss_movement_system(Registry& registry,
         rigidbody.velocity = {0.f, 0.f};
 
         // Spawn d'ennemis comme avant
->>>>>>> 2cae28c (feat(gamedesign): fix force and change the behaviour of the game)
         if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
           std::cout << "Final Boss spawning Basic Enemy!" << std::endl;
           spawn_basic_enemy_for_boss(registry);
@@ -344,17 +329,6 @@ void boss_movement_system(Registry& registry,
         float timeMod = fmod(boss.timer, PROJECTILE_FIRE_INTERVAL);
 
         if (timeMod < 0.1f && timeMod > 0.0f) {
-<<<<<<< HEAD
-          const float Y_OFFSET_RANGE = 70.0f;
-          float y1 = transform.position.y - Y_OFFSET_RANGE;
-          spawn_boss_projectile(registry, {transform.position.x, y1}, entityId);
-          float y2 = transform.position.y;
-          spawn_boss_projectile(registry, {transform.position.x - 10.0f, y2},
-                                entityId);
-          float y3 = transform.position.y + Y_OFFSET_RANGE;
-          spawn_boss_projectile(registry, {transform.position.x, y3}, entityId);
-          boss.timer += 0.5f;
-=======
           const float Y_OFFSET_RANGE = 100.0f;  // plus visible que 70
           const int NUM_SHOTS = 5;
 
@@ -369,7 +343,6 @@ void boss_movement_system(Registry& registry,
           }
 
           boss.timer += 0.5f;  // pour ne pas spammer trop vite
->>>>>>> 2cae28c (feat(gamedesign): fix force and change the behaviour of the game)
         }
       } break;
     }
