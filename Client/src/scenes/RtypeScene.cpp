@@ -257,6 +257,12 @@ void RtypeScene::UpdateGameState(float deltaTime) {
                 << static_cast<size_t>(currentLevelEntity) << std::endl;
       GetRegistry().kill_entity(currentLevelEntity);
 
+       LevelTransition lt;
+      lt.levelNumber = currentLevelIndex + 2;
+      data.Set("level_transition", lt);
+    
+     std::cout << "[Server] Level Transition Set! " << (currentLevelIndex + 1)
+              << " finished!" << std::endl;
       waitingForNextLevel = true;
       levelTransitionTimer = 0.0f;
       std::cout << "[Game] Level " << (currentLevelIndex + 1)
