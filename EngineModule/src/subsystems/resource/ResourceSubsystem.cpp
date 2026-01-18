@@ -174,9 +174,16 @@ void ResourceSubsystem::EvictLRUResources() {
         UnloadResource(id);
     }
 }
-
+#ifdef _WIN32
+extern "C" {
+    __declspec(dllexport) ISubsystem* CreateSubsystem() {
+        return new ResourceSubsystem();
+    }
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem() {
         return new ResourceSubsystem();
     }
 }
+#endif

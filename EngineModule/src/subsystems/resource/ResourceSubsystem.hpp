@@ -85,7 +85,12 @@ private:
     void UpdatePreloading();
     void EvictLRUResources();
 };
-
+#ifdef _WIN32
+extern "C" {
+__declspec(dllexport) ISubsystem* CreateSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem();
 }
+#endif
