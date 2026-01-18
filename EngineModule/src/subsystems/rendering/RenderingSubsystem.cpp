@@ -284,8 +284,14 @@ void RenderingSubsystem::SetWindowTitle(const std::string& title) {
     }
 }
 
+#ifdef _WIN32
+__declspec(dllexport) ISubsystem* CreateSubsystem() {
+    return new RenderingSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem() {
         return new RenderingSubsystem();
     }
 }
+#endif

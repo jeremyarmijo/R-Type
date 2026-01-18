@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 
 #include <algorithm>
 #include <string>
@@ -11,6 +11,7 @@
 #include "engine/ISubsystem.hpp"
 #include "ecs/Registry.hpp"
 #include "physics/Physics2D.hpp"
+#include "rendering/rendering_export.hpp"
 
 struct AnimationFrame {
     SDL_Rect sourceRect;
@@ -60,7 +61,7 @@ struct Camera {
 class UIElement;
 class UIManager;
 
-class RenderingSubsystem : public ISubsystem {
+class RENDERING_API RenderingSubsystem : public ISubsystem {
 private:
     SDL_Window* m_window;
     SDL_Renderer* m_renderer;
@@ -115,6 +116,12 @@ private:
     void UpdateAnimations(float deltaTime);
 };
 
+#ifdef _WIN32
+extern "C" {
+__declspec(dllexport) ISubsystem* CreateSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem();
 }
+#endif
