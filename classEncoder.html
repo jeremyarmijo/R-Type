@@ -81,17 +81,17 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:ae96725e8745a9bf45431456e73d4eb3e" id="r_ae96725e8745a9bf45431456e73d4eb3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">using</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEncoder.html#ae96725e8745a9bf45431456e73d4eb3e">EncodePayload</a> = std::function&lt; <a class="el" href="classSparseArray.html">void</a>(<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structAction.html">Action</a> &amp;, std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;)&gt;</td></tr>
+<tr class="memitem:ae96725e8745a9bf45431456e73d4eb3e" id="r_ae96725e8745a9bf45431456e73d4eb3e"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEncoder.html#ae96725e8745a9bf45431456e73d4eb3e">EncodePayload</a> = std::function&lt; void(const <a class="el" href="structAction.html">Action</a> &amp;, std::vector&lt; uint8_t &gt; &amp;)&gt;</td></tr>
 <tr class="separator:ae96725e8745a9bf45431456e73d4eb3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ab5d9324930644abeb150da7a7747ffe3" id="r_ab5d9324930644abeb150da7a7747ffe3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEncoder.html#ab5d9324930644abeb150da7a7747ffe3">Encoder</a> ()</td></tr>
 <tr class="separator:ab5d9324930644abeb150da7a7747ffe3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9156e7a551674d65575c9698a9b2c12" id="r_ad9156e7a551674d65575c9698a9b2c12"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEncoder.html#ad9156e7a551674d65575c9698a9b2c12">registerHandler</a> (<a class="el" href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532">ActionType</a> type, <a class="el" href="classEncoder.html#ae96725e8745a9bf45431456e73d4eb3e">EncodePayload</a> <a class="el" href="classSparseArray.html">f</a>)</td></tr>
+<tr class="memitem:ad9156e7a551674d65575c9698a9b2c12" id="r_ad9156e7a551674d65575c9698a9b2c12"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEncoder.html#ad9156e7a551674d65575c9698a9b2c12">registerHandler</a> (<a class="el" href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532">ActionType</a> type, <a class="el" href="classEncoder.html#ae96725e8745a9bf45431456e73d4eb3e">EncodePayload</a> f)</td></tr>
 <tr class="separator:ad9156e7a551674d65575c9698a9b2c12"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ac26122ba1a335244a32187ffe3af98" id="r_a3ac26122ba1a335244a32187ffe3af98"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEncoder.html#a3ac26122ba1a335244a32187ffe3af98">encode</a> (<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structAction.html">Action</a> &amp;<a class="el" href="classSparseArray.html">a</a>, <a class="el" href="classSparseArray.html">size_t</a> <a class="el" href="classSparseArray.html">useUDP</a>)</td></tr>
-<tr class="separator:a3ac26122ba1a335244a32187ffe3af98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6197a847ec9f5893fa6fdcdb26c1913" id="r_ae6197a847ec9f5893fa6fdcdb26c1913"><td class="memItemLeft" align="right" valign="top">std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEncoder.html#ae6197a847ec9f5893fa6fdcdb26c1913">encode</a> (const <a class="el" href="structAction.html">Action</a> &amp;a, size_t useUDP, uint16_t seqNum, uint16_t ack, uint32_t ack_bytes)</td></tr>
+<tr class="separator:ae6197a847ec9f5893fa6fdcdb26c1913"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="ae96725e8745a9bf45431456e73d4eb3e" name="ae96725e8745a9bf45431456e73d4eb3e"></a>
@@ -101,7 +101,7 @@ Public Member Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">using</a> <a class="el" href="classEncoder.html#ae96725e8745a9bf45431456e73d4eb3e">Encoder::EncodePayload</a> =  std::function&lt;<a class="el" href="classSparseArray.html">void</a>(<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structAction.html">Action</a>&amp;, std::vector&lt;<a class="el" href="classSparseArray.html">uint8_t</a>&gt;&amp;)&gt;</td>
+          <td class="memname">using <a class="el" href="classEncoder.html#ae96725e8745a9bf45431456e73d4eb3e">Encoder::EncodePayload</a> =  std::function&lt;void(const <a class="el" href="structAction.html">Action</a>&amp;, std::vector&lt;uint8_t&gt;&amp;)&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -127,23 +127,41 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a3ac26122ba1a335244a32187ffe3af98" name="a3ac26122ba1a335244a32187ffe3af98"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ac26122ba1a335244a32187ffe3af98">&#9670;&#160;</a></span>encode()</h2>
+<a id="ae6197a847ec9f5893fa6fdcdb26c1913" name="ae6197a847ec9f5893fa6fdcdb26c1913"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6197a847ec9f5893fa6fdcdb26c1913">&#9670;&#160;</a></span>encode()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; Encoder::encode </td>
+          <td class="memname">std::vector&lt; uint8_t &gt; Encoder::encode </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structAction.html">Action</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structAction.html">Action</a> &amp;&#160;</td>
           <td class="paramname"><em>a</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">size_t</a>&#160;</td>
-          <td class="paramname"><em>useUDP</em>&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>useUDP</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>seqNum</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>ack</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>ack_bytes</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -162,7 +180,7 @@ Public Member Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> Encoder::registerHandler </td>
+          <td class="memname">void Encoder::registerHandler </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532">ActionType</a>&#160;</td>
           <td class="paramname"><em>type</em>, </td>

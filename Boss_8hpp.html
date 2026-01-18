@@ -79,16 +79,17 @@ $(function() {
   <div class="headertitle"><div class="title">Boss.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="Physics2D_8hpp_source.html">../Physics2D.hpp</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;physics/Physics2D.hpp&quot;</code><br />
+<code>#include &quot;ecs/Entity.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for Boss.hpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="Boss_8hpp__incl.svg" width="226" height="212"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="Boss_8hpp__incl.svg" width="318" height="139"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="Boss_8hpp__dep__incl.svg" width="1443" height="271"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="Boss_8hpp__dep__incl.svg" width="5503" height="476"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="Boss_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -101,12 +102,12 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
 <tr class="memitem:af75f53750ffcde869545d08348fb7f96" id="r_af75f53750ffcde869545d08348fb7f96"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96">BossType</a> { <br />
-&#160;&#160;<a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96abb27c939bc42e7f1f4f8de55a97f198b">BigShip</a>
-, <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96adfa90f1b4eb3affbd3b46af34ed2477c">Snake</a>
-, <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96a4157f0eb35cb3b9f22a35a89c86edcb4">BydoEye</a>
-, <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96ab846373e48cf002363110ff72973f24b">Battleship</a>
-, <br />
 &#160;&#160;<a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96aabd44872ccc3619bf5000d27ab076611">FinalBoss</a>
+, <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96a1d5cf660216b7ba02d593fe6128ebc25">Gomander_snake</a>
+, <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96abb27c939bc42e7f1f4f8de55a97f198b">BigShip</a>
+, <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96a4157f0eb35cb3b9f22a35a89c86edcb4">BydoEye</a>
+, <br />
+&#160;&#160;<a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96a4a497f045b4a8794788b77d942da3f12">Bydo_Battleship</a>
 <br />
  }</td></tr>
 <tr class="separator:af75f53750ffcde869545d08348fb7f96"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,7 +128,7 @@ Enumerations</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">enum</a> <a class="el" href="classSparseArray.html">class</a> <a class="el" href="Boss_8hpp.html#a07a185cf5c3b2a4716f5f67f67e502df">BossPhase</a></td>
+          <td class="memname">enum class <a class="el" href="Boss_8hpp.html#a07a185cf5c3b2a4716f5f67f67e502df">BossPhase</a></td>
         </tr>
       </table>
   </td>
@@ -154,7 +155,7 @@ Enumerations</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">enum</a> <a class="el" href="classSparseArray.html">class</a> <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96">BossType</a></td>
+          <td class="memname">enum class <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96">BossType</a></td>
         </tr>
       </table>
   </td>
@@ -164,11 +165,11 @@ Enumerations</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="af75f53750ffcde869545d08348fb7f96abb27c939bc42e7f1f4f8de55a97f198b" name="af75f53750ffcde869545d08348fb7f96abb27c939bc42e7f1f4f8de55a97f198b"></a>BigShip&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="af75f53750ffcde869545d08348fb7f96adfa90f1b4eb3affbd3b46af34ed2477c" name="af75f53750ffcde869545d08348fb7f96adfa90f1b4eb3affbd3b46af34ed2477c"></a>Snake&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="af75f53750ffcde869545d08348fb7f96aabd44872ccc3619bf5000d27ab076611" name="af75f53750ffcde869545d08348fb7f96aabd44872ccc3619bf5000d27ab076611"></a>FinalBoss&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af75f53750ffcde869545d08348fb7f96a1d5cf660216b7ba02d593fe6128ebc25" name="af75f53750ffcde869545d08348fb7f96a1d5cf660216b7ba02d593fe6128ebc25"></a>Gomander_snake&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af75f53750ffcde869545d08348fb7f96abb27c939bc42e7f1f4f8de55a97f198b" name="af75f53750ffcde869545d08348fb7f96abb27c939bc42e7f1f4f8de55a97f198b"></a>BigShip&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="af75f53750ffcde869545d08348fb7f96a4157f0eb35cb3b9f22a35a89c86edcb4" name="af75f53750ffcde869545d08348fb7f96a4157f0eb35cb3b9f22a35a89c86edcb4"></a>BydoEye&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="af75f53750ffcde869545d08348fb7f96ab846373e48cf002363110ff72973f24b" name="af75f53750ffcde869545d08348fb7f96ab846373e48cf002363110ff72973f24b"></a>Battleship&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="af75f53750ffcde869545d08348fb7f96aabd44872ccc3619bf5000d27ab076611" name="af75f53750ffcde869545d08348fb7f96aabd44872ccc3619bf5000d27ab076611"></a>FinalBoss&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af75f53750ffcde869545d08348fb7f96a4a497f045b4a8794788b77d942da3f12" name="af75f53750ffcde869545d08348fb7f96a4a497f045b4a8794788b77d942da3f12"></a>Bydo_Battleship&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>

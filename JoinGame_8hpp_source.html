@@ -87,251 +87,236 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;iostream&gt;</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;<a class="code" href="GameEngine_8hpp.html">engine/GameEngine.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="SceneManager_8hpp.html">scene/SceneManager.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="UIButton_8hpp.html">ui/UIButton.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="UIImage_8hpp.html">ui/UIImage.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;<a class="code" href="UIManager_8hpp.html">ui/UIManager.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;<a class="code" href="UIText_8hpp.html">ui/UIText.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;<a class="code" href="UITextInput_8hpp.html">ui/UITextInput.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="foldopen" id="foldopen00016" data-start="{" data-end="};">
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno"><a class="line" href="classJoinGame.html">   16</a></span><span class="keyword">class </span><a class="code hl_class" href="classJoinGame.html">JoinGame</a> : <span class="keyword">public</span> <a class="code hl_class" href="classScene.html">Scene</a> {</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>  <span class="keywordtype">bool</span> m_isInitialized;</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  <span class="keywordtype">bool</span> m_settingsTransition;</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  std::vector&lt;Entity&gt; m_entities;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>  <a class="code hl_class" href="classUITextInput.html">UITextInput</a>* m_usernameInput;</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>  <a class="code hl_class" href="classUITextInput.html">UITextInput</a>* m_serverInput;</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  <a class="code hl_class" href="classUIButton.html">UIButton</a>* m_joinButton;</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>  <a class="code hl_class" href="classUIButton.html">UIButton</a>* m_backButton;</div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &lt;unordered_map&gt;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="EntityHelper_8hpp.html">Helpers/EntityHelper.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;audio/AudioSubsystem.hpp&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;engine/GameEngine.hpp&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;network/NetworkSubsystem.hpp&quot;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;scene/Scene.hpp&quot;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;scene/SceneManager.hpp&quot;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &quot;ui/UIButton.hpp&quot;</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &quot;ui/UIImage.hpp&quot;</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#include &quot;ui/UIManager.hpp&quot;</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#include &quot;ui/UIText.hpp&quot;</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#include &quot;ui/UITextInput.hpp&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#ifdef _WIN32</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#ifdef PlaySound</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#undef PlaySound</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> <span class="keyword">public</span>:</div>
-<div class="foldopen" id="foldopen00028" data-start="{" data-end="}">
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="classJoinGame.html#a0f8c0bb46bb5ee36b336f1a9ebbbc3d8">   28</a></span>  <a class="code hl_function" href="classJoinGame.html#a0f8c0bb46bb5ee36b336f1a9ebbbc3d8">JoinGame</a>(<a class="code hl_class" href="classGameEngine.html">GameEngine</a>* engine, <a class="code hl_class" href="classSceneManager.html">SceneManager</a>* sceneManager)</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>      : <a class="code hl_class" href="classScene.html">Scene</a>(engine, sceneManager, <span class="stringliteral">&quot;menu&quot;</span>),</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        m_isInitialized(false),</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        m_settingsTransition(false),</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        m_usernameInput(nullptr),</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        m_serverInput(nullptr),</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        m_joinButton(nullptr),</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        m_backButton(nullptr) {}</div>
+<div class="foldopen" id="foldopen00027" data-start="{" data-end="};">
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="classJoinGame.html">   27</a></span><span class="keyword">class </span><a class="code hl_class" href="classJoinGame.html">JoinGame</a> : <span class="keyword">public</span> Scene {</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  <span class="keywordtype">bool</span> m_isInitialized;</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <span class="keywordtype">bool</span> m_settingsTransition;</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  std::vector&lt;Entity&gt; m_entities;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  UITextInput* m_usernameInput;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  UITextInput* m_serverInput;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  UIButton* m_joinButton;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  UIButton* m_backButton;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  std::string username;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> <span class="keyword">public</span>:</div>
+<div class="foldopen" id="foldopen00040" data-start="{" data-end="}">
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="classJoinGame.html#a1697b532bc254ad78d5536c11336f951">   40</a></span>  <a class="code hl_function" href="classJoinGame.html#a1697b532bc254ad78d5536c11336f951">JoinGame</a>()</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>      : m_isInitialized(false),</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        m_settingsTransition(false),</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        m_usernameInput(nullptr),</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        m_serverInput(nullptr),</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        m_joinButton(nullptr),</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        m_backButton(nullptr) {</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    m_name = <span class="stringliteral">&quot;joinGame&quot;</span>;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  }</div>
 </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="foldopen" id="foldopen00037" data-start="{" data-end="}">
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="classJoinGame.html#a35e0e23c095b55cbb840002f6670db78">   37</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#a35e0e23c095b55cbb840002f6670db78">OnEnter</a>()<span class="keyword"> override </span>{</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;\n=== ENTERING MAIN MENU SCENE ===&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordflow">try</span> {</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>      m_isInitialized = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>      <a class="code hl_class" href="classEntity.html">Entity</a> background = <a class="code hl_variable" href="classScene.html#a0b6bc2a9451ac97c4fbf78fb8af2e96a">m_engine</a>-&gt;<a class="code hl_function" href="classGameEngine.html#a3354825c900925f5ef55297f5923b940">CreateSprite</a>(<span class="stringliteral">&quot;background&quot;</span>, {400, 300}, -10);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>      m_entities.push_back(background);</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>      std::cout &lt;&lt; <span class="stringliteral">&quot;Creating animated sprite...&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>      <a class="code hl_class" href="classEntity.html">Entity</a> boss = <a class="code hl_variable" href="classScene.html#a0b6bc2a9451ac97c4fbf78fb8af2e96a">m_engine</a>-&gt;<a class="code hl_function" href="classGameEngine.html#a153dac6e9db1f4941fd59f207ee46ca0">CreateAnimatedSprite</a>(<span class="stringliteral">&quot;boss&quot;</span>, {600, 300}, <span class="stringliteral">&quot;boss&quot;</span>);</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>      <span class="keyword">auto</span>&amp; playerTransform =</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>          <a class="code hl_variable" href="classScene.html#a0b6bc2a9451ac97c4fbf78fb8af2e96a">m_engine</a>-&gt;<a class="code hl_function" href="classGameEngine.html#abe52410530786cd875e60a359e7b7c2d">GetRegistry</a>().<a class="code hl_function" href="classRegistry.html#ab8ff3522b765d882b46262ad345db07b">get_components</a>&lt;<a class="code hl_struct" href="structTransform.html">Transform</a>&gt;()[boss];</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>      <span class="keywordflow">if</span> (playerTransform) playerTransform-&gt;<a class="code hl_variable" href="structTransform.html#a7972419ad29c9634bfdbe14a2f16ddcd">scale</a> = {2.0f, 2.0f};</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>      m_entities.push_back(boss);</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>      <a class="code hl_class" href="classEntity.html">Entity</a> bossChild =</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>          <a class="code hl_variable" href="classScene.html#a0b6bc2a9451ac97c4fbf78fb8af2e96a">m_engine</a>-&gt;<a class="code hl_function" href="classGameEngine.html#a153dac6e9db1f4941fd59f207ee46ca0">CreateAnimatedSprite</a>(<span class="stringliteral">&quot;boss&quot;</span>, {622, 317}, <span class="stringliteral">&quot;bosschild&quot;</span>);</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>      <span class="keyword">auto</span>&amp; bosschild =</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>          <a class="code hl_variable" href="classScene.html#a0b6bc2a9451ac97c4fbf78fb8af2e96a">m_engine</a>-&gt;<a class="code hl_function" href="classGameEngine.html#abe52410530786cd875e60a359e7b7c2d">GetRegistry</a>().<a class="code hl_function" href="classRegistry.html#ab8ff3522b765d882b46262ad345db07b">get_components</a>&lt;<a class="code hl_struct" href="structTransform.html">Transform</a>&gt;()[bossChild];</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>      <span class="keywordflow">if</span> (bosschild) bosschild-&gt;<a class="code hl_variable" href="structTransform.html#a7972419ad29c9634bfdbe14a2f16ddcd">scale</a> = {2.1f, 2.1f};</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>      m_entities.push_back(bossChild);</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>      std::cout &lt;&lt; <span class="stringliteral">&quot;Creating UI Elements...&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>      <span class="keyword">auto</span>* text = <a class="code hl_function" href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">GetUI</a>().<a class="code hl_function" href="classUIManager.html#a4e78a96980b1089155bfd834821084a7">AddElement</a>&lt;<a class="code hl_class" href="classUIText.html">UIText</a>&gt;(50, 40, <span class="stringliteral">&quot;R-Type&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, 50,</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>                                              SDL_Color{255, 255, 255, 255});</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>      text-&gt;<a class="code hl_function" href="classUIElement.html#a4a76dc2367a59c92e980a0eacae7f0fe">SetVisible</a>(<span class="keyword">true</span>);</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>      text-&gt;SetLayer(10);</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>      m_usernameInput = <a class="code hl_function" href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">GetUI</a>().<a class="code hl_function" href="classUIManager.html#a4e78a96980b1089155bfd834821084a7">AddElement</a>&lt;<a class="code hl_class" href="classUITextInput.html">UITextInput</a>&gt;(</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>          70, 125, 300, 50, <span class="stringliteral">&quot;Username (e.g., Space Cowboy)&quot;</span>);</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>      m_usernameInput-&gt;<a class="code hl_function" href="classUITextInput.html#a8f7a63eb4c3fea64641f941eb4c95aa8">SetMaxLength</a>(50);</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>      m_usernameInput-&gt;<a class="code hl_function" href="classUITextInput.html#a325cfa432d6cb533ea25ec22fee448c6">SetText</a>(<span class="stringliteral">&quot;Space Cowboy&quot;</span>);</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>      m_usernameInput-&gt;<a class="code hl_function" href="classUITextInput.html#a94c5da6837113e47eddcd6d56e00a88a">SetTextColor</a>({255, 255, 255, 255});</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>      m_usernameInput-&gt;<a class="code hl_function" href="classUITextInput.html#aaef5df4cebdb8adaf235f5b2cd0d3f49">SetBackgroundColor</a>({40, 40, 50, 255});</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>      m_usernameInput-&gt;<a class="code hl_function" href="classUITextInput.html#aa30a55dc4931dd601107661908fbfc7d">SetBorderColor</a>({100, 100, 120, 255},</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>                                      {100, 150, 255, 255});</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>      m_usernameInput-&gt;<a class="code hl_function" href="classUIElement.html#a18c0da6de2681f144aebda01cddd6c8a">SetLayer</a>(9);</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>      m_usernameInput-&gt;<a class="code hl_function" href="classUIElement.html#a4a76dc2367a59c92e980a0eacae7f0fe">SetVisible</a>(<span class="keyword">true</span>);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="foldopen" id="foldopen00050" data-start="{" data-end="}">
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="classJoinGame.html#a35e0e23c095b55cbb840002f6670db78">   50</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#a35e0e23c095b55cbb840002f6670db78">OnEnter</a>()<span class="keyword"> override </span>{</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;\n=== ENTERING MAIN MENU SCENE ===&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordflow">try</span> {</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>      m_isInitialized = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>      Entity background =</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>          <a class="code hl_function" href="EntityHelper_8hpp.html#a583e16eed64bebd6b01363a8173d9ea6">CreateSprite</a>(GetRegistry(), <span class="stringliteral">&quot;background&quot;</span>, {400, 300}, -10);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>      m_entities.push_back(background);</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>      std::cout &lt;&lt; <span class="stringliteral">&quot;Creating animated sprite...&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>      Entity boss = <a class="code hl_function" href="EntityHelper_8hpp.html#a06b84a85069071a995d22e51de65b626">CreateAnimatedSprite</a>(GetRegistry(),</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                                         GetRendering()-&gt;GetAnimation(<span class="stringliteral">&quot;boss&quot;</span>),</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>                                         <span class="stringliteral">&quot;boss&quot;</span>, {600, 300}, <span class="stringliteral">&quot;boss&quot;</span>);</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>      <span class="keyword">auto</span>&amp; playerTransform =</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>          m_engine-&gt;GetRegistry().get_components&lt;Transform&gt;()[boss];</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>      <span class="keywordflow">if</span> (playerTransform) playerTransform-&gt;scale = {2.0f, 2.0f};</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>      m_entities.push_back(boss);</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>      Entity bossChild = <a class="code hl_function" href="EntityHelper_8hpp.html#a06b84a85069071a995d22e51de65b626">CreateAnimatedSprite</a>(</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>          GetRegistry(), GetRendering()-&gt;GetAnimation(<span class="stringliteral">&quot;bosschild&quot;</span>), <span class="stringliteral">&quot;boss&quot;</span>,</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>          {622, 317}, <span class="stringliteral">&quot;bosschild&quot;</span>);</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>      <span class="keyword">auto</span>&amp; bosschild =</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>          m_engine-&gt;GetRegistry().get_components&lt;Transform&gt;()[bossChild];</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>      <span class="keywordflow">if</span> (bosschild) bosschild-&gt;scale = {2.1f, 2.1f};</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>      m_entities.push_back(bossChild);</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>      m_serverInput = <a class="code hl_function" href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">GetUI</a>().<a class="code hl_function" href="classUIManager.html#a4e78a96980b1089155bfd834821084a7">AddElement</a>&lt;<a class="code hl_class" href="classUITextInput.html">UITextInput</a>&gt;(</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>          70, 200, 300, 50, <span class="stringliteral">&quot;Server IP (e.g., 127.0.0.1)&quot;</span>);</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>      m_serverInput-&gt;<a class="code hl_function" href="classUITextInput.html#a8f7a63eb4c3fea64641f941eb4c95aa8">SetMaxLength</a>(50);</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>      m_serverInput-&gt;<a class="code hl_function" href="classUITextInput.html#a325cfa432d6cb533ea25ec22fee448c6">SetText</a>(<span class="stringliteral">&quot;127.0.0.1&quot;</span>);</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>      m_serverInput-&gt;<a class="code hl_function" href="classUITextInput.html#a94c5da6837113e47eddcd6d56e00a88a">SetTextColor</a>({255, 255, 255, 255});</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>      m_serverInput-&gt;<a class="code hl_function" href="classUITextInput.html#aaef5df4cebdb8adaf235f5b2cd0d3f49">SetBackgroundColor</a>({40, 40, 50, 255});</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>      m_serverInput-&gt;<a class="code hl_function" href="classUITextInput.html#aa30a55dc4931dd601107661908fbfc7d">SetBorderColor</a>({100, 100, 120, 255}, {100, 150, 255, 255});</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>      m_serverInput-&gt;<a class="code hl_function" href="classUIElement.html#a18c0da6de2681f144aebda01cddd6c8a">SetLayer</a>(9);</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>      m_serverInput-&gt;<a class="code hl_function" href="classUIElement.html#a4a76dc2367a59c92e980a0eacae7f0fe">SetVisible</a>(<span class="keyword">true</span>);</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>      m_joinButton =</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>          <a class="code hl_function" href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">GetUI</a>().<a class="code hl_function" href="classUIManager.html#a4e78a96980b1089155bfd834821084a7">AddElement</a>&lt;<a class="code hl_class" href="classUIButton.html">UIButton</a>&gt;(70, 275, 200, 50, <span class="stringliteral">&quot;Join Game&quot;</span>);</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>      m_joinButton-&gt;<a class="code hl_function" href="classUIElement.html#a18c0da6de2681f144aebda01cddd6c8a">SetLayer</a>(9);</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>      m_joinButton-&gt;<a class="code hl_function" href="classUIButton.html#aaf3cded7374a994c131b0e88831e796f">SetOnClick</a>([<span class="keyword">this</span>]() {</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        <a class="code hl_function" href="classScene.html#afdfd785f25b783decca01c04c6bfa0e9">GetAudio</a>().<a class="code hl_function" href="classAudioManager.html#a016d593f56c95d8b450f8a9078b3195a">PlaySound</a>(<span class="stringliteral">&quot;button&quot;</span>);</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        std::string serverIP = m_serverInput-&gt;<a class="code hl_function" href="classUITextInput.html#a9d820ce5f6f44773a77b09b6a216d5ec">GetText</a>();</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        std::string username = m_usernameInput-&gt;<a class="code hl_function" href="classUITextInput.html#a9d820ce5f6f44773a77b09b6a216d5ec">GetText</a>();</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        <span class="keywordflow">if</span> (serverIP.empty()) {</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>          std::cout &lt;&lt; <span class="stringliteral">&quot;ERROR: Please enter a server IP!&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>          m_serverInput-&gt;<a class="code hl_function" href="classUITextInput.html#a76148797f5c012912a1ae5abb88ac198">Focus</a>();</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>          <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        }</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        <span class="keywordflow">if</span> (username.empty()) {</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>          std::cout &lt;&lt; <span class="stringliteral">&quot;ERROR: Please enter a username!&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>          m_usernameInput-&gt;<a class="code hl_function" href="classUITextInput.html#a76148797f5c012912a1ae5abb88ac198">Focus</a>();</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>          <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>        }</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        <a class="code hl_function" href="classScene.html#ae766ac706b8fa189f50b85c19d018491">GetNetwork</a>().<a class="code hl_function" href="classNetworkManager.html#a56292c32289f458e804cdbd0bb150b0c">Connect</a>(serverIP, 4242);</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        <a class="code hl_struct" href="structAction.html">Action</a> loginRequest{<a class="code hl_enumvalue" href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532a7f873f717c33415854423e3daa9bde7f">ActionType::LOGIN_REQUEST</a>,</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>                            <a class="code hl_struct" href="structLoginReq.html">LoginReq</a>{username, <span class="stringliteral">&quot;hashedpassword&quot;</span>}};</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>        <a class="code hl_function" href="classScene.html#ae766ac706b8fa189f50b85c19d018491">GetNetwork</a>().<a class="code hl_function" href="classNetworkManager.html#a73b12fef9776f86bd0102df13ee4bfed">SendAction</a>(loginRequest);</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>      });</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>      m_joinButton-&gt;<a class="code hl_function" href="classUIButton.html#ae82bf424ddee3a005853337225ddb652">SetColors</a>({50, 150, 50, 255}, {70, 170, 70, 255},</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>                              {30, 130, 30, 255});</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>      m_joinButton-&gt;<a class="code hl_function" href="classUIElement.html#a4a76dc2367a59c92e980a0eacae7f0fe">SetVisible</a>(<span class="keyword">true</span>);</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>      m_backButton = <a class="code hl_function" href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">GetUI</a>().<a class="code hl_function" href="classUIManager.html#a4e78a96980b1089155bfd834821084a7">AddElement</a>&lt;<a class="code hl_class" href="classUIButton.html">UIButton</a>&gt;(70, 350, 200, 50, <span class="stringliteral">&quot;Back&quot;</span>);</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>      m_backButton-&gt;<a class="code hl_function" href="classUIElement.html#a18c0da6de2681f144aebda01cddd6c8a">SetLayer</a>(9);</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>      m_backButton-&gt;<a class="code hl_function" href="classUIButton.html#aaf3cded7374a994c131b0e88831e796f">SetOnClick</a>([<span class="keyword">this</span>]() {</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        <a class="code hl_function" href="classScene.html#afdfd785f25b783decca01c04c6bfa0e9">GetAudio</a>().<a class="code hl_function" href="classAudioManager.html#a016d593f56c95d8b450f8a9078b3195a">PlaySound</a>(<span class="stringliteral">&quot;button&quot;</span>);</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        std::cout &lt;&lt; <span class="stringliteral">&quot;Back to main menu...&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>        <a class="code hl_function" href="classScene.html#ad46f1401448e61c3564f436c8d16d717">ChangeScene</a>(<span class="stringliteral">&quot;menu&quot;</span>);</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>      });</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>      m_backButton-&gt;<a class="code hl_function" href="classUIButton.html#ae82bf424ddee3a005853337225ddb652">SetColors</a>({150, 50, 50, 255}, {170, 70, 70, 255},</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>                              {130, 30, 30, 255});</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>      m_backButton-&gt;<a class="code hl_function" href="classUIElement.html#a4a76dc2367a59c92e980a0eacae7f0fe">SetVisible</a>(<span class="keyword">true</span>);</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>      m_isInitialized = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>      std::cout &lt;&lt; <span class="stringliteral">&quot;Game scene initialized successfully&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    } <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception&amp; e) {</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>      std::cerr &lt;&lt; <span class="stringliteral">&quot;CRITICAL ERROR in OnEnter: &quot;</span> &lt;&lt; e.what() &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>      m_isInitialized = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    }</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;=================================\n&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>  }</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>      std::cout &lt;&lt; <span class="stringliteral">&quot;Creating UI Elements...&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>      <span class="keyword">auto</span>* text = GetUI()-&gt;AddElement&lt;UIText&gt;(50, 40, <span class="stringliteral">&quot;R-Type&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, 50,</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>                                               SDL_Color{255, 255, 255, 255});</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>      text-&gt;SetVisible(<span class="keyword">true</span>);</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>      text-&gt;SetLayer(10);</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>      m_usernameInput = GetUI()-&gt;AddElement&lt;UITextInput&gt;(</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>          70, 125, 300, 50, <span class="stringliteral">&quot;Username (e.g., Space Cowboy)&quot;</span>);</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>      m_usernameInput-&gt;SetMaxLength(50);</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>      m_usernameInput-&gt;SetText(<span class="stringliteral">&quot;Space Cowboy&quot;</span>);</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>      m_usernameInput-&gt;SetTextColor({255, 255, 255, 255});</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>      m_usernameInput-&gt;SetBackgroundColor({40, 40, 50, 255});</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>      m_usernameInput-&gt;SetBorderColor({100, 100, 120, 255},</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>                                      {100, 150, 255, 255});</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>      m_usernameInput-&gt;SetLayer(9);</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>      m_usernameInput-&gt;SetVisible(<span class="keyword">true</span>);</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>      m_serverInput = GetUI()-&gt;AddElement&lt;UITextInput&gt;(</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>          70, 200, 300, 50, <span class="stringliteral">&quot;Server IP (e.g., 127.0.0.1)&quot;</span>);</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>      m_serverInput-&gt;SetMaxLength(50);</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>      m_serverInput-&gt;SetText(<span class="stringliteral">&quot;127.0.0.1&quot;</span>);</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>      m_serverInput-&gt;SetTextColor({255, 255, 255, 255});</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>      m_serverInput-&gt;SetBackgroundColor({40, 40, 50, 255});</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>      m_serverInput-&gt;SetBorderColor({100, 100, 120, 255}, {100, 150, 255, 255});</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>      m_serverInput-&gt;SetLayer(9);</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>      m_serverInput-&gt;SetVisible(<span class="keyword">true</span>);</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>      m_joinButton =</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>          GetUI()-&gt;AddElement&lt;UIButton&gt;(70, 275, 200, 50, <span class="stringliteral">&quot;Join Game&quot;</span>);</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>      m_joinButton-&gt;SetLayer(9);</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>      m_joinButton-&gt;SetOnClick([<span class="keyword">this</span>]() {</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>        GetAudio()-&gt;PlaySound(<span class="stringliteral">&quot;button&quot;</span>);</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>        std::string serverIP = m_serverInput-&gt;GetText();</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        username = m_usernameInput-&gt;GetText();</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        <span class="keywordflow">if</span> (serverIP.empty()) {</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>          std::cout &lt;&lt; <span class="stringliteral">&quot;ERROR: Please enter a server IP!&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>          m_serverInput-&gt;Focus();</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>          <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>        }</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        <span class="keywordflow">if</span> (username.empty()) {</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>          std::cout &lt;&lt; <span class="stringliteral">&quot;ERROR: Please enter a username!&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>          m_usernameInput-&gt;Focus();</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>          <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        }</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        GetNetwork()-&gt;Connect(serverIP, 4242);</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>        <a class="code hl_struct" href="structAction.html">Action</a> loginRequest{<a class="code hl_enumvalue" href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532a7f873f717c33415854423e3daa9bde7f">ActionType::LOGIN_REQUEST</a>,</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                            <a class="code hl_struct" href="structLoginReq.html">LoginReq</a>{username, <span class="stringliteral">&quot;hashedpassword&quot;</span>}};</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        GetNetwork()-&gt;SendAction(loginRequest);</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>      });</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>      m_joinButton-&gt;SetColors({50, 150, 50, 255}, {70, 170, 70, 255},</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>                              {30, 130, 30, 255});</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>      m_joinButton-&gt;SetVisible(<span class="keyword">true</span>);</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>      m_backButton = GetUI()-&gt;AddElement&lt;UIButton&gt;(70, 350, 200, 50, <span class="stringliteral">&quot;Back&quot;</span>);</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>      m_backButton-&gt;SetLayer(9);</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>      m_backButton-&gt;SetOnClick([<span class="keyword">this</span>]() {</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>        GetAudio()-&gt;PlaySound(<span class="stringliteral">&quot;button&quot;</span>);</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>        std::cout &lt;&lt; <span class="stringliteral">&quot;Back to main menu...&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>        ChangeScene(<span class="stringliteral">&quot;menu&quot;</span>);</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>      });</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>      m_backButton-&gt;SetColors({150, 50, 50, 255}, {170, 70, 70, 255},</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>                              {130, 30, 30, 255});</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>      m_backButton-&gt;SetVisible(<span class="keyword">true</span>);</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>      m_isInitialized = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>      std::cout &lt;&lt; <span class="stringliteral">&quot;Game scene initialized successfully&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    } <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception&amp; e) {</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>      std::cerr &lt;&lt; <span class="stringliteral">&quot;CRITICAL ERROR in OnEnter: &quot;</span> &lt;&lt; e.what() &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>      m_isInitialized = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    }</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span> </div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;=================================\n&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>  }</div>
 </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
-<div class="foldopen" id="foldopen00134" data-start="{" data-end="}">
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno"><a class="line" href="classJoinGame.html#a3d195bb4d3d35bccf3ce29254995cfa1">  134</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#a3d195bb4d3d35bccf3ce29254995cfa1">OnExit</a>()<span class="keyword"> override </span>{</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;\n=== EXITING JOIN GAME SCENE ===&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    m_entities.clear();</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    m_isInitialized = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;Join game cleanup complete&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;==============================\n&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>  }</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
+<div class="foldopen" id="foldopen00151" data-start="{" data-end="}">
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno"><a class="line" href="classJoinGame.html#a3d195bb4d3d35bccf3ce29254995cfa1">  151</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#a3d195bb4d3d35bccf3ce29254995cfa1">OnExit</a>()<span class="keyword"> override </span>{</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;\n=== EXITING JOIN GAME SCENE ===&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    m_entities.clear();</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    GetUI()-&gt;Clear();</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    m_isInitialized = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;Join game cleanup complete&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;==============================\n&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>  }</div>
 </div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
-<div class="foldopen" id="foldopen00144" data-start="{" data-end="}">
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno"><a class="line" href="classJoinGame.html#aab377dce75ca9032f01636e90ec7fa98">  144</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#aab377dce75ca9032f01636e90ec7fa98">Update</a>(<span class="keywordtype">float</span> deltaTime)<span class="keyword"> override </span>{</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keywordflow">if</span> (!m_isInitialized) <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <a class="code hl_struct" href="structEvent.html">Event</a> e = <a class="code hl_function" href="classScene.html#ae766ac706b8fa189f50b85c19d018491">GetNetwork</a>().<a class="code hl_function" href="classNetworkManager.html#ac00d1ed353a643746c4fef4adeb032d8">PopEvent</a>();</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordflow">if</span> (e.<a class="code hl_variable" href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">type</a> == <a class="code hl_enumvalue" href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a906bb67d5d5ff077ce881ee348d3db5e">EventType::LOGIN_RESPONSE</a>) {</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>      <span class="keyword">const</span> <span class="keyword">auto</span>* data = std::get_if&lt;LOGIN_RESPONSE&gt;(&amp;e.<a class="code hl_variable" href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">data</a>);</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>      <span class="keywordflow">if</span> (data-&gt;success == 0) <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>      <a class="code hl_function" href="classScene.html#a9035ec26273285ed788afff83e3616a5">GetSceneData</a>().<a class="code hl_function" href="classSceneData.html#ae0237ef4cf307fbcf09099b789094146">Set</a>(<span class="stringliteral">&quot;playerId&quot;</span>, data-&gt;playerId);</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>      <a class="code hl_function" href="classScene.html#ad46f1401448e61c3564f436c8d16d717">ChangeScene</a>(<span class="stringliteral">&quot;wait&quot;</span>);</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    }</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  }</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
+<div class="foldopen" id="foldopen00162" data-start="{" data-end="}">
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno"><a class="line" href="classJoinGame.html#aab377dce75ca9032f01636e90ec7fa98">  162</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#aab377dce75ca9032f01636e90ec7fa98">Update</a>(<span class="keywordtype">float</span> deltaTime)<span class="keyword"> override </span>{</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <span class="keywordflow">if</span> (!m_isInitialized) <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <a class="code hl_struct" href="structEvent.html">Event</a> e = GetNetwork()-&gt;PopEvent();</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordflow">if</span> (e.<a class="code hl_variable" href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">type</a> == <a class="code hl_enumvalue" href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a906bb67d5d5ff077ce881ee348d3db5e">EventType::LOGIN_RESPONSE</a>) {</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>      <span class="keyword">const</span> <span class="keyword">auto</span>* data = std::get_if&lt;LOGIN_RESPONSE&gt;(&amp;e.<a class="code hl_variable" href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">data</a>);</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>      <span class="keywordflow">if</span> (data-&gt;success == 0) <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>      GetSceneData().Set(<span class="stringliteral">&quot;playerId&quot;</span>, data-&gt;playerId);</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>      GetSceneData().Set(<span class="stringliteral">&quot;playerName&quot;</span>, username);</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>      ChangeScene(<span class="stringliteral">&quot;lobby&quot;</span>);</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    }</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>  }</div>
 </div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
-<div class="foldopen" id="foldopen00156" data-start="{" data-end="}">
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno"><a class="line" href="classJoinGame.html#aa9dcec39f9e31a4e8a36756f8c0d6161">  156</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#aa9dcec39f9e31a4e8a36756f8c0d6161">Render</a>()<span class="keyword"> override </span>{</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    <span class="keywordflow">if</span> (!m_isInitialized) <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span> </div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <a class="code hl_function" href="classScene.html#a18a725e4af754cb537b340ee9e598274">RenderSpritesLayered</a>();</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <a class="code hl_function" href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">GetUI</a>().<a class="code hl_function" href="classUIManager.html#a0365577ef816226f48fcd566f6737d8c">Render</a>();</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>  }</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
+<div class="foldopen" id="foldopen00175" data-start="{" data-end="}">
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno"><a class="line" href="classJoinGame.html#aa9dcec39f9e31a4e8a36756f8c0d6161">  175</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#aa9dcec39f9e31a4e8a36756f8c0d6161">Render</a>()<span class="keyword"> override </span>{</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordflow">if</span> (!m_isInitialized) <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="comment">// RenderSpritesLayered();</span></div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="comment">// GetUI().Render();</span></div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  }</div>
 </div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
-<div class="foldopen" id="foldopen00163" data-start="{" data-end="}">
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno"><a class="line" href="classJoinGame.html#a85c73e4f372469b60181861c1dce6522">  163</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#a85c73e4f372469b60181861c1dce6522">HandleEvent</a>(SDL_Event&amp; event)<span class="keyword"> override </span>{</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordflow">if</span> (<a class="code hl_function" href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">GetUI</a>().<a class="code hl_function" href="classJoinGame.html#a85c73e4f372469b60181861c1dce6522">HandleEvent</a>(event)) {</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>      <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    }</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keywordflow">if</span> (event.type == SDL_KEYDOWN) {</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>      <span class="keywordflow">if</span> (event.key.keysym.sym == SDLK_r) {</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        std::cout &lt;&lt; <span class="stringliteral">&quot;Restarting level...&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>        <a class="code hl_function" href="classScene.html#ad46f1401448e61c3564f436c8d16d717">ChangeScene</a>(<span class="stringliteral">&quot;game&quot;</span>);</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>      } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (event.key.keysym.sym == SDLK_x) {</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>        std::cout &lt;&lt; <span class="stringliteral">&quot;Quitting to Game Over screen...&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        <a class="code hl_function" href="classScene.html#ad46f1401448e61c3564f436c8d16d717">ChangeScene</a>(<span class="stringliteral">&quot;gameover&quot;</span>);</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>      }</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    }</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>  }</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="foldopen" id="foldopen00182" data-start="{" data-end="}">
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno"><a class="line" href="classJoinGame.html#a85c73e4f372469b60181861c1dce6522">  182</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classJoinGame.html#a85c73e4f372469b60181861c1dce6522">HandleEvent</a>(SDL_Event&amp; event)<span class="keyword"> override </span>{</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keywordflow">if</span> (GetUI()-&gt;<a class="code hl_function" href="classJoinGame.html#a85c73e4f372469b60181861c1dce6522">HandleEvent</a>(event)) {</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>      <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    }</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>  }</div>
 </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>};</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
+<div class="foldopen" id="foldopen00188" data-start="{" data-end="}">
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno"><a class="line" href="classJoinGame.html#aa4246f042518aa05fe7bd357768f3049">  188</a></span>  std::unordered_map&lt;uint16_t, Entity&gt; <a class="code hl_function" href="classJoinGame.html#aa4246f042518aa05fe7bd357768f3049">GetPlayers</a>()<span class="keyword"> override </span>{</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordflow">return</span> std::unordered_map&lt;uint16_t, Entity&gt;();</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>  }</div>
 </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>};</div>
+</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="preprocessor">#ifdef _WIN32</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>  __declspec(dllexport) Scene* <a class="code hl_function" href="JoinGame_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a>();</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>}</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>Scene* <a class="code hl_function" href="JoinGame_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a>();</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>}</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aAction_8hpp_html_a7969551e86fba60fed45ceed884b7532a7f873f717c33415854423e3daa9bde7f"><div class="ttname"><a href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532a7f873f717c33415854423e3daa9bde7f">ActionType::LOGIN_REQUEST</a></div><div class="ttdeci">@ LOGIN_REQUEST</div></div>
+<div class="ttc" id="aEntityHelper_8hpp_html"><div class="ttname"><a href="EntityHelper_8hpp.html">EntityHelper.hpp</a></div></div>
+<div class="ttc" id="aEntityHelper_8hpp_html_a06b84a85069071a995d22e51de65b626"><div class="ttname"><a href="EntityHelper_8hpp.html#a06b84a85069071a995d22e51de65b626">CreateAnimatedSprite</a></div><div class="ttdeci">Entity CreateAnimatedSprite(Registry &amp;registry, const AnimationClip *clip, const std::string &amp;textureKey, Vector2 position, const std::string &amp;animationKey, int layer=0)</div><div class="ttdef"><b>Definition</b> EntityHelper.hpp:324</div></div>
+<div class="ttc" id="aEntityHelper_8hpp_html_a583e16eed64bebd6b01363a8173d9ea6"><div class="ttname"><a href="EntityHelper_8hpp.html#a583e16eed64bebd6b01363a8173d9ea6">CreateSprite</a></div><div class="ttdeci">Entity CreateSprite(Registry &amp;registry, const std::string &amp;textureKey, Vector2 position, int layer=0)</div><div class="ttdoc">Creates a sprite.</div><div class="ttdef"><b>Definition</b> EntityHelper.hpp:293</div></div>
 <div class="ttc" id="aEvent_8hpp_html_afdf2c10d40c582d9884ac5635a374a34a906bb67d5d5ff077ce881ee348d3db5e"><div class="ttname"><a href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a906bb67d5d5ff077ce881ee348d3db5e">EventType::LOGIN_RESPONSE</a></div><div class="ttdeci">@ LOGIN_RESPONSE</div></div>
-<div class="ttc" id="aGameEngine_8hpp_html"><div class="ttname"><a href="GameEngine_8hpp.html">GameEngine.hpp</a></div></div>
-<div class="ttc" id="aSceneManager_8hpp_html"><div class="ttname"><a href="SceneManager_8hpp.html">SceneManager.hpp</a></div></div>
-<div class="ttc" id="aUIButton_8hpp_html"><div class="ttname"><a href="UIButton_8hpp.html">UIButton.hpp</a></div></div>
-<div class="ttc" id="aUIImage_8hpp_html"><div class="ttname"><a href="UIImage_8hpp.html">UIImage.hpp</a></div></div>
-<div class="ttc" id="aUIManager_8hpp_html"><div class="ttname"><a href="UIManager_8hpp.html">UIManager.hpp</a></div></div>
-<div class="ttc" id="aUITextInput_8hpp_html"><div class="ttname"><a href="UITextInput_8hpp.html">UITextInput.hpp</a></div></div>
-<div class="ttc" id="aUIText_8hpp_html"><div class="ttname"><a href="UIText_8hpp.html">UIText.hpp</a></div></div>
-<div class="ttc" id="aclassAudioManager_html_a016d593f56c95d8b450f8a9078b3195a"><div class="ttname"><a href="classAudioManager.html#a016d593f56c95d8b450f8a9078b3195a">AudioManager::PlaySound</a></div><div class="ttdeci">void PlaySound(const std::string &amp;name, int loops=0, int channel=-1)</div><div class="ttdef"><b>Definition</b> AudioManager.hpp:120</div></div>
-<div class="ttc" id="aclassEntity_html"><div class="ttname"><a href="classEntity.html">Entity</a></div><div class="ttdef"><b>Definition</b> Entity.hpp:6</div></div>
-<div class="ttc" id="aclassGameEngine_html"><div class="ttname"><a href="classGameEngine.html">GameEngine</a></div><div class="ttdef"><b>Definition</b> GameEngine.hpp:24</div></div>
-<div class="ttc" id="aclassGameEngine_html_a153dac6e9db1f4941fd59f207ee46ca0"><div class="ttname"><a href="classGameEngine.html#a153dac6e9db1f4941fd59f207ee46ca0">GameEngine::CreateAnimatedSprite</a></div><div class="ttdeci">Entity CreateAnimatedSprite(const std::string &amp;textureKey, Vector2 position, const std::string &amp;animationKey, int layer=0)</div><div class="ttdef"><b>Definition</b> GameEngine.cpp:246</div></div>
-<div class="ttc" id="aclassGameEngine_html_a3354825c900925f5ef55297f5923b940"><div class="ttname"><a href="classGameEngine.html#a3354825c900925f5ef55297f5923b940">GameEngine::CreateSprite</a></div><div class="ttdeci">Entity CreateSprite(const std::string &amp;textureKey, Vector2 position, int layer=0)</div><div class="ttdoc">Creates a sprite.</div><div class="ttdef"><b>Definition</b> GameEngine.cpp:215</div></div>
-<div class="ttc" id="aclassGameEngine_html_abe52410530786cd875e60a359e7b7c2d"><div class="ttname"><a href="classGameEngine.html#abe52410530786cd875e60a359e7b7c2d">GameEngine::GetRegistry</a></div><div class="ttdeci">Registry &amp; GetRegistry()</div><div class="ttdef"><b>Definition</b> GameEngine.hpp:91</div></div>
-<div class="ttc" id="aclassJoinGame_html"><div class="ttname"><a href="classJoinGame.html">JoinGame</a></div><div class="ttdef"><b>Definition</b> JoinGame.hpp:16</div></div>
-<div class="ttc" id="aclassJoinGame_html_a0f8c0bb46bb5ee36b336f1a9ebbbc3d8"><div class="ttname"><a href="classJoinGame.html#a0f8c0bb46bb5ee36b336f1a9ebbbc3d8">JoinGame::JoinGame</a></div><div class="ttdeci">JoinGame(GameEngine *engine, SceneManager *sceneManager)</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:28</div></div>
-<div class="ttc" id="aclassJoinGame_html_a35e0e23c095b55cbb840002f6670db78"><div class="ttname"><a href="classJoinGame.html#a35e0e23c095b55cbb840002f6670db78">JoinGame::OnEnter</a></div><div class="ttdeci">void OnEnter() override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:37</div></div>
-<div class="ttc" id="aclassJoinGame_html_a3d195bb4d3d35bccf3ce29254995cfa1"><div class="ttname"><a href="classJoinGame.html#a3d195bb4d3d35bccf3ce29254995cfa1">JoinGame::OnExit</a></div><div class="ttdeci">void OnExit() override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:134</div></div>
-<div class="ttc" id="aclassJoinGame_html_a85c73e4f372469b60181861c1dce6522"><div class="ttname"><a href="classJoinGame.html#a85c73e4f372469b60181861c1dce6522">JoinGame::HandleEvent</a></div><div class="ttdeci">void HandleEvent(SDL_Event &amp;event) override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:163</div></div>
-<div class="ttc" id="aclassJoinGame_html_aa9dcec39f9e31a4e8a36756f8c0d6161"><div class="ttname"><a href="classJoinGame.html#aa9dcec39f9e31a4e8a36756f8c0d6161">JoinGame::Render</a></div><div class="ttdeci">void Render() override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:156</div></div>
-<div class="ttc" id="aclassJoinGame_html_aab377dce75ca9032f01636e90ec7fa98"><div class="ttname"><a href="classJoinGame.html#aab377dce75ca9032f01636e90ec7fa98">JoinGame::Update</a></div><div class="ttdeci">void Update(float deltaTime) override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:144</div></div>
-<div class="ttc" id="aclassNetworkManager_html_a56292c32289f458e804cdbd0bb150b0c"><div class="ttname"><a href="classNetworkManager.html#a56292c32289f458e804cdbd0bb150b0c">NetworkManager::Connect</a></div><div class="ttdeci">bool Connect(const std::string &amp;ip, int port)</div><div class="ttdef"><b>Definition</b> NetworkManager.cpp:29</div></div>
-<div class="ttc" id="aclassNetworkManager_html_a73b12fef9776f86bd0102df13ee4bfed"><div class="ttname"><a href="classNetworkManager.html#a73b12fef9776f86bd0102df13ee4bfed">NetworkManager::SendAction</a></div><div class="ttdeci">void SendAction(Action action)</div><div class="ttdef"><b>Definition</b> NetworkManager.cpp:362</div></div>
-<div class="ttc" id="aclassNetworkManager_html_ac00d1ed353a643746c4fef4adeb032d8"><div class="ttname"><a href="classNetworkManager.html#ac00d1ed353a643746c4fef4adeb032d8">NetworkManager::PopEvent</a></div><div class="ttdeci">Event PopEvent()</div><div class="ttdef"><b>Definition</b> NetworkManager.cpp:355</div></div>
-<div class="ttc" id="aclassRegistry_html_ab8ff3522b765d882b46262ad345db07b"><div class="ttname"><a href="classRegistry.html#ab8ff3522b765d882b46262ad345db07b">Registry::get_components</a></div><div class="ttdeci">SparseArray&lt; Component &gt; &amp; get_components()</div><div class="ttdef"><b>Definition</b> Registry.hpp:48</div></div>
-<div class="ttc" id="aclassSceneData_html_ae0237ef4cf307fbcf09099b789094146"><div class="ttname"><a href="classSceneData.html#ae0237ef4cf307fbcf09099b789094146">SceneData::Set</a></div><div class="ttdeci">void Set(const std::string &amp;key, const T &amp;value)</div><div class="ttdef"><b>Definition</b> SceneManager.hpp:28</div></div>
-<div class="ttc" id="aclassSceneManager_html"><div class="ttname"><a href="classSceneManager.html">SceneManager</a></div><div class="ttdef"><b>Definition</b> SceneManager.hpp:92</div></div>
-<div class="ttc" id="aclassScene_html"><div class="ttname"><a href="classScene.html">Scene</a></div><div class="ttdef"><b>Definition</b> SceneManager.hpp:55</div></div>
-<div class="ttc" id="aclassScene_html_a0b6bc2a9451ac97c4fbf78fb8af2e96a"><div class="ttname"><a href="classScene.html#a0b6bc2a9451ac97c4fbf78fb8af2e96a">Scene::m_engine</a></div><div class="ttdeci">GameEngine * m_engine</div><div class="ttdef"><b>Definition</b> SceneManager.hpp:57</div></div>
-<div class="ttc" id="aclassScene_html_a18a725e4af754cb537b340ee9e598274"><div class="ttname"><a href="classScene.html#a18a725e4af754cb537b340ee9e598274">Scene::RenderSpritesLayered</a></div><div class="ttdeci">void RenderSpritesLayered()</div><div class="ttdef"><b>Definition</b> SceneManager.cpp:154</div></div>
-<div class="ttc" id="aclassScene_html_a1dec201ba3dca52f73ac1766e9cd4a59"><div class="ttname"><a href="classScene.html#a1dec201ba3dca52f73ac1766e9cd4a59">Scene::GetUI</a></div><div class="ttdeci">UIManager &amp; GetUI()</div><div class="ttdef"><b>Definition</b> SceneManager.hpp:84</div></div>
-<div class="ttc" id="aclassScene_html_a9035ec26273285ed788afff83e3616a5"><div class="ttname"><a href="classScene.html#a9035ec26273285ed788afff83e3616a5">Scene::GetSceneData</a></div><div class="ttdeci">SceneData &amp; GetSceneData()</div><div class="ttdef"><b>Definition</b> SceneManager.cpp:119</div></div>
-<div class="ttc" id="aclassScene_html_ad46f1401448e61c3564f436c8d16d717"><div class="ttname"><a href="classScene.html#ad46f1401448e61c3564f436c8d16d717">Scene::ChangeScene</a></div><div class="ttdeci">void ChangeScene(const std::string &amp;sceneName)</div><div class="ttdef"><b>Definition</b> SceneManager.cpp:113</div></div>
-<div class="ttc" id="aclassScene_html_ae766ac706b8fa189f50b85c19d018491"><div class="ttname"><a href="classScene.html#ae766ac706b8fa189f50b85c19d018491">Scene::GetNetwork</a></div><div class="ttdeci">NetworkManager &amp; GetNetwork()</div><div class="ttdef"><b>Definition</b> SceneManager.cpp:106</div></div>
-<div class="ttc" id="aclassScene_html_afdfd785f25b783decca01c04c6bfa0e9"><div class="ttname"><a href="classScene.html#afdfd785f25b783decca01c04c6bfa0e9">Scene::GetAudio</a></div><div class="ttdeci">AudioManager &amp; GetAudio()</div><div class="ttdef"><b>Definition</b> SceneManager.cpp:208</div></div>
-<div class="ttc" id="aclassUIButton_html"><div class="ttname"><a href="classUIButton.html">UIButton</a></div><div class="ttdef"><b>Definition</b> UIButton.hpp:10</div></div>
-<div class="ttc" id="aclassUIButton_html_aaf3cded7374a994c131b0e88831e796f"><div class="ttname"><a href="classUIButton.html#aaf3cded7374a994c131b0e88831e796f">UIButton::SetOnClick</a></div><div class="ttdeci">void SetOnClick(std::function&lt; void()&gt; callback)</div><div class="ttdef"><b>Definition</b> UIButton.hpp:59</div></div>
-<div class="ttc" id="aclassUIButton_html_ae82bf424ddee3a005853337225ddb652"><div class="ttname"><a href="classUIButton.html#ae82bf424ddee3a005853337225ddb652">UIButton::SetColors</a></div><div class="ttdeci">void SetColors(SDL_Color normal, SDL_Color hover, SDL_Color pressed)</div><div class="ttdef"><b>Definition</b> UIButton.cpp:24</div></div>
-<div class="ttc" id="aclassUIElement_html_a18c0da6de2681f144aebda01cddd6c8a"><div class="ttname"><a href="classUIElement.html#a18c0da6de2681f144aebda01cddd6c8a">UIElement::SetLayer</a></div><div class="ttdeci">void SetLayer(int layer)</div><div class="ttdef"><b>Definition</b> UIElement.hpp:48</div></div>
-<div class="ttc" id="aclassUIElement_html_a4a76dc2367a59c92e980a0eacae7f0fe"><div class="ttname"><a href="classUIElement.html#a4a76dc2367a59c92e980a0eacae7f0fe">UIElement::SetVisible</a></div><div class="ttdeci">void SetVisible(bool visible)</div><div class="ttdef"><b>Definition</b> UIElement.hpp:44</div></div>
-<div class="ttc" id="aclassUIManager_html_a0365577ef816226f48fcd566f6737d8c"><div class="ttname"><a href="classUIManager.html#a0365577ef816226f48fcd566f6737d8c">UIManager::Render</a></div><div class="ttdeci">void Render()</div><div class="ttdef"><b>Definition</b> UIManager.hpp:47</div></div>
-<div class="ttc" id="aclassUIManager_html_a4e78a96980b1089155bfd834821084a7"><div class="ttname"><a href="classUIManager.html#a4e78a96980b1089155bfd834821084a7">UIManager::AddElement</a></div><div class="ttdeci">T * AddElement(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> UIManager.hpp:30</div></div>
-<div class="ttc" id="aclassUITextInput_html"><div class="ttname"><a href="classUITextInput.html">UITextInput</a></div><div class="ttdef"><b>Definition</b> UITextInput.hpp:10</div></div>
-<div class="ttc" id="aclassUITextInput_html_a325cfa432d6cb533ea25ec22fee448c6"><div class="ttname"><a href="classUITextInput.html#a325cfa432d6cb533ea25ec22fee448c6">UITextInput::SetText</a></div><div class="ttdeci">void SetText(const std::string &amp;text)</div><div class="ttdef"><b>Definition</b> UITextInput.cpp:48</div></div>
-<div class="ttc" id="aclassUITextInput_html_a76148797f5c012912a1ae5abb88ac198"><div class="ttname"><a href="classUITextInput.html#a76148797f5c012912a1ae5abb88ac198">UITextInput::Focus</a></div><div class="ttdeci">void Focus()</div><div class="ttdef"><b>Definition</b> UITextInput.cpp:130</div></div>
-<div class="ttc" id="aclassUITextInput_html_a8f7a63eb4c3fea64641f941eb4c95aa8"><div class="ttname"><a href="classUITextInput.html#a8f7a63eb4c3fea64641f941eb4c95aa8">UITextInput::SetMaxLength</a></div><div class="ttdeci">void SetMaxLength(size_t length)</div><div class="ttdef"><b>Definition</b> UITextInput.cpp:66</div></div>
-<div class="ttc" id="aclassUITextInput_html_a94c5da6837113e47eddcd6d56e00a88a"><div class="ttname"><a href="classUITextInput.html#a94c5da6837113e47eddcd6d56e00a88a">UITextInput::SetTextColor</a></div><div class="ttdeci">void SetTextColor(SDL_Color color)</div><div class="ttdef"><b>Definition</b> UITextInput.cpp:82</div></div>
-<div class="ttc" id="aclassUITextInput_html_a9d820ce5f6f44773a77b09b6a216d5ec"><div class="ttname"><a href="classUITextInput.html#a9d820ce5f6f44773a77b09b6a216d5ec">UITextInput::GetText</a></div><div class="ttdeci">const std::string &amp; GetText() const</div><div class="ttdef"><b>Definition</b> UITextInput.hpp:48</div></div>
-<div class="ttc" id="aclassUITextInput_html_aa30a55dc4931dd601107661908fbfc7d"><div class="ttname"><a href="classUITextInput.html#aa30a55dc4931dd601107661908fbfc7d">UITextInput::SetBorderColor</a></div><div class="ttdeci">void SetBorderColor(SDL_Color normal, SDL_Color focused)</div><div class="ttdef"><b>Definition</b> UITextInput.cpp:98</div></div>
-<div class="ttc" id="aclassUITextInput_html_aaef5df4cebdb8adaf235f5b2cd0d3f49"><div class="ttname"><a href="classUITextInput.html#aaef5df4cebdb8adaf235f5b2cd0d3f49">UITextInput::SetBackgroundColor</a></div><div class="ttdeci">void SetBackgroundColor(SDL_Color color)</div><div class="ttdef"><b>Definition</b> UITextInput.cpp:94</div></div>
-<div class="ttc" id="aclassUIText_html"><div class="ttname"><a href="classUIText.html">UIText</a></div><div class="ttdef"><b>Definition</b> UIText.hpp:11</div></div>
-<div class="ttc" id="astructAction_html"><div class="ttname"><a href="structAction.html">Action</a></div><div class="ttdef"><b>Definition</b> Action.hpp:146</div></div>
-<div class="ttc" id="astructEvent_html"><div class="ttname"><a href="structEvent.html">Event</a></div><div class="ttdef"><b>Definition</b> Event.hpp:142</div></div>
-<div class="ttc" id="astructEvent_html_ac721e4f34b3b9a1ae302165412221724"><div class="ttname"><a href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">Event::type</a></div><div class="ttdeci">EventType type</div><div class="ttdef"><b>Definition</b> Event.hpp:143</div></div>
-<div class="ttc" id="astructEvent_html_ad177356e880288c8f4b9915a038ebcb7"><div class="ttname"><a href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">Event::data</a></div><div class="ttdeci">EventData data</div><div class="ttdef"><b>Definition</b> Event.hpp:144</div></div>
-<div class="ttc" id="astructLoginReq_html"><div class="ttname"><a href="structLoginReq.html">LoginReq</a></div><div class="ttdef"><b>Definition</b> Action.hpp:37</div></div>
-<div class="ttc" id="astructTransform_html"><div class="ttname"><a href="structTransform.html">Transform</a></div><div class="ttdef"><b>Definition</b> Physics2D.hpp:35</div></div>
-<div class="ttc" id="astructTransform_html_a7972419ad29c9634bfdbe14a2f16ddcd"><div class="ttname"><a href="structTransform.html#a7972419ad29c9634bfdbe14a2f16ddcd">Transform::scale</a></div><div class="ttdeci">Vector2 scale</div><div class="ttdef"><b>Definition</b> Physics2D.hpp:37</div></div>
+<div class="ttc" id="aJoinGame_8hpp_html_a4c3ef05eef9f27de82de2e0bc8353c59"><div class="ttname"><a href="JoinGame_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a></div><div class="ttdeci">Scene * CreateScene()</div><div class="ttdef"><b>Definition</b> CreateLobby.cpp:10</div></div>
+<div class="ttc" id="aclassJoinGame_html"><div class="ttname"><a href="classJoinGame.html">JoinGame</a></div><div class="ttdef"><b>Definition</b> JoinGame.hpp:27</div></div>
+<div class="ttc" id="aclassJoinGame_html_a1697b532bc254ad78d5536c11336f951"><div class="ttname"><a href="classJoinGame.html#a1697b532bc254ad78d5536c11336f951">JoinGame::JoinGame</a></div><div class="ttdeci">JoinGame()</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:40</div></div>
+<div class="ttc" id="aclassJoinGame_html_a35e0e23c095b55cbb840002f6670db78"><div class="ttname"><a href="classJoinGame.html#a35e0e23c095b55cbb840002f6670db78">JoinGame::OnEnter</a></div><div class="ttdeci">void OnEnter() override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:50</div></div>
+<div class="ttc" id="aclassJoinGame_html_a3d195bb4d3d35bccf3ce29254995cfa1"><div class="ttname"><a href="classJoinGame.html#a3d195bb4d3d35bccf3ce29254995cfa1">JoinGame::OnExit</a></div><div class="ttdeci">void OnExit() override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:151</div></div>
+<div class="ttc" id="aclassJoinGame_html_a85c73e4f372469b60181861c1dce6522"><div class="ttname"><a href="classJoinGame.html#a85c73e4f372469b60181861c1dce6522">JoinGame::HandleEvent</a></div><div class="ttdeci">void HandleEvent(SDL_Event &amp;event) override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:182</div></div>
+<div class="ttc" id="aclassJoinGame_html_aa4246f042518aa05fe7bd357768f3049"><div class="ttname"><a href="classJoinGame.html#aa4246f042518aa05fe7bd357768f3049">JoinGame::GetPlayers</a></div><div class="ttdeci">std::unordered_map&lt; uint16_t, Entity &gt; GetPlayers() override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:188</div></div>
+<div class="ttc" id="aclassJoinGame_html_aa9dcec39f9e31a4e8a36756f8c0d6161"><div class="ttname"><a href="classJoinGame.html#aa9dcec39f9e31a4e8a36756f8c0d6161">JoinGame::Render</a></div><div class="ttdeci">void Render() override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:175</div></div>
+<div class="ttc" id="aclassJoinGame_html_aab377dce75ca9032f01636e90ec7fa98"><div class="ttname"><a href="classJoinGame.html#aab377dce75ca9032f01636e90ec7fa98">JoinGame::Update</a></div><div class="ttdeci">void Update(float deltaTime) override</div><div class="ttdef"><b>Definition</b> JoinGame.hpp:162</div></div>
+<div class="ttc" id="astructAction_html"><div class="ttname"><a href="structAction.html">Action</a></div><div class="ttdef"><b>Definition</b> Action.hpp:277</div></div>
+<div class="ttc" id="astructEvent_html"><div class="ttname"><a href="structEvent.html">Event</a></div><div class="ttdef"><b>Definition</b> Event.hpp:274</div></div>
+<div class="ttc" id="astructEvent_html_ac721e4f34b3b9a1ae302165412221724"><div class="ttname"><a href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">Event::type</a></div><div class="ttdeci">EventType type</div><div class="ttdef"><b>Definition</b> Event.hpp:275</div></div>
+<div class="ttc" id="astructEvent_html_ad177356e880288c8f4b9915a038ebcb7"><div class="ttname"><a href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">Event::data</a></div><div class="ttdeci">EventData data</div><div class="ttdef"><b>Definition</b> Event.hpp:276</div></div>
+<div class="ttc" id="astructLoginReq_html"><div class="ttname"><a href="structLoginReq.html">LoginReq</a></div><div class="ttdef"><b>Definition</b> Action.hpp:52</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

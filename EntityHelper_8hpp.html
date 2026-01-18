@@ -79,7 +79,9 @@ $(function() {
   <div class="headertitle"><div class="title">EntityHelper.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;utility&gt;</code><br />
+<div class="textblock"><code>#include &lt;iostream&gt;</code><br />
+<code>#include &lt;string&gt;</code><br />
+<code>#include &lt;utility&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &quot;<a class="el" href="Items_8hpp_source.html">Collision/Items.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Boss_8hpp_source.html">Player/Boss.hpp</a>&quot;</code><br />
@@ -87,18 +89,24 @@ $(function() {
 <code>#include &quot;<a class="el" href="EnemySpawn_8hpp_source.html">Player/EnemySpawn.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="PlayerEntity_8hpp_source.html">Player/PlayerEntity.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Projectile_8hpp_source.html">Player/Projectile.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Physics2D_8hpp_source.html">components/Physics2D.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Registry_8hpp_source.html">ecs/Registry.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="InputManager_8hpp_source.html">inputs/InputManager.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="BossPart_8hpp_source.html">components/BossPart.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Force_8hpp_source.html">components/Force.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Levels_8hpp_source.html">components/Levels.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="TileMap_8hpp_source.html">components/TileMap.hpp</a>&quot;</code><br />
+<code>#include &quot;ecs/Registry.hpp&quot;</code><br />
+<code>#include &quot;input/InputSubsystem.hpp&quot;</code><br />
+<code>#include &quot;physics/Physics2D.hpp&quot;</code><br />
+<code>#include &quot;rendering/RenderingSubsystem.hpp&quot;</code><br />
+<code>#include &quot;stdlib.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for EntityHelper.hpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="EntityHelper_8hpp__incl.svg" width="2642" height="432"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="EntityHelper_8hpp__incl.svg" width="2308" height="359"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="EntityHelper_8hpp__dep__incl.svg" width="944" height="168"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="EntityHelper_8hpp__dep__incl.svg" width="4424" height="271"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="EntityHelper_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -114,16 +122,36 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:abf08f5fa08491217956d6c0df1674b89" id="r_abf08f5fa08491217956d6c0df1674b89"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEntity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#abf08f5fa08491217956d6c0df1674b89">createPlayer</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;<a class="el" href="classSparseArray.html">startPos</a>, <a class="el" href="classSparseArray.html">int</a> playerId=0)</td></tr>
+<tr class="memitem:abf08f5fa08491217956d6c0df1674b89" id="r_abf08f5fa08491217956d6c0df1674b89"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#abf08f5fa08491217956d6c0df1674b89">createPlayer</a> (Registry &amp;registry, const Vector2 &amp;startPos, int playerId=0)</td></tr>
 <tr class="separator:abf08f5fa08491217956d6c0df1674b89"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a43bbe31f6649b5b50830fe812e31f1fe" id="r_a43bbe31f6649b5b50830fe812e31f1fe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEntity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a43bbe31f6649b5b50830fe812e31f1fe">createEnemy</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;<a class="el" href="classSparseArray.html">startPos</a>)</td></tr>
-<tr class="separator:a43bbe31f6649b5b50830fe812e31f1fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9978ecef5b9c4be58b984a4f313f343" id="r_ac9978ecef5b9c4be58b984a4f313f343"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEntity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#ac9978ecef5b9c4be58b984a4f313f343">createBoss</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96">BossType</a> type, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;<a class="el" href="classSparseArray.html">startPos</a>, <a class="el" href="Boss_8hpp.html#a07a185cf5c3b2a4716f5f67f67e502df">BossPhase</a> phase, <a class="el" href="classSparseArray.html">int</a> maxHp)</td></tr>
+<tr class="memitem:a726abfd316a37d3481adcc1106fb2ffb" id="r_a726abfd316a37d3481adcc1106fb2ffb"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a726abfd316a37d3481adcc1106fb2ffb">createEnemy</a> (Registry &amp;registry, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type, const Vector2 &amp;startPos, float speedMultiplier=1.0f, float hpMultiplier=1.0f)</td></tr>
+<tr class="separator:a726abfd316a37d3481adcc1106fb2ffb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9978ecef5b9c4be58b984a4f313f343" id="r_ac9978ecef5b9c4be58b984a4f313f343"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#ac9978ecef5b9c4be58b984a4f313f343">createBoss</a> (Registry &amp;registry, <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96">BossType</a> type, const Vector2 &amp;startPos, <a class="el" href="Boss_8hpp.html#a07a185cf5c3b2a4716f5f67f67e502df">BossPhase</a> phase, int maxHp)</td></tr>
 <tr class="separator:ac9978ecef5b9c4be58b984a4f313f343"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76b98c5f1785ceb0cfc311045fb77312" id="r_a76b98c5f1785ceb0cfc311045fb77312"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEntity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a76b98c5f1785ceb0cfc311045fb77312">createProjectile</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;<a class="el" href="classSparseArray.html">startPos</a>, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;direction, <a class="el" href="classSparseArray.html">float</a> speed, <a class="el" href="classSparseArray.html">Uint32</a> damage, <a class="el" href="classSparseArray.html">bool</a> <a class="el" href="classSparseArray.html">fromPlayer</a>)</td></tr>
-<tr class="separator:a76b98c5f1785ceb0cfc311045fb77312"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a35a18f602c4f9fe61b127500c9cf39b1" id="r_a35a18f602c4f9fe61b127500c9cf39b1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEntity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a35a18f602c4f9fe61b127500c9cf39b1">createEnemySpawner</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, std::vector&lt; <a class="el" href="structVector2.html">Vector2</a> &gt; <a class="el" href="classSparseArray.html">points</a>, <a class="el" href="classSparseArray.html">float</a> <a class="el" href="classSparseArray.html">interval</a>, <a class="el" href="classSparseArray.html">int</a> <a class="el" href="classSparseArray.html">maxEnemies</a>, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type)</td></tr>
+<tr class="memitem:a0ca0772d8e1dc3eec3917b38c94c269c" id="r_a0ca0772d8e1dc3eec3917b38c94c269c"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a0ca0772d8e1dc3eec3917b38c94c269c">createProjectile</a> (Registry &amp;registry, const Vector2 &amp;startPos, const Vector2 &amp;direction, float speed, Uint32 damage, bool fromPlayer, int chargeLevel=0)</td></tr>
+<tr class="separator:a0ca0772d8e1dc3eec3917b38c94c269c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35a18f602c4f9fe61b127500c9cf39b1" id="r_a35a18f602c4f9fe61b127500c9cf39b1"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a35a18f602c4f9fe61b127500c9cf39b1">createEnemySpawner</a> (Registry &amp;registry, std::vector&lt; Vector2 &gt; points, float interval, int maxEnemies, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type)</td></tr>
 <tr class="separator:a35a18f602c4f9fe61b127500c9cf39b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1f4289c68c188528a8232eb8a693441" id="r_af1f4289c68c188528a8232eb8a693441"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#af1f4289c68c188528a8232eb8a693441">createLevelEntity</a> (Registry &amp;registry, const <a class="el" href="structLevelComponent.html">LevelComponent</a> &amp;level)</td></tr>
+<tr class="separator:af1f4289c68c188528a8232eb8a693441"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d5a4a2212e1a8608982af7cddfb868b" id="r_a8d5a4a2212e1a8608982af7cddfb868b"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a8d5a4a2212e1a8608982af7cddfb868b">createBossPart</a> (Registry &amp;registry, Entity bossEntity, const Vector2 &amp;startPos, Vector2 offset, int segmentIndex, float timeOffset, int hp, Vector2 size={30.f, 30.f}, uint8_t partType=0)</td></tr>
+<tr class="separator:a8d5a4a2212e1a8608982af7cddfb868b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d8423ac8f6b8e63adf3b2a31077c6d8" id="r_a4d8423ac8f6b8e63adf3b2a31077c6d8"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a4d8423ac8f6b8e63adf3b2a31077c6d8">createForce</a> (Registry &amp;registry, Entity playerEntity, const Vector2 &amp;startPos)</td></tr>
+<tr class="separator:a4d8423ac8f6b8e63adf3b2a31077c6d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d0ef482cdc950f7fca22ecef5ab3ac5" id="r_a2d0ef482cdc950f7fca22ecef5ab3ac5"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a2d0ef482cdc950f7fca22ecef5ab3ac5">createMapEntity</a> (Registry &amp;registry, uint16_t mapWidth, uint16_t mapHeight, float scrollSpeed, const std::vector&lt; uint8_t &gt; &amp;tiles, uint16_t tileSize=32)</td></tr>
+<tr class="separator:a2d0ef482cdc950f7fca22ecef5ab3ac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd6059c354445d2c50e5e7152e72fe9c" id="r_afd6059c354445d2c50e5e7152e72fe9c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structTileMap.html">TileMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#afd6059c354445d2c50e5e7152e72fe9c">generateSimpleMap</a> (int levelIndex, uint16_t screenWidth=800, uint16_t screenHeight=600)</td></tr>
+<tr class="separator:afd6059c354445d2c50e5e7152e72fe9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a583e16eed64bebd6b01363a8173d9ea6" id="r_a583e16eed64bebd6b01363a8173d9ea6"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a583e16eed64bebd6b01363a8173d9ea6">CreateSprite</a> (Registry &amp;registry, const std::string &amp;textureKey, Vector2 position, int layer=0)</td></tr>
+<tr class="memdesc:a583e16eed64bebd6b01363a8173d9ea6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a sprite.  <br /></td></tr>
+<tr class="separator:a583e16eed64bebd6b01363a8173d9ea6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae58e8625cac56f3a551ab6cde16bc099" id="r_ae58e8625cac56f3a551ab6cde16bc099"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#ae58e8625cac56f3a551ab6cde16bc099">CreatePhysicsObject</a> (Registry &amp;registry, const std::string &amp;textureKey, Vector2 position, Vector2 size, bool isStatic, int layer)</td></tr>
+<tr class="memdesc:ae58e8625cac56f3a551ab6cde16bc099"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a sprite with physics components; rigidBody and boxCollider.  <br /></td></tr>
+<tr class="separator:ae58e8625cac56f3a551ab6cde16bc099"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06b84a85069071a995d22e51de65b626" id="r_a06b84a85069071a995d22e51de65b626"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a06b84a85069071a995d22e51de65b626">CreateAnimatedSprite</a> (Registry &amp;registry, const AnimationClip *clip, const std::string &amp;textureKey, Vector2 position, const std::string &amp;animationKey, int layer=0)</td></tr>
+<tr class="separator:a06b84a85069071a995d22e51de65b626"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88d0a858a412025131f38763426f916e" id="r_a88d0a858a412025131f38763426f916e"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a88d0a858a412025131f38763426f916e">CreatePlayer</a> (Registry &amp;registry, const AnimationClip *clip, const std::string &amp;textureKey, const std::string &amp;animationKey, Vector2 position, float moveSpeed, int layer=0)</td></tr>
+<tr class="separator:a88d0a858a412025131f38763426f916e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ad79a57ed3105eb60d991a1aeb4a9dc44" name="ad79a57ed3105eb60d991a1aeb4a9dc44"></a>
@@ -136,7 +164,7 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">enum</a> <a class="el" href="classSparseArray.html">class</a> <a class="el" href="EntityHelper_8hpp.html#ad79a57ed3105eb60d991a1aeb4a9dc44">EntityType</a></td>
+          <td class="memname">enum class <a class="el" href="EntityHelper_8hpp.html#ad79a57ed3105eb60d991a1aeb4a9dc44">EntityType</a></td>
         </tr>
       </table>
   </td>
@@ -155,6 +183,66 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a06b84a85069071a995d22e51de65b626" name="a06b84a85069071a995d22e51de65b626"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06b84a85069071a995d22e51de65b626">&#9670;&#160;</a></span>CreateAnimatedSprite()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Entity CreateAnimatedSprite </td>
+          <td>(</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
+          <td class="paramname"><em>registry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const AnimationClip *&#160;</td>
+          <td class="paramname"><em>clip</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>textureKey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Vector2&#160;</td>
+          <td class="paramname"><em>position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>animationKey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>layer</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="ac9978ecef5b9c4be58b984a4f313f343" name="ac9978ecef5b9c4be58b984a4f313f343"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac9978ecef5b9c4be58b984a4f313f343">&#9670;&#160;</a></span>createBoss()</h2>
 
@@ -165,9 +253,9 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classEntity.html">Entity</a> createBoss </td>
+          <td class="memname">Entity createBoss </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
@@ -179,7 +267,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;&#160;</td>
+          <td class="paramtype">const Vector2 &amp;&#160;</td>
           <td class="paramname"><em>startPos</em>, </td>
         </tr>
         <tr>
@@ -191,7 +279,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">int</a>&#160;</td>
+          <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>maxHp</em>&#160;</td>
         </tr>
         <tr>
@@ -209,8 +297,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a43bbe31f6649b5b50830fe812e31f1fe" name="a43bbe31f6649b5b50830fe812e31f1fe"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a43bbe31f6649b5b50830fe812e31f1fe">&#9670;&#160;</a></span>createEnemy()</h2>
+<a id="a8d5a4a2212e1a8608982af7cddfb868b" name="a8d5a4a2212e1a8608982af7cddfb868b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d5a4a2212e1a8608982af7cddfb868b">&#9670;&#160;</a></span>createBossPart()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -219,9 +307,87 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classEntity.html">Entity</a> createEnemy </td>
+          <td class="memname">Entity createBossPart </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
+          <td class="paramname"><em>registry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Entity&#160;</td>
+          <td class="paramname"><em>bossEntity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Vector2 &amp;&#160;</td>
+          <td class="paramname"><em>startPos</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Vector2&#160;</td>
+          <td class="paramname"><em>offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>segmentIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>timeOffset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>hp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Vector2&#160;</td>
+          <td class="paramname"><em>size</em> = <code>{30.f,&#160;30.f}</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>partType</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a726abfd316a37d3481adcc1106fb2ffb" name="a726abfd316a37d3481adcc1106fb2ffb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a726abfd316a37d3481adcc1106fb2ffb">&#9670;&#160;</a></span>createEnemy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Entity createEnemy </td>
+          <td>(</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
@@ -233,8 +399,20 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;&#160;</td>
-          <td class="paramname"><em>startPos</em>&#160;</td>
+          <td class="paramtype">const Vector2 &amp;&#160;</td>
+          <td class="paramname"><em>startPos</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>speedMultiplier</em> = <code>1.0f</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>hpMultiplier</em> = <code>1.0f</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -261,27 +439,27 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classEntity.html">Entity</a> createEnemySpawner </td>
+          <td class="memname">Entity createEnemySpawner </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; <a class="el" href="structVector2.html">Vector2</a> &gt;&#160;</td>
+          <td class="paramtype">std::vector&lt; Vector2 &gt;&#160;</td>
           <td class="paramname"><em>points</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>interval</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">int</a>&#160;</td>
+          <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>maxEnemies</em>, </td>
         </tr>
         <tr>
@@ -289,6 +467,282 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype"><a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a>&#160;</td>
           <td class="paramname"><em>type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4d8423ac8f6b8e63adf3b2a31077c6d8" name="a4d8423ac8f6b8e63adf3b2a31077c6d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d8423ac8f6b8e63adf3b2a31077c6d8">&#9670;&#160;</a></span>createForce()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Entity createForce </td>
+          <td>(</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
+          <td class="paramname"><em>registry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Entity&#160;</td>
+          <td class="paramname"><em>playerEntity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Vector2 &amp;&#160;</td>
+          <td class="paramname"><em>startPos</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af1f4289c68c188528a8232eb8a693441" name="af1f4289c68c188528a8232eb8a693441"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1f4289c68c188528a8232eb8a693441">&#9670;&#160;</a></span>createLevelEntity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Entity createLevelEntity </td>
+          <td>(</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
+          <td class="paramname"><em>registry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structLevelComponent.html">LevelComponent</a> &amp;&#160;</td>
+          <td class="paramname"><em>level</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2d0ef482cdc950f7fca22ecef5ab3ac5" name="a2d0ef482cdc950f7fca22ecef5ab3ac5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2d0ef482cdc950f7fca22ecef5ab3ac5">&#9670;&#160;</a></span>createMapEntity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Entity createMapEntity </td>
+          <td>(</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
+          <td class="paramname"><em>registry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>mapWidth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>mapHeight</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>scrollSpeed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>tiles</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>tileSize</em> = <code>32</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae58e8625cac56f3a551ab6cde16bc099" name="ae58e8625cac56f3a551ab6cde16bc099"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae58e8625cac56f3a551ab6cde16bc099">&#9670;&#160;</a></span>CreatePhysicsObject()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Entity CreatePhysicsObject </td>
+          <td>(</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
+          <td class="paramname"><em>registry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>textureKey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Vector2&#160;</td>
+          <td class="paramname"><em>position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Vector2&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>isStatic</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>layer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Creates a sprite with physics components; rigidBody and boxCollider. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">textureKey</td><td>texture key in the texture manager </td></tr>
+    <tr><td class="paramname">position</td><td>spawn coordinates </td></tr>
+    <tr><td class="paramname">size</td><td>size of the box collider </td></tr>
+    <tr><td class="paramname">isStatic</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Entity </dd></dl>
+
+</div>
+</div>
+<a id="a88d0a858a412025131f38763426f916e" name="a88d0a858a412025131f38763426f916e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a88d0a858a412025131f38763426f916e">&#9670;&#160;</a></span>CreatePlayer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Entity CreatePlayer </td>
+          <td>(</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
+          <td class="paramname"><em>registry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const AnimationClip *&#160;</td>
+          <td class="paramname"><em>clip</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>textureKey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>animationKey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Vector2&#160;</td>
+          <td class="paramname"><em>position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>moveSpeed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>layer</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -315,21 +769,21 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classEntity.html">Entity</a> createPlayer </td>
+          <td class="memname">Entity createPlayer </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;&#160;</td>
+          <td class="paramtype">const Vector2 &amp;&#160;</td>
           <td class="paramname"><em>startPos</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">int</a>&#160;</td>
+          <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>playerId</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
@@ -347,8 +801,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a76b98c5f1785ceb0cfc311045fb77312" name="a76b98c5f1785ceb0cfc311045fb77312"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a76b98c5f1785ceb0cfc311045fb77312">&#9670;&#160;</a></span>createProjectile()</h2>
+<a id="a0ca0772d8e1dc3eec3917b38c94c269c" name="a0ca0772d8e1dc3eec3917b38c94c269c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ca0772d8e1dc3eec3917b38c94c269c">&#9670;&#160;</a></span>createProjectile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -357,40 +811,147 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classEntity.html">Entity</a> createProjectile </td>
+          <td class="memname">Entity createProjectile </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;&#160;</td>
+          <td class="paramtype">const Vector2 &amp;&#160;</td>
           <td class="paramname"><em>startPos</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structVector2.html">Vector2</a> &amp;&#160;</td>
+          <td class="paramtype">const Vector2 &amp;&#160;</td>
           <td class="paramname"><em>direction</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>speed</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">Uint32</a>&#160;</td>
+          <td class="paramtype">Uint32&#160;</td>
           <td class="paramname"><em>damage</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">bool</a>&#160;</td>
-          <td class="paramname"><em>fromPlayer</em>&#160;</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>fromPlayer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>chargeLevel</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a583e16eed64bebd6b01363a8173d9ea6" name="a583e16eed64bebd6b01363a8173d9ea6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a583e16eed64bebd6b01363a8173d9ea6">&#9670;&#160;</a></span>CreateSprite()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Entity CreateSprite </td>
+          <td>(</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
+          <td class="paramname"><em>registry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>textureKey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Vector2&#160;</td>
+          <td class="paramname"><em>position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>layer</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Creates a sprite. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">textureKey</td><td>texture key in the texture manager </td></tr>
+    <tr><td class="paramname">position</td><td>spawn coordinates </td></tr>
+    <tr><td class="paramname">layer</td><td>position sprite on different layers for rendering </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Entity </dd></dl>
+
+</div>
+</div>
+<a id="afd6059c354445d2c50e5e7152e72fe9c" name="afd6059c354445d2c50e5e7152e72fe9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd6059c354445d2c50e5e7152e72fe9c">&#9670;&#160;</a></span>generateSimpleMap()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structTileMap.html">TileMap</a> generateSimpleMap </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>levelIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>screenWidth</em> = <code>800</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>screenHeight</em> = <code>600</code>&#160;</td>
         </tr>
         <tr>
           <td></td>

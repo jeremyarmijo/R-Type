@@ -84,31 +84,31 @@ $(function() {
 <code>#include &quot;<a class="el" href="Enemy_8hpp_source.html">Player/Enemy.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="PlayerEntity_8hpp_source.html">Player/PlayerEntity.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Projectile_8hpp_source.html">Player/Projectile.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Physics2D_8hpp_source.html">components/Physics2D.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Registry_8hpp_source.html">ecs/Registry.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Zipper_8hpp_source.html">ecs/Zipper.hpp</a>&quot;</code><br />
+<code>#include &quot;physics/Physics2D.hpp&quot;</code><br />
+<code>#include &quot;ecs/Registry.hpp&quot;</code><br />
+<code>#include &quot;ecs/Zipper.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for Collision.hpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="Collision_8hpp__incl.svg" width="1967" height="447"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="Collision_8hpp__incl.svg" width="1342" height="374"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="Collision_8hpp__dep__incl.svg" width="668" height="168"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="Collision_8hpp__dep__incl.svg" width="1092" height="168"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="Collision_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a5300154ec01349516625c92d1a3c9abd" id="r_a5300154ec01349516625c92d1a3c9abd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Collision_8hpp.html#a5300154ec01349516625c92d1a3c9abd">gamePlay_Collision_system</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structTransform.html">Transform</a> &gt; &amp;<a class="el" href="classSparseArray.html">transforms</a>, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structBoxCollider.html">BoxCollider</a> &gt; &amp;<a class="el" href="classSparseArray.html">colliders</a>, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structPlayerEntity.html">PlayerEntity</a> &gt; &amp;players, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;enemies, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structBoss.html">Boss</a> &gt; &amp;<a class="el" href="classSparseArray.html">bosses</a>)</td></tr>
+<tr class="memitem:a5300154ec01349516625c92d1a3c9abd" id="r_a5300154ec01349516625c92d1a3c9abd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Collision_8hpp.html#a5300154ec01349516625c92d1a3c9abd">gamePlay_Collision_system</a> (Registry &amp;registry, SparseArray&lt; Transform &gt; &amp;transforms, SparseArray&lt; BoxCollider &gt; &amp;colliders, SparseArray&lt; <a class="el" href="structPlayerEntity.html">PlayerEntity</a> &gt; &amp;players, SparseArray&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;enemies, SparseArray&lt; <a class="el" href="structBoss.html">Boss</a> &gt; &amp;bosses)</td></tr>
 <tr class="separator:a5300154ec01349516625c92d1a3c9abd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9d5b703aad4ebea932962b5301b6ea55" id="r_a9d5b703aad4ebea932962b5301b6ea55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249">CollisionCategory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Collision_8hpp.html#a9d5b703aad4ebea932962b5301b6ea55">get_entity_category</a> (<a class="el" href="classSparseArray.html">size_t</a> <a class="el" href="classSparseArray.html">entityId</a>, <a class="el" href="classRegistry.html">Registry</a> &amp;registry)</td></tr>
+<tr class="memitem:a9d5b703aad4ebea932962b5301b6ea55" id="r_a9d5b703aad4ebea932962b5301b6ea55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249">CollisionCategory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Collision_8hpp.html#a9d5b703aad4ebea932962b5301b6ea55">get_entity_category</a> (size_t entityId, Registry &amp;registry)</td></tr>
 <tr class="separator:a9d5b703aad4ebea932962b5301b6ea55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a681afa9450865bbbba4a06098cc27f35" id="r_a681afa9450865bbbba4a06098cc27f35"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Collision_8hpp.html#a681afa9450865bbbba4a06098cc27f35">apply_damage_to_entity</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">size_t</a> <a class="el" href="classSparseArray.html">targetId</a>, <a class="el" href="classSparseArray.html">float</a> damage, <a class="el" href="classSparseArray.html">size_t</a> <a class="el" href="classSparseArray.html">attackerId</a>=0)</td></tr>
+<tr class="memitem:a681afa9450865bbbba4a06098cc27f35" id="r_a681afa9450865bbbba4a06098cc27f35"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Collision_8hpp.html#a681afa9450865bbbba4a06098cc27f35">apply_damage_to_entity</a> (Registry &amp;registry, size_t targetId, float damage, size_t attackerId=0)</td></tr>
 <tr class="separator:a681afa9450865bbbba4a06098cc27f35"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d3aa41afff526ec415bc1dc61fb112f" id="r_a3d3aa41afff526ec415bc1dc61fb112f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Collision_8hpp.html#a3d3aa41afff526ec415bc1dc61fb112f">check_collision</a> (<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structTransform.html">Transform</a> &amp;<a class="el" href="classSparseArray.html">t1</a>, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="structBoxCollider.html">BoxCollider</a> &amp;<a class="el" href="classSparseArray.html">c1</a>, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="structTransform.html">Transform</a> &amp;<a class="el" href="classSparseArray.html">t2</a>, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="structBoxCollider.html">BoxCollider</a> &amp;<a class="el" href="classSparseArray.html">c2</a>)</td></tr>
+<tr class="memitem:a3d3aa41afff526ec415bc1dc61fb112f" id="r_a3d3aa41afff526ec415bc1dc61fb112f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Collision_8hpp.html#a3d3aa41afff526ec415bc1dc61fb112f">check_collision</a> (const Transform &amp;t1, const BoxCollider &amp;c1, const Transform &amp;t2, const BoxCollider &amp;c2)</td></tr>
 <tr class="separator:a3d3aa41afff526ec415bc1dc61fb112f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -119,27 +119,27 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> apply_damage_to_entity </td>
+          <td class="memname">void apply_damage_to_entity </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">size_t</a>&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>targetId</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>damage</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">size_t</a>&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>attackerId</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
@@ -162,27 +162,27 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">bool</a> check_collision </td>
+          <td class="memname">bool check_collision </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structTransform.html">Transform</a> &amp;&#160;</td>
+          <td class="paramtype">const Transform &amp;&#160;</td>
           <td class="paramname"><em>t1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structBoxCollider.html">BoxCollider</a> &amp;&#160;</td>
+          <td class="paramtype">const BoxCollider &amp;&#160;</td>
           <td class="paramname"><em>c1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structTransform.html">Transform</a> &amp;&#160;</td>
+          <td class="paramtype">const Transform &amp;&#160;</td>
           <td class="paramname"><em>t2</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structBoxCollider.html">BoxCollider</a> &amp;&#160;</td>
+          <td class="paramtype">const BoxCollider &amp;&#160;</td>
           <td class="paramname"><em>c2</em>&#160;</td>
         </tr>
         <tr>
@@ -207,39 +207,39 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> gamePlay_Collision_system </td>
+          <td class="memname">void gamePlay_Collision_system </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structTransform.html">Transform</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; Transform &gt; &amp;&#160;</td>
           <td class="paramname"><em>transforms</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structBoxCollider.html">BoxCollider</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; BoxCollider &gt; &amp;&#160;</td>
           <td class="paramname"><em>colliders</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structPlayerEntity.html">PlayerEntity</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structPlayerEntity.html">PlayerEntity</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>players</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>enemies</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structBoss.html">Boss</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structBoss.html">Boss</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>bosses</em>&#160;</td>
         </tr>
         <tr>
@@ -261,13 +261,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249">CollisionCategory</a> get_entity_category </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">size_t</a>&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>entityId</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>&#160;</td>
         </tr>
         <tr>

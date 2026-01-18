@@ -79,16 +79,20 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="BoundsSystem_8hpp_source.html">systems/BoundsSystem.hpp</a>&quot;</code><br />
+<code>#include &lt;iostream&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
+<code>#include &quot;<a class="el" href="Boss_8hpp_source.html">Player/Boss.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Enemy_8hpp_source.html">Player/Enemy.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="PlayerEntity_8hpp_source.html">Player/PlayerEntity.hpp</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for BoundsSystem.cpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="BoundsSystem_8cpp__incl.svg" width="1694" height="432"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="BoundsSystem_8cpp__incl.svg" width="1072" height="359"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a4b6f0cb90f3ff88fc6c6e13a1389059e" id="r_a4b6f0cb90f3ff88fc6c6e13a1389059e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="BoundsSystem_8cpp.html#a4b6f0cb90f3ff88fc6c6e13a1389059e">bounds_check_system</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structTransform.html">Transform</a> &gt; &amp;<a class="el" href="classSparseArray.html">transforms</a>, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structBoxCollider.html">BoxCollider</a> &gt; &amp;<a class="el" href="classSparseArray.html">colliders</a>, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structRigidBody.html">RigidBody</a> &gt; &amp;<a class="el" href="classSparseArray.html">rigidbodies</a>)</td></tr>
+<tr class="memitem:a4b6f0cb90f3ff88fc6c6e13a1389059e" id="r_a4b6f0cb90f3ff88fc6c6e13a1389059e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="BoundsSystem_8cpp.html#a4b6f0cb90f3ff88fc6c6e13a1389059e">bounds_check_system</a> (Registry &amp;registry, SparseArray&lt; Transform &gt; &amp;transforms, SparseArray&lt; BoxCollider &gt; &amp;colliders, SparseArray&lt; RigidBody &gt; &amp;rigidbodies)</td></tr>
 <tr class="separator:a4b6f0cb90f3ff88fc6c6e13a1389059e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -99,27 +103,27 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> bounds_check_system </td>
+          <td class="memname">void bounds_check_system </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structTransform.html">Transform</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; Transform &gt; &amp;&#160;</td>
           <td class="paramname"><em>transforms</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structBoxCollider.html">BoxCollider</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; BoxCollider &gt; &amp;&#160;</td>
           <td class="paramname"><em>colliders</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structRigidBody.html">RigidBody</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; RigidBody &gt; &amp;&#160;</td>
           <td class="paramname"><em>rigidbodies</em>&#160;</td>
         </tr>
         <tr>

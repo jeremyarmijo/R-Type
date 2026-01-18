@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['handleclient_2ecpp_0',['HandleClient.cpp',['../HandleClient_8cpp.html',1,'']]],
-  ['handleclient_2ehpp_1',['HandleClient.hpp',['../HandleClient_8hpp.html',1,'']]]
+  ['gameover_2ecpp_0',['GameOver.cpp',['../GameOver_8cpp.html',1,'']]],
+  ['gameover_2ehpp_1',['GameOver.hpp',['../GameOver_8hpp.html',1,'']]]
 ];

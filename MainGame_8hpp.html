@@ -74,29 +74,38 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">MainGame.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;SDL2/SDL.h&gt;</code><br />
+<code>#include &lt;algorithm&gt;</code><br />
 <code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;unordered_map&gt;</code><br />
 <code>#include &lt;unordered_set&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
+<code>#include &quot;<a class="el" href="EntityHelper_8hpp_source.html">Helpers/EntityHelper.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="PlayerEntity_8hpp_source.html">Player/PlayerEntity.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="InputSystem_8hpp_source.html">inputs/InputSystem.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="SceneManager_8hpp_source.html">scene/SceneManager.hpp</a>&quot;</code><br />
+<code>#include &quot;audio/AudioSubsystem.hpp&quot;</code><br />
+<code>#include &quot;<a class="el" href="DataMask_8hpp_source.html">network/DataMask.hpp</a>&quot;</code><br />
+<code>#include &quot;network/NetworkSubsystem.hpp&quot;</code><br />
+<code>#include &quot;rendering/RenderingSubsystem.hpp&quot;</code><br />
+<code>#include &quot;scene/Scene.hpp&quot;</code><br />
+<code>#include &quot;scene/SceneManager.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="MultiplayerSkinManager_8hpp_source.html">settings/MultiplayerSkinManager.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="BoundsSystem_8hpp_source.html">systems/BoundsSystem.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="InputSystem_8hpp_source.html">systems/InputSystem.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ProjectileSystem_8hpp_source.html">systems/ProjectileSystem.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="WeaponSystem_8hpp_source.html">systems/WeaponSystem.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="UIManager_8hpp_source.html">ui/UIManager.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="UISolidColor_8hpp_source.html">ui/UISolidColor.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="UIText_8hpp_source.html">ui/UIText.hpp</a>&quot;</code><br />
+<code>#include &quot;ui/UIManager.hpp&quot;</code><br />
+<code>#include &quot;ui/UISolidColor.hpp&quot;</code><br />
+<code>#include &quot;ui/UIText.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for MainGame.hpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="MainGame_8hpp__incl.svg" width="5330" height="520"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="MainGame_8hpp__incl.svg" width="4698" height="447"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
@@ -110,7 +119,30 @@ This graph shows which files directly or indirectly include this file:</div>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMyGameScene.html">MyGameScene</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a4c3ef05eef9f27de82de2e0bc8353c59" id="r_a4c3ef05eef9f27de82de2e0bc8353c59"><td class="memItemLeft" align="right" valign="top">Scene *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="MainGame_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a> ()</td></tr>
+<tr class="separator:a4c3ef05eef9f27de82de2e0bc8353c59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a4c3ef05eef9f27de82de2e0bc8353c59" name="a4c3ef05eef9f27de82de2e0bc8353c59"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c3ef05eef9f27de82de2e0bc8353c59">&#9670;&#160;</a></span>CreateScene()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Scene * CreateScene </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

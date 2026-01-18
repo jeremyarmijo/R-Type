@@ -74,7 +74,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#typedef-members">Typedefs</a>  </div>
   <div class="headertitle"><div class="title">TCPServer.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -84,6 +85,7 @@ $(function() {
 <code>#include &lt;memory&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;unordered_map&gt;</code><br />
+<code>#include &lt;utility&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;asio.hpp&gt;</code><br />
 <code>#include &quot;<a class="el" href="ServerMacro_8hpp_source.html">include/ServerMacro.hpp</a>&quot;</code><br />
@@ -91,7 +93,7 @@ $(function() {
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for TCPServer.hpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="TCPServer_8hpp__incl.svg" width="1366" height="359"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="TCPServer_8hpp__incl.svg" width="1450" height="359"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
@@ -109,7 +111,27 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classProcessPacketTCP.html">ProcessPacketTCP</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles TCP packet processing for a single client session.  <a href="classProcessPacketTCP.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a42f41aaecd5f847d55ec23355a4dbf98" id="r_a42f41aaecd5f847d55ec23355a4dbf98"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TCPServer_8hpp.html#a42f41aaecd5f847d55ec23355a4dbf98">MessageCallback</a> = std::function&lt; void(uint32_t, const std::vector&lt; uint8_t &gt; &amp;)&gt;</td></tr>
+<tr class="separator:a42f41aaecd5f847d55ec23355a4dbf98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Typedef Documentation</h2>
+<a id="a42f41aaecd5f847d55ec23355a4dbf98" name="a42f41aaecd5f847d55ec23355a4dbf98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42f41aaecd5f847d55ec23355a4dbf98">&#9670;&#160;</a></span>MessageCallback</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="TCPServer_8hpp.html#a42f41aaecd5f847d55ec23355a4dbf98">MessageCallback</a> =  std::function&lt;void(uint32_t, const std::vector&lt;uint8_t&gt;&amp;)&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

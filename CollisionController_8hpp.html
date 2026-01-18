@@ -79,16 +79,16 @@ $(function() {
   <div class="headertitle"><div class="title">CollisionController.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="Entity_8hpp_source.html">../../ecs/Entity.hpp</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;ecs/Entity.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for CollisionController.hpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="CollisionController_8hpp__incl.svg" width="184" height="227"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="CollisionController_8hpp__incl.svg" width="184" height="154"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="CollisionController_8hpp__dep__incl.svg" width="2619" height="594"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="CollisionController_8hpp__dep__incl.svg" width="5540" height="506"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="CollisionController_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -107,8 +107,11 @@ Enumerations</h2></td></tr>
 , <a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249aae7968d26b598ce434958b0825b7a4ac">Projectile</a>
 , <br />
 &#160;&#160;<a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249a5859831e2b3db23528c710b1451e13fc">Boss</a>
+, <a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249a13dfe52f26e3f8458f6e99b15ff11738">BossPart</a>
+, <a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249a9eb6b78a99cdb6ffd3d40d18621d9f80">Force</a>
 , <a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249a7d74f3b92b19da5e606d737d339a9679">Item</a>
-, <a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249a1e7f604b86415ade94e15fef8627609b">scene</a>
+, <br />
+&#160;&#160;<a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249a1e7f604b86415ade94e15fef8627609b">scene</a>
 <br />
  }</td></tr>
 <tr class="separator:af96ed9b0247cf32be15cf4073c337249"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,7 +127,7 @@ Enumerations</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">enum</a> <a class="el" href="classSparseArray.html">class</a> <a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249">CollisionCategory</a></td>
+          <td class="memname">enum class <a class="el" href="CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249">CollisionCategory</a></td>
         </tr>
       </table>
   </td>
@@ -139,6 +142,8 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="af96ed9b0247cf32be15cf4073c337249a8c6d21187fb58b7a079d70030686b33e" name="af96ed9b0247cf32be15cf4073c337249a8c6d21187fb58b7a079d70030686b33e"></a>Enemy&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="af96ed9b0247cf32be15cf4073c337249aae7968d26b598ce434958b0825b7a4ac" name="af96ed9b0247cf32be15cf4073c337249aae7968d26b598ce434958b0825b7a4ac"></a>Projectile&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="af96ed9b0247cf32be15cf4073c337249a5859831e2b3db23528c710b1451e13fc" name="af96ed9b0247cf32be15cf4073c337249a5859831e2b3db23528c710b1451e13fc"></a>Boss&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af96ed9b0247cf32be15cf4073c337249a13dfe52f26e3f8458f6e99b15ff11738" name="af96ed9b0247cf32be15cf4073c337249a13dfe52f26e3f8458f6e99b15ff11738"></a>BossPart&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af96ed9b0247cf32be15cf4073c337249a9eb6b78a99cdb6ffd3d40d18621d9f80" name="af96ed9b0247cf32be15cf4073c337249a9eb6b78a99cdb6ffd3d40d18621d9f80"></a>Force&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="af96ed9b0247cf32be15cf4073c337249a7d74f3b92b19da5e606d737d339a9679" name="af96ed9b0247cf32be15cf4073c337249a7d74f3b92b19da5e606d737d339a9679"></a>Item&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="af96ed9b0247cf32be15cf4073c337249a1e7f604b86415ade94e15fef8627609b" name="af96ed9b0247cf32be15cf4073c337249a1e7f604b86415ade94e15fef8627609b"></a>scene&#160;</td><td class="fielddoc"></td></tr>
 </table>

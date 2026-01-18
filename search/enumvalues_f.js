@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['scene_0',['scene',['../CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249a1e7f604b86415ade94e15fef8627609b',1,'CollisionController.hpp']]],
-  ['snake_1',['Snake',['../Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96adfa90f1b4eb3affbd3b46af34ed2477c',1,'Boss.hpp']]],
-  ['special_2',['SPECIAL',['../KeyBindings_8hpp.html#a5827805c542ab9cccf700dc3697cbafcaa72e4a34f10af98a9814d865e717399f',1,'KeyBindings.hpp']]]
+  ['unknown_0',['unknown',['../Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a696b031073e74bf2cb98e5ef201d4aa3',1,'UNKNOWN:&#160;Event.hpp'],['../CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249a88183b946cc5f0e8c96b2e66e1c74a7e',1,'Unknown:&#160;CollisionController.hpp'],['../Items_8hpp.html#a443f647757dde85043b49343f5cbe66ba88183b946cc5f0e8c96b2e66e1c74a7e',1,'Unknown:&#160;Items.hpp']]],
+  ['up_5fpress_1',['UP_PRESS',['../Action_8hpp.html#a7969551e86fba60fed45ceed884b7532a1cc85a3bb25f89e86e166262eee924c7',1,'Action.hpp']]],
+  ['up_5frelease_2',['UP_RELEASE',['../Action_8hpp.html#a7969551e86fba60fed45ceed884b7532afc5d7cf2e17d67eabf806c165e0c87b2',1,'Action.hpp']]]
 ];

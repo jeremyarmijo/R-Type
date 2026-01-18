@@ -90,64 +90,100 @@ Include dependency graph for DecodeFunc.hpp:</div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="DecodeFunc_8hpp__dep__incl.svg" width="1014" height="506"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="DecodeFunc_8hpp__dep__incl.svg" width="860" height="491"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="DecodeFunc_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a65633bf9571441c8f6248b8efba2b20a" id="r_a65633bf9571441c8f6248b8efba2b20a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a65633bf9571441c8f6248b8efba2b20a">checkHeader</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>, <a class="el" href="classSparseArray.html">size_t</a> &amp;offset, <a class="el" href="classSparseArray.html">uint32_t</a> &amp;<a class="el" href="classSparseArray.html">payloadLength</a>)</td></tr>
-<tr class="separator:a65633bf9571441c8f6248b8efba2b20a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c12a43d3fbbfa69c14905cbd51a3c57" id="r_a7c12a43d3fbbfa69c14905cbd51a3c57"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a7c12a43d3fbbfa69c14905cbd51a3c57">DecodeLOGIN_REQUEST</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:a8dc6998c2e247f5be79f73b97af0616e" id="r_a8dc6998c2e247f5be79f73b97af0616e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a8dc6998c2e247f5be79f73b97af0616e">checkHeader</a> (const std::vector&lt; uint8_t &gt; &amp;packet, size_t &amp;offset, uint32_t &amp;payloadLength, uint16_t &amp;seq, uint16_t &amp;ack, uint32_t &amp;ack_bits)</td></tr>
+<tr class="separator:a8dc6998c2e247f5be79f73b97af0616e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c12a43d3fbbfa69c14905cbd51a3c57" id="r_a7c12a43d3fbbfa69c14905cbd51a3c57"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a7c12a43d3fbbfa69c14905cbd51a3c57">DecodeLOGIN_REQUEST</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:a7c12a43d3fbbfa69c14905cbd51a3c57"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5f2763d4b5db65f0cf45c08de60b2b6" id="r_aa5f2763d4b5db65f0cf45c08de60b2b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#aa5f2763d4b5db65f0cf45c08de60b2b6">DecodeLOGIN_RESPONSE</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:aa5f2763d4b5db65f0cf45c08de60b2b6" id="r_aa5f2763d4b5db65f0cf45c08de60b2b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#aa5f2763d4b5db65f0cf45c08de60b2b6">DecodeLOGIN_RESPONSE</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:aa5f2763d4b5db65f0cf45c08de60b2b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31032d11c4d28405b49dc83542ffa08e" id="r_a31032d11c4d28405b49dc83542ffa08e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a31032d11c4d28405b49dc83542ffa08e">DecodeGAME_START</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:a31032d11c4d28405b49dc83542ffa08e" id="r_a31032d11c4d28405b49dc83542ffa08e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a31032d11c4d28405b49dc83542ffa08e">DecodeGAME_START</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:a31032d11c4d28405b49dc83542ffa08e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa54b005d20888d2fb35e8a383314cf31" id="r_aa54b005d20888d2fb35e8a383314cf31"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#aa54b005d20888d2fb35e8a383314cf31">DecodeGAME_END</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:aa54b005d20888d2fb35e8a383314cf31" id="r_aa54b005d20888d2fb35e8a383314cf31"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#aa54b005d20888d2fb35e8a383314cf31">DecodeGAME_END</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:aa54b005d20888d2fb35e8a383314cf31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d0e2967895f6058308defaeb8fe8879" id="r_a0d0e2967895f6058308defaeb8fe8879"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a0d0e2967895f6058308defaeb8fe8879">DecodeERROR</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:a0d0e2967895f6058308defaeb8fe8879" id="r_a0d0e2967895f6058308defaeb8fe8879"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a0d0e2967895f6058308defaeb8fe8879">DecodeERROR</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:a0d0e2967895f6058308defaeb8fe8879"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab06d11027d32259106fbfa415aa76446" id="r_ab06d11027d32259106fbfa415aa76446"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#ab06d11027d32259106fbfa415aa76446">DecodePLAYER_INPUT</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:ab06d11027d32259106fbfa415aa76446" id="r_ab06d11027d32259106fbfa415aa76446"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#ab06d11027d32259106fbfa415aa76446">DecodePLAYER_INPUT</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:ab06d11027d32259106fbfa415aa76446"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b22a32a8443aad63f9eb3c40a68a069" id="r_a1b22a32a8443aad63f9eb3c40a68a069"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a1b22a32a8443aad63f9eb3c40a68a069">DecodeGAME_STATE</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:a1b22a32a8443aad63f9eb3c40a68a069" id="r_a1b22a32a8443aad63f9eb3c40a68a069"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a1b22a32a8443aad63f9eb3c40a68a069">DecodeGAME_STATE</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:a1b22a32a8443aad63f9eb3c40a68a069"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2405d7c6c729287688117ec2c1eff6e3" id="r_a2405d7c6c729287688117ec2c1eff6e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a2405d7c6c729287688117ec2c1eff6e3">DecodeAUTH</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:a2405d7c6c729287688117ec2c1eff6e3" id="r_a2405d7c6c729287688117ec2c1eff6e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a2405d7c6c729287688117ec2c1eff6e3">DecodeAUTH</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:a2405d7c6c729287688117ec2c1eff6e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f46667f939ccc6b5ba430f32cbd9964" id="r_a5f46667f939ccc6b5ba430f32cbd9964"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a5f46667f939ccc6b5ba430f32cbd9964">DecodeBOSS_SPAWN</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:a5f46667f939ccc6b5ba430f32cbd9964" id="r_a5f46667f939ccc6b5ba430f32cbd9964"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a5f46667f939ccc6b5ba430f32cbd9964">DecodeBOSS_SPAWN</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:a5f46667f939ccc6b5ba430f32cbd9964"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae88cfee6b70b114e19c4d0b94be604e" id="r_aae88cfee6b70b114e19c4d0b94be604e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#aae88cfee6b70b114e19c4d0b94be604e">DecodeBOSS_UPDATE</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:aae88cfee6b70b114e19c4d0b94be604e" id="r_aae88cfee6b70b114e19c4d0b94be604e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#aae88cfee6b70b114e19c4d0b94be604e">DecodeBOSS_UPDATE</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:aae88cfee6b70b114e19c4d0b94be604e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5bf64cbea72a7fa9504e5225f9eab4bf" id="r_a5bf64cbea72a7fa9504e5225f9eab4bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a5bf64cbea72a7fa9504e5225f9eab4bf">DecodeENEMY_HIT</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;<a class="el" href="classSparseArray.html">packet</a>)</td></tr>
+<tr class="memitem:a5bf64cbea72a7fa9504e5225f9eab4bf" id="r_a5bf64cbea72a7fa9504e5225f9eab4bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a5bf64cbea72a7fa9504e5225f9eab4bf">DecodeENEMY_HIT</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
 <tr class="separator:a5bf64cbea72a7fa9504e5225f9eab4bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec307b1b50c359dfb731006e16a05123" id="r_aec307b1b50c359dfb731006e16a05123"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#aec307b1b50c359dfb731006e16a05123">SetupDecoder</a> (<a class="el" href="classDecoder.html">Decoder</a> &amp;decoder)</td></tr>
+<tr class="memitem:a50538cc6a5dc0104aba5e4f2ce209ac1" id="r_a50538cc6a5dc0104aba5e4f2ce209ac1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a50538cc6a5dc0104aba5e4f2ce209ac1">DecodeLOBBY_CREATE</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
+<tr class="separator:a50538cc6a5dc0104aba5e4f2ce209ac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae12bf0f9b4c4ba24a6ec2fe600127370" id="r_ae12bf0f9b4c4ba24a6ec2fe600127370"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#ae12bf0f9b4c4ba24a6ec2fe600127370">DecodeLOBBY_JOIN_REQUEST</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
+<tr class="separator:ae12bf0f9b4c4ba24a6ec2fe600127370"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1de1bf615f0c8a1492ae1008c3fdca45" id="r_a1de1bf615f0c8a1492ae1008c3fdca45"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a1de1bf615f0c8a1492ae1008c3fdca45">DecodeLOBBY_JOIN_RESPONSE</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
+<tr class="separator:a1de1bf615f0c8a1492ae1008c3fdca45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acefde367ad37be6d03800e46a6403ab0" id="r_acefde367ad37be6d03800e46a6403ab0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#acefde367ad37be6d03800e46a6403ab0">DecodeLOBBY_LIST_REQUEST</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
+<tr class="separator:acefde367ad37be6d03800e46a6403ab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a923f550458c90d8490a7633eda130759" id="r_a923f550458c90d8490a7633eda130759"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a923f550458c90d8490a7633eda130759">DecodeLOBBY_LIST_RESPONSE</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
+<tr class="separator:a923f550458c90d8490a7633eda130759"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac32e9baa04d71c63d47d573d88e301b1" id="r_ac32e9baa04d71c63d47d573d88e301b1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#ac32e9baa04d71c63d47d573d88e301b1">DecodePLAYER_READY</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
+<tr class="separator:ac32e9baa04d71c63d47d573d88e301b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4052542f74af6589ba15c98a66c766da" id="r_a4052542f74af6589ba15c98a66c766da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a4052542f74af6589ba15c98a66c766da">DecodeLOBBY_UPDATE</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
+<tr class="separator:a4052542f74af6589ba15c98a66c766da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a85fa9263f743da47b63737b38f4105" id="r_a0a85fa9263f743da47b63737b38f4105"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#a0a85fa9263f743da47b63737b38f4105">DecodeLOBBY_LEAVE</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
+<tr class="separator:a0a85fa9263f743da47b63737b38f4105"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae94922badc7cfb9d17b1688cea221e39" id="r_ae94922badc7cfb9d17b1688cea221e39"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structEvent.html">Event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#ae94922badc7cfb9d17b1688cea221e39">DecodeLOBBY_START</a> (const std::vector&lt; uint8_t &gt; &amp;packet)</td></tr>
+<tr class="separator:ae94922badc7cfb9d17b1688cea221e39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec307b1b50c359dfb731006e16a05123" id="r_aec307b1b50c359dfb731006e16a05123"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DecodeFunc_8hpp.html#aec307b1b50c359dfb731006e16a05123">SetupDecoder</a> (<a class="el" href="classDecoder.html">Decoder</a> &amp;decoder)</td></tr>
 <tr class="separator:aec307b1b50c359dfb731006e16a05123"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a65633bf9571441c8f6248b8efba2b20a" name="a65633bf9571441c8f6248b8efba2b20a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a65633bf9571441c8f6248b8efba2b20a">&#9670;&#160;</a></span>checkHeader()</h2>
+<a id="a8dc6998c2e247f5be79f73b97af0616e" name="a8dc6998c2e247f5be79f73b97af0616e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8dc6998c2e247f5be79f73b97af0616e">&#9670;&#160;</a></span>checkHeader()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">bool</a> checkHeader </td>
+          <td class="memname">bool checkHeader </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">size_t</a> &amp;&#160;</td>
+          <td class="paramtype">size_t &amp;&#160;</td>
           <td class="paramname"><em>offset</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">uint32_t</a> &amp;&#160;</td>
-          <td class="paramname"><em>payloadLength</em>&#160;</td>
+          <td class="paramtype">uint32_t &amp;&#160;</td>
+          <td class="paramname"><em>payloadLength</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t &amp;&#160;</td>
+          <td class="paramname"><em>seq</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t &amp;&#160;</td>
+          <td class="paramname"><em>ack</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t &amp;&#160;</td>
+          <td class="paramname"><em>ack_bits</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -168,7 +204,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeAUTH </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -186,7 +222,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeBOSS_SPAWN </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -204,7 +240,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeBOSS_UPDATE </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -222,7 +258,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeENEMY_HIT </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -240,7 +276,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeERROR </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -258,7 +294,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeGAME_END </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -276,7 +312,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeGAME_START </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -294,7 +330,151 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeGAME_STATE </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a50538cc6a5dc0104aba5e4f2ce209ac1" name="a50538cc6a5dc0104aba5e4f2ce209ac1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50538cc6a5dc0104aba5e4f2ce209ac1">&#9670;&#160;</a></span>DecodeLOBBY_CREATE()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOBBY_CREATE </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae12bf0f9b4c4ba24a6ec2fe600127370" name="ae12bf0f9b4c4ba24a6ec2fe600127370"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae12bf0f9b4c4ba24a6ec2fe600127370">&#9670;&#160;</a></span>DecodeLOBBY_JOIN_REQUEST()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOBBY_JOIN_REQUEST </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1de1bf615f0c8a1492ae1008c3fdca45" name="a1de1bf615f0c8a1492ae1008c3fdca45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1de1bf615f0c8a1492ae1008c3fdca45">&#9670;&#160;</a></span>DecodeLOBBY_JOIN_RESPONSE()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOBBY_JOIN_RESPONSE </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0a85fa9263f743da47b63737b38f4105" name="a0a85fa9263f743da47b63737b38f4105"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a85fa9263f743da47b63737b38f4105">&#9670;&#160;</a></span>DecodeLOBBY_LEAVE()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOBBY_LEAVE </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acefde367ad37be6d03800e46a6403ab0" name="acefde367ad37be6d03800e46a6403ab0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acefde367ad37be6d03800e46a6403ab0">&#9670;&#160;</a></span>DecodeLOBBY_LIST_REQUEST()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOBBY_LIST_REQUEST </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a923f550458c90d8490a7633eda130759" name="a923f550458c90d8490a7633eda130759"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a923f550458c90d8490a7633eda130759">&#9670;&#160;</a></span>DecodeLOBBY_LIST_RESPONSE()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOBBY_LIST_RESPONSE </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae94922badc7cfb9d17b1688cea221e39" name="ae94922badc7cfb9d17b1688cea221e39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae94922badc7cfb9d17b1688cea221e39">&#9670;&#160;</a></span>DecodeLOBBY_START()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOBBY_START </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4052542f74af6589ba15c98a66c766da" name="a4052542f74af6589ba15c98a66c766da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4052542f74af6589ba15c98a66c766da">&#9670;&#160;</a></span>DecodeLOBBY_UPDATE()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOBBY_UPDATE </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -312,7 +492,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOGIN_REQUEST </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -330,7 +510,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodeLOGIN_RESPONSE </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -348,7 +528,25 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodePLAYER_INPUT </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac32e9baa04d71c63d47d573d88e301b1" name="ac32e9baa04d71c63d47d573d88e301b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac32e9baa04d71c63d47d573d88e301b1">&#9670;&#160;</a></span>DecodePLAYER_READY()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structEvent.html">Event</a> DecodePLAYER_READY </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>packet</em></td><td>)</td>
           <td></td>
         </tr>
@@ -364,7 +562,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> SetupDecoder </td>
+          <td class="memname">void SetupDecoder </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classDecoder.html">Decoder</a> &amp;&#160;</td>
           <td class="paramname"><em>decoder</em></td><td>)</td>

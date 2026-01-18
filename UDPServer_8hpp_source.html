@@ -82,49 +82,56 @@ $(document).ready(function() { init_codefold(0); });
 </div><!--header-->
 <div class="contents">
 <a href="UDPServer_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &lt;functional&gt;</span></div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;memory&gt;</span></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;array&gt;</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;asio.hpp&gt;</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
-<div class="foldopen" id="foldopen00014" data-start="{" data-end="};">
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="classUDPServer.html">   14</a></span><span class="keyword">class </span><a class="code hl_class" href="classUDPServer.html">UDPServer</a> {</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno"><a class="line" href="classUDPServer.html#a5ec239fbbbdf724ea19b577474506093">   16</a></span>  <span class="keyword">using </span><a class="code hl_typedef" href="classUDPServer.html#a5ec239fbbbdf724ea19b577474506093">ReceiveCallback</a> = std::function&lt;void(<span class="keyword">const</span> std::vector&lt;uint8_t&gt;&amp;,</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>                                             <span class="keyword">const</span> asio::ip::udp::endpoint&amp;)&gt;; </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  <a class="code hl_class" href="classUDPServer.html">UDPServer</a>(asio::io_context&amp; io_context, uint16_t port, <span class="keyword">const</span> std::string&amp; host = <span class="stringliteral">&quot;0.0.0.0&quot;</span>);</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <a class="code hl_function" href="classUDPServer.html#a09b1a38f1a03d3832f85fe05e6370a11">~UDPServer</a>();</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classUDPServer.html#ac7186bf75593be4bfa94ee34c9de4fb2">SetReceiveCallback</a>(<a class="code hl_typedef" href="classUDPServer.html#a5ec239fbbbdf724ea19b577474506093">ReceiveCallback</a> callback);</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>  </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classUDPServer.html#af36353120a2a8f1b1005d9397c157c95">SendTo</a>(<span class="keyword">const</span> std::vector&lt;uint8_t&gt;&amp; data,</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>              <span class="keyword">const</span> asio::ip::udp::endpoint&amp; endpoint);</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="classUDPServer.html#a376f88e25f45741614243d0928261c7d">   40</a></span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classUDPServer.html#a376f88e25f45741614243d0928261c7d">IsOpen</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> socket_.is_open(); }</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classUDPServer.html#a48f0dd0cbf65a59c3d29ffa7669e736f">Close</a>();</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="keywordtype">void</span> StartReceive();</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  <span class="keywordtype">void</span> HandleReceive(<span class="keyword">const</span> asio::error_code&amp; error,</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>                     std::size_t bytes_transferred);</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  asio::ip::udp::socket socket_;           </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>  asio::ip::udp::endpoint remote_endpoint_; </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  std::array&lt;uint8_t, 1400&gt; recv_buffer_;  </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  <a class="code hl_typedef" href="classUDPServer.html#a5ec239fbbbdf724ea19b577474506093">ReceiveCallback</a> receive_callback_;        </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>};</div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span> </div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;array&gt;</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;functional&gt;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;memory&gt;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;asio.hpp&gt;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
+<div class="foldopen" id="foldopen00018" data-start="{" data-end="};">
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="classUDPServer.html">   18</a></span><span class="keyword">class </span><a class="code hl_class" href="classUDPServer.html">UDPServer</a> {</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd">   20</a></span>  <span class="keyword">using </span><a class="code hl_typedef" href="classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd">ReceiveCallback</a> = std::function&lt;void(</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>      <span class="keyword">const</span> std::vector&lt;uint8_t&gt;&amp;,</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>      <span class="keyword">const</span> asio::ip::udp::endpoint&amp;)&gt;;  </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  <a class="code hl_class" href="classUDPServer.html">UDPServer</a>(asio::io_context&amp; io_context, uint16_t port,</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>            <span class="keyword">const</span> std::string&amp; host = <span class="stringliteral">&quot;0.0.0.0&quot;</span>);</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  <a class="code hl_function" href="classUDPServer.html#a09b1a38f1a03d3832f85fe05e6370a11">~UDPServer</a>();</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classUDPServer.html#ac7186bf75593be4bfa94ee34c9de4fb2">SetReceiveCallback</a>(<a class="code hl_typedef" href="classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd">ReceiveCallback</a> callback);</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classUDPServer.html#af36353120a2a8f1b1005d9397c157c95">SendTo</a>(<span class="keyword">const</span> std::vector&lt;uint8_t&gt;&amp; data,</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>              <span class="keyword">const</span> asio::ip::udp::endpoint&amp; endpoint);</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="classUDPServer.html#a376f88e25f45741614243d0928261c7d">   46</a></span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classUDPServer.html#a376f88e25f45741614243d0928261c7d">IsOpen</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> socket_.is_open(); }</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classUDPServer.html#a48f0dd0cbf65a59c3d29ffa7669e736f">Close</a>();</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  <span class="keywordtype">void</span> StartReceive();</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  <span class="keywordtype">void</span> HandleReceive(<span class="keyword">const</span> asio::error_code&amp; error,</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>                     std::size_t bytes_transferred);</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  asio::ip::udp::socket socket_;  </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  asio::ip::udp::endpoint</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>      remote_endpoint_;  </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  std::array&lt;uint8_t, 1400&gt; recv_buffer_;  </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <a class="code hl_typedef" href="classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd">ReceiveCallback</a> receive_callback_;       </div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>};</div>
 </div>
-<div class="ttc" id="aclassUDPServer_html"><div class="ttname"><a href="classUDPServer.html">UDPServer</a></div><div class="ttdoc">UDP server for handling fast, unreliable game data transmission.</div><div class="ttdef"><b>Definition</b> UDPServer.hpp:14</div></div>
-<div class="ttc" id="aclassUDPServer_html_a09b1a38f1a03d3832f85fe05e6370a11"><div class="ttname"><a href="classUDPServer.html#a09b1a38f1a03d3832f85fe05e6370a11">UDPServer::~UDPServer</a></div><div class="ttdeci">~UDPServer()</div><div class="ttdef"><b>Definition</b> UDPServer.cpp:15</div></div>
-<div class="ttc" id="aclassUDPServer_html_a376f88e25f45741614243d0928261c7d"><div class="ttname"><a href="classUDPServer.html#a376f88e25f45741614243d0928261c7d">UDPServer::IsOpen</a></div><div class="ttdeci">bool IsOpen() const</div><div class="ttdoc">Check if socket is open.</div><div class="ttdef"><b>Definition</b> UDPServer.hpp:40</div></div>
-<div class="ttc" id="aclassUDPServer_html_a48f0dd0cbf65a59c3d29ffa7669e736f"><div class="ttname"><a href="classUDPServer.html#a48f0dd0cbf65a59c3d29ffa7669e736f">UDPServer::Close</a></div><div class="ttdeci">void Close()</div><div class="ttdoc">Close the UDP socket.</div><div class="ttdef"><b>Definition</b> UDPServer.cpp:58</div></div>
-<div class="ttc" id="aclassUDPServer_html_a5ec239fbbbdf724ea19b577474506093"><div class="ttname"><a href="classUDPServer.html#a5ec239fbbbdf724ea19b577474506093">UDPServer::ReceiveCallback</a></div><div class="ttdeci">std::function&lt; void(const std::vector&lt; uint8_t &gt; &amp;, const asio::ip::udp::endpoint &amp;)&gt; ReceiveCallback</div><div class="ttdoc">Receive callback type.</div><div class="ttdef"><b>Definition</b> UDPServer.hpp:17</div></div>
-<div class="ttc" id="aclassUDPServer_html_ac7186bf75593be4bfa94ee34c9de4fb2"><div class="ttname"><a href="classUDPServer.html#ac7186bf75593be4bfa94ee34c9de4fb2">UDPServer::SetReceiveCallback</a></div><div class="ttdeci">void SetReceiveCallback(ReceiveCallback callback)</div><div class="ttdoc">Set callback for incoming UDP data.</div><div class="ttdef"><b>Definition</b> UDPServer.cpp:17</div></div>
-<div class="ttc" id="aclassUDPServer_html_af36353120a2a8f1b1005d9397c157c95"><div class="ttname"><a href="classUDPServer.html#af36353120a2a8f1b1005d9397c157c95">UDPServer::SendTo</a></div><div class="ttdeci">void SendTo(const std::vector&lt; uint8_t &gt; &amp;data, const asio::ip::udp::endpoint &amp;endpoint)</div><div class="ttdoc">Send data to a specific endpoint.</div><div class="ttdef"><b>Definition</b> UDPServer.cpp:44</div></div>
+<div class="ttc" id="aclassUDPServer_html"><div class="ttname"><a href="classUDPServer.html">UDPServer</a></div><div class="ttdoc">UDP server for handling fast, unreliable game data transmission.</div><div class="ttdef"><b>Definition</b> UDPServer.hpp:18</div></div>
+<div class="ttc" id="aclassUDPServer_html_a09b1a38f1a03d3832f85fe05e6370a11"><div class="ttname"><a href="classUDPServer.html#a09b1a38f1a03d3832f85fe05e6370a11">UDPServer::~UDPServer</a></div><div class="ttdeci">~UDPServer()</div><div class="ttdef"><b>Definition</b> UDPServer.cpp:18</div></div>
+<div class="ttc" id="aclassUDPServer_html_a282dc03ab3c9b58574a96b4dc05923fd"><div class="ttname"><a href="classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd">UDPServer::ReceiveCallback</a></div><div class="ttdeci">std::function&lt; void(const std::vector&lt; uint8_t &gt; &amp;, const asio::ip::udp::endpoint &amp;)&gt; ReceiveCallback</div><div class="ttdoc">Receive callback type.</div><div class="ttdef"><b>Definition</b> UDPServer.hpp:22</div></div>
+<div class="ttc" id="aclassUDPServer_html_a376f88e25f45741614243d0928261c7d"><div class="ttname"><a href="classUDPServer.html#a376f88e25f45741614243d0928261c7d">UDPServer::IsOpen</a></div><div class="ttdeci">bool IsOpen() const</div><div class="ttdoc">Check if socket is open.</div><div class="ttdef"><b>Definition</b> UDPServer.hpp:46</div></div>
+<div class="ttc" id="aclassUDPServer_html_a48f0dd0cbf65a59c3d29ffa7669e736f"><div class="ttname"><a href="classUDPServer.html#a48f0dd0cbf65a59c3d29ffa7669e736f">UDPServer::Close</a></div><div class="ttdeci">void Close()</div><div class="ttdoc">Close the UDP socket.</div><div class="ttdef"><b>Definition</b> UDPServer.cpp:61</div></div>
+<div class="ttc" id="aclassUDPServer_html_ac7186bf75593be4bfa94ee34c9de4fb2"><div class="ttname"><a href="classUDPServer.html#ac7186bf75593be4bfa94ee34c9de4fb2">UDPServer::SetReceiveCallback</a></div><div class="ttdeci">void SetReceiveCallback(ReceiveCallback callback)</div><div class="ttdoc">Set callback for incoming UDP data.</div><div class="ttdef"><b>Definition</b> UDPServer.cpp:20</div></div>
+<div class="ttc" id="aclassUDPServer_html_af36353120a2a8f1b1005d9397c157c95"><div class="ttname"><a href="classUDPServer.html#af36353120a2a8f1b1005d9397c157c95">UDPServer::SendTo</a></div><div class="ttdeci">void SendTo(const std::vector&lt; uint8_t &gt; &amp;data, const asio::ip::udp::endpoint &amp;endpoint)</div><div class="ttdoc">Send data to a specific endpoint.</div><div class="ttdef"><b>Definition</b> UDPServer.cpp:47</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

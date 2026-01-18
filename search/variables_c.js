@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['rank_0',['rank',['../structGameEndScore.html#ad4c102a86ab05e0e3b0814614ae676ec',1,'GameEndScore::rank'],['../structGAME__END_1_1Score.html#a472e46f691aaf19ee42f21bc34a8dbcc',1,'GAME_END::Score::rank']]],
-  ['reloadtime_1',['reloadTime',['../structWeapon.html#aca75f095b5c3e984a69c85e7b6468619',1,'Weapon']]],
-  ['restitution_2',['restitution',['../structRigidBody.html#a193f28e6d9590872777123a40230fc2f',1,'RigidBody']]],
-  ['right_3',['right',['../structBoxCollider_1_1Bounds.html#a9e45ca14a2f40ece1cf7cb34dc788bd1',1,'BoxCollider::Bounds::right'],['../structPlayerInput.html#a5db02f412ab52e2566d9164b6b9b3426',1,'PlayerInput::right'],['../structPLAYER__INPUT.html#a11ab635f63a026e81ea0a514aa1aca0c',1,'PLAYER_INPUT::right']]],
-  ['rotation_4',['rotation',['../structTransform.html#ac67a2ceb0bd5a73a9360dbcfec232bb3',1,'Transform']]]
+  ['offset_0',['offset',['../structBossPart.html#abda09cb49abcfdd8d447ab771b8bc7e4',1,'BossPart']]],
+  ['offsetback_1',['offsetBack',['../structForce.html#a6e3e0d45b46a2daea0856b8320cf3061',1,'Force']]],
+  ['offsetfront_2',['offsetFront',['../structForce.html#ae6deb18886a21862dd118a7336cfe3da',1,'Force']]],
+  ['ownerid_3',['ownerid',['../structProjectile.html#a196f004d061dd4cce0c310a3a01312a3',1,'Projectile::ownerId'],['../structProjectileState.html#ac71c47b572bf871ff72005563b2ee3ef',1,'ProjectileState::ownerId'],['../structForceState.html#a812dfbaec7c3dd901d4e314f98efaeae',1,'ForceState::ownerId'],['../structGAME__STATE_1_1ProjectileState.html#a58b5f05cd3a6690f1cc48213b4ba7d25',1,'GAME_STATE::ProjectileState::ownerId'],['../structFORCE__STATE.html#aaaa24fda76197428d1a35fc3db282492',1,'FORCE_STATE::ownerId']]],
+  ['ownerplayer_4',['ownerPlayer',['../structForce.html#a833e926a2a489e58c0ea4879e6dfb962',1,'Force']]]
 ];

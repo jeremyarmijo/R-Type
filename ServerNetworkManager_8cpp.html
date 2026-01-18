@@ -85,18 +85,22 @@ $(function() {
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
+<code>#include &quot;<a class="el" href="Database_8hpp_source.html">db/Database.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="DecodeFunc_8hpp_source.html">network/DecodeFunc.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="EncodeFunc_8hpp_source.html">network/EncodeFunc.hpp</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for ServerNetworkManager.cpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="ServerNetworkManager_8cpp__incl.svg" width="2062" height="506"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="ServerNetworkManager_8cpp__incl.svg" width="2736" height="506"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a7aa72e6bdcdf7ef812ffd29904d75417" id="r_a7aa72e6bdcdf7ef812ffd29904d75417"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="classSparseArray.html">typename</a> <a class="el" href="classSparseArray.html">T</a> &gt; </td></tr>
-<tr class="memitem:a7aa72e6bdcdf7ef812ffd29904d75417"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">T</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="ServerNetworkManager_8cpp.html#a7aa72e6bdcdf7ef812ffd29904d75417">bytes_to_type</a> (<a class="el" href="classSparseArray.html">const</a> <a class="el" href="classSparseArray.html">uint8_t</a> *data, std::function&lt; <a class="el" href="classSparseArray.html">T</a>(<a class="el" href="classSparseArray.html">const</a> <a class="el" href="classSparseArray.html">T</a>)&gt; <a class="el" href="classSparseArray.html">converter</a>)</td></tr>
+<tr class="memitem:a7aa72e6bdcdf7ef812ffd29904d75417" id="r_a7aa72e6bdcdf7ef812ffd29904d75417"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a7aa72e6bdcdf7ef812ffd29904d75417"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="ServerNetworkManager_8cpp.html#a7aa72e6bdcdf7ef812ffd29904d75417">bytes_to_type</a> (const uint8_t *data, std::function&lt; T(const T)&gt; converter)</td></tr>
 <tr class="separator:a7aa72e6bdcdf7ef812ffd29904d75417"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19e4be78037ffce75a5c24a81458944d" id="r_a19e4be78037ffce75a5c24a81458944d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classINetworkManager.html">INetworkManager</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ServerNetworkManager_8cpp.html#a19e4be78037ffce75a5c24a81458944d">EntryPointLib</a> ()</td></tr>
+<tr class="separator:a19e4be78037ffce75a5c24a81458944d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a7aa72e6bdcdf7ef812ffd29904d75417" name="a7aa72e6bdcdf7ef812ffd29904d75417"></a>
@@ -105,24 +109,41 @@ Functions</h2></td></tr>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="el" href="classSparseArray.html">typename</a> <a class="el" href="classSparseArray.html">T</a> &gt; </div>
+template&lt;typename T &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">T</a> bytes_to_type </td>
+          <td class="memname">T bytes_to_type </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="classSparseArray.html">uint8_t</a> *&#160;</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>data</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::function&lt; <a class="el" href="classSparseArray.html">T</a>(<a class="el" href="classSparseArray.html">const</a> <a class="el" href="classSparseArray.html">T</a>)&gt;&#160;</td>
+          <td class="paramtype">std::function&lt; T(const T)&gt;&#160;</td>
           <td class="paramname"><em>converter</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
           <td>)</td>
           <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a19e4be78037ffce75a5c24a81458944d" name="a19e4be78037ffce75a5c24a81458944d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19e4be78037ffce75a5c24a81458944d">&#9670;&#160;</a></span>EntryPointLib()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classINetworkManager.html">INetworkManager</a> * EntryPointLib </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">

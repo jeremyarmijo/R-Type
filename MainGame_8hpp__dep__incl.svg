@@ -22,11 +22,11 @@
 <!-- Node2 -->
 <g id="Node000002" class="node">
 <title>Node2</title>
-<g id="a_Node000002"><a xlink:href="Main_8cpp.html" target="_top" xlink:title=" ">
-<polygon fill="white" stroke="#666666" points="133.5,-41 14.5,-41 14.5,0 133.5,0 133.5,-41"/>
-<text text-anchor="start" x="22.5" y="-29" font-family="Helvetica,sans-Serif" font-size="10.00">/home/runner/work/R</text>
-<text text-anchor="start" x="22.5" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">&#45;Type/R&#45;Type/Client</text>
-<text text-anchor="middle" x="74" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">/src/Main.cpp</text>
+<g id="a_Node000002"><a xlink:href="MainGame_8cpp.html" target="_top" xlink:title=" ">
+<polygon fill="white" stroke="#666666" points="147.5,-41 0.5,-41 0.5,0 147.5,0 147.5,-41"/>
+<text text-anchor="start" x="8.5" y="-29" font-family="Helvetica,sans-Serif" font-size="10.00">/home/runner/work/R</text>
+<text text-anchor="start" x="8.5" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">&#45;Type/R&#45;Type/Client</text>
+<text text-anchor="middle" x="74" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">/src/scenes/MainGame.cpp</text>
 </a>
 </g>
 </g>

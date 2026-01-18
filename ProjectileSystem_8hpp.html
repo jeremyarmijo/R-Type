@@ -78,31 +78,31 @@ $(function() {
   <div class="headertitle"><div class="title">ProjectileSystem.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="Physics2D_8hpp_source.html">components/Physics2D.hpp</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;physics/Physics2D.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="Projectile_8hpp_source.html">components/Player/Projectile.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Registry_8hpp_source.html">ecs/Registry.hpp</a>&quot;</code><br />
+<code>#include &quot;ecs/Registry.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for ProjectileSystem.hpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="ProjectileSystem_8hpp__incl.svg" width="1443" height="286"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="ProjectileSystem_8hpp__incl.svg" width="447" height="212"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="ProjectileSystem_8hpp__dep__incl.svg" width="1158" height="271"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="ProjectileSystem_8hpp__dep__incl.svg" width="1435" height="271"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="ProjectileSystem_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:acb1a61cd5c4c7a36288c7144c18a2110" id="r_acb1a61cd5c4c7a36288c7144c18a2110"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ProjectileSystem_8hpp.html#acb1a61cd5c4c7a36288c7144c18a2110">projectile_lifetime_system</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structProjectile.html">Projectile</a> &gt; &amp;projectiles, <a class="el" href="classSparseArray.html">float</a> <a class="el" href="classSparseArray.html">deltaTime</a>)</td></tr>
+<tr class="memitem:acb1a61cd5c4c7a36288c7144c18a2110" id="r_acb1a61cd5c4c7a36288c7144c18a2110"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ProjectileSystem_8hpp.html#acb1a61cd5c4c7a36288c7144c18a2110">projectile_lifetime_system</a> (Registry &amp;registry, SparseArray&lt; <a class="el" href="structProjectile.html">Projectile</a> &gt; &amp;projectiles, float deltaTime)</td></tr>
 <tr class="separator:acb1a61cd5c4c7a36288c7144c18a2110"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac745f2d713d3aa4bae07f4b5c330b4da" id="r_ac745f2d713d3aa4bae07f4b5c330b4da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ProjectileSystem_8hpp.html#ac745f2d713d3aa4bae07f4b5c330b4da">projectile_collision_system</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structTransform.html">Transform</a> &gt; &amp;<a class="el" href="classSparseArray.html">transforms</a>, <a class="el" href="classSparseArray.html">const</a> <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structBoxCollider.html">BoxCollider</a> &gt; &amp;<a class="el" href="classSparseArray.html">colliders</a>, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structProjectile.html">Projectile</a> &gt; &amp;projectiles)</td></tr>
+<tr class="memitem:ac745f2d713d3aa4bae07f4b5c330b4da" id="r_ac745f2d713d3aa4bae07f4b5c330b4da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ProjectileSystem_8hpp.html#ac745f2d713d3aa4bae07f4b5c330b4da">projectile_collision_system</a> (Registry &amp;registry, const SparseArray&lt; Transform &gt; &amp;transforms, const SparseArray&lt; BoxCollider &gt; &amp;colliders, SparseArray&lt; <a class="el" href="structProjectile.html">Projectile</a> &gt; &amp;projectiles)</td></tr>
 <tr class="separator:ac745f2d713d3aa4bae07f4b5c330b4da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9599f74cbccf05cc787bc7a04253c2a4" id="r_a9599f74cbccf05cc787bc7a04253c2a4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEntity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ProjectileSystem_8hpp.html#a9599f74cbccf05cc787bc7a04253c2a4">spawn_projectile</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="structVector2.html">Vector2</a> position, <a class="el" href="structVector2.html">Vector2</a> direction, <a class="el" href="classSparseArray.html">float</a> speed, <a class="el" href="classSparseArray.html">size_t</a> ownerId)</td></tr>
+<tr class="memitem:a9599f74cbccf05cc787bc7a04253c2a4" id="r_a9599f74cbccf05cc787bc7a04253c2a4"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ProjectileSystem_8hpp.html#a9599f74cbccf05cc787bc7a04253c2a4">spawn_projectile</a> (Registry &amp;registry, Vector2 position, Vector2 direction, float speed, size_t ownerId)</td></tr>
 <tr class="separator:a9599f74cbccf05cc787bc7a04253c2a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a787975b50765286f27c55778c4778fb8" id="r_a787975b50765286f27c55778c4778fb8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEntity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ProjectileSystem_8hpp.html#a787975b50765286f27c55778c4778fb8">spawn_player_projectile</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="structVector2.html">Vector2</a> position, <a class="el" href="structVector2.html">Vector2</a> direction, <a class="el" href="classSparseArray.html">float</a> speed, <a class="el" href="classSparseArray.html">size_t</a> ownerId)</td></tr>
+<tr class="memitem:a787975b50765286f27c55778c4778fb8" id="r_a787975b50765286f27c55778c4778fb8"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ProjectileSystem_8hpp.html#a787975b50765286f27c55778c4778fb8">spawn_player_projectile</a> (Registry &amp;registry, Vector2 position, Vector2 direction, float speed, size_t ownerId)</td></tr>
 <tr class="separator:a787975b50765286f27c55778c4778fb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -113,27 +113,27 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> projectile_collision_system </td>
+          <td class="memname">void projectile_collision_system </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structTransform.html">Transform</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const SparseArray&lt; Transform &gt; &amp;&#160;</td>
           <td class="paramname"><em>transforms</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structBoxCollider.html">BoxCollider</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const SparseArray&lt; BoxCollider &gt; &amp;&#160;</td>
           <td class="paramname"><em>colliders</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structProjectile.html">Projectile</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structProjectile.html">Projectile</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>projectiles</em>&#160;</td>
         </tr>
         <tr>
@@ -153,21 +153,21 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> projectile_lifetime_system </td>
+          <td class="memname">void projectile_lifetime_system </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structProjectile.html">Projectile</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structProjectile.html">Projectile</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>projectiles</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>deltaTime</em>&#160;</td>
         </tr>
         <tr>
@@ -187,33 +187,33 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classEntity.html">Entity</a> spawn_player_projectile </td>
+          <td class="memname">Entity spawn_player_projectile </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structVector2.html">Vector2</a>&#160;</td>
+          <td class="paramtype">Vector2&#160;</td>
           <td class="paramname"><em>position</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structVector2.html">Vector2</a>&#160;</td>
+          <td class="paramtype">Vector2&#160;</td>
           <td class="paramname"><em>direction</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>speed</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">size_t</a>&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>ownerId</em>&#160;</td>
         </tr>
         <tr>
@@ -233,33 +233,33 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classEntity.html">Entity</a> spawn_projectile </td>
+          <td class="memname">Entity spawn_projectile </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structVector2.html">Vector2</a>&#160;</td>
+          <td class="paramtype">Vector2&#160;</td>
           <td class="paramname"><em>position</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structVector2.html">Vector2</a>&#160;</td>
+          <td class="paramtype">Vector2&#160;</td>
           <td class="paramname"><em>direction</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>speed</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">size_t</a>&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>ownerId</em>&#160;</td>
         </tr>
         <tr>

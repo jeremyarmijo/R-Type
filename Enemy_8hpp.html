@@ -79,16 +79,16 @@ $(function() {
   <div class="headertitle"><div class="title">Enemy.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="Physics2D_8hpp_source.html">../Physics2D.hpp</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;physics/Physics2D.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for Enemy.hpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="Enemy_8hpp__incl.svg" width="238" height="212"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="Enemy_8hpp__incl.svg" width="238" height="139"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="Enemy_8hpp__dep__incl.svg" width="1914" height="374"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="Enemy_8hpp__dep__incl.svg" width="5648" height="491"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="Enemy_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -100,9 +100,14 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:ac3e413a86119db4b031458c7259e268e" id="r_ac3e413a86119db4b031458c7259e268e"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> { <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268ea972e73b7a882d0802a4e3a16946a2f94">Basic</a>
+<tr class="memitem:ac3e413a86119db4b031458c7259e268e" id="r_ac3e413a86119db4b031458c7259e268e"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> { <br />
+&#160;&#160;<a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268ea972e73b7a882d0802a4e3a16946a2f94">Basic</a>
 , <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268ea4fae8be981bd327f1302f4b678afe734">Zigzag</a>
 , <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268eaeaff692e84900d6b0999355abb0f3e43">Chase</a>
+, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268eabc7626d5d76c9abc6bf8b1bd4f830bb1">mini_Green</a>
+, <br />
+&#160;&#160;<a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268ea9b2c85dd7af17d4528bd7489e72c59c5">Spinner</a>
+<br />
  }</td></tr>
 <tr class="separator:ac3e413a86119db4b031458c7259e268e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -117,7 +122,7 @@ Enumerations</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">enum</a> <a class="el" href="classSparseArray.html">class</a> <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a></td>
+          <td class="memname">enum class <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a></td>
         </tr>
       </table>
   </td>
@@ -130,6 +135,8 @@ Enumerations</h2></td></tr>
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac3e413a86119db4b031458c7259e268ea972e73b7a882d0802a4e3a16946a2f94" name="ac3e413a86119db4b031458c7259e268ea972e73b7a882d0802a4e3a16946a2f94"></a>Basic&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ac3e413a86119db4b031458c7259e268ea4fae8be981bd327f1302f4b678afe734" name="ac3e413a86119db4b031458c7259e268ea4fae8be981bd327f1302f4b678afe734"></a>Zigzag&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ac3e413a86119db4b031458c7259e268eaeaff692e84900d6b0999355abb0f3e43" name="ac3e413a86119db4b031458c7259e268eaeaff692e84900d6b0999355abb0f3e43"></a>Chase&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac3e413a86119db4b031458c7259e268eabc7626d5d76c9abc6bf8b1bd4f830bb1" name="ac3e413a86119db4b031458c7259e268eabc7626d5d76c9abc6bf8b1bd4f830bb1"></a>mini_Green&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac3e413a86119db4b031458c7259e268ea9b2c85dd7af17d4528bd7489e72c59c5" name="ac3e413a86119db4b031458c7259e268ea9b2c85dd7af17d4528bd7489e72c59c5"></a>Spinner&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>

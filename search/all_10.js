@@ -1,4 +1,32 @@
 var searchData=
 [
-  ['quitgame_0',['QuitGame',['../classScene.html#ae74bfa185aa402606bbfa2de62aacfec',1,'Scene']]]
+  ['rank_0',['rank',['../structGameEndScore.html#ad4c102a86ab05e0e3b0814614ae676ec',1,'GameEndScore::rank'],['../structGAME__END_1_1Score.html#a472e46f691aaf19ee42f21bc34a8dbcc',1,'GAME_END::Score::rank']]],
+  ['ready_1',['ready',['../structPlayerInfo.html#af22ff1babd6aad924404618c52301df9',1,'PlayerInfo::ready'],['../structLobbyPlayer.html#aa46d58b74f88d888085c2c80e4673db0',1,'LobbyPlayer::ready'],['../structPlayerReady.html#a6e1b72da79166c240729fef7047c228c',1,'PlayerReady::ready'],['../structLOBBY__JOIN__RESPONSE_1_1Player.html#a8a108a67a2c31f478a6090b42bd56b0a',1,'LOBBY_JOIN_RESPONSE::Player::ready'],['../structPLAYER__READY.html#ab01838d7e13ec27a755e7d6f9821ff15',1,'PLAYER_READY::ready']]],
+  ['receivecallback_2',['ReceiveCallback',['../classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd',1,'UDPServer']]],
+  ['red_3',['RED',['../PlayerSettings_8hpp.html#a132f797212c3cb97adedc86763d9c9e8aa2d9547b5d3dd9f05984475f7c926da0',1,'PlayerSettings.hpp']]],
+  ['registerhandler_4',['registerhandler',['../classDecoder.html#aa6e1e2d91bfd0f832b36bc533ed3f124',1,'Decoder::registerHandler()'],['../classEncoder.html#ad9156e7a551674d65575c9698a9b2c12',1,'Encoder::registerHandler()']]],
+  ['registry_5',['registry',['../structlobby__list.html#a727f78bcfae22abafe68964333dfe8e8',1,'lobby_list']]],
+  ['reloadtime_6',['reloadTime',['../structWeapon.html#aca75f095b5c3e984a69c85e7b6468619',1,'Weapon']]],
+  ['removeclient_7',['RemoveClient',['../classClientManager.html#a4f37a72a376d6cdfbab69df79cce631c',1,'ClientManager']]],
+  ['removecompositeenemy_8',['RemoveCompositeEnemy',['../classMyGameScene.html#a89932cd46bbea80a7558184538289f0a',1,'MyGameScene']]],
+  ['removeenemy_9',['RemoveEnemy',['../classMyGameScene.html#aeda0367d783ec51b9e95314c862e493e',1,'MyGameScene']]],
+  ['removeexplosions_10',['RemoveExplosions',['../classMyGameScene.html#abd78d28c4a530e65dab7c918706d4243',1,'MyGameScene']]],
+  ['removeforce_11',['RemoveForce',['../classMyGameScene.html#aebf76abbe3f08dad9ee9105ef8209398',1,'MyGameScene']]],
+  ['removeotherplayer_12',['RemoveOtherPlayer',['../classMyGameScene.html#a55a74be06ac8175c7543d1ecfc9cd1f7',1,'MyGameScene']]],
+  ['removeplayer_13',['RemovePlayer',['../classMultiplayerSkinManager.html#a22acfc5e23acf5f56e6d8fc08185905d',1,'MultiplayerSkinManager']]],
+  ['removeprojectile_14',['RemoveProjectile',['../classMyGameScene.html#aeedcace3712076911a2d300283c126a1',1,'MyGameScene']]],
+  ['render_15',['render',['../classWaitLobby.html#ada7c3e4a67500d4a281564ebc522fe52',1,'WaitLobby::Render()'],['../classCreateLobby.html#a08d2b303a644f8c3beda65ce14822dce',1,'CreateLobby::Render()'],['../classGameOverScene.html#a53e7f7320b016314457043346bf80b40',1,'GameOverScene::Render()'],['../classJoinGame.html#aa9dcec39f9e31a4e8a36756f8c0d6161',1,'JoinGame::Render()'],['../classLevel.html#a7128d306d63efcf1cd683003e84953c1',1,'Level::Render()'],['../classLobbyMenu.html#a6031fac9b5d38c0a6292fe072d5c530b',1,'LobbyMenu::Render()'],['../classLobbyInfoPlayer.html#a627734e4d1d32615bff3c34f732678fd',1,'LobbyInfoPlayer::Render()'],['../classLobbyJoin.html#a4cd2b6ca89b290ac43d349b52db73ceb',1,'LobbyJoin::Render()'],['../classLobbyPassword.html#a3d8ca1d8b9244b553d6582a7701a06f8',1,'LobbyPassword::Render()'],['../classMyGameScene.html#a04573dff47633034b4eeb1f5ccd33403',1,'MyGameScene::Render()'],['../classMainMenu.html#a16536ae3b6150bade0d5901f4bca112b',1,'MainMenu::Render()'],['../classOptionsScene.html#a8057dc9581977353f1c0028d599a64f5',1,'OptionsScene::Render()'],['../classRtypeScene.html#ab9b5a8ad9b39c628af67d4434a8db78a',1,'RtypeScene::Render()'],['../classVictoryScene.html#a6dd476379441c88c29b3e12bfce5da1f',1,'VictoryScene::Render()']]],
+  ['request_5ferror_16',['REQUEST_ERROR',['../ServerMacro_8hpp.html#a0cc5897419fef4e7e45e43c924d21642',1,'ServerMacro.hpp']]],
+  ['request_5fsuccess_17',['REQUEST_SUCCESS',['../ServerMacro_8hpp.html#a934a7aef1e803ae9dbc8d2baf09813ca',1,'ServerMacro.hpp']]],
+  ['reset_18',['Reset',['../structPlayerShoot.html#a6715183929e92a7650d1483ec56a8f01',1,'PlayerShoot']]],
+  ['resetforcetoggle_19',['ResetForceToggle',['../classInputManager.html#aedc8cc7d6342a7682f033d291a2608a2',1,'InputManager']]],
+  ['resetkeybindings_20',['ResetKeyBindings',['../classInputManager.html#a4681b994e89b5d341ecdd940d621b21b',1,'InputManager']]],
+  ['retry_5fcount_21',['retry_count',['../structHandleClient_1_1SentPacket.html#a31cc75eac27b954ed3c35d82e76e5faa',1,'HandleClient::SentPacket']]],
+  ['right_22',['right',['../structPlayerInput.html#a5db02f412ab52e2566d9164b6b9b3426',1,'PlayerInput::right'],['../structPLAYER__INPUT.html#a11ab635f63a026e81ea0a514aa1aca0c',1,'PLAYER_INPUT::right']]],
+  ['right_5fpress_23',['RIGHT_PRESS',['../Action_8hpp.html#a7969551e86fba60fed45ceed884b7532a3638df2b1fdf50a099c534b32695fb77',1,'Action.hpp']]],
+  ['right_5frelease_24',['RIGHT_RELEASE',['../Action_8hpp.html#a7969551e86fba60fed45ceed884b7532a49cc7f1185782c5f881aef70ce7b98b6',1,'Action.hpp']]],
+  ['rtypescene_25',['rtypescene',['../classRtypeScene.html#aa705ab78640a453629d065df82d44d6b',1,'RtypeScene::RtypeScene()'],['../classRtypeScene.html',1,'RtypeScene']]],
+  ['rtypescene_2ecpp_26',['RtypeScene.cpp',['../RtypeScene_8cpp.html',1,'']]],
+  ['rtypescene_2ehpp_27',['RtypeScene.hpp',['../RtypeScene_8hpp.html',1,'']]],
+  ['run_28',['Run',['../classServerGame.html#a427d50139e251fceb0afd6537aca47e6',1,'ServerGame']]]
 ];

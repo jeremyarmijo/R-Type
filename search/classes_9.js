@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['keybindings_0',['KeyBindings',['../classKeyBindings.html',1,'']]]
+  ['joingame_0',['JoinGame',['../classJoinGame.html',1,'']]]
 ];

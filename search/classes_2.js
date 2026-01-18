@@ -1,10 +1,9 @@
 var searchData=
 [
-  ['camera_0',['Camera',['../structCamera.html',1,'']]],
-  ['circularbuffer_1',['CircularBuffer',['../classCircularBuffer.html',1,'']]],
-  ['circularbuffer_3c_20action_20_3e_2',['CircularBuffer&lt; Action &gt;',['../classCircularBuffer.html',1,'']]],
-  ['circularbuffer_3c_20event_20_3e_3',['CircularBuffer&lt; Event &gt;',['../classCircularBuffer.html',1,'']]],
-  ['clientmanager_4',['ClientManager',['../classClientManager.html',1,'']]],
-  ['collision_5',['Collision',['../structCollision.html',1,'']]],
-  ['connectionevent_6',['ConnectionEvent',['../structConnectionEvent.html',1,'']]]
+  ['client_5fleave_0',['CLIENT_LEAVE',['../structCLIENT__LEAVE.html',1,'']]],
+  ['clientleave_1',['ClientLeave',['../structClientLeave.html',1,'']]],
+  ['clientmanager_2',['ClientManager',['../classClientManager.html',1,'']]],
+  ['collision_3',['Collision',['../structCollision.html',1,'']]],
+  ['connectionevent_4',['ConnectionEvent',['../structConnectionEvent.html',1,'']]],
+  ['createlobby_5',['CreateLobby',['../classCreateLobby.html',1,'']]]
 ];

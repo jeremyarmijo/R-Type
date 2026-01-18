@@ -1,11 +1,5 @@
 <map id="OptionsScene" name="OptionsScene">
-<area shape="rect" id="Node000001" title=" " alt="" coords="139,168,249,193"/>
-<area shape="rect" id="Node000002" href="$classScene.html" title=" " alt="" coords="163,93,225,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,133,197,168,191,168,191,133"/>
-<area shape="rect" id="Node000003" href="$classGameEngine.html" title=" " alt="" coords="5,5,111,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="82,38,121,67,167,91,165,96,118,72,79,42"/>
-<area shape="rect" id="Node000004" href="$classSceneManager.html" title=" " alt="" coords="135,5,253,31"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="197,45,197,93,191,93,191,45"/>
-<area shape="rect" id="Node000005" href="$classUIManager.html" title=" " alt="" coords="298,5,391,31"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="337,45,329,59,317,71,295,85,271,95,225,105,224,99,269,89,293,80,314,67,325,56,333,42"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,79,116,104"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="30,5,91,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="63,44,63,79,58,79,58,44"/>
 </map>

@@ -85,17 +85,14 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define WAVE_SYSTEM_HPP</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#pragma once</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;<a class="code" href="Enemy_8hpp.html">Player/Enemy.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;<a class="code" href="Registry_8hpp.html">ecs/Registry.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;ecs/Registry.hpp&quot;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keywordtype">void</span> <a class="code hl_function" href="WaveSystem_8hpp.html#a86fe4c8cf69ebdd438de1d9cf4698f68">enemy_wave_system</a>(<a class="code hl_class" href="classRegistry.html">Registry</a>&amp; registry, <a class="code hl_class" href="classSparseArray.html">SparseArray&lt;Enemy&gt;</a>&amp; <a class="code hl_class" href="classSparseArray.html">weapons</a>,</div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>                       <span class="keywordtype">float</span> <a class="code hl_class" href="classSparseArray.html">deltaTime</a>, <span class="keywordtype">int</span> <a class="code hl_class" href="classSparseArray.html">nbWave</a>, <span class="keywordtype">int</span> difficulty);</div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keywordtype">void</span> <a class="code hl_function" href="WaveSystem_8hpp.html#a86fe4c8cf69ebdd438de1d9cf4698f68">enemy_wave_system</a>(Registry&amp; registry, SparseArray&lt;Enemy&gt;&amp; weapons,</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>                       <span class="keywordtype">float</span> deltaTime, <span class="keywordtype">int</span> nbWave, <span class="keywordtype">int</span> difficulty);</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#endif  </span><span class="comment">// WEAPON_SYSTEM_HPP</span></div>
 <div class="ttc" id="aEnemy_8hpp_html"><div class="ttname"><a href="Enemy_8hpp.html">Enemy.hpp</a></div></div>
-<div class="ttc" id="aRegistry_8hpp_html"><div class="ttname"><a href="Registry_8hpp.html">Registry.hpp</a></div></div>
-<div class="ttc" id="aWaveSystem_8hpp_html_a86fe4c8cf69ebdd438de1d9cf4698f68"><div class="ttname"><a href="WaveSystem_8hpp.html#a86fe4c8cf69ebdd438de1d9cf4698f68">enemy_wave_system</a></div><div class="ttdeci">void enemy_wave_system(Registry &amp;registry, SparseArray&lt; Enemy &gt; &amp;weapons, float deltaTime, int nbWave, int difficulty)</div><div class="ttdef"><b>Definition</b> WaveSystem.cpp:35</div></div>
-<div class="ttc" id="aclassRegistry_html"><div class="ttname"><a href="classRegistry.html">Registry</a></div><div class="ttdef"><b>Definition</b> Registry.hpp:15</div></div>
-<div class="ttc" id="aclassSparseArray_html"><div class="ttname"><a href="classSparseArray.html">SparseArray</a></div><div class="ttdef"><b>Definition</b> SparseArray.hpp:8</div></div>
+<div class="ttc" id="aWaveSystem_8hpp_html_a86fe4c8cf69ebdd438de1d9cf4698f68"><div class="ttname"><a href="WaveSystem_8hpp.html#a86fe4c8cf69ebdd438de1d9cf4698f68">enemy_wave_system</a></div><div class="ttdeci">void enemy_wave_system(Registry &amp;registry, SparseArray&lt; Enemy &gt; &amp;weapons, float deltaTime, int nbWave, int difficulty)</div><div class="ttdef"><b>Definition</b> WaveSystem.cpp:43</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

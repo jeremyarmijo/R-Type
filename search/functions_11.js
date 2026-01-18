@@ -1,24 +1,6 @@
 var searchData=
 [
-  ['register_5fcomponent_0',['register_component',['../classRegistry.html#aa8cac092875e25acfa7feb45d295331c',1,'Registry']]],
-  ['registercomponents_1',['RegisterComponents',['../classGameEngine.html#a20a71d8bd5b738f236a92747d08eca52',1,'GameEngine']]],
-  ['registerhandler_2',['registerhandler',['../classDecoder.html#aa6e1e2d91bfd0f832b36bc533ed3f124',1,'Decoder::registerHandler()'],['../classEncoder.html#ad9156e7a551674d65575c9698a9b2c12',1,'Encoder::registerHandler()']]],
-  ['registerscene_3',['RegisterScene',['../classSceneManager.html#aa93edd151593b502967b5b5310352b13',1,'SceneManager']]],
-  ['registersystems_4',['RegisterSystems',['../classGameEngine.html#ae2242351869b97660d83cb2c9e3baebe',1,'GameEngine']]],
-  ['remove_5',['Remove',['../classSceneData.html#ae4973a445f251450d6cd354bd15a4438',1,'SceneData']]],
-  ['remove_5fcomponent_6',['remove_component',['../classRegistry.html#a5aacbf079ad7b0cf34e3736ee2c14376',1,'Registry']]],
-  ['removeclient_7',['RemoveClient',['../classClientManager.html#a4f37a72a376d6cdfbab69df79cce631c',1,'ClientManager']]],
-  ['removeenemy_8',['RemoveEnemy',['../classMyGameScene.html#aeda0367d783ec51b9e95314c862e493e',1,'MyGameScene']]],
-  ['removeexplosions_9',['RemoveExplosions',['../classMyGameScene.html#abd78d28c4a530e65dab7c918706d4243',1,'MyGameScene']]],
-  ['removeotherplayer_10',['RemoveOtherPlayer',['../classMyGameScene.html#a55a74be06ac8175c7543d1ecfc9cd1f7',1,'MyGameScene']]],
-  ['removeplayer_11',['RemovePlayer',['../classMultiplayerSkinManager.html#a22acfc5e23acf5f56e6d8fc08185905d',1,'MultiplayerSkinManager']]],
-  ['removeprojectile_12',['RemoveProjectile',['../classMyGameScene.html#aeedcace3712076911a2d300283c126a1',1,'MyGameScene']]],
-  ['render_13',['render',['../classWaitLobby.html#ada7c3e4a67500d4a281564ebc522fe52',1,'WaitLobby::Render()'],['../classOptionsScene.html#a8057dc9581977353f1c0028d599a64f5',1,'OptionsScene::Render()'],['../classMainMenu.html#a16536ae3b6150bade0d5901f4bca112b',1,'MainMenu::Render()'],['../classMyGameScene.html#a04573dff47633034b4eeb1f5ccd33403',1,'MyGameScene::Render()'],['../classJoinGame.html#aa9dcec39f9e31a4e8a36756f8c0d6161',1,'JoinGame::Render()'],['../classUIManager.html#a0365577ef816226f48fcd566f6737d8c',1,'UIManager::Render()'],['../classGameOverScene.html#a53e7f7320b016314457043346bf80b40',1,'GameOverScene::Render()'],['../classUITextInput.html#a3ec6bab5d4ea51ef61c19ed72b515f41',1,'UITextInput::Render()'],['../classUIText.html#a33ad2bc7b35022cfc6e8ab05d2ce7169',1,'UIText::Render()'],['../classUISolidColor.html#a1e1fdd5f22a7a1dc311d1de1f5a6ad28',1,'UISolidColor::Render()'],['../classUIImage.html#a46d403b7596fed39023249861d62aa8f',1,'UIImage::Render()'],['../classUIElement.html#aa4fab1845bdf6c6107c18a2e887792ff',1,'UIElement::Render()'],['../classUIButton.html#a0d573f4ced7139c55b1aebf3dd37c47c',1,'UIButton::Render()'],['../classSceneManager.html#a61329955734e0c8a67796ef2b041b5a2',1,'SceneManager::Render()'],['../classScene.html#ae24d21e12b34839994ad265662ea24d7',1,'Scene::Render()=0']]],
-  ['rendersprites_14',['RenderSprites',['../classScene.html#a066809ca4318160621455613effc458a',1,'Scene']]],
-  ['renderspriteslayered_15',['RenderSpritesLayered',['../classScene.html#a18a725e4af754cb537b340ee9e598274',1,'Scene']]],
-  ['resetkeybindings_16',['ResetKeyBindings',['../classInputManager.html#a4681b994e89b5d341ecdd940d621b21b',1,'InputManager']]],
-  ['resumemusic_17',['ResumeMusic',['../classAudioManager.html#a8e88b1597090da13b9c0599669db3df8',1,'AudioManager']]],
-  ['rigidbody_18',['RigidBody',['../structRigidBody.html#ae924cc5a2e28ec9d34ba12dde74211ea',1,'RigidBody']]],
-  ['run_19',['run',['../classGameEngine.html#af54dfc38b867307e07204165cb9119a0',1,'GameEngine::Run()'],['../classMyGame.html#acf1b76f3df0ae863e6c2cd6de2786c76',1,'MyGame::Run()'],['../classServerGame.html#a427d50139e251fceb0afd6537aca47e6',1,'ServerGame::Run()']]],
-  ['run_5fsystems_20',['run_systems',['../classRegistry.html#a15a6de78dc2259220850e60b540148aa',1,'Registry']]]
+  ['tcpserver_0',['TCPServer',['../classTCPServer.html#a09826d158e7385055c3b34dacae61fd7',1,'TCPServer']]],
+  ['tilemap_5fcollision_5fsystem_1',['tilemap_collision_system',['../MapCollisionSystem_8cpp.html#a8e55a21413a05033573f6aaff918e768',1,'tilemap_collision_system(Registry &amp;registry):&#160;MapCollisionSystem.cpp'],['../MapCollisionSystem_8hpp.html#a8e55a21413a05033573f6aaff918e768',1,'tilemap_collision_system(Registry &amp;registry):&#160;MapCollisionSystem.cpp']]],
+  ['tilemap_5fenemy_5fcollision_5fsystem_2',['tilemap_enemy_collision_system',['../MapCollisionSystem_8cpp.html#a5978fa176034fe334caceb00c7aae2ed',1,'tilemap_enemy_collision_system(Registry &amp;registry):&#160;MapCollisionSystem.cpp'],['../MapCollisionSystem_8hpp.html#a5978fa176034fe334caceb00c7aae2ed',1,'tilemap_enemy_collision_system(Registry &amp;registry):&#160;MapCollisionSystem.cpp']]]
 ];

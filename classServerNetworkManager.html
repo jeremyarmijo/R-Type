@@ -96,52 +96,58 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8db47f3932be5cd28c46f0d76ac78f21" id="r_a8db47f3932be5cd28c46f0d76ac78f21"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a8db47f3932be5cd28c46f0d76ac78f21">ServerNetworkManager</a> ()</td></tr>
 <tr class="memdesc:a8db47f3932be5cd28c46f0d76ac78f21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classServerNetworkManager.html" title="Manages all server-side network operations.">ServerNetworkManager</a>.  <br /></td></tr>
 <tr class="separator:a8db47f3932be5cd28c46f0d76ac78f21"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ee5e250b5a27b0ab9388e062d7ec31b" id="r_a1ee5e250b5a27b0ab9388e062d7ec31b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a1ee5e250b5a27b0ab9388e062d7ec31b">~ServerNetworkManager</a> () <a class="el" href="classSparseArray.html">override</a></td></tr>
+<tr class="memitem:a1ee5e250b5a27b0ab9388e062d7ec31b" id="r_a1ee5e250b5a27b0ab9388e062d7ec31b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a1ee5e250b5a27b0ab9388e062d7ec31b">~ServerNetworkManager</a> () override</td></tr>
 <tr class="memdesc:a1ee5e250b5a27b0ab9388e062d7ec31b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroy the <a class="el" href="classServerNetworkManager.html" title="Manages all server-side network operations.">ServerNetworkManager</a> and cleanup resources.  <br /></td></tr>
 <tr class="separator:a1ee5e250b5a27b0ab9388e062d7ec31b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2bae52f628fa1e888ade36707fe9670" id="r_ac2bae52f628fa1e888ade36707fe9670"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#ac2bae52f628fa1e888ade36707fe9670">Initialize</a> (<a class="el" href="classSparseArray.html">uint16_t</a> <a class="el" href="classSparseArray.html">tcp_port</a>, <a class="el" href="classSparseArray.html">uint16_t</a> <a class="el" href="classSparseArray.html">udp_port</a>, <a class="el" href="classSparseArray.html">const</a> std::string &amp;<a class="el" href="classSparseArray.html">host</a>=&quot;0.0.0.0&quot;) <a class="el" href="classSparseArray.html">override</a></td></tr>
+<tr class="memitem:ac2bae52f628fa1e888ade36707fe9670" id="r_ac2bae52f628fa1e888ade36707fe9670"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#ac2bae52f628fa1e888ade36707fe9670">Initialize</a> (uint16_t tcp_port, uint16_t udp_port, const std::string &amp;host=&quot;0.0.0.0&quot;) override</td></tr>
 <tr class="separator:ac2bae52f628fa1e888ade36707fe9670"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a443b610a573829ced6da42bda6d52413" id="r_a443b610a573829ced6da42bda6d52413"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a443b610a573829ced6da42bda6d52413">Shutdown</a> () <a class="el" href="classSparseArray.html">override</a></td></tr>
+<tr class="memitem:a443b610a573829ced6da42bda6d52413" id="r_a443b610a573829ced6da42bda6d52413"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a443b610a573829ced6da42bda6d52413">Shutdown</a> () override</td></tr>
 <tr class="separator:a443b610a573829ced6da42bda6d52413"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7bfc765b60b9f9750590e33a235a258a" id="r_a7bfc765b60b9f9750590e33a235a258a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a7bfc765b60b9f9750590e33a235a258a">SendTo</a> (<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;<a class="el" href="classSparseArray.html">msg</a>, <a class="el" href="classSparseArray.html">bool</a> <a class="el" href="classSparseArray.html">sendUdp</a>) <a class="el" href="classSparseArray.html">override</a></td></tr>
-<tr class="memdesc:a7bfc765b60b9f9750590e33a235a258a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send a message to a specific client.  <br /></td></tr>
-<tr class="separator:a7bfc765b60b9f9750590e33a235a258a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6048bf0b902ffaf16e61f39b0a9018a" id="r_ad6048bf0b902ffaf16e61f39b0a9018a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#ad6048bf0b902ffaf16e61f39b0a9018a">BroadcastUDP</a> (<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;<a class="el" href="classSparseArray.html">msg</a>) <a class="el" href="classSparseArray.html">override</a></td></tr>
-<tr class="memdesc:ad6048bf0b902ffaf16e61f39b0a9018a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Broadcast a message to all clients via UDP.  <br /></td></tr>
-<tr class="separator:ad6048bf0b902ffaf16e61f39b0a9018a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2288c7347f118c241cde1d37024eaa1b" id="r_a2288c7347f118c241cde1d37024eaa1b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a2288c7347f118c241cde1d37024eaa1b">BroadcastTCP</a> (<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;<a class="el" href="classSparseArray.html">msg</a>) <a class="el" href="classSparseArray.html">override</a></td></tr>
-<tr class="memdesc:a2288c7347f118c241cde1d37024eaa1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Broadcast a message to all clients via TCP.  <br /></td></tr>
-<tr class="separator:a2288c7347f118c241cde1d37024eaa1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6d7e36ba62980a9a38da95a37631bff" id="r_ac6d7e36ba62980a9a38da95a37631bff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#ac6d7e36ba62980a9a38da95a37631bff">Update</a> () <a class="el" href="classSparseArray.html">override</a></td></tr>
+<tr class="memitem:a8ab1c2757289dd3d435314f6bff42b28" id="r_a8ab1c2757289dd3d435314f6bff42b28"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a8ab1c2757289dd3d435314f6bff42b28">SendTo</a> (const <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;msg, <a class="el" href="structAction.html">Action</a> ac) override</td></tr>
+<tr class="memdesc:a8ab1c2757289dd3d435314f6bff42b28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send a message to a specific client.  <br /></td></tr>
+<tr class="separator:a8ab1c2757289dd3d435314f6bff42b28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d80d18816aa70afe230b1200d9a440d" id="r_a6d80d18816aa70afe230b1200d9a440d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a6d80d18816aa70afe230b1200d9a440d">BroadcastLobbyUDP</a> (<a class="el" href="structAction.html">Action</a> ac, std::vector&lt; std::tuple&lt; uint16_t, bool, std::string &gt; &gt; &amp;ids) override</td></tr>
+<tr class="memdesc:a6d80d18816aa70afe230b1200d9a440d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Broadcast a message to all clients via UDP.  <br /></td></tr>
+<tr class="separator:a6d80d18816aa70afe230b1200d9a440d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e07f5b6365cbcbe4e9fe501580f8bae" id="r_a2e07f5b6365cbcbe4e9fe501580f8bae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a2e07f5b6365cbcbe4e9fe501580f8bae">BroadcastLobbyTCP</a> (<a class="el" href="structAction.html">Action</a> ac, std::vector&lt; std::tuple&lt; uint16_t, bool, std::string &gt; &gt; &amp;ids) override</td></tr>
+<tr class="memdesc:a2e07f5b6365cbcbe4e9fe501580f8bae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Broadcast a message to all clients via TCP.  <br /></td></tr>
+<tr class="separator:a2e07f5b6365cbcbe4e9fe501580f8bae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6d7e36ba62980a9a38da95a37631bff" id="r_ac6d7e36ba62980a9a38da95a37631bff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#ac6d7e36ba62980a9a38da95a37631bff">Update</a> () override</td></tr>
 <tr class="memdesc:ac6d7e36ba62980a9a38da95a37631bff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process incoming messages and connection events.  <br /></td></tr>
 <tr class="separator:ac6d7e36ba62980a9a38da95a37631bff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe85fb044d9ab15b2b73724a70460e13" id="r_abe85fb044d9ab15b2b73724a70460e13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#abe85fb044d9ab15b2b73724a70460e13">SetMessageCallback</a> (<a class="el" href="classINetworkManager.html#a76cd5819ab5db40d8f46d811c4f57831">MessageCallback</a> <a class="el" href="classSparseArray.html">callback</a>) <a class="el" href="classSparseArray.html">override</a></td></tr>
+<tr class="memitem:abe85fb044d9ab15b2b73724a70460e13" id="r_abe85fb044d9ab15b2b73724a70460e13"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#abe85fb044d9ab15b2b73724a70460e13">SetMessageCallback</a> (<a class="el" href="classINetworkManager.html#a76cd5819ab5db40d8f46d811c4f57831">MessageCallback</a> callback) override</td></tr>
 <tr class="memdesc:abe85fb044d9ab15b2b73724a70460e13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set callback for incoming messages.  <br /></td></tr>
 <tr class="separator:abe85fb044d9ab15b2b73724a70460e13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4b4a4046bbfd99e3509859b23f4b455" id="r_ae4b4a4046bbfd99e3509859b23f4b455"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#ae4b4a4046bbfd99e3509859b23f4b455">SetConnectionCallback</a> (<a class="el" href="classINetworkManager.html#aee8ba4101d46745be574d10f3d9f51a0">ConnectionCallback</a> <a class="el" href="classSparseArray.html">callback</a>) <a class="el" href="classSparseArray.html">override</a></td></tr>
+<tr class="memitem:ae4b4a4046bbfd99e3509859b23f4b455" id="r_ae4b4a4046bbfd99e3509859b23f4b455"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#ae4b4a4046bbfd99e3509859b23f4b455">SetConnectionCallback</a> (<a class="el" href="classINetworkManager.html#aee8ba4101d46745be574d10f3d9f51a0">ConnectionCallback</a> callback) override</td></tr>
 <tr class="memdesc:ae4b4a4046bbfd99e3509859b23f4b455"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set callback for client connections.  <br /></td></tr>
 <tr class="separator:ae4b4a4046bbfd99e3509859b23f4b455"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86e10cd5b19281f4628822577307cf4f" id="r_a86e10cd5b19281f4628822577307cf4f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a86e10cd5b19281f4628822577307cf4f">SetDisconnectionCallback</a> (<a class="el" href="classINetworkManager.html#a0484cfdcd3481acc549d54e5b5a2c3b3">DisconnectionCallback</a> <a class="el" href="classSparseArray.html">callback</a>) <a class="el" href="classSparseArray.html">override</a></td></tr>
+<tr class="memitem:a86e10cd5b19281f4628822577307cf4f" id="r_a86e10cd5b19281f4628822577307cf4f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a86e10cd5b19281f4628822577307cf4f">SetDisconnectionCallback</a> (<a class="el" href="classINetworkManager.html#a0484cfdcd3481acc549d54e5b5a2c3b3">DisconnectionCallback</a> callback) override</td></tr>
 <tr class="memdesc:a86e10cd5b19281f4628822577307cf4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set callback for client disconnections.  <br /></td></tr>
 <tr class="separator:a86e10cd5b19281f4628822577307cf4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e5ae2dbadd2f245c999c57913b4529e" id="r_a5e5ae2dbadd2f245c999c57913b4529e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a5e5ae2dbadd2f245c999c57913b4529e">SetGameStarted</a> (<a class="el" href="classSparseArray.html">bool</a> <a class="el" href="classSparseArray.html">strated</a>)</td></tr>
+<tr class="memitem:aaf2c5126aaca6df1a98f597efb9633e8" id="r_aaf2c5126aaca6df1a98f597efb9633e8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#aaf2c5126aaca6df1a98f597efb9633e8">GetUser</a> (const std::string &amp;username, std::string &amp;password, int &amp;score) override</td></tr>
+<tr class="memdesc:aaf2c5126aaca6df1a98f597efb9633e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get user information from database.  <br /></td></tr>
+<tr class="separator:aaf2c5126aaca6df1a98f597efb9633e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65f6a5cd21a6dbd640ed25596572ec7a" id="r_a65f6a5cd21a6dbd640ed25596572ec7a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a65f6a5cd21a6dbd640ed25596572ec7a">AddUser</a> (const std::string &amp;username, const std::string &amp;password, int score) override</td></tr>
+<tr class="memdesc:a65f6a5cd21a6dbd640ed25596572ec7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new user and update if it exists in the database.  <br /></td></tr>
+<tr class="separator:a65f6a5cd21a6dbd640ed25596572ec7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e5ae2dbadd2f245c999c57913b4529e" id="r_a5e5ae2dbadd2f245c999c57913b4529e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerNetworkManager.html#a5e5ae2dbadd2f245c999c57913b4529e">SetGameStarted</a> (bool strated)</td></tr>
 <tr class="memdesc:a5e5ae2dbadd2f245c999c57913b4529e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set game started state.  <br /></td></tr>
 <tr class="separator:a5e5ae2dbadd2f245c999c57913b4529e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classINetworkManager"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classINetworkManager')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classINetworkManager.html">INetworkManager</a></td></tr>
-<tr class="memitem:afb21b970642822ccbaae4f46324e2b39 inherit pub_methods_classINetworkManager" id="r_afb21b970642822ccbaae4f46324e2b39"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">virtual</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classINetworkManager.html#afb21b970642822ccbaae4f46324e2b39">~INetworkManager</a> ()=<a class="el" href="classSparseArray.html">default</a></td></tr>
+<tr class="memitem:afb21b970642822ccbaae4f46324e2b39 inherit pub_methods_classINetworkManager" id="r_afb21b970642822ccbaae4f46324e2b39"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classINetworkManager.html#afb21b970642822ccbaae4f46324e2b39">~INetworkManager</a> ()=default</td></tr>
 <tr class="memdesc:afb21b970642822ccbaae4f46324e2b39 inherit pub_methods_classINetworkManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Virtual destructor.  <br /></td></tr>
 <tr class="separator:afb21b970642822ccbaae4f46324e2b39 inherit pub_methods_classINetworkManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_types_classINetworkManager"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classINetworkManager')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classINetworkManager.html">INetworkManager</a></td></tr>
-<tr class="memitem:a76cd5819ab5db40d8f46d811c4f57831 inherit pub_types_classINetworkManager" id="r_a76cd5819ab5db40d8f46d811c4f57831"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">using</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classINetworkManager.html#a76cd5819ab5db40d8f46d811c4f57831">MessageCallback</a> = std::function&lt; <a class="el" href="classSparseArray.html">void</a>(<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;)&gt;</td></tr>
-<tr class="memdesc:a76cd5819ab5db40d8f46d811c4f57831 inherit pub_types_classINetworkManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Message callback type.  <br /></td></tr>
+<tr class="memitem:a76cd5819ab5db40d8f46d811c4f57831 inherit pub_types_classINetworkManager" id="r_a76cd5819ab5db40d8f46d811c4f57831"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classINetworkManager.html#a76cd5819ab5db40d8f46d811c4f57831">MessageCallback</a> = std::function&lt; void(const <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;)&gt;</td></tr>
+<tr class="memdesc:a76cd5819ab5db40d8f46d811c4f57831 inherit pub_types_classINetworkManager"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structMessage.html">Message</a> callback type.  <br /></td></tr>
 <tr class="separator:a76cd5819ab5db40d8f46d811c4f57831 inherit pub_types_classINetworkManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee8ba4101d46745be574d10f3d9f51a0 inherit pub_types_classINetworkManager" id="r_aee8ba4101d46745be574d10f3d9f51a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">using</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classINetworkManager.html#aee8ba4101d46745be574d10f3d9f51a0">ConnectionCallback</a> = std::function&lt; <a class="el" href="classSparseArray.html">void</a>(<a class="el" href="classSparseArray.html">uint32_t</a> client_id)&gt;</td></tr>
+<tr class="memitem:aee8ba4101d46745be574d10f3d9f51a0 inherit pub_types_classINetworkManager" id="r_aee8ba4101d46745be574d10f3d9f51a0"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classINetworkManager.html#aee8ba4101d46745be574d10f3d9f51a0">ConnectionCallback</a> = std::function&lt; void(uint32_t client_id)&gt;</td></tr>
 <tr class="memdesc:aee8ba4101d46745be574d10f3d9f51a0 inherit pub_types_classINetworkManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Connection callback type.  <br /></td></tr>
 <tr class="separator:aee8ba4101d46745be574d10f3d9f51a0 inherit pub_types_classINetworkManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0484cfdcd3481acc549d54e5b5a2c3b3 inherit pub_types_classINetworkManager" id="r_a0484cfdcd3481acc549d54e5b5a2c3b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">using</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classINetworkManager.html#a0484cfdcd3481acc549d54e5b5a2c3b3">DisconnectionCallback</a> = std::function&lt; <a class="el" href="classSparseArray.html">void</a>(<a class="el" href="classSparseArray.html">uint32_t</a> client_id)&gt;</td></tr>
+<tr class="memitem:a0484cfdcd3481acc549d54e5b5a2c3b3 inherit pub_types_classINetworkManager" id="r_a0484cfdcd3481acc549d54e5b5a2c3b3"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classINetworkManager.html#a0484cfdcd3481acc549d54e5b5a2c3b3">DisconnectionCallback</a> = std::function&lt; void(uint32_t client_id)&gt;</td></tr>
 <tr class="memdesc:a0484cfdcd3481acc549d54e5b5a2c3b3 inherit pub_types_classINetworkManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disconnection callback type.  <br /></td></tr>
 <tr class="separator:a0484cfdcd3481acc549d54e5b5a2c3b3 inherit pub_types_classINetworkManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -154,9 +160,6 @@ Additional Inherited Members</h2></td></tr>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">ServerNetworkManager::ServerNetworkManager </td>
@@ -165,11 +168,6 @@ Additional Inherited Members</h2></td></tr>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">default</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Construct a new <a class="el" href="classServerNetworkManager.html" title="Manages all server-side network operations.">ServerNetworkManager</a>. </p>
@@ -204,8 +202,8 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a2288c7347f118c241cde1d37024eaa1b" name="a2288c7347f118c241cde1d37024eaa1b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2288c7347f118c241cde1d37024eaa1b">&#9670;&#160;</a></span>BroadcastTCP()</h2>
+<a id="a65f6a5cd21a6dbd640ed25596572ec7a" name="a65f6a5cd21a6dbd640ed25596572ec7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65f6a5cd21a6dbd640ed25596572ec7a">&#9670;&#160;</a></span>AddUser()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -214,11 +212,76 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> ServerNetworkManager::BroadcastTCP </td>
+          <td class="memname">bool ServerNetworkManager::AddUser </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;&#160;</td>
-          <td class="paramname"><em>msg</em></td><td>)</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>username</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>password</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>score</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Add a new user and update if it exists in the database. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">username</td><td>Username for the new user </td></tr>
+    <tr><td class="paramname">password</td><td>Password for the new user </td></tr>
+    <tr><td class="paramname">score</td><td>Initial score for the new user </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if user added successfully, false otherwise </dd></dl>
+
+<p>Implements <a class="el" href="classINetworkManager.html#ad71ab296bccbeec73c2895df6e6f40bc">INetworkManager</a>.</p>
+
+</div>
+</div>
+<a id="a2e07f5b6365cbcbe4e9fe501580f8bae" name="a2e07f5b6365cbcbe4e9fe501580f8bae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e07f5b6365cbcbe4e9fe501580f8bae">&#9670;&#160;</a></span>BroadcastLobbyTCP()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ServerNetworkManager::BroadcastLobbyTCP </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structAction.html">Action</a>&#160;</td>
+          <td class="paramname"><em>ac</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::tuple&lt; uint16_t, bool, std::string &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>ids</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -236,12 +299,12 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="classINetworkManager.html#a8504b89d1bb1c543c7c43e6d7340c274">INetworkManager</a>.</p>
+<p>Implements <a class="el" href="classINetworkManager.html#a41f93c87727f2639d5dbab998b625c34">INetworkManager</a>.</p>
 
 </div>
 </div>
-<a id="ad6048bf0b902ffaf16e61f39b0a9018a" name="ad6048bf0b902ffaf16e61f39b0a9018a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad6048bf0b902ffaf16e61f39b0a9018a">&#9670;&#160;</a></span>BroadcastUDP()</h2>
+<a id="a6d80d18816aa70afe230b1200d9a440d" name="a6d80d18816aa70afe230b1200d9a440d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d80d18816aa70afe230b1200d9a440d">&#9670;&#160;</a></span>BroadcastLobbyUDP()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -250,11 +313,21 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> ServerNetworkManager::BroadcastUDP </td>
+          <td class="memname">void ServerNetworkManager::BroadcastLobbyUDP </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;&#160;</td>
-          <td class="paramname"><em>msg</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="structAction.html">Action</a>&#160;</td>
+          <td class="paramname"><em>ac</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">std::vector&lt; std::tuple&lt; uint16_t, bool, std::string &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>ids</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -272,7 +345,62 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="classINetworkManager.html#a2c6b20b80226598e82a80fd8af004ac8">INetworkManager</a>.</p>
+<p>Implements <a class="el" href="classINetworkManager.html#ad4341fb8e1559fc1b40c5f59a2faadae">INetworkManager</a>.</p>
+
+</div>
+</div>
+<a id="aaf2c5126aaca6df1a98f597efb9633e8" name="aaf2c5126aaca6df1a98f597efb9633e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf2c5126aaca6df1a98f597efb9633e8">&#9670;&#160;</a></span>GetUser()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ServerNetworkManager::GetUser </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>username</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>password</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int &amp;&#160;</td>
+          <td class="paramname"><em>score</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get user information from database. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">username</td><td>Username to search for </td></tr>
+    <tr><td class="paramname">password</td><td>Output parameter for user's password </td></tr>
+    <tr><td class="paramname">score</td><td>Output parameter for user's score </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if user found, false otherwise </dd></dl>
+
+<p>Implements <a class="el" href="classINetworkManager.html#ab9c9030cdc3a83a363c62db5863b5d82">INetworkManager</a>.</p>
 
 </div>
 </div>
@@ -286,21 +414,21 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">bool</a> ServerNetworkManager::Initialize </td>
+          <td class="memname">bool ServerNetworkManager::Initialize </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">uint16_t</a>&#160;</td>
+          <td class="paramtype">uint16_t&#160;</td>
           <td class="paramname"><em>tcp_port</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">uint16_t</a>&#160;</td>
+          <td class="paramtype">uint16_t&#160;</td>
           <td class="paramname"><em>udp_port</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::string &amp;&#160;</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
           <td class="paramname"><em>host</em> = <code>&quot;0.0.0.0&quot;</code>&#160;</td>
         </tr>
         <tr>
@@ -320,8 +448,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a7bfc765b60b9f9750590e33a235a258a" name="a7bfc765b60b9f9750590e33a235a258a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7bfc765b60b9f9750590e33a235a258a">&#9670;&#160;</a></span>SendTo()</h2>
+<a id="a8ab1c2757289dd3d435314f6bff42b28" name="a8ab1c2757289dd3d435314f6bff42b28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ab1c2757289dd3d435314f6bff42b28">&#9670;&#160;</a></span>SendTo()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -330,16 +458,16 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> ServerNetworkManager::SendTo </td>
+          <td class="memname">void ServerNetworkManager::SendTo </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structNetworkMessage.html">NetworkMessage</a> &amp;&#160;</td>
           <td class="paramname"><em>msg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">bool</a>&#160;</td>
-          <td class="paramname"><em>sendUdp</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="structAction.html">Action</a>&#160;</td>
+          <td class="paramname"><em>ac</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -363,7 +491,7 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p>Implements <a class="el" href="classINetworkManager.html#af9f636cf9c729fddbf44d157b8b8ee2e">INetworkManager</a>.</p>
+<p>Implements <a class="el" href="classINetworkManager.html#a51c9e48301e8fce8b5af3eafddfd0889">INetworkManager</a>.</p>
 
 </div>
 </div>
@@ -377,7 +505,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> ServerNetworkManager::SetConnectionCallback </td>
+          <td class="memname">void ServerNetworkManager::SetConnectionCallback </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classINetworkManager.html#aee8ba4101d46745be574d10f3d9f51a0">ConnectionCallback</a>&#160;</td>
           <td class="paramname"><em>callback</em></td><td>)</td>
@@ -413,7 +541,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> ServerNetworkManager::SetDisconnectionCallback </td>
+          <td class="memname">void ServerNetworkManager::SetDisconnectionCallback </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classINetworkManager.html#a0484cfdcd3481acc549d54e5b5a2c3b3">DisconnectionCallback</a>&#160;</td>
           <td class="paramname"><em>callback</em></td><td>)</td>
@@ -449,9 +577,9 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> ServerNetworkManager::SetGameStarted </td>
+          <td class="memname">void ServerNetworkManager::SetGameStarted </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">bool</a>&#160;</td>
+          <td class="paramtype">bool&#160;</td>
           <td class="paramname"><em>strated</em></td><td>)</td>
           <td></td>
         </tr>
@@ -483,7 +611,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> ServerNetworkManager::SetMessageCallback </td>
+          <td class="memname">void ServerNetworkManager::SetMessageCallback </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classINetworkManager.html#a76cd5819ab5db40d8f46d811c4f57831">MessageCallback</a>&#160;</td>
           <td class="paramname"><em>callback</em></td><td>)</td>
@@ -519,7 +647,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> ServerNetworkManager::Shutdown </td>
+          <td class="memname">void ServerNetworkManager::Shutdown </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -546,7 +674,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> ServerNetworkManager::Update </td>
+          <td class="memname">void ServerNetworkManager::Update </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>

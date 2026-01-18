@@ -79,35 +79,35 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="Weapon_8hpp_source.html">components/Player/Weapon.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Registry_8hpp_source.html">ecs/Registry.hpp</a>&quot;</code><br />
+<code>#include &quot;ecs/Registry.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for WeaponSystem.hpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="WeaponSystem_8hpp__incl.svg" width="1462" height="359"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="WeaponSystem_8hpp__incl.svg" width="399" height="286"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="WeaponSystem_8hpp__dep__incl.svg" width="630" height="271"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="WeaponSystem_8hpp__dep__incl.svg" width="907" height="271"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="WeaponSystem_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a7f03f7c4e06c375fb9599ef0dae27748" id="r_a7f03f7c4e06c375fb9599ef0dae27748"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#a7f03f7c4e06c375fb9599ef0dae27748">weapon_cooldown_system</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;<a class="el" href="classSparseArray.html">weapons</a>, <a class="el" href="classSparseArray.html">float</a> <a class="el" href="classSparseArray.html">deltaTime</a>)</td></tr>
+<tr class="memitem:a7f03f7c4e06c375fb9599ef0dae27748" id="r_a7f03f7c4e06c375fb9599ef0dae27748"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#a7f03f7c4e06c375fb9599ef0dae27748">weapon_cooldown_system</a> (Registry &amp;registry, SparseArray&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;weapons, float deltaTime)</td></tr>
 <tr class="separator:a7f03f7c4e06c375fb9599ef0dae27748"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6aa44c01d81c0ff1ecd608d26474975" id="r_aa6aa44c01d81c0ff1ecd608d26474975"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#aa6aa44c01d81c0ff1ecd608d26474975">weapon_firing_system</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;<a class="el" href="classSparseArray.html">weapons</a>, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structTransform.html">Transform</a> &gt; &amp;<a class="el" href="classSparseArray.html">transforms</a>, <a class="el" href="classSparseArray.html">const</a> std::function&lt; <a class="el" href="classSparseArray.html">bool</a>(<a class="el" href="classSparseArray.html">size_t</a>)&gt; &amp;<a class="el" href="classSparseArray.html">is_firing_input</a>, <a class="el" href="classSparseArray.html">float</a> <a class="el" href="classSparseArray.html">deltaTime</a>)</td></tr>
+<tr class="memitem:aa6aa44c01d81c0ff1ecd608d26474975" id="r_aa6aa44c01d81c0ff1ecd608d26474975"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#aa6aa44c01d81c0ff1ecd608d26474975">weapon_firing_system</a> (Registry &amp;registry, SparseArray&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;weapons, SparseArray&lt; Transform &gt; &amp;transforms, const std::function&lt; bool(size_t)&gt; &amp;is_firing_input, float deltaTime)</td></tr>
 <tr class="separator:aa6aa44c01d81c0ff1ecd608d26474975"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adb3acf3b303b574a427347811e247914" id="r_adb3acf3b303b574a427347811e247914"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#adb3acf3b303b574a427347811e247914">weapon_reload_system</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;<a class="el" href="classSparseArray.html">weapons</a>, <a class="el" href="classSparseArray.html">float</a> <a class="el" href="classSparseArray.html">deltaTime</a>)</td></tr>
+<tr class="memitem:adb3acf3b303b574a427347811e247914" id="r_adb3acf3b303b574a427347811e247914"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#adb3acf3b303b574a427347811e247914">weapon_reload_system</a> (Registry &amp;registry, SparseArray&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;weapons, float deltaTime)</td></tr>
 <tr class="separator:adb3acf3b303b574a427347811e247914"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9eb19dce4a3c821e4b632e7777d9ad51" id="r_a9eb19dce4a3c821e4b632e7777d9ad51"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#a9eb19dce4a3c821e4b632e7777d9ad51">can_fire</a> (<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structWeapon.html">Weapon</a> &amp;weapon)</td></tr>
+<tr class="memitem:a9eb19dce4a3c821e4b632e7777d9ad51" id="r_a9eb19dce4a3c821e4b632e7777d9ad51"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#a9eb19dce4a3c821e4b632e7777d9ad51">can_fire</a> (const <a class="el" href="structWeapon.html">Weapon</a> &amp;weapon)</td></tr>
 <tr class="separator:a9eb19dce4a3c821e4b632e7777d9ad51"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1bf8cf1db1b9b2d5fea648d3c62d31af" id="r_a1bf8cf1db1b9b2d5fea648d3c62d31af"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#a1bf8cf1db1b9b2d5fea648d3c62d31af">consume_ammo</a> (<a class="el" href="structWeapon.html">Weapon</a> &amp;weapon)</td></tr>
+<tr class="memitem:a1bf8cf1db1b9b2d5fea648d3c62d31af" id="r_a1bf8cf1db1b9b2d5fea648d3c62d31af"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#a1bf8cf1db1b9b2d5fea648d3c62d31af">consume_ammo</a> (<a class="el" href="structWeapon.html">Weapon</a> &amp;weapon)</td></tr>
 <tr class="separator:a1bf8cf1db1b9b2d5fea648d3c62d31af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2edd106b6e03d91ad3eca399bf77c02" id="r_ac2edd106b6e03d91ad3eca399bf77c02"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#ac2edd106b6e03d91ad3eca399bf77c02">needs_reload</a> (<a class="el" href="classSparseArray.html">const</a> <a class="el" href="structWeapon.html">Weapon</a> &amp;weapon)</td></tr>
+<tr class="memitem:ac2edd106b6e03d91ad3eca399bf77c02" id="r_ac2edd106b6e03d91ad3eca399bf77c02"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#ac2edd106b6e03d91ad3eca399bf77c02">needs_reload</a> (const <a class="el" href="structWeapon.html">Weapon</a> &amp;weapon)</td></tr>
 <tr class="separator:ac2edd106b6e03d91ad3eca399bf77c02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4dba5e150b39d30acf99e1a80735e983" id="r_a4dba5e150b39d30acf99e1a80735e983"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#a4dba5e150b39d30acf99e1a80735e983">start_reload</a> (<a class="el" href="structWeapon.html">Weapon</a> &amp;weapon)</td></tr>
+<tr class="memitem:a4dba5e150b39d30acf99e1a80735e983" id="r_a4dba5e150b39d30acf99e1a80735e983"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WeaponSystem_8hpp.html#a4dba5e150b39d30acf99e1a80735e983">start_reload</a> (<a class="el" href="structWeapon.html">Weapon</a> &amp;weapon)</td></tr>
 <tr class="separator:a4dba5e150b39d30acf99e1a80735e983"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -118,9 +118,9 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">bool</a> can_fire </td>
+          <td class="memname">bool can_fire </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structWeapon.html">Weapon</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structWeapon.html">Weapon</a> &amp;&#160;</td>
           <td class="paramname"><em>weapon</em></td><td>)</td>
           <td></td>
         </tr>
@@ -136,7 +136,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> consume_ammo </td>
+          <td class="memname">void consume_ammo </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structWeapon.html">Weapon</a> &amp;&#160;</td>
           <td class="paramname"><em>weapon</em></td><td>)</td>
@@ -154,9 +154,9 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">bool</a> needs_reload </td>
+          <td class="memname">bool needs_reload </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> <a class="el" href="structWeapon.html">Weapon</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structWeapon.html">Weapon</a> &amp;&#160;</td>
           <td class="paramname"><em>weapon</em></td><td>)</td>
           <td></td>
         </tr>
@@ -172,7 +172,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> start_reload </td>
+          <td class="memname">void start_reload </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structWeapon.html">Weapon</a> &amp;&#160;</td>
           <td class="paramname"><em>weapon</em></td><td>)</td>
@@ -190,21 +190,21 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> weapon_cooldown_system </td>
+          <td class="memname">void weapon_cooldown_system </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>weapons</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>deltaTime</em>&#160;</td>
         </tr>
         <tr>
@@ -224,33 +224,33 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> weapon_firing_system </td>
+          <td class="memname">void weapon_firing_system </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>weapons</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structTransform.html">Transform</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; Transform &gt; &amp;&#160;</td>
           <td class="paramname"><em>transforms</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::function&lt; <a class="el" href="classSparseArray.html">bool</a>(<a class="el" href="classSparseArray.html">size_t</a>)&gt; &amp;&#160;</td>
+          <td class="paramtype">const std::function&lt; bool(size_t)&gt; &amp;&#160;</td>
           <td class="paramname"><em>is_firing_input</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>deltaTime</em>&#160;</td>
         </tr>
         <tr>
@@ -270,21 +270,21 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> weapon_reload_system </td>
+          <td class="memname">void weapon_reload_system </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structWeapon.html">Weapon</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>weapons</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>deltaTime</em>&#160;</td>
         </tr>
         <tr>

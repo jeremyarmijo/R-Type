@@ -78,26 +78,29 @@ $(function() {
   <div class="headertitle"><div class="title">WaveSystem.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="EntityHelper_8hpp_source.html">Helpers/EntityHelper.hpp</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="WaveSystem_8hpp_source.html">systems/WaveSystem.hpp</a>&quot;</code><br />
+<code>#include &lt;iostream&gt;</code><br />
+<code>#include &lt;random&gt;</code><br />
+<code>#include &quot;<a class="el" href="EntityHelper_8hpp_source.html">Helpers/EntityHelper.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Spawn_8hpp_source.html">SpawnEnemy/Spawn.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Zipper_8hpp_source.html">ecs/Zipper.hpp</a>&quot;</code><br />
+<code>#include &quot;ecs/Zipper.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for WaveSystem.cpp:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="WaveSystem_8cpp__incl.svg" width="2648" height="506"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="WaveSystem_8cpp__incl.svg" width="2862" height="432"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a167403f60de89013da45fac47770e207" id="r_a167403f60de89013da45fac47770e207"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structVector2.html">Vector2</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a167403f60de89013da45fac47770e207">get_random_pos</a> ()</td></tr>
+<tr class="memitem:a167403f60de89013da45fac47770e207" id="r_a167403f60de89013da45fac47770e207"><td class="memItemLeft" align="right" valign="top">Vector2&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a167403f60de89013da45fac47770e207">get_random_pos</a> ()</td></tr>
 <tr class="separator:a167403f60de89013da45fac47770e207"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4ac681eb82e532209ebc0c6a3f7e073" id="r_aa4ac681eb82e532209ebc0c6a3f7e073"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structVector2.html">Vector2</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#aa4ac681eb82e532209ebc0c6a3f7e073">get_boss_spawn_pos</a> ()</td></tr>
+<tr class="memitem:aa4ac681eb82e532209ebc0c6a3f7e073" id="r_aa4ac681eb82e532209ebc0c6a3f7e073"><td class="memItemLeft" align="right" valign="top">Vector2&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#aa4ac681eb82e532209ebc0c6a3f7e073">get_boss_spawn_pos</a> ()</td></tr>
 <tr class="separator:aa4ac681eb82e532209ebc0c6a3f7e073"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a270045124e92b7ddc4e93e935d0610a8" id="r_a270045124e92b7ddc4e93e935d0610a8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a270045124e92b7ddc4e93e935d0610a8">checkWaveEnd</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;enemies)</td></tr>
+<tr class="memitem:a270045124e92b7ddc4e93e935d0610a8" id="r_a270045124e92b7ddc4e93e935d0610a8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a270045124e92b7ddc4e93e935d0610a8">checkWaveEnd</a> (Registry &amp;registry, SparseArray&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;enemies)</td></tr>
 <tr class="separator:a270045124e92b7ddc4e93e935d0610a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9a50ea337295fa59e1c3732b19de67c" id="r_aa9a50ea337295fa59e1c3732b19de67c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#aa9a50ea337295fa59e1c3732b19de67c">create_multiples_enemies</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type, <a class="el" href="classSparseArray.html">int</a> <a class="el" href="classSparseArray.html">nbEnemies</a>)</td></tr>
+<tr class="memitem:aa9a50ea337295fa59e1c3732b19de67c" id="r_aa9a50ea337295fa59e1c3732b19de67c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#aa9a50ea337295fa59e1c3732b19de67c">create_multiples_enemies</a> (Registry &amp;registry, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type, int nbEnemies)</td></tr>
 <tr class="separator:aa9a50ea337295fa59e1c3732b19de67c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8eb043381857cf6f81f8caa53a250f06" id="r_a8eb043381857cf6f81f8caa53a250f06"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a8eb043381857cf6f81f8caa53a250f06">enemy_wave_system</a> (<a class="el" href="classRegistry.html">Registry</a> &amp;registry, <a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;enemies, <a class="el" href="classSparseArray.html">float</a> <a class="el" href="classSparseArray.html">deltaTime</a>, <a class="el" href="classSparseArray.html">int</a> <a class="el" href="classSparseArray.html">nbWave</a>, <a class="el" href="classSparseArray.html">int</a> difficulty)</td></tr>
+<tr class="memitem:a8eb043381857cf6f81f8caa53a250f06" id="r_a8eb043381857cf6f81f8caa53a250f06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a8eb043381857cf6f81f8caa53a250f06">enemy_wave_system</a> (Registry &amp;registry, SparseArray&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;enemies, float deltaTime, int nbWave, int difficulty)</td></tr>
 <tr class="separator:a8eb043381857cf6f81f8caa53a250f06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -108,15 +111,15 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">bool</a> checkWaveEnd </td>
+          <td class="memname">bool checkWaveEnd </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>enemies</em>&#160;</td>
         </tr>
         <tr>
@@ -136,9 +139,9 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> create_multiples_enemies </td>
+          <td class="memname">void create_multiples_enemies </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
@@ -150,7 +153,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">int</a>&#160;</td>
+          <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>nbEnemies</em>&#160;</td>
         </tr>
         <tr>
@@ -170,33 +173,33 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> enemy_wave_system </td>
+          <td class="memname">void enemy_wave_system </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classRegistry.html">Registry</a> &amp;&#160;</td>
+          <td class="paramtype">Registry &amp;&#160;</td>
           <td class="paramname"><em>registry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">SparseArray</a>&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">SparseArray&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>enemies</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">float</a>&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>deltaTime</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">int</a>&#160;</td>
+          <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>nbWave</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">int</a>&#160;</td>
+          <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>difficulty</em>&#160;</td>
         </tr>
         <tr>
@@ -216,7 +219,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structVector2.html">Vector2</a> get_boss_spawn_pos </td>
+          <td class="memname">Vector2 get_boss_spawn_pos </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -233,7 +236,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structVector2.html">Vector2</a> get_random_pos </td>
+          <td class="memname">Vector2 get_random_pos </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>

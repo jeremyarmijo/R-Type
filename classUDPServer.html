@@ -84,26 +84,26 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a5ec239fbbbdf724ea19b577474506093" id="r_a5ec239fbbbdf724ea19b577474506093"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">using</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#a5ec239fbbbdf724ea19b577474506093">ReceiveCallback</a> = std::function&lt; <a class="el" href="classSparseArray.html">void</a>(<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;, <a class="el" href="classSparseArray.html">const</a> asio::ip::udp::endpoint &amp;)&gt;</td></tr>
-<tr class="memdesc:a5ec239fbbbdf724ea19b577474506093"><td class="mdescLeft">&#160;</td><td class="mdescRight">Receive callback type.  <br /></td></tr>
-<tr class="separator:a5ec239fbbbdf724ea19b577474506093"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a282dc03ab3c9b58574a96b4dc05923fd" id="r_a282dc03ab3c9b58574a96b4dc05923fd"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd">ReceiveCallback</a> = std::function&lt; void(const std::vector&lt; uint8_t &gt; &amp;, const asio::ip::udp::endpoint &amp;)&gt;</td></tr>
+<tr class="memdesc:a282dc03ab3c9b58574a96b4dc05923fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Receive callback type.  <br /></td></tr>
+<tr class="separator:a282dc03ab3c9b58574a96b4dc05923fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a77f486974a62d65b4ec1818b8a3ad492" id="r_a77f486974a62d65b4ec1818b8a3ad492"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#a77f486974a62d65b4ec1818b8a3ad492">UDPServer</a> (<a class="el" href="classSparseArray.html#a98795bd6dead1b0dbe65892f67164135">asio::io_context</a> &amp;<a class="el" href="classSparseArray.html">io_context</a>, <a class="el" href="classSparseArray.html">uint16_t</a> <a class="el" href="classSparseArray.html">port</a>, <a class="el" href="classSparseArray.html">const</a> std::string &amp;<a class="el" href="classSparseArray.html">host</a>=&quot;0.0.0.0&quot;)</td></tr>
+<tr class="memitem:a77f486974a62d65b4ec1818b8a3ad492" id="r_a77f486974a62d65b4ec1818b8a3ad492"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#a77f486974a62d65b4ec1818b8a3ad492">UDPServer</a> (asio::io_context &amp;io_context, uint16_t port, const std::string &amp;host=&quot;0.0.0.0&quot;)</td></tr>
 <tr class="separator:a77f486974a62d65b4ec1818b8a3ad492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09b1a38f1a03d3832f85fe05e6370a11" id="r_a09b1a38f1a03d3832f85fe05e6370a11"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#a09b1a38f1a03d3832f85fe05e6370a11">~UDPServer</a> ()</td></tr>
 <tr class="separator:a09b1a38f1a03d3832f85fe05e6370a11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac7186bf75593be4bfa94ee34c9de4fb2" id="r_ac7186bf75593be4bfa94ee34c9de4fb2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#ac7186bf75593be4bfa94ee34c9de4fb2">SetReceiveCallback</a> (<a class="el" href="classUDPServer.html#a5ec239fbbbdf724ea19b577474506093">ReceiveCallback</a> <a class="el" href="classSparseArray.html">callback</a>)</td></tr>
+<tr class="memitem:ac7186bf75593be4bfa94ee34c9de4fb2" id="r_ac7186bf75593be4bfa94ee34c9de4fb2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#ac7186bf75593be4bfa94ee34c9de4fb2">SetReceiveCallback</a> (<a class="el" href="classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd">ReceiveCallback</a> callback)</td></tr>
 <tr class="memdesc:ac7186bf75593be4bfa94ee34c9de4fb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set callback for incoming UDP data.  <br /></td></tr>
 <tr class="separator:ac7186bf75593be4bfa94ee34c9de4fb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af36353120a2a8f1b1005d9397c157c95" id="r_af36353120a2a8f1b1005d9397c157c95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#af36353120a2a8f1b1005d9397c157c95">SendTo</a> (<a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;data, <a class="el" href="classSparseArray.html">const</a> asio::ip::udp::endpoint &amp;<a class="el" href="classSparseArray.html">endpoint</a>)</td></tr>
+<tr class="memitem:af36353120a2a8f1b1005d9397c157c95" id="r_af36353120a2a8f1b1005d9397c157c95"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#af36353120a2a8f1b1005d9397c157c95">SendTo</a> (const std::vector&lt; uint8_t &gt; &amp;data, const asio::ip::udp::endpoint &amp;endpoint)</td></tr>
 <tr class="memdesc:af36353120a2a8f1b1005d9397c157c95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send data to a specific endpoint.  <br /></td></tr>
 <tr class="separator:af36353120a2a8f1b1005d9397c157c95"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a376f88e25f45741614243d0928261c7d" id="r_a376f88e25f45741614243d0928261c7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#a376f88e25f45741614243d0928261c7d">IsOpen</a> () <a class="el" href="classSparseArray.html">const</a></td></tr>
+<tr class="memitem:a376f88e25f45741614243d0928261c7d" id="r_a376f88e25f45741614243d0928261c7d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#a376f88e25f45741614243d0928261c7d">IsOpen</a> () const</td></tr>
 <tr class="memdesc:a376f88e25f45741614243d0928261c7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if socket is open.  <br /></td></tr>
 <tr class="separator:a376f88e25f45741614243d0928261c7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48f0dd0cbf65a59c3d29ffa7669e736f" id="r_a48f0dd0cbf65a59c3d29ffa7669e736f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSparseArray.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#a48f0dd0cbf65a59c3d29ffa7669e736f">Close</a> ()</td></tr>
+<tr class="memitem:a48f0dd0cbf65a59c3d29ffa7669e736f" id="r_a48f0dd0cbf65a59c3d29ffa7669e736f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classUDPServer.html#a48f0dd0cbf65a59c3d29ffa7669e736f">Close</a> ()</td></tr>
 <tr class="memdesc:a48f0dd0cbf65a59c3d29ffa7669e736f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close the UDP socket.  <br /></td></tr>
 <tr class="separator:a48f0dd0cbf65a59c3d29ffa7669e736f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -111,14 +111,14 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><p>UDP server for handling fast, unreliable game data transmission. </p>
 <p>Manages UDP communication for real-time game state updates and player inputs. </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a5ec239fbbbdf724ea19b577474506093" name="a5ec239fbbbdf724ea19b577474506093"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5ec239fbbbdf724ea19b577474506093">&#9670;&#160;</a></span>ReceiveCallback</h2>
+<a id="a282dc03ab3c9b58574a96b4dc05923fd" name="a282dc03ab3c9b58574a96b4dc05923fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a282dc03ab3c9b58574a96b4dc05923fd">&#9670;&#160;</a></span>ReceiveCallback</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">using</a> <a class="el" href="classUDPServer.html#a5ec239fbbbdf724ea19b577474506093">UDPServer::ReceiveCallback</a> =  std::function&lt;<a class="el" href="classSparseArray.html">void</a>(<a class="el" href="classSparseArray.html">const</a> std::vector&lt;<a class="el" href="classSparseArray.html">uint8_t</a>&gt;&amp;, <a class="el" href="classSparseArray.html">const</a> asio::ip::udp::endpoint&amp;)&gt;</td>
+          <td class="memname">using <a class="el" href="classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd">UDPServer::ReceiveCallback</a> =  std::function&lt;void( const std::vector&lt;uint8_t&gt;&amp;, const asio::ip::udp::endpoint&amp;)&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -137,19 +137,19 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">UDPServer::UDPServer </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html#a98795bd6dead1b0dbe65892f67164135">asio::io_context</a> &amp;&#160;</td>
+          <td class="paramtype">asio::io_context &amp;&#160;</td>
           <td class="paramname"><em>io_context</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">uint16_t</a>&#160;</td>
+          <td class="paramtype">uint16_t&#160;</td>
           <td class="paramname"><em>port</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::string &amp;&#160;</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
           <td class="paramname"><em>host</em> = <code>&quot;0.0.0.0&quot;</code>&#160;</td>
         </tr>
         <tr>
@@ -187,7 +187,7 @@ Public Member Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> UDPServer::Close </td>
+          <td class="memname">void UDPServer::Close </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -209,7 +209,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">bool</a> UDPServer::IsOpen </td>
+          <td class="memname">bool UDPServer::IsOpen </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -234,15 +234,15 @@ Public Member Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> UDPServer::SendTo </td>
+          <td class="memname">void UDPServer::SendTo </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> std::vector&lt; <a class="el" href="classSparseArray.html">uint8_t</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::vector&lt; uint8_t &gt; &amp;&#160;</td>
           <td class="paramname"><em>data</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classSparseArray.html">const</a> asio::ip::udp::endpoint &amp;&#160;</td>
+          <td class="paramtype">const asio::ip::udp::endpoint &amp;&#160;</td>
           <td class="paramname"><em>endpoint</em>&#160;</td>
         </tr>
         <tr>
@@ -271,9 +271,9 @@ Public Member Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSparseArray.html">void</a> UDPServer::SetReceiveCallback </td>
+          <td class="memname">void UDPServer::SetReceiveCallback </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classUDPServer.html#a5ec239fbbbdf724ea19b577474506093">ReceiveCallback</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classUDPServer.html#a282dc03ab3c9b58574a96b4dc05923fd">ReceiveCallback</a>&#160;</td>
           <td class="paramname"><em>callback</em></td><td>)</td>
           <td></td>
         </tr>
