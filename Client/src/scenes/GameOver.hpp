@@ -75,6 +75,12 @@ class GameOverScene : public Scene {
   }
 };
 
+#ifdef _WIN32
+extern "C" {
+  __declspec(dllexport) Scene* CreateScene();
+}
+#else
 extern "C" {
     Scene* CreateScene();
 }
+#endif
