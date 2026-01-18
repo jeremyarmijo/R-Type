@@ -559,6 +559,7 @@ void ClientLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data(), &pId, sizeof(uint16_t));
 }
 
+
 void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);

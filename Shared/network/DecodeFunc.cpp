@@ -1080,6 +1080,7 @@ Event DecodeCLIENT_LEAVE(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
+
 void SetupDecoder(Decoder& decoder) {
   // TCP Messages
   decoder.registerHandler(0x01, DecodeLOGIN_REQUEST);
@@ -1109,4 +1110,5 @@ void SetupDecoder(Decoder& decoder) {
   decoder.registerHandler(0x24, DecodeBOSS_UPDATE);
   decoder.registerHandler(0x25, DecodeENEMY_HIT);
   decoder.registerHandler(0x26, DecodeFORCE_STATE);
+  decoder.registerHandler(0x27, DecodeLEVEL_TRANSITION);
 }
