@@ -559,6 +559,15 @@ void ClientLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data(), &pId, sizeof(uint16_t));
 }
 
+
+void LevelTransitionFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* trans = std::get_if<LevelTransition>(&a.data);
+  if (!trans) return;
+  
+  out.clear();
+  out.push_back(trans->levelNumber);
+}
+
 void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
@@ -598,4 +607,5 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::LOBBY_UPDATE, LobbyUpdateFunc);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
   encoder.registerHandler(ActionType::LOBBY_START, LobbyStartFunc);
+  encoder.registerHandler(ActionType::LEVEL_TRANSITION, LevelTransitionFunc);
 }

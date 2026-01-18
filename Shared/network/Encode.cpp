@@ -79,6 +79,8 @@ inline uint8_t getType(const Action& a) {
       return 0x25;
     case ActionType::FORCE_STATE:
       return 0x26;
+    case ActionType::LEVEL_TRANSITION:
+      return 0x27;
 
     default:
       return 0xFF;
