@@ -1,5 +1,7 @@
 #include "systems/ForceCtrl.hpp"
+
 #include <iostream>
+
 #include "components/BossPart.hpp"
 #include "components/Player/Enemy.hpp"
 #include "systems/Collision/Collision.hpp"
@@ -111,8 +113,6 @@ void force_collision_system(
                             projCollider)) {
           proj.isActive = false;
           registry.kill_entity(Entity(projIdx));
-          std::cout << "Force BLOCKED enemy projectile " << projIdx << "!"
-                    << std::endl;
         }
       }
     }

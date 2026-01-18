@@ -15,7 +15,7 @@ struct BossPart {
   float timer = 0.f;
 
   BossPart(Entity boss = Entity(0), Vector2 off = {0.f, 0.f}, int index = -1,
-           float tOffset = 0.f, int health = 50, uint8_t pType = 0)
+           float tOffset = 0.f, int health = 30, uint8_t pType = 0)
       : bossEntity(boss),
         offset(off),
         segmentIndex(index),

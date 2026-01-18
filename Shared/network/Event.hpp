@@ -215,6 +215,10 @@ struct MAP_DATA {
   std::vector<uint8_t> tiles;
 };
 
+struct LEVEL_TRANSITION {
+  uint8_t levelNumber;
+};
+
 enum class EventType : uint8_t {
   // TCP Messages
   LOGIN_REQUEST = 0x01,
@@ -245,6 +249,7 @@ enum class EventType : uint8_t {
   BOSS_UPDATE = 0x24,
   ENEMY_HIT = 0x25,
   FORCE_STATE = 0x26,
+  LEVEL_TRANSITION = 0x027,
 
   UNKNOWN = 0xFF
 };
@@ -257,12 +262,14 @@ struct FORCE_STATE {
   uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
 };
 
-using EventData = std::variant<
-    std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, GAME_START, GAME_END,
-    ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_UPDATE, ENEMY_HIT,
-    LOBBY_CREATE, LOBBY_JOIN_REQUEST, LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE,
-    PLAYER_READY, LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
-    MESSAGE, LOBBY_KICK, BOSS_SPAWN, FORCE_STATE, CLIENT_LEAVE, MAP_DATA>;
+using EventData =
+    std::variant<std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, GAME_START,
+                 GAME_END, ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH,
+                 BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
+                 LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
+                 LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
+                 MESSAGE, LOBBY_KICK, BOSS_SPAWN, FORCE_STATE, CLIENT_LEAVE,
+                 MAP_DATA, LEVEL_TRANSITION>;
 
 struct Event {
   EventType type;

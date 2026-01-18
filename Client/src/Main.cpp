@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
         engine.GetSceneManager().LoadSceneModule("menu", "../src/scenes/libscene_mainmenu.dll");
         engine.GetSceneManager().LoadSceneModule("options", "../src/scenes/libscene_options.dll");
         engine.GetSceneManager().LoadSceneModule("wait", "../src/scenes/libscene_waitlobby.dll");
+        // engine.GetSceneManager().LoadSceneModule("levelTransition", "../src/scenes/libscene_leveltransition.dll");
 #else
         engine.LoadSubsystem(SubsystemType::RENDERING, "../../EngineModule/build/libsubsystem_rendering.so");
         engine.LoadSubsystem(SubsystemType::AUDIO, "../../EngineModule/build/libsubsystem_audio.so");
@@ -59,6 +60,7 @@ int main(int argc, char* argv[]) {
         engine.GetSceneManager().LoadSceneModule("menu", "../src/scenes/libscene_mainmenu.so");
         engine.GetSceneManager().LoadSceneModule("options", "../src/scenes/libscene_options.so");
         engine.GetSceneManager().LoadSceneModule("wait", "../src/scenes/libscene_waitlobby.so");
+        // engine.GetSceneManager().LoadSceneModule("levelTransition", "../src/scenes/libscene_leveltransition.so");
 #endif
         std::cout << "\n=== STARTING GAME ===" << std::endl;
 

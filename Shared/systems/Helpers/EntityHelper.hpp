@@ -1,8 +1,8 @@
 #pragma once
 #include <iostream>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
 #include "Collision/Items.hpp"
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
@@ -42,8 +42,6 @@ inline Entity createPlayer(Registry& registry, const Vector2& startPos,
   return player;
 }
 
-// Helper pour créer un ennemi basique
-// Helper pour créer un ennemi avec stats configurables
 inline Entity createEnemy(Registry& registry, EnemyType type,
                           const Vector2& startPos, float speedMultiplier = 1.0f,
                           float hpMultiplier = 1.0f) {

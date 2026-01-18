@@ -501,7 +501,6 @@ void MessageFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data() + offset, msg->message.data(), msgContentLen);
 }
 
-
 void MapDataFunc(const Action& a, std::vector<uint8_t>& out) {
   const auto* map = std::get_if<MapData>(&a.data);
   if (!map) return;
@@ -559,6 +558,14 @@ void ClientLeaveFunc(const Action& a, std::vector<uint8_t>& out) {
   memcpy(out.data(), &pId, sizeof(uint16_t));
 }
 
+void LevelTransitionFunc(const Action& a, std::vector<uint8_t>& out) {
+  const auto* trans = std::get_if<LevelTransition>(&a.data);
+  if (!trans) return;
+
+  out.clear();
+  out.push_back(trans->levelNumber);
+}
+
 void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::AUTH, Auth);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
@@ -589,7 +596,7 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::LOBBY_JOIN_REQUEST, LobbyJoinRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_JOIN_RESPONSE,
                           LobbyJoinResponseFunc);
-    encoder.registerHandler(ActionType::SEND_MAP, MapDataFunc);
+  encoder.registerHandler(ActionType::SEND_MAP, MapDataFunc);
   encoder.registerHandler(ActionType::LOBBY_LIST_REQUEST, LobbyListRequestFunc);
   encoder.registerHandler(ActionType::LOBBY_LIST_RESPONSE,
                           LobbyListResponseFunc);
@@ -598,4 +605,5 @@ void SetupEncoder(Encoder& encoder) {
   encoder.registerHandler(ActionType::LOBBY_UPDATE, LobbyUpdateFunc);
   encoder.registerHandler(ActionType::LOBBY_LEAVE, LobbyLeaveFunc);
   encoder.registerHandler(ActionType::LOBBY_START, LobbyStartFunc);
+  encoder.registerHandler(ActionType::LEVEL_TRANSITION, LevelTransitionFunc);
 }
