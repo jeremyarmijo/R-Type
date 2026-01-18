@@ -34,43 +34,43 @@ struct InputBinding {
 };
 
 class InputSubsystem : public ISubsystem {
-private:
-    // Keyboard state
-    const Uint8* m_keyboardState;
-    std::unordered_map<SDL_Keycode, bool> m_keyPressed;
-    std::unordered_map<SDL_Keycode, bool> m_keyReleased;
-    
-    // Mouse state
-    int m_mouseX, m_mouseY;
-    Uint32 m_mouseState;
-    std::unordered_map<int, bool> m_mousePressed;
-    std::unordered_map<int, bool> m_mouseReleased;
-    
-    // Gamepad support
-    SDL_GameController* m_gamepad;
-    bool m_gamepadConnected;
-    
-    // Action bindings
-    std::unordered_map<std::string, InputBinding> m_bindings;
-    
-    // === NEW: Key Bindings System ===
-    KeyBindings m_keyBindings;
-    
-    // Previous frame state for detecting changes
-    bool m_prevMoveLeft;
-    bool m_prevMoveRight;
-    bool m_prevMoveUp;
-    bool m_prevMoveDown;
-    bool m_prevAction1;
-    bool m_prevAction2;
-    
-    // Current frame state
-    bool m_moveLeft;
-    bool m_moveRight;
-    bool m_moveUp;
-    bool m_moveDown;
-    bool m_action1;
-    bool m_action2;
+ private:
+  // Keyboard state
+  const Uint8* m_keyboardState;
+  std::unordered_map<SDL_Keycode, bool> m_keyPressed;
+  std::unordered_map<SDL_Keycode, bool> m_keyReleased;
+
+  // Mouse state
+  int m_mouseX, m_mouseY;
+  Uint32 m_mouseState;
+  std::unordered_map<int, bool> m_mousePressed;
+  std::unordered_map<int, bool> m_mouseReleased;
+
+  // Gamepad support
+  SDL_GameController* m_gamepad;
+  bool m_gamepadConnected;
+
+  // Action bindings
+  std::unordered_map<std::string, InputBinding> m_bindings;
+
+  // === NEW: Key Bindings System ===
+  KeyBindings m_keyBindings;
+
+  // Previous frame state for detecting changes
+  bool m_prevMoveLeft;
+  bool m_prevMoveRight;
+  bool m_prevMoveUp;
+  bool m_prevMoveDown;
+  bool m_prevAction1;
+  bool m_prevAction2;
+
+  // Current frame state
+  bool m_moveLeft;
+  bool m_moveRight;
+  bool m_moveUp;
+  bool m_moveDown;
+  bool m_action1;
+  bool m_action2;
 
  public:
   InputSubsystem();
