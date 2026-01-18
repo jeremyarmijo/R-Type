@@ -18,23 +18,27 @@ std::vector<LevelComponent> createLevels() {
   levels.emplace_back(std::vector<Wave>{
       Wave{{EnemyType::Basic},
            {3},
-           {{700, 100}, {700, 200}, {700, 300}},
+           {{700, 100}, {700, 250}, {700, 400}},
            false,
            std::nullopt,
            0},
-      Wave{{EnemyType::Basic, EnemyType::Zigzag},
-           {2, 2},
-           {{700, 120}, {700, 220}, {700, 320}, {700, 420}},
+      Wave{{EnemyType::Basic, EnemyType::Zigzag, EnemyType::mini_Green},
+           {2, 2, 1},  // mini_Green = 1 spawn
+           {{700, 120}, {700, 200}, {700, 300}, {700, 380}, {700, 450}},
            false,
            std::nullopt,
            0},
-      Wave{{}, {0}, {{700, 250}}, true, BossType::FinalBoss, 300}});
+      Wave{{}, {0}, {{700, 250}}, true, BossType::FinalBoss, 400}});
 
-  // Level 2
   levels.emplace_back(std::vector<Wave>{
-      Wave{{EnemyType::Zigzag},
-           {4},
-           {{700, 80}, {700, 140}, {700, 200}, {700, 260}},
+      Wave{{EnemyType::Zigzag, EnemyType::Spinner},
+           {4, 2},
+           {{700, 80},
+            {700, 140},
+            {700, 240},
+            {700, 380},
+            {700, 100},
+            {700, 300}},
            false,
            std::nullopt,
            0},
@@ -44,7 +48,7 @@ std::vector<LevelComponent> createLevels() {
            false,
            std::nullopt,
            0},
-      Wave{{}, {0}, {{700, 250}}, true, BossType::Gomander_snake, 300}});
+      Wave{{}, {0}, {{700, 250}}, true, BossType::Gomander_snake, 800}});
 
   // Level 3
   levels.emplace_back(std::vector<Wave>{
@@ -67,7 +71,7 @@ std::vector<LevelComponent> createLevels() {
            false,
            std::nullopt,
            0},
-      Wave{{}, {0}, {{700, 300}}, true, BossType::Bydo_Battleship, 1200}});
+      Wave{{}, {0}, {{700, 300}}, true, BossType::Bydo_Battleship, 1600}});
 
   return levels;
 }
@@ -115,6 +119,16 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
     }
   }
 
+  if (!anyEnemyAlive) {
+    auto& bossParts = registry.get_components<BossPart>();
+    for (auto& part : bossParts) {
+      if (part.has_value() && part->alive) {
+        anyEnemyAlive = true;
+        break;
+      }
+    }
+  }
+
   if (anyEnemyAlive) {
     return false;
   }
@@ -154,17 +168,21 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
       for (int i = 0; i < 8; ++i) {
         Vector2 segmentPos = {bossPos.x + (i + 1) * 40.f, bossPos.y};
         createBossPart(registry, bossEntity, segmentPos, {0.f, 0.f}, i,
-                       (i + 1) * 0.15f, 50);
+                       (i + 1) * 0.15f, 50, {30.f, 30.f}, 1);
       }
       std::cout << "[Level " << (levelIndex + 1)
                 << "] Snake Boss spawned with 8 segments!" << std::endl;
     } else if (btype == BossType::Bydo_Battleship) {
       std::vector<Vector2> offsets = {
-          {-20.f, -60.f}, {-20.f, 60.f}, {-50.f, -30.f}, {-50.f, 30.f}};
+          {-80.f, -50.f},  // Tourelle haut-gauche
+          {-80.f, 50.f},   // Tourelle bas-gauche
+          {-40.f, -80.f},  // Tourelle très haut
+          {-40.f, 80.f},   // Tourelle très bas
+      };
       for (const auto& offset : offsets) {
         Vector2 turretPos = {bossPos.x + offset.x, bossPos.y + offset.y};
         createBossPart(registry, bossEntity, turretPos, offset, -1, 0.f, 100,
-                       {20.f, 20.f});
+                       {20.f, 20.f}, 2);
       }
       std::cout << "[Level " << (levelIndex + 1)
                 << "] Final Boss spawned with 4 turrets!" << std::endl;
@@ -192,16 +210,9 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
                 : wave.spawnPositions[totalSpawned %
                                       wave.spawnPositions.size()];
 
-        Entity e = createEnemy(registry, type, spawnPos);
-
-        auto& enemiesArr = registry.get_components<Enemy>();
-        size_t eid = static_cast<size_t>(e);
-        if (eid < enemiesArr.size() && enemiesArr[eid].has_value()) {
-          enemiesArr[eid]->speed *= speedMultiplier;
-          enemiesArr[eid]->current =
-              static_cast<int>(enemiesArr[eid]->current *
-                               (1.0f + 0.2f * static_cast<float>(levelIndex)));
-        }
+        float hpMultiplier = 1.0f + 0.2f * static_cast<float>(levelIndex);
+        Entity e = createEnemy(registry, type, spawnPos, speedMultiplier,
+                               hpMultiplier);
         totalSpawned++;
       }
     }

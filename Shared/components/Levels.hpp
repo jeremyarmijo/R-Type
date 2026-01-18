@@ -5,7 +5,7 @@
 
 #include "Player/Boss.hpp"
 #include "Player/Enemy.hpp"
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 
 struct Wave {
   std::vector<EnemyType> enemyTypes;

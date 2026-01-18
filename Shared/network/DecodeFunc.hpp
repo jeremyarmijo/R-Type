@@ -6,7 +6,8 @@
 #include "network/Event.hpp"
 
 bool checkHeader(const std::vector<uint8_t>& packet, size_t& offset,
-                 uint32_t& payloadLength);
+                 uint32_t& payloadLength, uint16_t& seq, uint16_t& ack,
+                 uint32_t& ack_bits);
 
 Event DecodeLOGIN_REQUEST(const std::vector<uint8_t>& packet);
 Event DecodeLOGIN_RESPONSE(const std::vector<uint8_t>& packet);

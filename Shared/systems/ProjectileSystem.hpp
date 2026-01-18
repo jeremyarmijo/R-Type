@@ -1,5 +1,5 @@
 #pragma once
-#include "components/Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 #include "components/Player/Projectile.hpp"
 #include "ecs/Registry.hpp"
 

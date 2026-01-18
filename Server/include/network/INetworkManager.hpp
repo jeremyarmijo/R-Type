@@ -1,10 +1,11 @@
 #pragma once
 #include <cstdint>
 #include <functional>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "include/NetworkMessage.hpp"
+#include "network/Action.hpp"
 
 /**
  * @class INetworkManager
@@ -36,23 +37,21 @@ class INetworkManager {
    * @param msg Network message to send
    * @param sendUdp If true, use UDP; otherwise use TCP
    */
-  virtual void SendTo(const NetworkMessage& msg, bool sendUdp) = 0;
+  virtual void SendTo(const NetworkMessage& msg, Action ac) = 0;
 
   /**
    * @brief Broadcast message via UDP to all clients
    * @param msg Network message to broadcast
    */
   virtual void BroadcastLobbyUDP(
-      const NetworkMessage& msg,
-      std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
+      Action ac, std::vector<std::tuple<uint16_t, bool, std::string>>& ids) = 0;
 
   /**
    * @brief Broadcast message via TCP to all clients
    * @param msg Network message to broadcast
    */
   virtual void BroadcastLobbyTCP(
-      const NetworkMessage& msg,
-      std::vector<std::tuple<uint16_t, bool, std::string>>&) = 0;
+      Action ac, std::vector<std::tuple<uint16_t, bool, std::string>>& ids) = 0;
 
   /**
    * @brief Update network state and process events
@@ -76,4 +75,24 @@ class INetworkManager {
    * @param callback Function to call when client disconnects
    */
   virtual void SetDisconnectionCallback(DisconnectionCallback callback) = 0;
+
+  /**
+   * @brief Get user information from database
+   * @param username Username to search for
+   * @param password Output parameter for user's password
+   * @param score Output parameter for user's score
+   * @return true if user found, false otherwise
+   */
+  virtual bool GetUser(const std::string& username, std::string& password,
+                       int& score) = 0;
+
+  /**
+   * @brief Add a new user to database
+   * @param username Username for the new user
+   * @param password Password for the new user
+   * @param score Initial score for the new user
+   * @return true if user added successfully, false otherwise
+   */
+  virtual bool AddUser(const std::string& username, const std::string& password,
+                       int score) = 0;
 };

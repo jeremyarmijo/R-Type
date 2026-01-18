@@ -21,19 +21,34 @@ void player_input_system(Registry& registry,
     currentInputState.right = inputManager->IsMoveRightHeld();
     currentInputState.up = inputManager->IsMoveUpHeld();
     currentInputState.down = inputManager->IsMoveDownHeld();
-    currentInputState.fire = inputManager->IsAction1Held();
+    currentInputState.fire = inputManager->IsAction3Held();
 
+    if (inputManager->IsAction2Held()) {
+      currentInputState.fire = 2;  // Charge (touche F ou SPECIAL)
+    } else if (inputManager->IsAction1Held()) {
+      currentInputState.fire = 1;  // Tir normal (touche SPACE ou FIRE)
+    } else {
+      currentInputState.fire = 0;  // Rien
+    }
+
+    /*currentInputState.forceToggle = inputManager->IsForceTogglePressed();
+    if (currentInputState.forceToggle) {
+    }*/
     if (inputManager->m_moveLeft != inputManager->m_prevMoveLeft ||
         inputManager->m_moveRight != inputManager->m_prevMoveRight ||
         inputManager->m_moveUp != inputManager->m_prevMoveUp ||
         inputManager->m_moveDown != inputManager->m_prevMoveDown ||
-        inputManager->m_action1 != inputManager->m_prevAction1) {
+        inputManager->m_action1 != inputManager->m_prevAction1 ||
+        inputManager->m_action2 != inputManager->m_prevAction2 ||
+        inputManager->m_action3 != inputManager->m_prevAction3) {
       Action action;
       action.type = ActionType::DOWN_PRESS;
       action.data = currentInputState;
-      std::cout << "sending input" << std::endl;
       networkManager->SendAction(action);
     }
+    /*if (currentInputState.forceToggle) {
+      inputManager->ResetForceToggle();
+    }*/
   }
 
   // client side prediction

@@ -1,6 +1,7 @@
 // Copyright 2025 Dalia Guiz
 #pragma once
-#include "components/Physics2D.hpp"
+#include "components/Force.hpp"
+#include "physics/Physics2D.hpp"
 #include "components/Player/Boss.hpp"
 #include "components/Player/Enemy.hpp"
 #include "components/Player/PlayerEntity.hpp"
@@ -27,3 +28,9 @@ void boss_movement_system(Registry& registry,
                           SparseArray<Boss>& bosses, float deltaTime);
 
 void boss_part_system(Registry& registry, float deltaTime);
+
+void force_movement_system(Registry& registry,
+                           SparseArray<Transform>& transforms,
+                           SparseArray<RigidBody>& rigidbodies,
+                           SparseArray<Force>& forces,
+                           SparseArray<PlayerEntity>& players, float deltaTime);

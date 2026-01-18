@@ -57,6 +57,7 @@ struct PLAYER_INPUT {
 struct GAME_STATE {
   struct PlayerState {
     uint16_t playerId;
+    uint16_t mask;
     float posX;
     float posY;
     uint8_t hp;
@@ -64,9 +65,11 @@ struct GAME_STATE {
     uint8_t weapon;
     uint8_t state;
     uint8_t sprite;
+    uint32_t score = 0;
   };
   struct EnemyState {
     uint16_t enemyId;
+    uint16_t mask;
     uint8_t enemyType;
     float posX;
     float posY;
@@ -76,6 +79,7 @@ struct GAME_STATE {
   };
   struct ProjectileState {
     uint16_t projectileId;
+    uint16_t mask;
     uint16_t ownerId;
     uint8_t type;
     float posX;
@@ -200,6 +204,21 @@ struct LOBBY_KICK {
   uint16_t playerId;
 };
 
+struct CLIENT_LEAVE {
+  uint16_t playerId;
+};
+
+struct MAP_DATA {
+  uint16_t width;
+  uint16_t height;
+  float scrollSpeed;
+  std::vector<uint8_t> tiles;
+};
+
+struct LEVEL_TRANSITION {
+  uint8_t levelNumber;
+};
+
 enum class EventType : uint8_t {
   // TCP Messages
   LOGIN_REQUEST = 0x01,
@@ -216,9 +235,10 @@ enum class EventType : uint8_t {
   LOBBY_START = 0x0B,
   MESSAGE = 0x0C,
   LOBBY_KICK = 0x0D,
-
+  SEND_MAP = 0x0E,
   GAME_START = 0x0F,
   GAME_END = 0x10,
+  CLIENT_LEAVE = 0x11,
   ERROR_TYPE = 0x12,
 
   // UDP Messages
@@ -228,19 +248,33 @@ enum class EventType : uint8_t {
   BOSS_SPAWN = 0x23,
   BOSS_UPDATE = 0x24,
   ENEMY_HIT = 0x25,
+  FORCE_STATE = 0x26,
+  LEVEL_TRANSITION = 0x027,
 
   UNKNOWN = 0xFF
 };
 
+struct FORCE_STATE {
+  uint16_t forceId;
+  uint16_t ownerId;
+  float posX;
+  float posY;
+  uint8_t state;  // 0=AttachedFront, 1=AttachedBack, 2=Detached
+};
+
 using EventData =
     std::variant<std::monostate, LOGIN_REQUEST, LOGIN_RESPONSE, GAME_START,
-                 GAME_END, ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH, BOSS_SPAWN,
+                 GAME_END, ERROR_EVNT, PLAYER_INPUT, GAME_STATE, AUTH,
                  BOSS_UPDATE, ENEMY_HIT, LOBBY_CREATE, LOBBY_JOIN_REQUEST,
                  LOBBY_JOIN_RESPONSE, LOBBY_LIST_RESPONSE, PLAYER_READY,
                  LOBBY_UPDATE, LOBBY_START, LOBBY_LIST_REQUEST, LOBBY_LEAVE,
-                 MESSAGE, LOBBY_KICK>;
+                 MESSAGE, LOBBY_KICK, BOSS_SPAWN, FORCE_STATE, CLIENT_LEAVE,
+                 MAP_DATA, LEVEL_TRANSITION>;
 
 struct Event {
   EventType type;
   EventData data;
+  uint16_t seqNum;
+  uint16_t ack;
+  uint32_t ack_bits;
 };

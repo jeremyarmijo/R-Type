@@ -1,5 +1,7 @@
 #include "network/DecodeFunc.hpp"
 
+#include "network/DataMask.hpp"
+
 // #include <arpa/inet.h>
 #ifdef _WIN32
 #include <winsock2.h>
@@ -8,30 +10,56 @@
 #include <arpa/inet.h>
 #endif
 
-
 #include <cstring>
 #include <iostream>
 #include <string>
 #include <vector>
 
 bool checkHeader(const std::vector<uint8_t>& packet, size_t& offset,
-                 uint32_t& payloadLength) {
-  memcpy(&payloadLength, &packet[offset], sizeof(payloadLength));
-  payloadLength = ntohl(payloadLength);
-  offset += 4;
+                 uint32_t& payloadLength, uint16_t& seq, uint16_t& ack,
+                 uint32_t& ack_bits) {
+  if (packet.size() < 6) return false;
 
-  return payloadLength == packet.size() - 6;
+  uint8_t flags = packet[1];
+
+  memcpy(&payloadLength, &packet[2], 4);
+  payloadLength = ntohl(payloadLength);
+
+  offset = 6;
+
+  if ((flags & 0x02) || (flags & 0x08)) {
+    if (packet.size() < 14) return false;
+    memcpy(&seq, &packet[offset], 2);
+    seq = ntohs(seq);
+    offset += 2;
+
+    memcpy(&ack, &packet[offset], 2);
+    ack = ntohs(ack);
+    offset += 2;
+
+    memcpy(&ack_bits, &packet[offset], 4);
+    ack_bits = ntohl(ack_bits);
+    offset += 4;
+  }
+  return packet.size() == (offset + payloadLength);
 }
 
 Event DecodeLOGIN_REQUEST(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::LOGIN_REQUEST;
-
   LOGIN_REQUEST data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   uint8_t usernameLen = packet[offset++];
   data.username =
@@ -52,10 +80,18 @@ Event DecodeLOGIN_RESPONSE(const std::vector<uint8_t>& packet) {
   evt.type = EventType::LOGIN_RESPONSE;
 
   LOGIN_RESPONSE data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   data.success = packet[offset++];
   if (data.success == 1) {
@@ -86,10 +122,18 @@ Event DecodeGAME_START(const std::vector<uint8_t>& packet) {
   evt.type = EventType::GAME_START;
 
   GAME_START data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   uint32_t temp;
   memcpy(&temp, &packet[offset], sizeof(temp));
@@ -116,10 +160,18 @@ Event DecodeGAME_END(const std::vector<uint8_t>& packet) {
   evt.type = EventType::GAME_END;
 
   GAME_END data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   data.victory = packet[offset++];
   uint8_t playerCount = packet[offset++];
@@ -148,10 +200,18 @@ Event DecodeERROR(const std::vector<uint8_t>& packet) {
   evt.type = EventType::ERROR_TYPE;
 
   ERROR_EVNT data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.errorCode, &packet[offset], sizeof(data.errorCode));
   data.errorCode = ntohs(data.errorCode);
@@ -171,10 +231,18 @@ Event DecodePLAYER_INPUT(const std::vector<uint8_t>& packet) {
   evt.type = EventType::PLAYER_INPUT;
 
   PLAYER_INPUT data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   data.up = packet[offset++] == 1;
   data.down = packet[offset++] == 1;
@@ -189,110 +257,175 @@ Event DecodePLAYER_INPUT(const std::vector<uint8_t>& packet) {
 Event DecodeGAME_STATE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::GAME_STATE;
-
   GAME_STATE data;
-  size_t offset = 2;
+  size_t offset = 0;
+  uint32_t payloadLength;
+  uint16_t seq, ack;
+  uint32_t ack_bits;
+  uint32_t temp32;
 
-  uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
-
-  uint8_t playerCount = packet[offset++];
-  data.players.reserve(playerCount);
-
-  for (uint8_t i = 0; i < playerCount; ++i) {
-    GAME_STATE::PlayerState player;
-    memcpy(&player.playerId, &packet[offset], sizeof(player.playerId));
-    player.playerId = ntohs(player.playerId);
-    offset += sizeof(player.playerId);
-
-    uint32_t temp;
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&player.posX, &temp, sizeof(player.posX));
-    offset += sizeof(temp);
-
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&player.posY, &temp, sizeof(player.posY));
-    offset += sizeof(temp);
-
-    player.hp = packet[offset++];
-    player.shield = packet[offset++];
-    player.weapon = packet[offset++];
-    player.state = packet[offset++];
-    player.sprite = packet[offset++];
-
-    data.players.push_back(player);
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits)) {
+    return evt;
   }
 
-  uint8_t enemyCount = packet[offset++];
-  data.enemies.reserve(enemyCount);
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
-  for (uint8_t i = 0; i < enemyCount; ++i) {
-    GAME_STATE::EnemyState enemy;
-    memcpy(&enemy.enemyId, &packet[offset], sizeof(enemy.enemyId));
-    enemy.enemyId = ntohs(enemy.enemyId);
-    offset += sizeof(enemy.enemyId);
+  // JOUEURS
+  if (offset < packet.size()) {
+    uint8_t numPlayers = packet[offset++];
+    for (int i = 0; i < numPlayers; ++i) {
+      if (offset + 4 > packet.size()) break;
 
-    enemy.enemyType = packet[offset++];
+      GAME_STATE::PlayerState p;
 
-    uint32_t temp;
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&enemy.posX, &temp, sizeof(enemy.posX));
-    offset += sizeof(temp);
+      memcpy(&p.playerId, &packet[offset], 2);
+      p.playerId = ntohs(p.playerId);
+      offset += 2;
 
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&enemy.posY, &temp, sizeof(enemy.posY));
-    offset += sizeof(temp);
+      memcpy(&p.mask, &packet[offset], 2);
+      p.mask = ntohs(p.mask);
+      offset += 2;
 
-    enemy.hp = packet[offset++];
-    enemy.state = packet[offset++];
-    enemy.direction = packet[offset++];
+      if (p.mask & M_POS_X) {
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&p.posX, &temp32, 4);
+        offset += 4;
+      }
+      if (p.mask & M_POS_Y) {
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&p.posY, &temp32, 4);
+        offset += 4;
+      }
+      if (p.mask & M_HP) {
+        if (offset >= packet.size()) break;
+        p.hp = packet[offset++];
+      }
+      if (p.mask & M_STATE) {
+        if (offset >= packet.size()) break;
+        p.state = packet[offset++];
+      }
+      if (p.mask & M_SHIELD) {
+        if (offset >= packet.size()) break;
+        p.shield = packet[offset++];
+      }
+      if (p.mask & M_WEAPON) {
+        if (offset >= packet.size()) break;
+        p.weapon = packet[offset++];
+      }
+      if (p.mask & M_SPRITE) {
+        if (offset >= packet.size()) break;
+        p.sprite = packet[offset++];
+      }
+      if (p.mask & M_SCORE) {
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&p.score, &temp32, 4);
+        offset += 4;
+      }
 
-    data.enemies.push_back(enemy);
+      data.players.push_back(p);
+    }
   }
 
-  uint8_t projectileCount = packet[offset++];
-  data.projectiles.reserve(projectileCount);
+  // ENNEMIS
+  if (offset < packet.size()) {
+    uint8_t numEnemies = packet[offset++];
+    for (int i = 0; i < numEnemies; ++i) {
+      if (offset + 4 > packet.size()) break;
 
-  for (uint8_t i = 0; i < projectileCount; ++i) {
-    GAME_STATE::ProjectileState projectile;
-    memcpy(&projectile.projectileId, &packet[offset],
-           sizeof(projectile.projectileId));
-    projectile.projectileId = ntohs(projectile.projectileId);
-    offset += sizeof(projectile.projectileId);
+      GAME_STATE::EnemyState e;
 
-    memcpy(&projectile.ownerId, &packet[offset], sizeof(projectile.ownerId));
-    projectile.ownerId = ntohs(projectile.ownerId);
-    offset += sizeof(projectile.ownerId);
+      memcpy(&e.enemyId, &packet[offset], 2);
+      e.enemyId = ntohs(e.enemyId);
+      offset += 2;
 
-    projectile.type = packet[offset++];
+      memcpy(&e.mask, &packet[offset], 2);
+      e.mask = ntohs(e.mask);
+      offset += 2;
 
-    uint32_t temp;
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&projectile.posX, &temp, sizeof(projectile.posX));
-    offset += sizeof(temp);
+      if (e.mask & M_POS_X) {
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&e.posX, &temp32, 4);
+        offset += 4;
+      }
+      if (e.mask & M_POS_Y) {
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&e.posY, &temp32, 4);
+        offset += 4;
+      }
+      if (e.mask & M_HP) {
+        if (offset >= packet.size()) break;
+        e.hp = packet[offset++];
+      }
+      if (e.mask & M_STATE) {
+        if (offset >= packet.size()) break;
+        e.state = packet[offset++];
+      }
+      if (e.mask & M_TYPE) {
+        if (offset >= packet.size()) break;
+        e.enemyType = packet[offset++];
+      }
+      if (e.mask & M_DIR) {
+        if (offset >= packet.size()) break;
+        e.direction = (int8_t)packet[offset++];
+      }
 
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&projectile.posY, &temp, sizeof(projectile.posY));
-    offset += sizeof(temp);
+      data.enemies.push_back(e);
+    }
+  }
 
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&projectile.velX, &temp, sizeof(projectile.velX));
-    offset += sizeof(temp);
+  // PROJECTILES
+  if (offset < packet.size()) {
+    uint8_t numProjectiles = packet[offset++];
+    for (int i = 0; i < numProjectiles; ++i) {
+      if (offset + 4 > packet.size()) break;
 
-    memcpy(&temp, &packet[offset], sizeof(temp));
-    temp = ntohl(temp);
-    memcpy(&projectile.velY, &temp, sizeof(projectile.velY));
-    offset += sizeof(temp);
+      GAME_STATE::ProjectileState pr;
 
-    projectile.damage = packet[offset++];
-    data.projectiles.push_back(projectile);
+      memcpy(&pr.projectileId, &packet[offset], 2);
+      pr.projectileId = ntohs(pr.projectileId);
+      offset += 2;
+
+      memcpy(&pr.mask, &packet[offset], 2);
+      pr.mask = ntohs(pr.mask);
+      offset += 2;
+
+      if (pr.mask & M_POS_X) {
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&pr.posX, &temp32, 4);
+        offset += 4;
+      }
+      if (pr.mask & M_POS_Y) {
+        memcpy(&temp32, &packet[offset], 4);
+        temp32 = ntohl(temp32);
+        memcpy(&pr.posY, &temp32, 4);
+        offset += 4;
+      }
+      if (pr.mask & M_TYPE) {
+        if (offset >= packet.size()) break;
+        pr.type = packet[offset++];
+      }
+      if (pr.mask & M_OWNER) {
+        if (offset + 2 > packet.size()) break;
+        uint16_t owner;
+        memcpy(&owner, &packet[offset], 2);
+        pr.ownerId = ntohs(owner);
+        offset += 2;
+      }
+      if (pr.mask & M_DAMAGE) {
+        if (offset >= packet.size()) break;
+        pr.damage = packet[offset++];
+      }
+
+      data.projectiles.push_back(pr);
+    }
   }
 
   evt.data = data;
@@ -304,10 +437,18 @@ Event DecodeAUTH(const std::vector<uint8_t>& packet) {
   evt.type = EventType::AUTH;
 
   AUTH data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
   data.playerId = ntohs(data.playerId);
@@ -322,10 +463,18 @@ Event DecodeBOSS_SPAWN(const std::vector<uint8_t>& packet) {
   evt.type = EventType::BOSS_SPAWN;
 
   BOSS_SPAWN data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.bossId, &packet[offset], sizeof(data.bossId));
   data.bossId = ntohs(data.bossId);
@@ -347,10 +496,18 @@ Event DecodeBOSS_UPDATE(const std::vector<uint8_t>& packet) {
   evt.type = EventType::BOSS_UPDATE;
 
   BOSS_UPDATE data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.bossId, &packet[offset], sizeof(data.bossId));
   data.bossId = ntohs(data.bossId);
@@ -383,10 +540,18 @@ Event DecodeENEMY_HIT(const std::vector<uint8_t>& packet) {
   evt.type = EventType::ENEMY_HIT;
 
   ENEMY_HIT data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.enemyId, &packet[offset], sizeof(data.enemyId));
   data.enemyId = ntohs(data.enemyId);
@@ -402,15 +567,66 @@ Event DecodeENEMY_HIT(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
+Event DecodeFORCE_STATE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::FORCE_STATE;
+
+  FORCE_STATE data;
+  size_t offset = 2;
+
+  uint32_t payloadLength = 0;
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
+
+  memcpy(&data.forceId, &packet[offset], sizeof(data.forceId));
+  data.forceId = ntohs(data.forceId);
+  offset += sizeof(data.forceId);
+
+  memcpy(&data.ownerId, &packet[offset], sizeof(data.ownerId));
+  data.ownerId = ntohs(data.ownerId);
+  offset += sizeof(data.ownerId);
+
+  uint32_t temp;
+  memcpy(&temp, &packet[offset], sizeof(temp));
+  temp = ntohl(temp);
+  memcpy(&data.posX, &temp, sizeof(data.posX));
+  offset += sizeof(temp);
+
+  memcpy(&temp, &packet[offset], sizeof(temp));
+  temp = ntohl(temp);
+  memcpy(&data.posY, &temp, sizeof(data.posY));
+  offset += sizeof(temp);
+
+  data.state = packet[offset++];
+
+  evt.data = data;
+  return evt;
+}
+
 Event DecodeLOBBY_CREATE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::LOBBY_CREATE;
 
   LOBBY_CREATE data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   uint8_t lobbyNameLen = packet[offset++];
   data.lobbyName =
@@ -439,10 +655,18 @@ Event DecodeLOBBY_JOIN_REQUEST(const std::vector<uint8_t>& packet) {
   evt.type = EventType::LOBBY_JOIN_REQUEST;
   LOBBY_JOIN_REQUEST data;
 
-  size_t offset = 2;
-  uint32_t payloadLength = 0;
+  size_t offset = 0;
 
-  if (!checkHeader(packet, offset, payloadLength)) return evt;
+  uint32_t payloadLength = 0;
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   if (packet.size() < offset + 2) return evt;
 
@@ -476,10 +700,18 @@ Event DecodeLOBBY_JOIN_RESPONSE(const std::vector<uint8_t>& packet) {
   evt.type = EventType::LOBBY_JOIN_RESPONSE;
 
   LOBBY_JOIN_RESPONSE data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   data.success = packet[offset++];
 
@@ -531,9 +763,17 @@ Event DecodeLOBBY_LIST_RESPONSE(const std::vector<uint8_t>& packet) {
   evt.type = EventType::LOBBY_LIST_RESPONSE;
 
   LOBBY_LIST_RESPONSE data;
-  size_t offset = 2;
+  size_t offset = 0;
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   uint8_t lobbyCount = packet[offset++];
   data.lobbies.reserve(lobbyCount);
@@ -568,10 +808,18 @@ Event DecodePLAYER_READY(const std::vector<uint8_t>& packet) {
   evt.type = EventType::PLAYER_READY;
 
   PLAYER_READY data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   data.ready = packet[offset++] == 1;
 
@@ -584,10 +832,18 @@ Event DecodeLOBBY_UPDATE(const std::vector<uint8_t>& packet) {
   evt.type = EventType::LOBBY_UPDATE;
 
   LOBBY_UPDATE data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   uint8_t nameLen = packet[offset++];
   data.name =
@@ -631,10 +887,18 @@ Event DecodeLOBBY_KICK(const std::vector<uint8_t>& packet) {
   evt.type = EventType::LOBBY_KICK;
 
   LOBBY_KICK data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
   data.playerId = ntohs(data.playerId);
@@ -649,10 +913,18 @@ Event DecodeLOBBY_START(const std::vector<uint8_t>& packet) {
   evt.type = EventType::LOBBY_START;
 
   LOBBY_START data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   data.countdown = packet[offset++];
 
@@ -664,10 +936,18 @@ Event DecodeLOBBY_LIST_REQUEST(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::LOBBY_LIST_REQUEST;
   LOBBY_LIST_REQUEST data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.playerId, &packet[offset], 2);
   data.playerId = ntohs(data.playerId);
@@ -680,14 +960,60 @@ Event DecodeLOBBY_LEAVE(const std::vector<uint8_t>& packet) {
   Event evt;
   evt.type = EventType::LOBBY_LEAVE;
   LOBBY_LEAVE data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.playerId, &packet[offset], 2);
   data.playerId = ntohs(data.playerId);
 
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeMAP_DATA(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::SEND_MAP;
+  MAP_DATA data;
+  size_t offset = 2;
+
+  uint32_t payloadLength = 0;
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
+
+  memcpy(&data.width, &packet[offset], sizeof(uint16_t));
+  data.width = ntohs(data.width);
+  offset += sizeof(uint16_t);
+  memcpy(&data.height, &packet[offset], sizeof(uint16_t));
+  data.height = ntohs(data.height);
+
+  offset += sizeof(uint16_t);
+  uint32_t temp;
+  memcpy(&temp, &packet[offset], sizeof(uint32_t));
+  temp = ntohl(temp);
+  memcpy(&data.scrollSpeed, &temp, sizeof(float));
+  offset += sizeof(float);
+  uint32_t tilesSize = payloadLength - 8;
+  if (tilesSize > 0) {
+    data.tiles.resize(tilesSize);
+    memcpy(data.tiles.data(), &packet[offset], tilesSize);
+  }
   evt.data = data;
   return evt;
 }
@@ -697,10 +1023,18 @@ Event DecodeMESSAGE(const std::vector<uint8_t>& packet) {
   evt.type = EventType::MESSAGE;
 
   MESSAGE data;
-  size_t offset = 2;
+  size_t offset = 0;
 
   uint32_t payloadLength = 0;
-  if (!checkHeader(packet, offset, payloadLength)) return Event{};
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
 
   memcpy(&data.lobbyId, &packet[offset], sizeof(data.lobbyId));
   data.lobbyId = ntohs(data.lobbyId);
@@ -720,12 +1054,64 @@ Event DecodeMESSAGE(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
+Event DecodeCLIENT_LEAVE(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::CLIENT_LEAVE;
+
+  CLIENT_LEAVE data;
+  size_t offset = 2;
+
+  uint32_t payloadLength = 0;
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
+
+  memcpy(&data.playerId, &packet[offset], sizeof(data.playerId));
+  data.playerId = ntohs(data.playerId);
+  offset += sizeof(data.playerId);
+
+  evt.data = data;
+  return evt;
+}
+
+Event DecodeLEVEL_TRANSITION(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LEVEL_TRANSITION;
+
+  LEVEL_TRANSITION data;
+  size_t offset = 0;
+
+  uint32_t payloadLength = 0;
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
+
+  data.levelNumber = packet[offset++];
+
+  evt.data = data;
+  return evt;
+}
+
 void SetupDecoder(Decoder& decoder) {
   // TCP Messages
   decoder.registerHandler(0x01, DecodeLOGIN_REQUEST);
   decoder.registerHandler(0x02, DecodeLOGIN_RESPONSE);
   decoder.registerHandler(0x0F, DecodeGAME_START);
   decoder.registerHandler(0x10, DecodeGAME_END);
+  decoder.registerHandler(0x11, DecodeCLIENT_LEAVE);
   decoder.registerHandler(0x12, DecodeERROR);
 
   decoder.registerHandler(0x03, DecodeLOBBY_CREATE);
@@ -739,7 +1125,7 @@ void SetupDecoder(Decoder& decoder) {
   decoder.registerHandler(0x0B, DecodeLOBBY_START);
   decoder.registerHandler(0x0C, DecodeMESSAGE);
   decoder.registerHandler(0x0D, DecodeLOBBY_KICK);
-
+  decoder.registerHandler(0x0E, DecodeMAP_DATA);
   // UDP Messages
   decoder.registerHandler(0x20, DecodePLAYER_INPUT);
   decoder.registerHandler(0x21, DecodeGAME_STATE);
@@ -747,4 +1133,6 @@ void SetupDecoder(Decoder& decoder) {
   decoder.registerHandler(0x23, DecodeBOSS_SPAWN);
   decoder.registerHandler(0x24, DecodeBOSS_UPDATE);
   decoder.registerHandler(0x25, DecodeENEMY_HIT);
+  decoder.registerHandler(0x26, DecodeFORCE_STATE);
+  decoder.registerHandler(0x27, DecodeLEVEL_TRANSITION);
 }

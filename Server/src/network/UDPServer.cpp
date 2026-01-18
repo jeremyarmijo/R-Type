@@ -1,9 +1,9 @@
 #include "network/UDPServer.hpp"
 
 #include <iostream>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
 
 UDPServer::UDPServer(asio::io_context& io_context, uint16_t port,
                      const std::string& host)
