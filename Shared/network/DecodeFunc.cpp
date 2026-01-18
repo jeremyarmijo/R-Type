@@ -1080,6 +1080,31 @@ Event DecodeCLIENT_LEAVE(const std::vector<uint8_t>& packet) {
   return evt;
 }
 
+Event DecodeLEVEL_TRANSITION(const std::vector<uint8_t>& packet) {
+  Event evt;
+  evt.type = EventType::LEVEL_TRANSITION;
+
+  LEVEL_TRANSITION data;
+  size_t offset = 0;
+
+  uint32_t payloadLength = 0;
+  uint16_t seq = 0;
+  uint16_t ack = 0;
+  uint32_t ack_bits = 0;
+  
+  if (!checkHeader(packet, offset, payloadLength, seq, ack, ack_bits))
+    return Event{};
+
+  evt.seqNum = seq;
+  evt.ack = ack;
+  evt.ack_bits = ack_bits;
+
+  data.levelNumber = packet[offset++];
+
+  evt.data = data;
+  return evt;
+}
+
 
 void SetupDecoder(Decoder& decoder) {
   // TCP Messages
