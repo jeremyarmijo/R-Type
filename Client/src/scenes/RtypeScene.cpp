@@ -1,9 +1,8 @@
 #include "scenes/RtypeScene.hpp"
 
-
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include "Collision/Collision.hpp"
 #include "Movement/Movement.hpp"
@@ -68,6 +67,7 @@ void RtypeScene::OnEnter() {
   for (auto& [playerId, ready, _] : players_list) {
     float posY = 200.f + (m_players.size() % 4) * 100.f;
     Entity player = createPlayer(GetRegistry(), {200, posY}, playerId);
+    Entity forceEntity = createForce(GetRegistry(), player, {200, posY});
     m_players[playerId] = player;
   }
 

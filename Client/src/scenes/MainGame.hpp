@@ -110,7 +110,6 @@ class MyGameScene : public Scene {
       m_mapScrollSpeed = GetSceneData().Get<float>("mapScrollSpeed", 0);
       m_mapTiles = GetSceneData().Get<std::vector<uint8_t>>("mapTiles", {});
 
-      // Enregistrer le composant TileMap dans le registry
       GetRegistry().register_component<TileMap>();
       if (m_mapDataReceived) {
         std::cout << "[GAME] Loading map via ECS..." << std::endl;
@@ -118,7 +117,6 @@ class MyGameScene : public Scene {
         // Créer une entité pour la map
         m_mapEntity = GetRegistry().spawn_entity();
 
-        // Ajouter le composant TileMap à cette entité
         GetRegistry().add_component<TileMap>(m_mapEntity, TileMap{});
 
         // Récupérer le composant et le remplir
@@ -334,15 +332,14 @@ class MyGameScene : public Scene {
     }
     if (!GetRendering()->GetTexture("projectile_player")) {
       GetRendering()->LoadTexture("projectile_player",
-                                  "../assets/blueShoot.png");
+                                  "../assets/bigShoot.png");
     }
     if (!GetRendering()->GetTexture("charged_projectile_palyer")) {
       GetRendering()->LoadTexture("charged_projectil_palyer",
                                   "../assets/charged.png");
     }
     if (!GetRendering()->GetTexture("projectile_enemy")) {
-      GetRendering()->LoadTexture("projectile_enemy",
-                                  "../assets/projectile_enemy.png");
+      GetRendering()->LoadTexture("projectile_enemy", "../assets/bigShoot.png");
     }
 
     if (!GetRendering()->GetTexture("projectile_player")) {
@@ -479,7 +476,7 @@ class MyGameScene : public Scene {
     GetRendering()->CreateAnimation("boss3_part", "boom3",
                                     {{{0, 0, 587, 180}, 1.0f}}, true);
 
-    GetRendering()->CreateAnimation("boom_anim", "boom_sprite",
+    GetRendering()->CreateAnimation("boom3_anim", "boom3",
                                     {
                                         {{0 * 34, 0, 34, 29}, 0.1f},  // frame 1
                                         {{1 * 34, 0, 34, 29}, 0.1f},  // frame 2

@@ -17,24 +17,28 @@ std::vector<LevelComponent> createLevels() {
   // Level 1
   levels.emplace_back(std::vector<Wave>{
       Wave{{EnemyType::Basic},
-           {4},
-           {{700, 100}, {700, 200}, {700, 300}, {700, 400} },
+           {3},
+           {{700, 100}, {700, 250}, {700, 400}},
            false,
            std::nullopt,
            0},
       Wave{{EnemyType::Basic, EnemyType::Zigzag, EnemyType::mini_Green},
-          {2, 2,1},  // mini_Green = 1 spawn
-         {{700, 120}, {700, 220}, {700, 290}, {700, 480}, {700, 450}},
+           {2, 2, 1},  // mini_Green = 1 spawn
+           {{700, 120}, {700, 220}, {700, 290}, {700, 480}, {700, 450}},
            false,
            std::nullopt,
            0},
       Wave{{}, {0}, {{700, 250}}, true, BossType::FinalBoss, 300}});
 
-  // Level 2
   levels.emplace_back(std::vector<Wave>{
       Wave{{EnemyType::Zigzag, EnemyType::Spinner},
-           {4},
-           {{700, 80}, {700, 140}, {700, 200}, {700, 260}},
+           {4, 2},
+           {{700, 80},
+            {700, 140},
+            {700, 240},
+            {700, 380},
+            {700, 100},
+            {700, 300}},
            false,
            std::nullopt,
            0},

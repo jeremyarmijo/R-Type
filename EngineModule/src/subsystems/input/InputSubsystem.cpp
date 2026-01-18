@@ -82,6 +82,12 @@ void InputSubsystem::UpdateGameActions() {
   m_moveDown = IsActionPressed(GameAction::MOVE_DOWN);
   m_action1 = IsActionPressed(GameAction::FIRE);
   m_action2 = IsActionPressed(GameAction::SPECIAL);
+
+  /*if (m_keyboardState) {
+      if (m_keyboardState[SDL_SCANCODE_F]) {
+          m_action2 = true;
+      }
+  }*/
 }
 
 bool InputSubsystem::IsActionPressed(GameAction action) const {

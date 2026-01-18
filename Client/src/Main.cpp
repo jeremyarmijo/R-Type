@@ -55,6 +55,8 @@ int main(int argc, char* argv[]) {
         "options", "../src/scenes/libscene_options.so");
     engine.GetSceneManager().LoadSceneModule(
         "wait", "../src/scenes/libscene_waitlobby.so");
+    engine.GetSceneManager().LoadSceneModule(
+        "levelTransition", "../src/scenes/libscene_leveltransition.so");
 
     std::cout << "\n=== STARTING GAME ===" << std::endl;
 

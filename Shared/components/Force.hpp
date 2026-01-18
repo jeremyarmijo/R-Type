@@ -2,8 +2,8 @@
 #ifndef SHARED_COMPONENTS_FORCE_HPP_
 #define SHARED_COMPONENTS_FORCE_HPP_
 
-#include "physics/Physics2D.hpp"
 #include "ecs/Entity.hpp"
+#include "physics/Physics2D.hpp"
 
 enum class EForceState { AttachedFront, AttachedBack, Detached };
 
@@ -20,6 +20,7 @@ struct Force {
   int contactDamage;
   bool blocksProjectiles;
   bool isActive;
+  float shootCooldown = 0.f;
 
   Force(Entity owner = Entity(0), EForceState st = EForceState::AttachedFront,
         float spd = 200.f, Vector2 dir = {1.f, 0.f},
@@ -36,7 +37,8 @@ struct Force {
         currentDistance(0.f),
         contactDamage(dmg),
         blocksProjectiles(blocks),
-        isActive(true) {}
+        isActive(true),
+        shootCooldown(0.f) {}
 };
 
 #endif  // SHARED_COMPONENTS_FORCE_HPP_
