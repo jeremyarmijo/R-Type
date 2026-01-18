@@ -28,7 +28,7 @@ std::vector<LevelComponent> createLevels() {
            false,
            std::nullopt,
            0},
-      Wave{{}, {0}, {{700, 250}}, true, BossType::FinalBoss, 300}});
+      Wave{{}, {0}, {{700, 250}}, true, BossType::FinalBoss, 400}});
 
   levels.emplace_back(std::vector<Wave>{
       Wave{{EnemyType::Zigzag, EnemyType::Spinner},
@@ -48,7 +48,7 @@ std::vector<LevelComponent> createLevels() {
            false,
            std::nullopt,
            0},
-      Wave{{}, {0}, {{700, 250}}, true, BossType::Gomander_snake, 300}});
+      Wave{{}, {0}, {{700, 250}}, true, BossType::Gomander_snake, 800}});
 
   // Level 3
   levels.emplace_back(std::vector<Wave>{
@@ -71,7 +71,7 @@ std::vector<LevelComponent> createLevels() {
            false,
            std::nullopt,
            0},
-      Wave{{}, {0}, {{700, 300}}, true, BossType::Bydo_Battleship, 1200}});
+      Wave{{}, {0}, {{700, 300}}, true, BossType::Bydo_Battleship, 1600}});
 
   return levels;
 }
@@ -165,7 +165,7 @@ bool update_level_system(Registry& registry, float deltaTime, int levelIndex) {
         createBoss(registry, btype, bossPos, BossPhase::Phase1, bossHP);
 
     if (btype == BossType::Gomander_snake) {
-      for (int i = 0; i < 4; ++i) {
+      for (int i = 0; i < 8; ++i) {
         Vector2 segmentPos = {bossPos.x + (i + 1) * 40.f, bossPos.y};
         createBossPart(registry, bossEntity, segmentPos, {0.f, 0.f}, i,
                        (i + 1) * 0.15f, 50, {30.f, 30.f}, 1);
