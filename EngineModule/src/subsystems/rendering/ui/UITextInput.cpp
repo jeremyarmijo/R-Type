@@ -1,9 +1,10 @@
 #include "ui/UITextInput.hpp"
-#include "rendering/RenderingSubsystem.hpp"
 
 #include <algorithm>
 #include <iostream>
 #include <string>
+
+#include "rendering/RenderingSubsystem.hpp"
 
 UITextInput::UITextInput(int x, int y, int w, int h,
                          const std::string& placeholder,
@@ -160,8 +161,7 @@ bool UITextInput::LoadFont() {
   }
 
   if (m_fontPath.empty()) {
-    const char* defaultFonts[] = {"../assets/Font.ttf",
-                                  "assets/Font.ttf"};
+    const char* defaultFonts[] = {"../assets/Font.ttf", "assets/Font.ttf"};
 
     for (const char* path : defaultFonts) {
       m_font = TTF_OpenFont(path, m_fontSize);
@@ -231,7 +231,8 @@ void UITextInput::Update(float deltaTime) {
   }
 }
 
-void UITextInput::Render(SDL_Renderer* renderer, RenderingSubsystem* renderSys) {
+void UITextInput::Render(SDL_Renderer* renderer,
+                         RenderingSubsystem* renderSys) {
   if (!m_visible) return;
 
   if (m_needsUpdate) {

@@ -1,8 +1,9 @@
 #include "ui/UIText.hpp"
-#include "rendering/RenderingSubsystem.hpp"
 
 #include <iostream>
 #include <string>
+
+#include "rendering/RenderingSubsystem.hpp"
 
 UIText::UIText(int x, int y, const std::string& text,
                const std::string& fontPath, int fontSize, SDL_Color color,
@@ -60,8 +61,7 @@ void UIText::SetAlignment(TextAlign align) { m_alignment = align; }
 
 bool UIText::LoadFont() {
   if (m_fontPath.empty()) {
-    const char* defaultFonts[] = {"../assets/Font.ttf",
-                                  "assets/Font.ttf"};
+    const char* defaultFonts[] = {"../assets/Font.ttf", "assets/Font.ttf"};
 
     for (const char* path : defaultFonts) {
       m_font = TTF_OpenFont(path, m_fontSize);

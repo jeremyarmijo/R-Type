@@ -11,14 +11,13 @@
 #include <vector>
 
 #include "components/Levels.hpp"
+#include "components/TileMap.hpp"
 #include "dynamicLibLoader/DLLoader.hpp"
 #include "ecs/Registry.hpp"
+#include "engine/GameEngine.hpp"
 #include "network/DecodeFunc.hpp"
 #include "network/EncodeFunc.hpp"
 #include "network/ServerNetworkManager.hpp"
-#include "components/TileMap.hpp"
-#include "dynamicLibLoader/DLLoader.hpp"
-#include "engine/GameEngine.hpp"
 
 /**
  * @class ServerGame
@@ -173,7 +172,7 @@ class ServerGame {
   /**
    * @brief End the game and cleanup
    */
-void EndGame(lobby_list& lobby);
+  void EndGame(lobby_list& lobby);
 
   void HandleClientLeave(uint16_t playerId);
   /**

@@ -10,6 +10,7 @@
 
 #include <asio.hpp>
 
+
 #include "db/IDatabase.hpp"
 #include "network/ClientManager.hpp"
 #include "network/Decoder.hpp"
@@ -100,7 +101,8 @@ class ServerNetworkManager : public INetworkManager {
    * @param score Output parameter for user's score
    * @return true if user found, false otherwise
    */
-  bool GetUser(const std::string& username, std::string& password, int& score) override;
+  bool GetUser(const std::string &username, std::string &password,
+               int &score) override;
 
   /**
    * @brief Add a new user and update if it exists in the database
@@ -109,7 +111,8 @@ class ServerNetworkManager : public INetworkManager {
    * @param score Initial score for the new user
    * @return true if user added successfully, false otherwise
    */
-  bool AddUser(const std::string& username, const std::string& password, int score) override;
+  bool AddUser(const std::string &username, const std::string &password,
+               int score) override;
 
   /**
    * @brief Set game started state
