@@ -63,6 +63,10 @@ void ServerGame::CreateLobby(uint16_t playerId, std::string lobbyName,
     std::cerr << "Failed to load game scene!" << std::endl;
     return;
   }
+  if (!l->m_engine.GetSceneManager().LoadSceneModule("secondgame", "../../Client/src/scenes/libscene_secondgame.so")) {
+    std::cerr << "Failed to load second game scene!" << std::endl;
+    return;
+  }
 
   l->m_gameScene = l->m_engine.GetSceneManager().GetCurrentScene();
   if (l->m_gameScene) {
@@ -597,7 +601,10 @@ void ServerGame::StartGame(lobby_list& lobby) {
   data.Set("players_list", lobby.players_list);
   data.Set("difficulty", lobby.difficulty);
 
-  lobby.m_engine.ChangeScene("rtype");
+  if (lobby.name == "secondgame")
+    lobby.m_engine.ChangeScene("secondgame");
+  else
+    lobby.m_engine.ChangeScene("rtype");
 
   std::cout << "Lobby full! Starting the game!!!!\n";
   lobby.gameThread =

@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
         std::cout << "\n=== LOADING GAME SCENES ===" << std::endl;
 
         engine.GetSceneManager().LoadSceneModule("createLobby", "../src/scenes/libscene_createlobby.so");
+        engine.GetSceneManager().LoadSceneModule("secondGame", "../src/scenes/libscene_secondgameclient.so");
         engine.GetSceneManager().LoadSceneModule("gameover", "../src/scenes/libscene_gameover.so");
         engine.GetSceneManager().LoadSceneModule("join", "../src/scenes/libscene_joingame.so");
         engine.GetSceneManager().LoadSceneModule("lobby", "../src/scenes/libscene_lobby.so");

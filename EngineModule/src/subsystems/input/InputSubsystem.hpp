@@ -15,10 +15,12 @@ struct InputState {
     bool moveDown;
     bool action1;
     bool action2;
+    bool action3;
+    bool block;
     
     InputState()
         : moveLeft(false), moveRight(false), moveUp(false),
-          moveDown(false), action1(false), action2(false) {}
+          moveDown(false), action1(false), action2(false), action3(false), block(false) {}
 };
 
 struct InputBinding {
