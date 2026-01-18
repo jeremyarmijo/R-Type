@@ -338,9 +338,14 @@ void RtypeScene::SendWorldStateToClients() {
 
 void RtypeScene::HandleEvent(SDL_Event& event) {}
 
-
+#ifdef _WIN32
+    __declspec(dllexport) Scene* CreateScene() {
+        return new RtypeScene();
+    }
+#else
 extern "C" {
     Scene* CreateScene() {
         return new RtypeScene();
     }
 }
+#endif
