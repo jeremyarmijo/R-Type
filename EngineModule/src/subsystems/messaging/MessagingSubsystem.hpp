@@ -70,8 +70,13 @@ private:
     void ProcessMessages();
     void DispatchMessage(const Message& message);
 };
-
+#ifdef _WIN32
+extern "C" {
+__declspec(dllexport) ISubsystem* CreateSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem();
     void DestroySubsystem(ISubsystem* subsystem);
 }
+#endif

@@ -75,9 +75,14 @@ void MessagingSubsystem::DispatchMessage(const Message& message) {
         }
     }
 }
-
+#ifdef _WIN32
+__declspec(dllexport) ISubsystem* CreateSubsystem() {
+    return new MessagingSubsystem();
+}
+#else
 extern "C" {
     ISubsystem* CreateSubsystem() {
         return new MessagingSubsystem();
     }
 }
+#endif
