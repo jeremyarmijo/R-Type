@@ -11,8 +11,10 @@
 #include "../../include/ServerMacro.hpp"
 #include "network/EncodeFunc.hpp"
 
-TCPServer::TCPServer(asio::io_context& io_context, uint16_t port, const std::string& host)
-    : acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::make_address(host), port)),
+TCPServer::TCPServer(asio::io_context& io_context, uint16_t port,
+                     const std::string& host)
+    : acceptor_(io_context,
+                asio::ip::tcp::endpoint(asio::ip::make_address(host), port)),
       next_client_id_(1),
       udp_port_(PORT_UDP_DEFAULT) {
   std::cout << "[TCPServer] Listening on " << host << ":" << port << std::endl;
@@ -149,115 +151,21 @@ void ProcessPacketTCP::HandleReadPayload(const asio::error_code& error,
     return;
   }
 
-  switch (current_msg_type_) {
-    case 0x01:
-      ProcessLoginRequest();
-      break;
+  std::vector<uint8_t> full_packet;
+  full_packet.insert(full_packet.end(), header_buffer_.begin(),
+                     header_buffer_.end());
+  full_packet.insert(full_packet.end(), payload_buffer_.begin(),
+                     payload_buffer_.end());
 
-    default:
-      std::cerr << "[ProcessPacketTCP] Unknown message type: 0x" << std::hex
-                << static_cast<int>(current_msg_type_) << std::endl;
-      break;
+  if (current_msg_type_ == 0x01 && server_->login_callback_) {
+    std::string username(payload_buffer_.begin(), payload_buffer_.end());
+    server_->login_callback_(client_id_, username, endpoint_, full_packet);
+  }
+  if (server_->GetMessageCallback()) {
+    server_->GetMessageCallback()(client_id_, full_packet);
   }
 
   ReadHeader();
-}
-
-void ProcessPacketTCP::ProcessingGameStart() {
-  std::cout << "[ProcessPacketTCP] Processing game start" << std::endl;
-  Encoder encode;
-  SetupEncoder(encode);
-
-  Action action;
-  action.type = ActionType::GAME_START;
-  GameStart gamestart;
-  gamestart.playerSpawnX = 1.0f;
-  gamestart.playerSpawnY = 2.0f;
-  gamestart.scrollSpeed = 3.0f;
-  action.data = gamestart;
-
-  std::vector<uint8_t> data = encode.encode(action, 2);
-  for (auto byte : data) {
-    std::cout << std::hex << static_cast<int>(byte) << " ";
-  }
-  auto self = shared_from_this();
-  asio::async_write(
-      socket_, asio::buffer(data),
-      [this, self](const asio::error_code& error, std::size_t) {
-        if (error) {
-          std::cerr << "[ProcessPacketTCP] Send error: " << error.message()
-                    << std::endl;
-        } else {
-          std::cout << "[ProcessPacketTCP] LOGIN_RESPONSE sent to client "
-                    << client_id_ << std::endl;
-        }
-      });
-}
-
-void ProcessPacketTCP::ProcessLoginRequest() {
-
-  for (int i = HEADER_SIZE - 1; i >= 0; i--) {
-    payload_buffer_.insert(payload_buffer_.begin(), header_buffer_[i]);
-  }
- for (auto byte : payload_buffer_) {
-    std::cout << std::hex << static_cast<int>(byte) << " ";
-  }
-  Decoder decode;
-  SetupDecoder(decode);
-
-  Event data = decode.decode(payload_buffer_);
-  const LOGIN_REQUEST* login = std::get_if<LOGIN_REQUEST>(&data.data);
-  if (login == nullptr) {
-    std::cerr << "[ProcessPacketTCP] Failed to decode LOGIN_REQUEST"
-              << std::endl;
-    return;
-  }
-  std::string username = login->username;
-
-  std::cout << "type data = " << static_cast<uint8_t>(data.type) << " data "
-            << username << std::endl;
-  std::cout << "[ProcessPacketTCP] Login request from '" << username
-            << "' (client " << client_id_ << ")" << std::endl;
-  authenticated_ = true;
-
-  if (server_->login_callback_) {
-    server_->login_callback_(client_id_, username, endpoint_);
-  }
-
-  SendLoginResponse(true, client_id_, server_->GetUDPPort());
-}
-
-void ProcessPacketTCP::SendLoginResponse(bool, uint16_t,
-                                         uint16_t udp_port) {
-  Encoder encode;
-  SetupEncoder(encode);
-
-  Action action;
-  action.type = ActionType::LOGIN_RESPONSE;
-  LoginResponse loginResponse;
-  loginResponse.success = 1;
-  loginResponse.playerId = client_id_;
-  loginResponse.udpPort = udp_port;
-  action.data = loginResponse;
-  std::vector<uint8_t> data = encode.encode(action, 2);
-
-  if (!socket_.is_open()) {
-    std::cerr << "[ProcessPacketTCP] Cannot send packet: socket closed"
-              << std::endl;
-    return;
-  }
-  auto self = shared_from_this();
-  asio::async_write(
-      socket_, asio::buffer(data),
-      [this, self](const asio::error_code& error, std::size_t) {
-        if (error) {
-          std::cerr << "[ProcessPacketTCP] Send error: " << error.message()
-                    << std::endl;
-        } else {
-          std::cout << "[ProcessPacketTCP] LOGIN_RESPONSE sent to client "
-                    << client_id_ << std::endl;
-        }
-      });
 }
 
 void TCPServer::SendTo(const std::vector<uint8_t>& data, uint16_t client_id) {
@@ -284,12 +192,11 @@ void ProcessPacketTCP::SendPacket(const std::vector<uint8_t>& data) {
     return;
   }
   auto self = shared_from_this();
-  asio::async_write(
-      socket_, asio::buffer(data),
-      [this, self](const asio::error_code& error, std::size_t) {
-        if (error) {
-          std::cerr << "[ProcessPacketTCP] Send error: " << error.message()
-                    << std::endl;
-        }
-      });
+  asio::async_write(socket_, asio::buffer(data),
+                    [this, self](const asio::error_code& error, std::size_t) {
+                      if (error) {
+                        std::cerr << "[ProcessPacketTCP] Send error: "
+                                  << error.message() << std::endl;
+                      }
+                    });
 }

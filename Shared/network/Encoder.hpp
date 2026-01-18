@@ -1,6 +1,11 @@
 #pragma once
 
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include <array>
 #include <cstdint>
@@ -13,6 +18,9 @@ struct PacketHeader {
   uint8_t type;
   uint8_t flags;
   uint32_t length;
+  uint16_t seqNum;
+  uint16_t ack;
+  uint32_t ack_bytes;
 };
 
 class Encoder {
@@ -22,7 +30,8 @@ class Encoder {
 
   Encoder();
   void registerHandler(ActionType type, EncodePayload f);
-  std::vector<uint8_t> encode(const Action& a, size_t useUDP);
+  std::vector<uint8_t> encode(const Action& a, size_t useUDP, uint16_t seqNum,
+                              uint16_t ack, uint32_t ack_bytes);
 
  private:
   std::array<EncodePayload, 256> handlers;

@@ -1,8 +1,8 @@
 // Copyright 2025 Dalia Guiz
 #pragma once
-#include "../Physics2D.hpp"
+#include "physics/Physics2D.hpp"
 
-enum class EnemyType { Basic, Zigzag, Chase };
+enum class EnemyType { Basic, Zigzag, Chase, mini_Green, Spinner };
 
 struct Enemy {
   EnemyType type;

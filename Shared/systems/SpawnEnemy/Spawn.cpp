@@ -5,7 +5,7 @@
 
 void enemy_spawner_system(Registry& registry,
                           SparseArray<EnemySpawning>& spawners,
-                          float deltaTime) {
+                          float deltaTime, uint8_t diff) {
   for (auto&& [idx, spawner] : IndexedZipper(spawners)) {
     spawner.timer += deltaTime;
 
@@ -19,7 +19,7 @@ void enemy_spawner_system(Registry& registry,
       if (currentEnemies < spawner.maxEnemiesAct) {
         Vector2 spawnPos =
             spawner.spawnPoints[rand() % spawner.spawnPoints.size()];
-        createEnemy(registry, spawner.type, spawnPos);
+        createEnemy(registry, spawner.type, spawnPos, diff);
       }
 
       spawner.timer = 0.0f;  // reset timer

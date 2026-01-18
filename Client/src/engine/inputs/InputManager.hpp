@@ -1,7 +1,9 @@
 #pragma once
 #include <SDL2/SDL.h>
 
-#include "components/Physics2D.hpp"
+#include <iostream>
+
+#include "physics/Physics2D.hpp"
 #include "ecs/Registry.hpp"
 #include "ecs/Zipper.hpp"
 #include "graphics/RenderComponents.hpp"
@@ -14,6 +16,7 @@ struct InputState {
   bool moveDown;
   bool action1;  // Attack, shoot, etc.
   bool action2;
+  bool action3;
 
   InputState()
       : moveLeft(false),
@@ -21,21 +24,42 @@ struct InputState {
         moveUp(false),
         moveDown(false),
         action1(false),
-        action2(false) {}
+        action2(false),
+        action3(false) {}
 };
 
 class InputManager {
  private:
   const Uint8* m_keyboardState;
   KeyBindings m_keyBindings;
+  bool m_forceToggle = false;
+  bool m_prevForceToggle = false;
 
  public:
+  void DebugBindings() {
+    std::cout << "=== CURRENT BINDINGS ===" << std::endl;
+    std::cout << "FIRE: " << m_keyBindings.GetAllKeysForAction(GameAction::FIRE)
+              << std::endl;
+    std::cout << "SPECIAL: "
+              << m_keyBindings.GetAllKeysForAction(GameAction::SPECIAL)
+              << std::endl;
+    std::cout << "FORCE_TOGGLE: "
+              << m_keyBindings.GetAllKeysForAction(GameAction::FORCE_TOGGLE)
+              << std::endl;
+    std::cout << "========================" << std::endl;
+  }
+  bool IsForceTogglePressed() const {
+    return m_forceToggle && !m_prevForceToggle;
+  }
+  void ResetForceToggle() { m_forceToggle = false; }
+
   bool m_prevMoveLeft;
   bool m_prevMoveRight;
   bool m_prevMoveUp;
   bool m_prevMoveDown;
   bool m_prevAction1;
   bool m_prevAction2;
+  bool m_prevAction3;
 
   bool m_moveLeft;
   bool m_moveRight;
@@ -43,6 +67,7 @@ class InputManager {
   bool m_moveDown;
   bool m_action1;
   bool m_action2;
+  bool m_action3;
 
  public:
   InputManager()
@@ -53,12 +78,14 @@ class InputManager {
         m_prevMoveDown(false),
         m_prevAction1(false),
         m_prevAction2(false),
+        m_prevAction3(false),
         m_moveLeft(false),
         m_moveRight(false),
         m_moveUp(false),
         m_moveDown(false),
         m_action1(false),
-        m_action2(false) {
+        m_action2(false),
+        m_action3(false) {
     if (!m_keyBindings.LoadFromFile()) {
       m_keyBindings.SetDefaultBindings();
     }
@@ -90,6 +117,7 @@ class InputManager {
   bool IsMoveDownHeld() const { return m_moveDown; }
   bool IsAction1Held() const { return m_action1; }
   bool IsAction2Held() const { return m_action2; }
+  bool IsAction3Held() const { return m_action3; }
 
   KeyBindings& GetKeyBindings() { return m_keyBindings; }
   const KeyBindings& GetKeyBindings() const { return m_keyBindings; }

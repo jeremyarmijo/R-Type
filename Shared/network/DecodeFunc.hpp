@@ -6,7 +6,8 @@
 #include "network/Event.hpp"
 
 bool checkHeader(const std::vector<uint8_t>& packet, size_t& offset,
-                 uint32_t& payloadLength);
+                 uint32_t& payloadLength, uint16_t& seq, uint16_t& ack,
+                 uint32_t& ack_bits);
 
 Event DecodeLOGIN_REQUEST(const std::vector<uint8_t>& packet);
 Event DecodeLOGIN_RESPONSE(const std::vector<uint8_t>& packet);
@@ -19,5 +20,14 @@ Event DecodeAUTH(const std::vector<uint8_t>& packet);
 Event DecodeBOSS_SPAWN(const std::vector<uint8_t>& packet);
 Event DecodeBOSS_UPDATE(const std::vector<uint8_t>& packet);
 Event DecodeENEMY_HIT(const std::vector<uint8_t>& packet);
+Event DecodeLOBBY_CREATE(const std::vector<uint8_t>& packet);
+Event DecodeLOBBY_JOIN_REQUEST(const std::vector<uint8_t>& packet);
+Event DecodeLOBBY_JOIN_RESPONSE(const std::vector<uint8_t>& packet);
+Event DecodeLOBBY_LIST_REQUEST(const std::vector<uint8_t>& packet);
+Event DecodeLOBBY_LIST_RESPONSE(const std::vector<uint8_t>& packet);
+Event DecodePLAYER_READY(const std::vector<uint8_t>& packet);
+Event DecodeLOBBY_UPDATE(const std::vector<uint8_t>& packet);
+Event DecodeLOBBY_LEAVE(const std::vector<uint8_t>& packet);
+Event DecodeLOBBY_START(const std::vector<uint8_t>& packet);
 
 void SetupDecoder(Decoder& decoder);

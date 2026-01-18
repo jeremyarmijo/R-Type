@@ -1,5 +1,10 @@
 // #pragma once
 
+#include "systems/WaveSystem.hpp"
+
+#include <iostream>
+#include <random>
+
 #include "Helpers/EntityHelper.hpp"
 #include "SpawnEnemy/Spawn.hpp"
 #include "ecs/Zipper.hpp"
@@ -7,11 +12,14 @@
 Vector2 get_random_pos() {
   Vector2 pos;
 
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+  std::uniform_int_distribution<> disY(50, 500);
+
   pos.x = 750;
-  pos.y = rand() % (500 - 50 + 1) + 50;
+  pos.y = static_cast<float>(disY(gen));
   return pos;
 }
-
 Vector2 get_boss_spawn_pos() { return {700.0f, 300.0f}; }
 
 bool checkWaveEnd(Registry& registry, SparseArray<Enemy>& enemies) {
@@ -25,15 +33,15 @@ bool checkWaveEnd(Registry& registry, SparseArray<Enemy>& enemies) {
 }
 
 void create_multiples_enemies(Registry& registry, EnemyType type,
-                              int nbEnemies) {
+                              int nbEnemies, uint8_t diff) {
   for (int i = 0; i < nbEnemies; i++) {
     Vector2 pos = get_random_pos();
-    createEnemy(registry, type, pos);
+    createEnemy(registry, type, pos, diff);
   }
 }
 
 void enemy_wave_system(Registry& registry, SparseArray<Enemy>& enemies,
-                       float deltaTime, int nbWave, int difficulty) {
+                       float deltaTime, int nbWave, uint8_t diff) {
   static bool waveOn = false;
   static int currentWave = 0;
   static int level = 0;
@@ -85,13 +93,13 @@ void enemy_wave_system(Registry& registry, SparseArray<Enemy>& enemies,
   if (!waveOn && !bossSpawned) {
     std::cout << "Spawning Wave " << currentWave + 1 << "!" << std::endl;
 
-    int nbBasic = ((2 + currentWave) / 2) * (difficulty + level);
-    int nbZigzag = ((2 + currentWave) / 2) * (difficulty + level);
-    int nbChaseEnemies = ((1 + currentWave) / 2) * (difficulty + level);
+    int nbBasic = ((2 + currentWave) / 2) * (diff + level);
+    int nbZigzag = ((2 + currentWave) / 2) * (diff + level);
+    int nbChaseEnemies = ((1 + currentWave) / 2) * (diff + level);
 
-    create_multiples_enemies(registry, EnemyType::Basic, nbBasic);
-    create_multiples_enemies(registry, EnemyType::Zigzag, nbZigzag);
-    create_multiples_enemies(registry, EnemyType::Chase, nbChaseEnemies);
+    create_multiples_enemies(registry, EnemyType::Basic, nbBasic, diff);
+    create_multiples_enemies(registry, EnemyType::Zigzag, nbZigzag, diff);
+    create_multiples_enemies(registry, EnemyType::Chase, nbChaseEnemies, diff);
 
     currentWave++;
     waveOn = true;

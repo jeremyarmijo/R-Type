@@ -1,4 +1,4 @@
-                   R-Type Network Protocol Specification
+R-Type Network Protocol Specification
 
 Status of This Memo
    This document specifies the R-Type Network Protocol, a custom
@@ -18,9 +18,22 @@ Table of Contents
    6. TCP Messages
        6.1 LOGIN_REQUEST (0x01)
        6.2 LOGIN_RESPONSE (0x02)
-       6.3 GAME_START (0x0F)
-       6.4 GAME_END (0x10)
-       6.5 ERROR (0x12)
+       6.3 LOBBY_CREATE (0x03)
+       6.4 LOBBY_JOIN_REQUEST (0x04)
+       6.5 LOBBY_JOIN_RESPONSE (0x05)
+       6.6 LOBBY_LIST_REQUEST (0x06)
+       6.7 LOBBY_LIST_RESPONSE (0x07)
+       6.8 PLAYER_READY (0x08)
+       6.9 LOBBY_UPDATE (0x09)
+       6.10 LOBBY_LEAVE (0x0A)
+       6.11 LOBBY_START (0x0B)
+       6.12 MESSAGE (0x0C)
+       6.13 LOBBY_KICK (0x0D)
+       6.14 SEND_MAP (0x0E)
+       6.15 GAME_START (0x0F)
+       6.16 GAME_END (0x10)
+       6.17 CLIENT_LEAVE (0x11)
+       6.18 ERROR (0x12)
    7. UDP Messages
        7.1 PLAYER_INPUT (0x20)
        7.2 GAME_STATE (0x21)
@@ -28,32 +41,38 @@ Table of Contents
        7.4 BOSS_SPAWN (0x23)
        7.5 BOSS_UPDATE (0x24)
        7.6 ENEMY_HIT (0x25)
+       7.7 FORCE_STATE (0x26)
+       7.8 LEVEL_TRANSITION (0x27)
    8. Error Handling
    9. Security Considerations
    10. Message Type Summary
 
 1. Introduction
    The R-Type Network Protocol defines the communication rules between
-   clients and servers for authentication, game state synchronization,
-   and real-time gameplay events. The protocol uses both TCP and UDP
-   to balance reliability and latency constraints.
+   clients and servers for authentication, lobby management, game state 
+   synchronization, and real-time gameplay events. The protocol uses both 
+   TCP and UDP to balance reliability and latency constraints.
 
 2. Terminology
    Client: Game instance controlled by a player.
    Server: Authoritative game server.
    Payload: Message-specific data following the common header.
+   Lobby: A pre-game room where players gather before starting a match.
 
 3. Protocol Overview
    The protocol follows a client-server architecture. Critical operations
-   such as authentication and game lifecycle management are transmitted
-   over TCP, while real-time gameplay data is exchanged over UDP.
+   such as authentication, lobby management, and game lifecycle management 
+   are transmitted over TCP, while real-time gameplay data is exchanged 
+   over UDP.
 
 4. Transport Protocols
 4.1 TCP Usage
    TCP MUST be used for:
    - Authentication
-   - Lobby management
+   - Lobby management (create, join, leave, kick, ready)
    - Game start and end notifications
+   - Chat messages
+   - Map data transmission
    - Error reporting
 
 4.2 UDP Usage
@@ -61,6 +80,9 @@ Table of Contents
    - Player inputs
    - Game state synchronization
    - Entity updates
+   - Boss updates
+   - Force state updates
+   - Level transitions (with ACK)
 
 5. Common Message Format
    All protocol messages share a common 6-byte header.
@@ -79,6 +101,7 @@ Bit  Mask  Meaning
 3    0x08  Requires ACK (UDP)
 
 6. TCP Messages
+
 6.1 LOGIN_REQUEST (0x01)
    Direction: Client → Server
 
@@ -110,41 +133,189 @@ Offset  Field       Size   Description
    - 0x1003: Already connected
    - 0x1004: Server full
 
-6.3 GAME_START (0x0F)
-   Direction: Server → Clients
+6.3 LOBBY_CREATE (0x03)
+   Direction: Client → Server
+
+Field           Size   Description
+lobbyNameLen    8b     Lobby name length
+lobbyName       N      UTF-8 lobby name
+playerNameLen   8b     Player name length
+playerName      N      UTF-8 player name
+passwordLen     8b     Password length (0 if no password)
+password        N      UTF-8 password (optional)
+maxPlayer       8b     Maximum number of players
+difficulty      8b     Difficulty level
+
+6.4 LOBBY_JOIN_REQUEST (0x04)
+   Direction: Client → Server
+
 Field        Size   Description
-playerSpawnX 32b    Initial X position
-playerSpawnY 32b    Initial Y position
-scrollSpeed  32b    Initial scroll speed
+lobbyId      16b    Target lobby identifier
+nameLen      8b     Player name length
+name         N      UTF-8 player name
+passwordLen  8b     Password length (0 if no password)
+password     N      UTF-8 password (optional)
 
-6.4 GAME_END (0x10)
-   Direction: Server → Clients
-Field        Size   Description
-victory     8b      Match result
-playerCount 8b      Number of players
-scores      N       Final scores
-
-   Each score entry is 8 bytes:
-Field      Size   Description
-playerId   16b    Player ID
-score      32b    Final score
-rank       8b     Player rank
-
-6.5 ERROR (0x12)
+6.5 LOBBY_JOIN_RESPONSE (0x05)
    Direction: Server → Client
+
+   Success Response:
+Field        Size   Description
+success      8b     MUST be 1
+lobbyId      16b    Joined lobby identifier
+playerId     16b    Assigned player identifier
+playerCount  8b     Number of players in lobby
+
+   For each player:
+Field        Size   Description
+playerId     16b    Player identifier
+ready        8b     Ready status (0 or 1)
+usernameLen  8b     Username length
+username     N      UTF-8 username
+
+   Failure Response:
+Field          Size   Description
+success        8b     MUST be 0
+errorCode      16b    Error code
+errorMsgLen    8b     Error message length
+errorMessage   N      UTF-8 error message
+
+6.6 LOBBY_LIST_REQUEST (0x06)
+   Direction: Client → Server
+
+Field        Size   Description
+playerId     16b    Requesting player identifier
+
+6.7 LOBBY_LIST_RESPONSE (0x07)
+   Direction: Server → Client
+
+Field        Size   Description
+lobbyCount   8b     Number of lobbies
+
+   For each lobby:
+Field        Size   Description
+lobbyId      16b    Lobby identifier
+nameLen      8b     Lobby name length
+name         N      UTF-8 lobby name
+playerCount  8b     Current player count
+maxPlayers   8b     Maximum player count
+difficulty   8b     Difficulty level
+isStarted    8b     Game started flag (0 or 1)
+hasPassword  8b     Password protected flag (0 or 1)
+
+6.8 PLAYER_READY (0x08)
+   Direction: Client → Server
+
+Field        Size   Description
+ready        8b     Ready status (0 or 1)
+
+6.9 LOBBY_UPDATE (0x09)
+   Direction: Server → Clients
+
+Field        Size   Description
+nameLen      8b     Lobby name length
+name         N      UTF-8 lobby name
+hostId       16b    Host player identifier
+asStarted    8b     Game started flag (0 or 1)
+maxPlayers   8b     Maximum player count
+difficulty   8b     Difficulty level
+playerCount  8b     Number of players
+
+   For each player:
+Field        Size   Description
+playerId     16b    Player identifier
+ready        8b     Ready status (0 or 1)
+usernameLen  8b     Username length
+username     N      UTF-8 username
+
+6.10 LOBBY_LEAVE (0x0A)
+   Direction: Client → Server
+
+Field        Size   Description
+playerId     16b    Leaving player identifier
+
+6.11 LOBBY_START (0x0B)
+   Direction: Server → Clients
+
+Field        Size   Description
+countdown    8b     Countdown in seconds
+
+6.12 MESSAGE (0x0C)
+   Direction: Client ↔ Server ↔ Clients
+
+Field         Size   Description
+lobbyId       16b    Target lobby identifier
+playerNameLen 8b     Player name length
+playerName    N      UTF-8 player name
+messageLen    8b     Message length
+message       N      UTF-8 message content
+
+6.13 LOBBY_KICK (0x0D)
+   Direction: Server → Client
+
+Field        Size   Description
+playerId     16b    Kicked player identifier
+
+6.14 SEND_MAP (0x0E)
+   Direction: Server → Clients
+
+Field        Size   Description
+width        16b    Map width
+height       16b    Map height
+scrollSpeed  32b    Scroll speed (float)
+tileCount    32b    Number of tiles
+
+   For each tile:
+Field        Size   Description
+tileValue    8b     Tile type/value
+
+6.15 GAME_START (0x0F)
+   Direction: Server → Clients
+
+Field        Size   Description
+playerSpawnX 32b    Initial X position (float)
+playerSpawnY 32b    Initial Y position (float)
+scrollSpeed  32b    Initial scroll speed (float)
+
+6.16 GAME_END (0x10)
+   Direction: Server → Clients
+
+Field        Size   Description
+victory      8b     Match result (0 or 1)
+playerCount  8b     Number of players
+
+   For each player:
+Field        Size   Description
+playerId     16b    Player identifier
+playerNameLen 8b    Player name length
+playerName   N      UTF-8 player name
+score        32b    Final score
+rank         8b     Player rank
+
+6.17 CLIENT_LEAVE (0x11)
+   Direction: Client → Server
+
+Field        Size   Description
+playerId     16b    Leaving player identifier
+
+6.18 ERROR (0x12)
+   Direction: Server → Client
+
 Field       Size   Description
 errorCode   16b    Error code
 messageLen  8b     Message length
 message     N      UTF-8 error description
 
 7. UDP Messages
+
 7.1 PLAYER_INPUT (0x20)
    Direction: Client → Server
+
 Field       Size   Description
-up          8b     Up input
-down        8b     Down input
-left        8b     Left input
-right       8b     Right input
+up          8b     Up input (0 or 1)
+down        8b     Down input (0 or 1)
+left        8b     Left input (0 or 1)
+right       8b     Right input (0 or 1)
 fire        8b     Fire bitfield
 
    Fire bits:
@@ -153,72 +324,164 @@ fire        8b     Fire bitfield
 
 7.2 GAME_STATE (0x21)
    Direction: Server → Clients
-   The GAME_STATE message contains serialized arrays of players, enemies,
-   and projectiles. The server MUST be authoritative.
+
+Field        Size   Description
+playerCount  8b     Number of players
+
+   For each player:
+Field        Size   Description
+playerId     16b    Player identifier
+mask         16b    Update mask
+posX         32b    X position (float)
+posY         32b    Y position (float)
+hp           8b     Health points
+shield       8b     Shield value
+weapon       8b     Weapon type
+state        8b     Player state
+sprite       8b     Sprite index
+score        32b    Current score
+
+Field        Size   Description
+enemyCount   8b     Number of enemies
+
+   For each enemy:
+Field        Size   Description
+enemyId      16b    Enemy identifier
+mask         16b    Update mask
+enemyType    8b     Enemy type
+posX         32b    X position (float)
+posY         32b    Y position (float)
+hp           8b     Health points
+state        8b     Enemy state
+direction    8b     Direction (-1, 0, 1)
+
+Field           Size   Description
+projectileCount 8b     Number of projectiles
+
+   For each projectile:
+Field        Size   Description
+projectileId 16b    Projectile identifier
+mask         16b    Update mask
+ownerId      16b    Owner identifier
+type         8b     Projectile type
+posX         32b    X position (float)
+posY         32b    Y position (float)
+velX         32b    X velocity (float)
+velY         32b    Y velocity (float)
+damage       8b     Damage value
 
 7.3 AUTH (0x22)
    Direction: Client → Server
+
 Field       Size   Description
 playerId    16b    Player identifier
 
 7.4 BOSS_SPAWN (0x23)
    Direction: Server → Clients
+   Flags: Requires ACK
+
 Field       Size   Description
-bossId      16b    Boss ID
+bossId      16b    Boss identifier
 bossType    8b     Boss type
 maxHp       16b    Maximum HP
 phase       8b     Initial phase
 
 7.5 BOSS_UPDATE (0x24)
    Direction: Server → Clients
+
 Field       Size   Description
-bossId      16b    Boss ID
-posX        32b    X position
-posY        32b    Y position
+bossId      16b    Boss identifier
+posX        32b    X position (float)
+posY        32b    Y position (float)
 hp          16b    Current HP
 phase       8b     Current phase
 action      8b     Current action
 
 7.6 ENEMY_HIT (0x25)
    Direction: Server → Clients
+   Flags: Requires ACK
+
 Field       Size   Description
-enemyId     16b    Enemy ID
+enemyId     16b    Enemy identifier
 damage      8b     Damage dealt
 hpRemaining 16b    Remaining HP
+
+7.7 FORCE_STATE (0x26)
+   Direction: Server → Clients
+
+Field       Size   Description
+forceId     16b    Force identifier
+ownerId     16b    Owner player identifier
+posX        32b    X position (float)
+posY        32b    Y position (float)
+state       8b     Force state
+                   0 = AttachedFront
+                   1 = AttachedBack
+                   2 = Detached
+
+7.8 LEVEL_TRANSITION (0x27)
+   Direction: Server → Clients
+   Flags: Requires ACK
+
+Field       Size   Description
+levelNumber 8b     New level number
 
 8. Error Handling
    Clients receiving malformed or unknown messages SHOULD discard them
    silently. Fatal errors MUST be reported using the ERROR message over TCP.
+   
+   UDP messages marked with "Requires ACK" MUST be acknowledged by the
+   recipient and retransmitted if no acknowledgment is received within
+   a timeout period.
 
 9. Security Considerations
    Passwords MUST NOT be transmitted in plain text.
    UDP messages SHOULD be rate-limited.
    The server MUST validate all client inputs.
+   Lobby passwords SHOULD be hashed before transmission.
+   The server MUST verify player ownership before processing lobby
+   administrative actions (kick, start, etc.).
 
 10. Message Type Summary
-TCP:
+
+TCP Messages:
 0x01 LOGIN_REQUEST
 0x02 LOGIN_RESPONSE
+0x03 LOBBY_CREATE
+0x04 LOBBY_JOIN_REQUEST
+0x05 LOBBY_JOIN_RESPONSE
+0x06 LOBBY_LIST_REQUEST
+0x07 LOBBY_LIST_RESPONSE
+0x08 PLAYER_READY
+0x09 LOBBY_UPDATE
+0x0A LOBBY_LEAVE
+0x0B LOBBY_START
+0x0C MESSAGE
+0x0D LOBBY_KICK
+0x0E SEND_MAP
 0x0F GAME_START
 0x10 GAME_END
+0x11 CLIENT_LEAVE
 0x12 ERROR
 
-UDP:
+UDP Messages:
 0x20 PLAYER_INPUT
 0x21 GAME_STATE
 0x22 AUTH
-0x23 BOSS_SPAWN
+0x23 BOSS_SPAWN (requires ACK)
 0x24 BOSS_UPDATE
-0x25 ENEMY_HIT
+0x25 ENEMY_HIT (requires ACK)
+0x26 FORCE_STATE
+0x27 LEVEL_TRANSITION (requires ACK)
 
 Sequence Diagram
    A detailed sequence diagram illustrating the client-server interaction
-   flow (authentication, UDP setup, gameplay loop, and game termination)
-   is provided at the following location:
+   flow (authentication, lobby management, UDP setup, gameplay loop, and 
+   game termination) is provided at the following location:
    https://drive.google.com/file/d/1BYFZ8Wbi0jx-oA9SjRvfW7JBy5_cQgSa/view
 
 Class Diagram 
-    A detailed class diagram illustrating the main entities and relationships
-    of the R-Type game server and client architecture is available at 
-    the following location: 
-    https://drive.google.com/file/d/1nSUk1KHArsoXm9TfdPUM-eLnLMxiH3Nd/view?usp=sharing
+   A detailed class diagram illustrating the main entities and relationships
+   of the R-Type game server and client architecture is available at 
+   the following location: 
+   https://drive.google.com/file/d/1nSUk1KHArsoXm9TfdPUM-eLnLMxiH3Nd/view?usp=sharing

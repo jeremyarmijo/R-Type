@@ -1,1 +1,11 @@
 build/
+*.so
+CMakeFiles/
+CMakeCache.txt
+CMakeScripts/
+cmake_install.cmake
+Makefile
+*.cmake
+*.exe
+*.out
+*.so

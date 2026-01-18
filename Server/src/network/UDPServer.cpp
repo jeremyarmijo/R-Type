@@ -1,11 +1,14 @@
 #include "network/UDPServer.hpp"
 
 #include <iostream>
+#include <string>
 #include <utility>
 #include <vector>
 
-UDPServer::UDPServer(asio::io_context& io_context, uint16_t port, const std::string& host)
-    : socket_(io_context, asio::ip::udp::endpoint(asio::ip::make_address(host), port)) {
+UDPServer::UDPServer(asio::io_context& io_context, uint16_t port,
+                     const std::string& host)
+    : socket_(io_context,
+              asio::ip::udp::endpoint(asio::ip::make_address(host), port)) {
   std::cout << "[UDPServer] Listening on " << host << ":" << port << std::endl;
   std::cout << "[UDPServer] Socket opened: "
             << socket_.local_endpoint().address().to_string() << std::endl;

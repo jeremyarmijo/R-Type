@@ -3,20 +3,22 @@
 ## Overview
 
 - [**Game Engine**](#game-engine)
-- [**ECS**](#ECS)
-- [**Rendering Systems**](#rendering-systems)
-- [**Texture Manager**](#texture-manager)
-- [**Animation Manager**](#animation-manager)
-- [**Physics Systems**](#physics-systems)
-- [**Tile Map Manager**](#tilemap)
-- **Audio Manager** TODO
-- **Network Manager** TODO
+- [**ECS**](#ecs)
+- [**Scene Management**](#scene-management)
+- [**Subsystems**](#subsystems)
+  - [**Rendering Subsystem**](#rendering-subsystem)
+  - [**Physics Subsystem**](#physics-subsystem)
+  - [**Input Subsystem**](#input-subsystem)
+  - [**Audio Subsystem**](#audio-subsystem)
+  - [**Network Subsystem**](#network-subsystem)
+  - [**Resource Subsystem**](#resource-subsystem)
+  - [**Messaging Subsystem**](#messaging-subsystem)
 
 ---
 
 # Game Engine
 
-The `GameEngine` class acts as the core runtime manager responsible for initializing subsystems, handling game loop execution, updating simulation state, and rendering all visual output. It encapsulates SDL window management, ECS registry orchestration, asset managers, networking, physics, and tilemap rendering.
+The `GameEngine` class serves as the core runtime manager, orchestrating subsystems, managing the ECS registry, and controlling the main game loop. It uses a plugin-based architecture where subsystems are loaded dynamically.
 
 ---
 
@@ -24,44 +26,24 @@ The `GameEngine` class acts as the core runtime manager responsible for initiali
 
 ### Core Engine Lifecycle
 
-* Create and manage the SDL window and renderer.
-* Initialize and shut down SDL, SDL_image, and engine subsystems.
-* Maintain the main game loop (`Run()`).
-* Process events and input.
-* Update the simulation based on elapsed time.
-* Render all visual content in correct draw order.
+* Initialize and manage the ECS `Registry`.
+* Load and unload subsystems dynamically via `DLLoader`.
+* Manage the `SceneManager` for scene transitions.
+* Execute the main game loop with delta-time calculation.
+* Process SDL events and distribute them to subsystems and scenes.
 
-### ECS (Entity–Component–System)
+### Plugin Architecture
 
-* Stores an internal `Registry` instance.
-* Registers all engine-level components and systems.
-* Provides helper functions to create common entity archetypes:
+* Subsystems are loaded as dynamic libraries (.so/.dll).
+* Each subsystem implements the `ISubsystem` interface.
+* Subsystems are identified by `SubsystemType` enum.
+* Update order is maintained via `m_updateOrder` vector.
 
-  * Sprites
-  * Animated sprites
-  * Physics-enabled objects
+### Scene Management
 
-### Rendering and Assets
-
-* Owns the `TextureManager` for loading and caching textures.
-* Owns the `AnimationManager` for managing animation definitions.
-* Renders sprites and tile layers in depth-ordered layers.
-* Maintains camera position and applies it to all rendering.
-
-### Physics
-
-* Stores global gravity vector.
-* Runs movement and collision systems each frame.
-
-### Networking
-
-* Owns the `NetworkManager`.
-* Provides simple connection API.
-
-### Tilemap
-
-* Owns a `Tilemap` instance used for world rendering and collision queries.
-* Renders tilemap layers before sprites.
+* Owns a `SceneManager` instance.
+* Provides scene loading, changing, and data persistence.
+* Scenes are also loaded as plugins.
 
 ---
 
@@ -69,75 +51,76 @@ The `GameEngine` class acts as the core runtime manager responsible for initiali
 
 ### `Run()`
 
-Drives the entire game lifecycle:
+The main game loop:
 
-1. Compute frame delta-time.
-2. Process input (`HandleEvents()`).
-3. Update ECS, physics, and camera (`Update()`).
-4. Draw tilemap, sprites, and debug overlays (`Render()`).
+1. Calculate frame delta-time (capped at 0.05s).
+2. Process input events (`HandleEvents()`).
+3. Update all subsystems and current scene (`Update()`).
+4. Loop until `m_running` is false.
 
 ### `Update(deltaTime)`
 
-* Runs all registered ECS systems in correct dependency order.
-* Applies physics, animation updates, and collision handling.
-* Adjusts camera position to follow a chosen entity.
+* Calls `Update()` on each subsystem in registration order.
+* Updates the `SceneManager` which manages scene transitions and updates the current scene.
 
-### `Render()`
+### `HandleEvents()`
 
-* Clears screen.
-* Draws tilemap layers (`tilemap_render_system`).
-* Draws all sprite layers (`layered_sprite_render_system`).
-* Displays optional debug information.
-* Presents final frame.
+* Polls SDL events.
+* Sends events to the `INPUT` subsystem.
+* Forwards events to the current scene via `SceneManager`.
+* Handles SDL_QUIT to stop the engine.
 
 ---
 
-## Subsystem Registration
+## Component Registration
 
-### Components
+The engine registers core gameplay components during initialization:
 
-Automatically registered by `RegisterComponents()` e.g. :
+```cpp
+// Player components
+m_registry.register_component<PlayerEntity>();
+m_registry.register_component<InputState>();
 
-* `Transform`
-* `RigidBody`
-* `BoxCollider`
-* `Sprite`
-* `Animation`
-* `Camera`
+// Enemy / Gameplay
+m_registry.register_component<Enemy>();
+m_registry.register_component<Boss>();
+m_registry.register_component<Items>();
+m_registry.register_component<Collision>();
+m_registry.register_component<EnemySpawning>();
 
-### Systems
+// Weapon & Projectile
+m_registry.register_component<Weapon>();
+m_registry.register_component<Projectile>();
+```
 
-Added through `RegisterSystems()` in execution order e.g. :
-
-1. Animation update
-2. Physics movement
-3. Collision detection
-
-Systems are executed each frame through `Registry::run_systems()`.
-
----
-
-## Camera
-
-A simple 2D camera controlled internally by the engine:
+Additional components can be registered by subsystems or scenes.
 
 ---
 
-## Asset Managers
+## Subsystem Management
 
-### `TextureManager`
+### `LoadSubsystem(SubsystemType type, const std::string& pluginPath)`
 
-Used for:
+Loads a subsystem plugin:
 
-* Loading textures on demand.
-* Caching and retrieving SDL textures via string keys.
+1. Checks if subsystem is already loaded.
+2. Uses `DLLoader<ISubsystem>` to load the plugin.
+3. Calls `CreateSubsystem()` factory function from the plugin.
+4. Initializes the subsystem.
+5. Provides registry access via `SetRegistry()`.
+6. Stores the subsystem and adds it to update order.
 
-### `AnimationManager`
+### `UnloadSubsystem(SubsystemType type)`
 
-Responsible for:
+Unloads a subsystem:
 
-* Storing animation clips.
-* Updating animation playback in the animation system.
+1. Calls `Shutdown()` on the subsystem.
+2. Removes from the subsystem map and update order.
+3. DLLoader destructor handles library cleanup.
+
+### `GetSubsystem(SubsystemType type)`
+
+Returns a pointer to the requested subsystem or `nullptr` if not loaded.
 
 ---
 
@@ -146,16 +129,27 @@ Responsible for:
 ```cpp
 GameEngine engine;
 
+// Initialize engine
 if (!engine.Initialize("My Game", 1280, 720))
     return -1;
 
-engine.GetTilemap().AddLayer("background", 0.5f);
-engine.GetTilemap().AddLayer("world", 1.0f);
+// Load subsystems
+engine.LoadSubsystem(SubsystemType::RENDERING, "lib/libRendering.so");
+engine.LoadSubsystem(SubsystemType::PHYSICS, "lib/libPhysics.so");
+engine.LoadSubsystem(SubsystemType::INPUT, "lib/libInput.so");
+engine.LoadSubsystem(SubsystemType::AUDIO, "lib/libAudio.so");
 
-engine.CreateSprite("player.png", {100, 100});
-engine.CreatePhysicsObject("crate.png", {200, 100}, {32, 32}, false);
+// Load scenes
+engine.LoadSceneModule("menu", "lib/libMenuScene.so");
+engine.LoadSceneModule("game", "lib/libGameScene.so");
 
+// Start with menu scene
+engine.ChangeScene("menu");
+
+// Run game loop
 engine.Run();
+
+// Cleanup
 engine.Shutdown();
 ```
 
@@ -163,18 +157,18 @@ engine.Shutdown();
 
 # ECS
 
-## **Overview**
+## Overview
 
-This Entity–Component–System implementation is composed of four core elements:
+This Entity–Component–System implementation consists of four core elements:
 
-1. **Entity** — a lightweight numeric ID wrapper.
-2. **SparseArray<T>** — optional component storage indexed by entity ID.
-3. **Registry** — owns entities, components, and systems.
-4. **Zipper / IndexedZipper** — multi-component iterators for system execution.
+1. **Entity** – a lightweight numeric ID wrapper.
+2. **SparseArray<T>** – optional component storage indexed by entity ID.
+3. **Registry** – owns entities, components, and systems.
+4. **Zipper / IndexedZipper** – multi-component iterators for system execution.
 
 ---
 
-# **Entities**
+## Entities
 
 ```cpp
 class Entity {
@@ -185,7 +179,7 @@ public:
 };
 ```
 
-### **Key Points**
+### Key Points
 
 * Created exclusively by `Registry::spawn_entity()`.
 * Implicit conversion to `size_t` allows direct indexing into component arrays.
@@ -193,7 +187,7 @@ public:
 
 ---
 
-# **SparseArray<T>**
+## SparseArray<T>
 
 A compact component container storing elements as:
 
@@ -201,17 +195,17 @@ A compact component container storing elements as:
 std::vector<std::optional<T>>
 ```
 
-### **Main Operations**
+### Main Operations
 
-| Function                   | Description                                              |
-| -------------------------- | -------------------------------------------------------- |
-| `operator[](size_t)`       | Access or create the optional at an index. Auto-resizes. |
-| `insert_at(pos, value)`    | Insert or overwrite a component.                         |
-| `emplace_at(pos, args...)` | Construct component in-place.                            |
-| `erase(pos)`               | Remove component at index.                               |
-| `size()`                   | Current size of the internal vector.                     |
+| Function | Description |
+|----------|-------------|
+| `operator[](size_t)` | Access or create the optional at an index. Auto-resizes. |
+| `insert_at(pos, value)` | Insert or overwrite a component. |
+| `emplace_at(pos, args...)` | Construct component in-place. |
+| `erase(pos)` | Remove component at index. |
+| `size()` | Current size of the internal vector. |
 
-### **Behavior Notes**
+### Behavior Notes
 
 * Out-of-bounds writes automatically grow the underlying vector.
 * Absent components are represented as `std::nullopt`.
@@ -219,11 +213,11 @@ std::vector<std::optional<T>>
 
 ---
 
-# **Registry**
+## Registry
 
 The registry coordinates entity management, component storage, and system execution.
 
-## **Component Registration**
+### Component Registration
 
 ```cpp
 auto& positions = registry.register_component<Position>();
@@ -231,27 +225,31 @@ auto& positions = registry.register_component<Position>();
 
 * Registers a new `SparseArray<T>` stored via `std::any`.
 * Allows only one storage array per component type.
+* Automatically registers cleanup functions for entity deletion.
 
-## **Component Access & Manipulation**
+### Component Access & Manipulation
 
-| Operation                       | Description                         |
-| ------------------------------- | ----------------------------------- |
-| `add_component(e, value)`       | Adds or replaces a component.       |
-| `emplace_component(e, args...)` | Constructs a component directly.    |
-| `remove_component(e)`           | Removes the component.              |
-| `get_components<T>()`           | Returns the entire component array. |
+| Operation | Description |
+|-----------|-------------|
+| `add_component(e, value)` | Adds or replaces a component. |
+| `emplace_component(e, args...)` | Constructs a component directly. |
+| `remove_component<T>(e)` | Removes the component. |
+| `get_components<T>()` | Returns the entire component array. |
+| `has_component<T>(e)` | Checks if entity has component. |
 
-## **Entity Management**
+### Entity Management
 
 ```cpp
 Entity e = registry.spawn_entity();
 registry.kill_entity(e);
+registry.clear_all_entities();
 ```
 
-* Killing an entity triggers the removal of all registered component types.
-* Entity IDs are reused only in the sense that they increment; deleted IDs are not reclaimed.
+* Killing an entity triggers removal of all its components.
+* Entity IDs increment monotonically.
+* `clear_all_entities()` removes all entities and resets state.
 
-## **Systems**
+### Systems
 
 Systems are registered as templated functions:
 
@@ -262,11 +260,6 @@ registry.add_system<A, B>([](Registry& r,
 });
 ```
 
-A system receives:
-
-* the registry itself,
-* references to the component arrays for the listed types.
-
 Run all systems:
 
 ```cpp
@@ -275,52 +268,25 @@ registry.run_systems();
 
 ---
 
-# **Zipper & IndexedZipper Iteration**
+## Zipper & IndexedZipper Iteration
 
-These utilities allow synchronous iteration over multiple component arrays.
-
----
-
-## **Zipper**
+### Zipper
 
 Yields tuples of component references:
 
 ```cpp
-std::tuple<A&, B&, C&>
-```
-
-### **Example**
-
-```cpp
 Zipper zip(positions, velocities);
-
 for (auto [pos, vel] : zip) {
     // Operates only where both components exist
 }
 ```
 
-### **Characteristics**
+### IndexedZipper
 
-* Iterates up to the maximum size of all arrays.
-* Skips indices where any container lacks a value.
-
----
-
-## **IndexedZipper**
-
-Yields:
-
-```cpp
-std::tuple<size_t, A&, B&, ...>
-```
-
-The first element is the entity ID.
-
-### **Example**
+Yields entity ID plus component references:
 
 ```cpp
 IndexedZipper iz(posArray, healthArray);
-
 for (auto [id, pos, health] : iz) {
     // id == entity index
 }
@@ -328,720 +294,470 @@ for (auto [id, pos, health] : iz) {
 
 ---
 
-# **Usage Pattern**
-
-## **1. Define Components**
-
-```cpp
-struct Position { float x, y; };
-struct Velocity { float vx, vy; };
-```
-
-## **2. Register Components**
-
-```cpp
-Registry r;
-r.register_component<Position>();
-r.register_component<Velocity>();
-```
-
-## **3. Create Entities**
-
-```cpp
-Entity e = r.spawn_entity();
-r.emplace_component<Position>(e, 0.f, 0.f);
-r.emplace_component<Velocity>(e, 1.f, 0.5f);
-```
-
-## **4. Add Systems**
-
-```cpp
-r.add_system<Transform, RigidBody>(
-    [this](Registry& reg, SparseArray<Transform>& transforms, SparseArray<RigidBody>& rigidbodies) {
-        physics_movement_system(reg, transforms, rigidbodies, m_deltaTime, m_gravity);
-    }
-);
-```
-
-## **5. Run Systems**
-
-```cpp
-r.run_systems();
-```
-
----
-
-# Rendering Systems
+# Scene Management
 
 ## Overview
 
-1. **Animation System** – Updates frame progression for animations.
-2. **Sprite Render System** – Renders sprites using positions, pivots, and scaling.
-3. **Layered Sprite Render System** – Renders sprites sorted by layer order.
-4. **Tilemap Render System** - Renders Tilemap sorted by layer order.
-5. **Camera Getter** – Returns active camera position.
-
-All systems operate on an ECS `Registry` and use `SparseArray` component storage with Zipper iterators.
+The scene system provides a plugin-based architecture for organizing game states (menus, levels, etc.). Scenes are loaded as dynamic libraries and managed by the `SceneManager`.
 
 ---
 
-# Animation System
-
-## `animation_system(...)`
-
-### Purpose
-
-Advances the animation frames of all entities that have both `Animation` and `Sprite` components.
-
-### Parameters
-
-| Name               | Type                      | Description                        |
-| ------------------ | ------------------------- | ---------------------------------- |
-| `registry`         | `Registry&`               | ECS registry handle.               |
-| `animations`       | `SparseArray<Animation>&` | Animation components for entities. |
-| `sprites`          | `SparseArray<Sprite>&`    | Sprite components for entities.    |
-| `animationManager` | `AnimationManager*`       | Provides animation clips.          |
-| `deltaTime`        | `float`                   | Time elapsed since the last frame. |
-
-### Behavior
-
-* Skips entities with no active animation.
-* Retrieves the animation clip by name.
-* Accumulates `currentTime` and checks if the next frame should be displayed.
-* Loops or stops animation depending on the clip’s settings.
-* Updates the sprite’s `sourceRect` each frame.
-
-### Example Use
+## Scene Base Class
 
 ```cpp
-animation_system(registry, animations, sprites, &animationManager, deltaTime);
-```
-
----
-
-# Sprite Render System
-
-## `sprite_render_system(...)`
-
-### Purpose
-
-Renders sprites using world transforms, respecting camera position, scaling, rotation, and pivot.
-
-### Parameters
-
-| Name             | Type                      | Description                      |
-| ---------------- | ------------------------- | -------------------------------- |
-| `registry`       | `Registry&`               | ECS registry handle.             |
-| `transforms`     | `SparseArray<Transform>&` | Position, scale, rotation.       |
-| `sprites`        | `SparseArray<Sprite>&`    | Texture key, pivot, source rect. |
-| `textureManager` | `TextureManager*`         | Fetches textures.                |
-| `renderer`       | `SDL_Renderer*`           | SDL renderer.                    |
-| `cameraPosition` | `Vector2`                 | Offset applied to all sprites.   |
-
-### Behavior
-
-* Retrieves the sprite’s texture.
-* If the sprite has no sourceRect, gets the full texture size.
-* Computes `destRect` from transform + pivot + camera.
-* Renders using `SDL_RenderCopyEx`.
-
-### Example
-
-```cpp
-sprite_render_system(registry, transforms, sprites, &textureManager, renderer, cameraPos);
-```
-
----
-
-# Layered Sprite Render System
-
-## `layered_sprite_render_system(...)`
-
-### Purpose
-
-Renders all sprites **sorted by layer value**, allowing foreground/background effects.
-
-### Parameters
-
-Same as the basic sprite renderer, but the system:
-
-* Collects all entities into a list.
-* Sorts them by `sprite.layer`.
-* Renders in sorted order.
-
-### Notes
-
-* Requires that `Sprite` includes a `layer` integer.
-* Higher or lower values can meaningfully define depth based on your convention.
-
-### Example
-
-```cpp
-layered_sprite_render_system(registry, transforms, sprites, &textureManager, renderer, cameraPos);
-```
-
----
-
-## `tilemap_render_system(...)`
-
-### Purpose
-
-Renders a tilemap with support for multiple layers, parallax scrolling, and frustum culling to improve performance.
-
-### Parameters
-
-| Name             | Type              | Description                                          |
-| ---------------- | ----------------- | ---------------------------------------------------- |
-| `tilemap`        | `Tilemap*`        | Tilemap instance containing layers and tileset info. |
-| `textureManager` | `TextureManager*` | Used to fetch the tileset texture.                   |
-| `renderer`       | `SDL_Renderer*`   | SDL renderer used to draw tile quads.                |
-| `cameraPosition` | `Vector2`         | World-space camera offset.                           |
-| `windowWidth`    | `int`             | Width of the render viewport.                        |
-| `windowHeight`   | `int`             | Height of the render viewport.                       |
-
-### Behavior
-
-* Retrieves the tileset texture from the texture manager.
-* Iterates over all layers in the tilemap.
-* Applies each layer’s individual parallax factor to the camera position.
-* Computes the tile range visible within the screen bounds (frustum culling).
-* Iterates only through visible tiles and renders each one using its source rectangle.
-* Skips empty tiles (`textureID < 0`).
-
-### Example
-
-```cpp
-tilemap_render_system(tilemap, &textureManager, renderer, cameraPos, winW, winH);
-```
-
----
-
-# Camera System
-
-## `get_camera_position(...)`
-
-### Purpose
-
-Finds the first active camera and returns its position.
-
-### Parameters
-
-| Name         | Type                      | Description |
-| ------------ | ------------------------- | ----------- |
-| `registry`   | `Registry&`               |             |
-| `cameras`    | `SparseArray<Camera>&`    |             |
-| `transforms` | `SparseArray<Transform>&` |             |
-
-### Behavior
-
-* Uses `IndexedZipper` to iterate aligned cameras and transforms.
-* If a camera has `isActive = true`, returns its stored position.
-* If none are active, returns `(0, 0)`.
-
-### Example
-
-```cpp
-Vector2 camPos = get_camera_position(registry, cameras, transforms);
-```
-
----
-
-# Header Summary
-
-These functions are declared in the module header:
-
-```cpp
-void animation_system(...);
-void sprite_render_system(...);
-void layered_sprite_render_system(...);
-Vector2 get_camera_position(...);
-```
-
----
-
-# Texture Manager
-
-## Overview
-
-`TextureManager` is a lightweight utility class that loads, stores, and retrieves SDL textures.
-It maintains a texture cache using string keys, preventing duplicate loads and simplifying texture access throughout your game engine.
-
-The class depends on:
-
-* **SDL2**
-* **SDL2_image**
-
----
-
-# **Class Summary**
-
-```cpp
-class TextureManager {
-private:
-    std::unordered_map<std::string, SDL_Texture*> m_textures;
-    SDL_Renderer* m_renderer;
+class Scene {
+protected:
+    GameEngine* m_engine;
+    SceneManager* m_sceneManager;
+    std::string m_name;
 
 public:
-    TextureManager(SDL_Renderer* renderer);
-    ~TextureManager();
-
-    bool LoadTexture(const std::string& key, const std::string& filepath);
-    SDL_Texture* GetTexture(const std::string& key);
-    void GetTextureSize(const std::string& key, int& width, int& height);
+    virtual void OnEnter() = 0;
+    virtual void OnExit() = 0;
+    virtual void Update(float deltaTime) = 0;
+    virtual void Render() = 0;
+    virtual void HandleEvent(SDL_Event& event) {}
+    virtual std::unordered_map<uint16_t, Entity> GetPlayers() = 0;
 };
 ```
 
----
+### Protected Helper Methods
 
-# **Responsibilities**
-
-### Load image files and convert them to SDL textures
-
-### Store textures in a string-indexed cache
-
-### Provide access to textures on demand
-
-### Automatically release texture memory at destruction
-
----
-
-# **Constructor & Destructor**
-
-## **`TextureManager(SDL_Renderer* renderer)`**
-
-Initializes the manager and stores a pointer to the renderer used for texture creation.
-
-## **`~TextureManager()`**
-
-Destroys all cached textures using `SDL_DestroyTexture()`.
-This prevents memory leaks if textures are not manually freed.
-
----
-
-# **Public Methods**
-
-## **`bool LoadTexture(const std::string& key, const std::string& filepath)`**
-
-Loads an image file using `IMG_Load()`, converts it into an `SDL_Texture`, and stores it in the internal cache.
-
-### **Parameters**
-
-* `key` — unique identifier for the texture
-* `filepath` — path to the image file to load
-
-### **Returns**
-
-* `true` if the texture was successfully loaded
-* `false` if loading or texture creation failed
-
-### **Notes**
-
-* If a texture with the same key already exists, it is replaced.
-* Supports any format handled by **SDL_image** (PNG, JPG, BMP, etc.).
-
----
-
-## **`SDL_Texture* GetTexture(const std::string& key)`**
-
-Retrieves the texture associated with a given key.
-
-### **Returns**
-
-* Pointer to `SDL_Texture` if the key exists
-* `nullptr` if not found
-
-### **Usage**
+Scenes have access to engine functionality through helper methods:
 
 ```cpp
-SDL_Texture* tex = textures.GetTexture("player");
-if (tex) {
-    SDL_RenderCopy(renderer, tex, nullptr, &rect);
-}
+Registry& GetRegistry();
+RenderingSubsystem* GetRendering();
+AudioSubsystem* GetAudio();
+InputSubsystem* GetInput();
+NetworkSubsystem* GetNetwork();
+UIManager* GetUI();
+SceneData& GetSceneData();
+void ChangeScene(const std::string& sceneName);
+void QuitGame();
 ```
 
 ---
 
-## **`void GetTextureSize(const std::string& key, int& width, int& height)`**
-
-Queries the width and height of a loaded texture.
-
-### **Parameters**
-
-* `width` — output variable modified by the function
-* `height` — output variable modified by the function
-
-### **Behavior**
-
-If the texture exists, the method calls:
-
-```cpp
-SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
-```
-
-If not, the width and height remain unchanged.
-
----
-
-# **Internal Behavior**
-
-### **Texture Storage**
-
-Textures are stored in:
-
-```cpp
-std::unordered_map<std::string, SDL_Texture*>
-```
-
-This allows:
-
-* fast O(1) lookups
-* simple string-based keys for asset management
-
-### **Memory Management**
-
-All textures are destroyed safely in the destructor:
-
-```cpp
-for (auto& pair : m_textures) {
-    SDL_DestroyTexture(pair.second);
-}
-```
-
----
-
-# **Usage Example**
-
-```cpp
-TextureManager textures(renderer);
-
-// Load
-if (!textures.LoadTexture("player", "assets/player.png")) {
-    // handle error
-}
-
-// Retrieve
-SDL_Texture* playerTex = textures.GetTexture("player");
-
-// Query size
-int w, h;
-textures.GetTextureSize("player", w, h);
-
-// Render
-SDL_Rect dst = { 100, 100, w, h };
-SDL_RenderCopy(renderer, playerTex, nullptr, &dst);
-```
-
----
-
-# **Best Practices**
-
-* Load all textures *once* at game initialization.
-* Use keys naming conventions: `"enemy_walk"`, `"ui_button"`, etc.
-* Avoid loading textures inside your game loop (expensive I/O).
-* Ensure `IMG_Init()` is called before using this class.
-
----
-
-# Animation Manager
-
-## Overview
-
-This module provides a simple animation system built around **frames**, **animation clips**, and an **animation manager**.
-It allows you to define animations by grouping frames with specified durations and whether they should loop.
-
----
-
-## `AnimationFrame`
-
-### Description
-
-Represents a single frame of animation.
-
-### Fields
-
-| Field        | Type       | Description                                          |
-| ------------ | ---------- | ---------------------------------------------------- |
-| `sourceRect` | `SDL_Rect` | Region of the texture atlas representing this frame. |
-| `duration`   | `float`    | Time (in seconds) the frame remains active.          |
-
-### Example
-
-```cpp
-AnimationFrame frame{
-    SDL_Rect{0, 0, 32, 32},
-    0.1f
-};
-```
-
----
-
-## `AnimationClip`
-
-### Description
-
-A complete animation composed of multiple `AnimationFrame` entries.
-
-### Fields
-
-| Field    | Type                          | Description                          |
-| -------- | ----------------------------- | ------------------------------------ |
-| `frames` | `std::vector<AnimationFrame>` | Ordered list of animation frames.    |
-| `loop`   | `bool`                        | True if the animation should repeat. |
-
-### Constructor
-
-```cpp
-AnimationClip(bool shouldLoop = true);
-```
-
----
-
-## `AnimationManager`
-
-### Description
-
-Stores and retrieves multiple named `AnimationClip` instances.
-Acts as the central registry for all animations.
-
-### Private Members
-
-| Name           | Type                                             | Description                |
-| -------------- | ------------------------------------------------ | -------------------------- |
-| `m_animations` | `std::unordered_map<std::string, AnimationClip>` | Stores animations by name. |
-
----
-
-## Public Methods
-
-### `void CreateAnimation(const std::string& name, const std::vector<AnimationFrame>& frames, bool loop = true);`
-
-#### Purpose
-
-Creates and registers a new animation clip.
-
-#### Parameters
-
-| Name     | Description                                        |
-| -------- | -------------------------------------------------- |
-| `name`   | Unique string identifier for the animation.        |
-| `frames` | Ordered list of `AnimationFrame` objects.          |
-| `loop`   | Whether the animation should loop (default: true). |
-
-#### Example
-
-```cpp
-std::vector<AnimationFrame> walkFrames = {
-    { SDL_Rect{0, 0, 32, 32}, 0.1f },
-    { SDL_Rect{32, 0, 32, 32}, 0.1f },
-    { SDL_Rect{64, 0, 32, 32}, 0.1f }
-};
-
-animationManager.CreateAnimation("walk", walkFrames, true);
-```
-
----
-
-### `const AnimationClip* GetAnimation(const std::string& name) const;`
-
-#### Purpose
-
-Fetches a previously created animation clip.
-
-#### Returns
-
-Pointer to the `AnimationClip`, or `nullptr` if the name does not exist.
-
-#### Example
-
-```cpp
-const AnimationClip* walk = animationManager.GetAnimation("walk");
-if (walk) {
-    // Use the animation...
-}
-```
-
----
-
-## Notes & Best Practices
-
-* Keep animation names unique to avoid accidental replacement.
-* Ensure all frames in a clip reference valid areas in your sprite sheet.
-* Use short frame durations for smooth animation; longer durations for pauses or cinematic effects.
-* This system is compatible with any sprite renderer that uses `SDL_Rect` source regions.
-
----
-
-Below is a clean **Markdown documentation section for your Physics Systems**, written in the same style and structure as the Render Systems documentation you already have.
-
----
-
-# Physics Systems
-
-## Overview
-
-This module provides core 2D physics behavior for your ECS:
-
-1. **Movement System** — Applies gravity, acceleration, and velocity to transforms.
-2. **Collision Detection System** — Detects AABB collisions between entities with colliders.
-3. **Collision Resolution System** — Adjusts velocities after collisions.
-4. **Physics System (Combined)** — Runs movement + collision in the correct order.
-5. **Utility Functions** — Collision checks and resolution functions.
-
----
-
-# Movement System
-
-## `physics_movement_system(...)`
-
-### Purpose
-
-Updates entity positions by applying acceleration, gravity, and velocity.
-
-### Parameters
-
-| Name          | Type                      | Description                           |
-| ------------- | ------------------------- | ------------------------------------- |
-| `registry`    | `Registry&`               | ECS registry handle.                  |
-| `transforms`  | `SparseArray<Transform>&` | Transform components to update.       |
-| `rigidbodies` | `SparseArray<RigidBody>&` | Physics data (mass, velocity, etc.).  |
-| `deltaTime`   | `float`                   | Time elapsed since last update.       |
-| `gravity`     | `Vector2`                 | Gravity applied to non-static bodies. |
-
-### Behavior
-
-* Skips static rigidbodies.
-* Adds gravity to acceleration.
-* Updates velocity and position using integration.
-* Clears acceleration after each step.
-
----
-
-# Collision Detection
-
-## `collision_detection_system(...)`
-
-### Purpose
-
-Checks all eligible entities for **AABB collisions** and dispatches them to the resolver.
-
-### Parameters
-
-| Name          | Type                        | Description |
-| ------------- | --------------------------- | ----------- |
-| `registry`    | `Registry&`                 |             |
-| `transforms`  | `SparseArray<Transform>&`   |             |
-| `colliders`   | `SparseArray<BoxCollider>&` |             |
-| `rigidbodies` | `SparseArray<RigidBody>&`   |             |
-
-### Behavior
-
-* Collects all entities that have both transform + collider.
-* Performs pairwise collision tests (naïve O(n²) broadphase).
-* Uses `check_collision` to test bounding boxes.
-* Calls `resolve_collision` for any pair where both entities have rigidbodies.
-
----
-
-# Collision Check
-
-## `check_collision(...)`
-
-### Purpose
-
-Tests AABB vs. AABB intersection.
-
-### Parameters
-
-| Name         | Type          |
-| ------------ | ------------- |
-| `transformA` | `Transform`   |
-| `colliderA`  | `BoxCollider` |
-| `transformB` | `Transform`   |
-| `colliderB`  | `BoxCollider` |
-
-### Behavior
-
-* Converts colliders into world-space bounds.
-* Tests for overlap along X and Y axes.
-* Returns true if both axes overlap.
-
----
-
-# Collision Resolution
-
-## `resolve_collision(...)`
-
-### Purpose
-
-Adjusts velocities after a collision based on mass, restitution (bounciness), and motion.
-
-### Logic
-
-* Computes relative velocity.
-* Applies restitution coefficient (min of both bodies).
-* Handles dynamic–dynamic and static–dynamic cases.
-* Dampens post-collision velocity slightly to avoid infinite bouncing.
-
----
-
-# Combined Physics System
-
-## `physics_system(...)`
-
-### Purpose
-
-Runs both movement and collision systems in the correct order.
-
-### Order of Operations
-
-1. **Movement integration** (gravity, acceleration, velocity).
-2. **Collision detection + resolution**.
-
-### Parameters
-
-| Name        | Type        |
-| ----------- | ----------- |
-| `registry`  | `Registry&` |
-| `deltaTime` | `float`     |
-| `gravity`   | `Vector2`   |
-
-### Example
-
-```cpp
-physics_system(registry, deltaTime, {0, 9.81f});
-```
-
----
-
-## Tilemap
-
-### `Tile`
-
-Represents a single tile within a layer.
-
----
-
-## `TilemapLayer`
-
-A single layer of tiles. Layers can scroll at different speeds to create parallax effects.
-
-### Key Features
-
-* Stores `width × height` tiles.
-* Supports parallax scrolling (`m_parallaxSpeed`).
-* Allows setting tiles and querying tile data.
-
----
-
-## `Tilemap`
-
-Manages multiple layers, a tileset, and tile metadata such as tile size and world dimensions.
+## SceneManager
 
 ### Responsibilities
 
-* Stores and retrieves layers.
-* Converts tile IDs to source rectangles in the tileset.
-* Performs collision checks based on tile solidity.
-* Exposes world-space metrics (pixel dimensions).
+* Loads scene plugins dynamically.
+* Manages scene transitions safely.
+* Provides persistent data storage via `SceneData`.
+* Clears registry between scene transitions.
+
+### Key Methods
+
+```cpp
+bool LoadSceneModule(const std::string& name, const std::string& soPath);
+void UnloadSceneModule(const std::string& name);
+void ChangeScene(const std::string& name);
+void Update(float deltaTime);
+void HandleEvent(SDL_Event& event);
+void ClearAllScenes();
+```
+
+### Scene Transitions
+
+Scene transitions happen in `Update()`:
+
+1. If `m_nextScene` is set, begin transition.
+2. Call `OnExit()` on current scene.
+3. Clear all entities from registry.
+4. Set new current scene and call `OnEnter()`.
+5. Reset `m_nextScene` to nullptr.
+
+---
+
+## SceneData
+
+Provides type-safe persistent data storage between scenes:
+
+```cpp
+template <typename T>
+void Set(const std::string& key, const T& value);
+
+template <typename T>
+T Get(const std::string& key, const T& defaultValue = T()) const;
+
+bool Has(const std::string& key) const;
+void Clear();
+void Remove(const std::string& key);
+```
+
+### Example
+
+```cpp
+// In menu scene
+GetSceneData().Set<int>("selectedLevel", 3);
+
+// In game scene
+int level = GetSceneData().Get<int>("selectedLevel", 1);
+```
+
+---
+
+## Creating a Scene Plugin
+
+```cpp
+#include "scene/Scene.hpp"
+
+class MyGameScene : public Scene {
+public:
+    MyGameScene() { m_name = "game"; }
+    
+    void OnEnter() override {
+        // Initialize entities, systems, etc.
+    }
+    
+    void OnExit() override {
+        // Cleanup if needed
+    }
+    
+    void Update(float deltaTime) override {
+        // Update game logic
+    }
+    
+    void Render() override {
+        // Rendering is typically handled by RenderingSubsystem
+    }
+    
+    std::unordered_map<uint16_t, Entity> GetPlayers() override {
+        // Return player entities for networking
+    }
+};
+
+extern "C" {
+    Scene* CreateScene() {
+        return new MyGameScene();
+    }
+}
+```
+
+---
+
+# Subsystems
+
+## ISubsystem Interface
+
+All subsystems implement this interface:
+
+```cpp
+class ISubsystem {
+public:
+    virtual bool Initialize() = 0;
+    virtual void Shutdown() = 0;
+    virtual void Update(float deltaTime) = 0;
+    virtual void SetRegistry(Registry* registry) = 0;
+    virtual void ProcessEvent(SDL_Event event) = 0;
+    
+    virtual const char* GetName() const = 0;
+    virtual SubsystemType GetType() const = 0;
+    virtual const char* GetVersion() const = 0;
+};
+```
+
+### SubsystemType Enum
+
+```cpp
+enum class SubsystemType {
+    RENDERING,
+    PHYSICS,
+    AUDIO,
+    INPUT,
+    RESOURCE,
+    MESSAGING,
+    NETWORK
+};
+```
+
+---
+
+## Rendering Subsystem
+
+### Overview
+
+Manages SDL rendering, textures, animations, tilemaps, and UI elements.
+
+### Key Components
+
+* **TextureManager** – Loads and caches SDL textures.
+* **AnimationManager** – Manages animation clips.
+* **Tilemap** – Multi-layer tilemap rendering with parallax.
+* **UIManager** – UI element management and rendering.
+
+### Registered Components
+
+```cpp
+Transform      // Position, scale, rotation
+Sprite         // Texture key, source rect, pivot, layer
+Animation      // Current animation state
+Camera         // Camera position and active state
+```
+
+### Systems
+
+```cpp
+animation_system()              // Updates animation frames
+sprite_render_system()          // Renders sprites
+layered_sprite_render_system()  // Renders sprites sorted by layer
+tilemap_render_system()         // Renders tilemap layers
+```
+
+### UI System
+
+The rendering subsystem includes a complete UI system:
+
+#### UIElement (Base Class)
+
+```cpp
+class UIElement {
+protected:
+    SDL_Rect m_rect;
+    bool m_visible;
+    
+public:
+    virtual void Render(SDL_Renderer* renderer) = 0;
+    virtual void HandleEvent(const SDL_Event& event) = 0;
+};
+```
+
+#### Available UI Elements
+
+* **UIText** – Rendered text with TTF fonts
+* **UIButton** – Interactive button with hover/click states
+* **UIImage** – Static or tiled images
+* **UITextInput** – Text input field with cursor
+* **UISolidColor** – Colored rectangles
+
+#### UIManager
+
+```cpp
+class UIManager {
+public:
+    void AddElement(const std::string& id, std::unique_ptr<UIElement> element);
+    void RemoveElement(const std::string& id);
+    UIElement* GetElement(const std::string& id);
+    void RenderAll(SDL_Renderer* renderer);
+    void HandleEvent(const SDL_Event& event);
+};
+```
+
+---
+
+## Physics Subsystem
+
+### Overview
+
+Provides 2D physics simulation with gravity, velocity, and AABB collision detection/resolution.
+
+### Registered Components
+
+```cpp
+RigidBody     // Mass, velocity, acceleration, restitution, isStatic
+BoxCollider   // Width, height, offset, isSolid
+```
+
+### Systems
+
+```cpp
+physics_movement_system()       // Applies gravity and integrates motion
+collision_detection_system()    // Detects AABB collisions
+collision_resolution_system()   // Resolves collisions with impulses
+physics_system()                // Combined system running both
+```
+
+### Physics2D Header
+
+Contains physics component definitions and utility functions:
+
+```cpp
+bool check_collision(Transform& ta, BoxCollider& ca,
+                    Transform& tb, BoxCollider& cb);
+                    
+void resolve_collision(RigidBody& a, RigidBody& b,
+                      Transform& ta, Transform& tb,
+                      BoxCollider& ca, BoxCollider& cb);
+```
+
+---
+
+## Input Subsystem
+
+### Overview
+
+Handles keyboard and mouse input with configurable key bindings.
+
+### Registered Components
+
+```cpp
+InputState  // Stores input state per entity
+```
+
+### KeyBindings System
+
+Provides configurable action mapping:
+
+```cpp
+class KeyBindings {
+public:
+    void BindKey(const std::string& action, SDL_Keycode key);
+    void UnbindKey(const std::string& action);
+    bool IsActionPressed(const std::string& action) const;
+    bool IsActionJustPressed(const std::string& action) const;
+    bool IsActionJustReleased(const std::string& action) const;
+    void Update(const Uint8* keyboardState);
+};
+```
+
+### Usage Example
+
+```cpp
+auto* input = engine.GetSubsystem(SubsystemType::INPUT);
+auto* inputSys = dynamic_cast<InputSubsystem*>(input);
+
+inputSys->GetKeyBindings().BindKey("jump", SDLK_SPACE);
+inputSys->GetKeyBindings().BindKey("shoot", SDLK_LCTRL);
+
+if (inputSys->GetKeyBindings().IsActionJustPressed("jump")) {
+    // Handle jump
+}
+```
+
+---
+
+## Audio Subsystem
+
+### Overview
+
+Manages audio playback using SDL_mixer with support for music and sound effects.
+
+### Key Features
+
+* Music playback (streaming)
+* Sound effect playback (loaded into memory)
+* Volume control
+* Audio resource management
+
+### API Example
+
+```cpp
+auto* audio = dynamic_cast<AudioSubsystem*>(
+    engine.GetSubsystem(SubsystemType::AUDIO));
+
+audio->LoadMusic("bgm", "assets/music.mp3");
+audio->LoadSound("jump", "assets/jump.wav");
+
+audio->PlayMusic("bgm", -1);  // Loop indefinitely
+audio->PlaySound("jump", 0);   // Play once
+```
+
+---
+
+## Network Subsystem
+
+### Overview
+
+Provides UDP-based networking with circular buffer for packet handling.
+
+### CircularBuffer
+
+A thread-safe ring buffer for network packets:
+
+```cpp
+template<typename T, size_t Size>
+class CircularBuffer {
+public:
+    bool push(const T& item);
+    bool pop(T& item);
+    bool isEmpty() const;
+    bool isFull() const;
+    size_t size() const;
+};
+```
+
+### Network Features
+
+* UDP socket communication
+* Packet serialization/deserialization
+* Client-server architecture support
+* Non-blocking I/O
+
+---
+
+## Resource Subsystem
+
+### Overview
+
+Manages loading and caching of game resources with support for various asset types.
+
+### Responsibilities
+
+* Asset loading from disk
+* Resource caching and lifetime management
+* Format-specific loaders
+* Resource reference counting
+
+---
+
+## Messaging Subsystem
+
+### Overview
+
+Provides inter-system communication via an event/message system.
+
+### Key Features
+
+* Type-safe message passing
+* Subscribe/publish pattern
+* Decoupled system communication
+* Message queuing
+
+### Usage Pattern
+
+```cpp
+// Subscribe to messages
+messaging->Subscribe<PlayerDeathEvent>(
+    [](const PlayerDeathEvent& evt) {
+        // Handle player death
+    });
+
+// Publish messages
+messaging->Publish(PlayerDeathEvent{playerId});
+```
+
+---
+
+## Best Practices
+
+### Engine Usage
+
+* Load all required subsystems during initialization.
+* Load subsystems in dependency order (e.g., INPUT before others).
+* Use `SceneData` for persistent data between scenes.
+* Clear registry between scene transitions for clean state.
+
+### Scene Development
+
+* Initialize all entities in `OnEnter()`.
+* Clean up in `OnExit()` only if necessary (registry auto-clears).
+* Use `GetSceneData()` for cross-scene communication.
+* Keep scene logic modular and self-contained.
+
+### Component Design
+
+* Keep components as pure data structures.
+* Avoid logic in components.
+* Use small, focused components.
+* Leverage component composition.
+
+### System Design
+
+* Systems should be stateless.
+* Process only entities with required components.
+* Use `IndexedZipper` when you need entity IDs.
+* Keep systems focused on single responsibilities.
 
 ---

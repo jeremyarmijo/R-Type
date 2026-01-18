@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -10,13 +11,14 @@
 /**
  * @class ClientManager
  * @brief Manages all connected clients and their state
- * 
+ *
  * Thread-safe manager for tracking clients, associating endpoints,
  * and checking for timeouts.
  */
 class ClientManager {
  public:
-  using ClientPtr = std::shared_ptr<HandleClient>; ///< Shared pointer to client
+  using ClientPtr =
+      std::shared_ptr<HandleClient>;  ///< Shared pointer to client
 
   /**
    * @brief Add a new client from TCP connection
@@ -42,14 +44,14 @@ class ClientManager {
    * @param client_id Client identifier to remove
    */
   void RemoveClient(uint16_t client_id);
-  
+
   /**
    * @brief Get client by ID
    * @param client_id Client identifier
    * @return Shared pointer to client, or nullptr if not found
    */
   ClientPtr GetClient(uint16_t client_id);
-  
+
   /**
    * @brief Get client by UDP endpoint
    * @param ep UDP endpoint to search for
@@ -62,7 +64,7 @@ class ClientManager {
    * @return Vector of client pointers
    */
   std::vector<ClientPtr> GetAllClients();
-  
+
   /**
    * @brief Get number of connected clients
    * @return Client count
@@ -77,7 +79,8 @@ class ClientManager {
   std::vector<uint32_t> CheckTimeouts(std::chrono::seconds timeout);
 
  private:
-  std::unordered_map<uint16_t, ClientPtr> clients_; ///< Map of client ID to client object
-  std::mutex mutex_;                                 ///< Mutex for thread-safe access
-  uint16_t next_id_ = 1;                             ///< Next available client ID
+  std::unordered_map<uint16_t, ClientPtr>
+      clients_;           ///< Map of client ID to client object
+  std::mutex mutex_;      ///< Mutex for thread-safe access
+  uint16_t next_id_ = 1;  ///< Next available client ID
 };

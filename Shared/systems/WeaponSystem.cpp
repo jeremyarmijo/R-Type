@@ -63,7 +63,7 @@ void weapon_firing_system(Registry& registry, SparseArray<Weapon>& weapons,
           transform.position + Vector2{3.0f, 0.0f};  // Example offset
       Vector2 projectileDir = {1.0f, 0.0f};          // Example direction
       spawn_player_projectile(registry, projectilePos, projectileDir,
-                       weapon.projectileType.speed, idx);
+                              weapon.projectileType.speed, idx);
 
       weapon.timeSinceLastShot = 0.0f;
       consume_ammo(weapon);

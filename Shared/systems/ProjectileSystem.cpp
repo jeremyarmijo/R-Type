@@ -1,13 +1,17 @@
 #include "systems/ProjectileSystem.hpp"
 
 #include <SDL2/SDL.h>
-#include <vector>
+
+#include <algorithm>
+#include <iostream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Player/Enemy.hpp"
+#include "components/BossPart.hpp"
 #include "ecs/Zipper.hpp"
-#include "graphics/RenderComponents.hpp"
+#include "rendering/RenderingSubsystem.hpp"
 #include "systems/Collision/Collision.hpp"
 #include "systems/PhysicsSystem.hpp"
 
@@ -47,11 +51,12 @@ void projectile_lifetime_system(Registry& registry,
   }
 }
 
-void apply_projectile_damage(Registry& registry, size_t targetId,
-                             float damage) {
+void apply_projectile_damage(Registry& registry, size_t targetId, float damage,
+                             size_t attackerId) {
   auto& players = registry.get_components<PlayerEntity>();
   auto& enemies = registry.get_components<Enemy>();
   auto& bosses = registry.get_components<Boss>();
+  auto& bossParts = registry.get_components<BossPart>();
 
   if (targetId < players.size() && players[targetId].has_value()) {
     auto& player = players[targetId].value();
@@ -66,10 +71,18 @@ void apply_projectile_damage(Registry& registry, size_t targetId,
     }
     return;
   }
+
   if (targetId < enemies.size() && enemies[targetId].has_value()) {
     auto& enemy = enemies[targetId].value();
     enemy.current -= static_cast<int>(damage);
     if (enemy.current <= 0) {
+      if (attackerId < players.size() && players[attackerId].has_value()) {
+        players[attackerId]->score += enemy.scoreValue;
+        std::cout << "[SCORE] Player " << players[attackerId]->player_id
+                  << " gained " << enemy.scoreValue
+                  << " points! Total: " << players[attackerId]->score
+                  << std::endl;
+      }
       registry.kill_entity(Entity(targetId));
     }
     return;
@@ -78,7 +91,31 @@ void apply_projectile_damage(Registry& registry, size_t targetId,
     auto& boss = bosses[targetId].value();
     boss.current -= static_cast<int>(damage);
     if (boss.current <= 0) {
+      if (attackerId < players.size() && players[attackerId].has_value()) {
+        players[attackerId]->score += boss.scoreValue;
+        std::cout << "[SCORE] Player " << players[attackerId]->player_id
+                  << " killed BOSS! +" << boss.scoreValue
+                  << " points! Total: " << players[attackerId]->score
+                  << std::endl;
+      }
       registry.kill_entity(Entity(targetId));
+    }
+    return;
+  }
+  if (targetId < bossParts.size() && bossParts[targetId].has_value()) {
+    auto& part = bossParts[targetId].value();
+
+    if (!part.alive) return;
+
+    part.hp -= static_cast<int>(damage);
+
+    std::cout << "BossPart " << targetId << " hit! HP: " << part.hp
+              << std::endl;
+
+    if (part.hp <= 0) {
+      part.alive = false;
+      registry.kill_entity(Entity(targetId));
+      std::cout << "BossPart " << targetId << " destroyed!" << std::endl;
     }
     return;
   }
@@ -91,6 +128,7 @@ void projectile_collision_system(Registry& registry,
   auto& enemies = registry.get_components<Enemy>();
   auto& players = registry.get_components<PlayerEntity>();
   auto& bosses = registry.get_components<Boss>();
+  auto& bossParts = registry.get_components<BossPart>();
   std::vector<size_t> toKill;
 
   auto get_owner_type = [&](size_t ownerId) -> std::string {
@@ -108,34 +146,33 @@ void projectile_collision_system(Registry& registry,
 
   for (auto&& [projIdx, projectile, projTransform, projCollider] :
        IndexedZipper(projectiles, transforms, colliders)) {
-    
     if (!projectile.isActive) continue;
 
     std::string ownerType = get_owner_type(projectile.ownerId);
     if (ownerType == "Unknown") {
-      std::cout << "Warning: Projectile " << projIdx 
-                << " has unknown owner " << projectile.ownerId << std::endl;
       continue;
     }
 
     for (auto&& [targetIdx, targetTransform, targetCollider] :
          IndexedZipper(transforms, colliders)) {
-      
       if (projIdx == targetIdx) continue;
-      
+
       if (targetIdx == projectile.ownerId) continue;
 
-      bool isTargetPlayer = (targetIdx < players.size() && 
-                            players[targetIdx].has_value());
-      bool isTargetEnemy = (targetIdx < enemies.size() && 
-                           enemies[targetIdx].has_value());
-      bool isTargetBoss = (targetIdx < bosses.size() && 
-                          bosses[targetIdx].has_value());
+      bool isTargetPlayer =
+          (targetIdx < players.size() && players[targetIdx].has_value());
+      bool isTargetEnemy =
+          (targetIdx < enemies.size() && enemies[targetIdx].has_value());
+      bool isTargetBoss =
+          (targetIdx < bosses.size() && bosses[targetIdx].has_value());
+      bool isTargetBossPart =
+          (targetIdx < bossParts.size() && bossParts[targetIdx].has_value() &&
+           bossParts[targetIdx]->alive);
 
       bool validCollision = false;
 
       if (ownerType == "Player") {
-        if (isTargetEnemy || isTargetBoss) {
+        if (isTargetEnemy || isTargetBoss || isTargetBossPart) {
           validCollision = true;
         }
       } else if (ownerType == "Enemy" || ownerType == "Boss") {
@@ -146,9 +183,10 @@ void projectile_collision_system(Registry& registry,
 
       if (!validCollision) continue;
 
-      if (check_collision(projTransform, projCollider, 
-                         targetTransform, targetCollider)) {
-        apply_projectile_damage(registry, targetIdx, projectile.damage);
+      if (check_collision(projTransform, projCollider, targetTransform,
+                          targetCollider)) {
+        apply_projectile_damage(registry, targetIdx, projectile.damage,
+                                projectile.ownerId);
         projectile.isActive = false;
         registry.kill_entity(Entity(projIdx));
         break;
@@ -189,8 +227,8 @@ Entity spawn_projectile(Registry& registry, Vector2 position, Vector2 direction,
   return projectile;
 }
 
-Entity spawn_player_projectile(Registry& registry, Vector2 position, Vector2 direction,
-                        float speed, size_t ownerId) {
+Entity spawn_player_projectile(Registry& registry, Vector2 position,
+                               Vector2 direction, float speed, size_t ownerId) {
   Entity projectile = registry.spawn_entity();
 
   Transform transform(position, {2.f, 2.f});
