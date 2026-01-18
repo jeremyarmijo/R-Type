@@ -610,6 +610,11 @@ void ServerGame::StartGame(lobby_list& lobby) {
   data.Set("difficulty", lobby.difficulty);
 
   lobby.m_engine.ChangeScene("rtype");
+  Scene* currentScene = lobby.m_engine.GetCurrentScene();
+  if (currentScene) {
+    currentScene->OnExit();
+    currentScene->OnEnter();
+  }
 
   std::cout << "Lobby full! Starting the game!!!!\n";
   lobby.gameThread = std::thread(&ServerGame::GameLoop, this, std::ref(lobby));
@@ -647,6 +652,7 @@ void ServerGame::EndGame(lobby_list& lobby) {
 }
 
 void ServerGame::CheckGameEnded(lobby_list& lobby) {
+  lobby.m_engine.ChangeScene("rtype");
   auto m_players = lobby.m_engine.GetCurrentScene()->GetPlayers();
   std::cout << "got players" << std::endl;
   SceneData& data = lobby.m_engine.GetSceneData();
@@ -750,12 +756,21 @@ void ServerGame::SendPacket() {
 }
 
 void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
-  // lobby.registry = Registry{};
-  // lobby.m_players.clear();
-  // lobby.currentLevelIndex = 0;
-  // lobby.waitingForNextLevel = false;
-  // lobby.levelTransitionTimer = 0.0f;
-
+ Scene* currentScene = lobby.m_engine.GetCurrentScene();
+  if (currentScene) {
+    currentScene->OnExit();
+  }
+  
+  lobby.m_engine.GetRegistry().clear_all_entities();
+  
+  SceneData& data = lobby.m_engine.GetSceneData();
+  data.Remove("game_ended");
+  data.Remove("victory");
+  data.Remove("game_state");
+  data.Remove("force_state");
+  data.Remove("last_input_event");
+  data.Remove("last_input_player");
+  
   for (auto& player : lobby.players_list) {
     std::get<1>(player) = false;
   }
@@ -767,6 +782,9 @@ void ServerGame::ClearLobbyForRematch(lobby_list& lobby) {
   }
   lobby.spectate.clear();
   lobby.players_ready = false;
+  lobby.mapSent = false;
+  lobby.lastStates.clear();
+  lobby.playerStateCount.clear();
 
   SendLobbyUpdate(lobby);
 }

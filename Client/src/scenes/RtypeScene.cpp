@@ -22,9 +22,24 @@ RtypeScene::RtypeScene() { m_name = "rtype server scene"; }
 
 void RtypeScene::OnEnter() {
   SceneData& data = GetSceneData();
+
   auto players_list =
       data.Get<std::vector<std::tuple<uint16_t, bool, std::string>>>(
           "players_list");
+  for (auto& [id, ready, name] : players_list) {
+    std::cout << "  - Player " << id << " (" << name << "), ready=" << ready << std::endl;
+  }
+
+  m_players.clear();
+  currentLevelIndex = 0;
+  waitingForNextLevel = false;
+  levelTransitionTimer = 0.0f;
+  levelsData.clear();
+  playerScores.clear();
+  lastStates.clear();
+  playerStateCount.clear();
+  mapSent = false;
+
   // Physics components
   GetRegistry().register_component<Transform>();
   GetRegistry().register_component<RigidBody>();
@@ -85,7 +100,33 @@ void RtypeScene::OnEnter() {
   //       std::thread(&ServerGame::GameLoop, this, std::ref(lobby_list));
 }
 
-void RtypeScene::OnExit() { m_players.clear(); }
+void RtypeScene::OnExit() {
+  std::cout << "[RtypeScene] OnExit - Cleaning up scene..." << std::endl;
+  
+  m_players.clear();
+  
+  currentLevelIndex = 0;
+  waitingForNextLevel = false;
+  levelTransitionTimer = 0.0f;
+  levelsData.clear();
+  
+  playerScores.clear();
+  lastStates.clear();
+  playerStateCount.clear();
+  
+  mapSent = false;
+  
+  SceneData& data = GetSceneData();
+  data.Remove("game_ended");
+  data.Remove("victory");
+  data.Remove("game_state");
+  data.Remove("force_state");
+  data.Remove("send_map");
+  data.Remove("last_input_event");
+  data.Remove("last_input_player");
+  
+  std::cout << "[RtypeScene] OnExit complete" << std::endl;
+}
 
 void RtypeScene::Update(float deltaTime) {
   ReceivePlayerInputs();
