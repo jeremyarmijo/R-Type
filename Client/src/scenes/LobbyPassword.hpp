@@ -1,6 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 
 #include <iostream>
 #include <string>
@@ -151,6 +151,12 @@ class LobbyPassword : public Scene {
   }
 };
 
+#ifdef _WIN32
+extern "C" {
+  __declspec(dllexport) Scene* CreateScene();
+}
+#else
 extern "C" {
     Scene* CreateScene();
 }
+#endif
