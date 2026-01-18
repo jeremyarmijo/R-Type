@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -6,13 +6,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 project(RTYPE_Client VERSION 1.0 LANGUAGES CXX)
 
-
 include(cmake/CPM.cmake)
-
-find_package(SDL2 QUIET)
-find_package(SDL2_image QUIET)
-find_package(SDL2_ttf QUIET)
-find_package(SDL2_mixer QUIET)
 
 if(NOT SDL2_FOUND)
   CPMAddPackage(
@@ -80,7 +74,6 @@ if(asio_ADDED)
   target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
 endif()
 
-
 add_executable(RTYPE_Client src/Main.cpp)
 
 target_include_directories(RTYPE_Client PRIVATE
@@ -111,7 +104,7 @@ if(NOT ENGINE_LIB)
 endif()
 
 
-target_link_libraries(RTYPE_Client PRIVATE ${ENGINE_LIB} ${RENDER_LIB} ${AUDIO_LIB} ${INPUT_LIB} ${PHYSICS_LIB} ${NETWORK_LIB} SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf SDL2_mixer::SDL2_mixer asio)
+target_link_libraries(RTYPE_Client PRIVATE ${ENGINE_LIB} ${RENDER_LIB} ${AUDIO_LIB} ${INPUT_LIB} ${PHYSICS_LIB} ${NETWORK_LIB} SDL2::SDL2 SDL2_image SDL2_ttf SDL2_mixer asio)
 
 set_target_properties(RTYPE_Client PROPERTIES
     BUILD_WITH_INSTALL_RPATH TRUE
