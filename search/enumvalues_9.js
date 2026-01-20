@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['key_0',['Key',['../Items_8hpp.html#a443f647757dde85043b49343f5cbe66ba897356954c2cd3d41b221e3f24f99bba',1,'Items.hpp']]]
+  ['jumping_0',['JUMPING',['../structFighterState.html#a4948484e11799e192b5df6ac0f44d8c4a55de309bb1cba43bd395348b1a6c2555',1,'FighterState']]]
 ];

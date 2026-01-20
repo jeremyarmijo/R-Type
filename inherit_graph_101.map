@@ -1,3 +1,35 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$structTileMap.html" title=" " alt="" coords="5,5,80,31"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,376,67,401"/>
+<area shape="rect" id="Node000001" href="$classCreateLobby.html" title=" " alt="" coords="136,5,240,31"/>
+<area shape="poly" id="edge3_Node000000_Node000001" title=" " alt="" coords="37,362,46,288,61,192,83,101,97,65,113,40,134,25,137,30,117,44,102,68,88,103,67,193,51,289,43,363"/>
+<area shape="rect" id="Node000002" href="$classGameOverScene.html" title=" " alt="" coords="123,55,253,80"/>
+<area shape="poly" id="edge4_Node000000_Node000002" title=" " alt="" coords="34,362,35,307,45,234,55,195,69,157,88,121,113,89,128,78,131,82,117,93,93,124,74,159,60,197,51,235,41,307,39,362"/>
+<area shape="rect" id="Node000003" href="$classJoinGame.html" title=" " alt="" coords="145,104,231,129"/>
+<area shape="poly" id="edge5_Node000000_Node000003" title=" " alt="" coords="35,362,40,315,52,255,75,193,92,164,113,139,128,128,144,121,146,126,130,132,117,143,96,168,80,196,57,257,45,316,41,363"/>
+<area shape="rect" id="Node000004" href="$classLevel.html" title=" " alt="" coords="159,153,217,179"/>
+<area shape="poly" id="edge6_Node000000_Node000004" title=" " alt="" coords="38,362,45,324,59,277,81,230,113,188,135,174,158,167,160,172,137,179,116,192,85,232,64,279,50,325,43,363"/>
+<area shape="rect" id="Node000005" href="$classLobbyInfoPlayer.html" title=" " alt="" coords="125,203,251,228"/>
+<area shape="poly" id="edge7_Node000000_Node000005" title=" " alt="" coords="42,362,66,300,87,266,113,237,131,226,134,230,116,241,91,269,71,302,47,364"/>
+<area shape="rect" id="Node000006" href="$classLobbyJoin.html" title=" " alt="" coords="145,252,231,277"/>
+<area shape="poly" id="edge8_Node000000_Node000006" title=" " alt="" coords="48,363,75,324,93,304,113,286,144,272,146,276,116,291,97,308,79,327,53,366"/>
+<area shape="rect" id="Node000007" href="$classLobbyMenu.html" title=" " alt="" coords="139,301,237,327"/>
+<area shape="poly" id="edge9_Node000000_Node000007" title=" " alt="" coords="64,365,113,336,142,324,144,329,116,340,67,370"/>
+<area shape="rect" id="Node000008" href="$classLobbyPassword.html" title=" " alt="" coords="127,351,249,376"/>
+<area shape="poly" id="edge10_Node000000_Node000008" title=" " alt="" coords="80,379,126,371,127,376,81,384"/>
+<area shape="rect" id="Node000009" href="$classMainMenu.html" title=" " alt="" coords="143,400,233,425"/>
+<area shape="poly" id="edge11_Node000000_Node000009" title=" " alt="" coords="81,393,143,403,142,408,80,398"/>
+<area shape="rect" id="Node000010" href="$classMyGameScene.html" title=" " alt="" coords="128,449,248,475"/>
+<area shape="poly" id="edge12_Node000000_Node000010" title=" " alt="" coords="68,407,116,434,147,447,145,452,113,439,66,412"/>
+<area shape="rect" id="Node000011" href="$classOptionsScene.html" title=" " alt="" coords="133,499,243,524"/>
+<area shape="poly" id="edge13_Node000000_Node000011" title=" " alt="" coords="54,412,80,449,116,484,140,496,137,501,113,488,76,453,49,415"/>
+<area shape="rect" id="Node000012" href="$classRtypeScene.html" title=" " alt="" coords="139,548,237,573"/>
+<area shape="poly" id="edge14_Node000000_Node000012" title=" " alt="" coords="47,413,72,474,91,506,116,533,140,547,137,552,113,537,87,509,67,476,42,415"/>
+<area shape="rect" id="Node000013" href="$classSecondGame.html" title=" " alt="" coords="134,597,242,623"/>
+<area shape="poly" id="edge15_Node000000_Node000013" title=" " alt="" coords="43,415,51,452,64,497,86,543,116,583,135,595,132,600,113,587,81,546,59,499,46,453,38,416"/>
+<area shape="rect" id="Node000014" href="$classSecondGameClient.html" title=" " alt="" coords="115,647,261,672"/>
+<area shape="poly" id="edge16_Node000000_Node000014" title=" " alt="" coords="41,415,46,461,58,519,80,580,97,607,116,632,134,644,131,649,113,636,92,610,76,582,53,521,40,462,36,416"/>
+<area shape="rect" id="Node000015" href="$classVictoryScene.html" title=" " alt="" coords="135,696,241,721"/>
+<area shape="poly" id="edge17_Node000000_Node000015" title=" " alt="" coords="39,415,41,470,52,541,61,579,75,616,93,651,117,681,136,695,133,699,113,685,89,653,70,618,56,581,46,542,36,471,34,416"/>
+<area shape="rect" id="Node000016" href="$classWaitLobby.html" title=" " alt="" coords="143,745,233,771"/>
+<area shape="poly" id="edge18_Node000000_Node000016" title=" " alt="" coords="43,414,52,488,67,582,89,672,102,707,117,731,129,741,144,748,141,753,126,745,113,734,97,709,84,674,62,583,46,488,37,415"/>
 </map>

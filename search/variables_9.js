@@ -1,19 +1,4 @@
 var searchData=
 [
-  ['last_5fsent_0',['last_sent',['../structHandleClient_1_1SentPacket.html#a0e23cc43a3422f04e141ba84e44a72c1',1,'HandleClient::SentPacket']]],
-  ['laststates_1',['lastStates',['../structlobby__list.html#a756f3a6d94b3573cd0828f2d031f1b84',1,'lobby_list']]],
-  ['left_2',['left',['../structPlayerInput.html#aba2e0c3bac244196f51678f3d6cc1aba',1,'PlayerInput::left'],['../structPLAYER__INPUT.html#ae74786be39cb587db5a885186c5626ad',1,'PLAYER_INPUT::left']]],
-  ['length_3',['length',['../structPacketHeader.html#a999ccb0337fa4840bcb3a6b226ae9d21',1,'PacketHeader']]],
-  ['levelindex_4',['levelIndex',['../structLevelComponent.html#ae2106415e4946624e698d403bddebdd2',1,'LevelComponent']]],
-  ['levelnumber_5',['levelnumber',['../structLevelTransition.html#a28047943e2e208d384050722ea33c0e1',1,'LevelTransition::levelNumber'],['../structLEVEL__TRANSITION.html#ab16e2b0723c31149e3687419891bfdb2',1,'LEVEL_TRANSITION::levelNumber']]],
-  ['levelsdata_6',['levelsData',['../structlobby__list.html#a077c3cd0592eaf2ae33514e17d5956ab',1,'lobby_list']]],
-  ['leveltransitiontimer_7',['levelTransitionTimer',['../structlobby__list.html#a47f84dd54b5aa405132e0e71f7a08bbe',1,'lobby_list']]],
-  ['lifetime_8',['lifetime',['../structProjectile.html#a79341b82f806c60cd752310be081b074',1,'Projectile']]],
-  ['lobbies_9',['lobbies',['../structLobbyListResponse.html#ace75d31ab9aa6ca58698be4902e36a1b',1,'LobbyListResponse::lobbies'],['../structLOBBY__LIST__RESPONSE.html#ab353353c217134f6ab17d6ba4b554505',1,'LOBBY_LIST_RESPONSE::lobbies']]],
-  ['lobby_5fid_10',['lobby_id',['../structlobby__list.html#aa1a2461b85dc786655f1ec98be9fca64',1,'lobby_list']]],
-  ['lobbyeventqueue_11',['lobbyEventQueue',['../structlobby__list.html#ae895612e1941adc362783116335d8849',1,'lobby_list']]],
-  ['lobbyid_12',['lobbyid',['../structLobbyJoinRequest.html#a1d6055ac3c86bf5bc5053bdf8a5caea7',1,'LobbyJoinRequest::lobbyId'],['../structLobbyJoinResponse.html#a6d604c5a472fef397c015967ae5a25b3',1,'LobbyJoinResponse::lobbyId'],['../structLobbyInfo.html#a8011bd1d8a863f95e5b3d300e52a3430',1,'LobbyInfo::lobbyId'],['../structMessage.html#a36273fee7b7147c6e25af719641d1381',1,'Message::lobbyId'],['../structMESSAGE.html#ac293aa45210d881f6427f28f4a52f863',1,'MESSAGE::lobbyId'],['../structLOBBY__JOIN__REQUEST.html#a183d0b86e417eba88fb662fccda1a738',1,'LOBBY_JOIN_REQUEST::lobbyId'],['../structLOBBY__JOIN__RESPONSE.html#a92c9d076249d93080864a2c462667139',1,'LOBBY_JOIN_RESPONSE::lobbyId'],['../structLobbies.html#a62f87f82db2be530d6f49e56f5b10a9b',1,'Lobbies::lobbyId']]],
-  ['lobbyname_13',['lobbyname',['../structLobbyCreate.html#a6e9456294735d3bc19de6ee4fb04168b',1,'LobbyCreate::lobbyName'],['../structLOBBY__CREATE.html#a91a8f7bd4141d45709ad97b0fe7ad611',1,'LOBBY_CREATE::lobbyName']]],
-  ['lobbyplayer_14',['lobbyPlayer',['../structLobbyCreate.html#a86ea9171dc2c43ac4431c201430891d0',1,'LobbyCreate']]],
-  ['lobbyqueuemutex_15',['lobbyQueueMutex',['../structlobby__list.html#a6882c2043f574b0d32d7a75316523edb',1,'lobby_list']]]
+  ['jumpforce_0',['jumpForce',['../structFighterStats.html#a3a50798c2c75bcdc82e32cf78622de38',1,'FighterStats']]]
 ];

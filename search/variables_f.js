@@ -1,24 +1,9 @@
 var searchData=
 [
-  ['score_0',['score',['../structGameEndScore.html#a45f05f712ed29717eddacbdfd62449ab',1,'GameEndScore::score'],['../structPlayerEntity.html#a62b90a3a8d130460f013d9738781dbbb',1,'PlayerEntity::score'],['../structGAME__STATE_1_1PlayerState.html#aed50830c4ebf5ff2558591ee7e561dff',1,'GAME_STATE::PlayerState::score'],['../structPlayerState.html#a6308bbd2ca724a8e08decaeaa3d340d8',1,'PlayerState::score'],['../structGAME__END_1_1Score.html#a2254ef8b3d66984b24af11e9600bf85a',1,'GAME_END::Score::score']]],
-  ['scores_1',['scores',['../structGameEnd.html#a25a508434a171f938b876f89717ac5ed',1,'GameEnd::scores'],['../structGAME__END.html#a811d46faaaca75a314acff3a3e0d5761',1,'GAME_END::scores']]],
-  ['scorevalue_2',['scorevalue',['../structBoss.html#ab33942b080f1ab45a631b5370ac278c6',1,'Boss::scoreValue'],['../structEnemy.html#abc49d5a2cef917c8ece8a16547f8efee',1,'Enemy::scoreValue']]],
-  ['scrolloffset_3',['scrollOffset',['../structTileMap.html#ab4a55b22f49c2fc9d1c7f27529502afd',1,'TileMap']]],
-  ['scrollspeed_4',['scrollspeed',['../structGAME__START.html#a45a9597b47902f65f58f699cfb682c3f',1,'GAME_START::scrollSpeed'],['../structMAP__DATA.html#a1d6fbf66179d19bba4456e7a4f21f5f0',1,'MAP_DATA::scrollSpeed'],['../structMapData.html#a80af1f56009a5d50697ae746348107a6',1,'MapData::scrollSpeed'],['../structGameStart.html#a14d4acba9ce9978ca4989f5c491d2952',1,'GameStart::scrollSpeed'],['../structTileMap.html#a61e6cac0785dcddb256e9141afa52b3d',1,'TileMap::scrollSpeed']]],
-  ['segmentcount_5',['segmentCount',['../structBoss.html#a4d1db36ecccc6635c0f66d4c1f11dc85',1,'Boss']]],
-  ['segmentindex_6',['segmentIndex',['../structBossPart.html#ade6deda30dc31beec943d848ae18f623',1,'BossPart']]],
-  ['seq_7',['seq',['../structHandleClient_1_1SentPacket.html#a0ec7938c09d46bce87763f6c8c3a6d00',1,'HandleClient::SentPacket']]],
-  ['seqnum_8',['seqnum',['../structPacketHeader.html#a69452d9a56f39b6c2e30716b6577bb91',1,'PacketHeader::seqNum'],['../structEvent.html#acddb7a2ab847facb833e80678c84cc33',1,'Event::seqNum']]],
-  ['shield_9',['shield',['../structPlayerState.html#a01cec18e266227b05d4ec287f710f061',1,'PlayerState::shield'],['../structGAME__STATE_1_1PlayerState.html#a54492bfae0246dc7b175263dc017801c',1,'GAME_STATE::PlayerState::shield']]],
-  ['shoot_10',['shoot',['../structPlayerEntity.html#a287035a2fc21084120d75ad47a9f911a',1,'PlayerEntity']]],
-  ['shootcooldown_11',['shootCooldown',['../structForce.html#a9b3b0ea68b2d1044d7cd77a30e3cb4f2',1,'Force']]],
-  ['spawnamount_12',['spawnAmount',['../structEnemySpawning.html#a6aff9d9bd370d63ff69484f1b1574a78',1,'EnemySpawning']]],
-  ['spawninterval_13',['spawnInterval',['../structEnemySpawning.html#a7605548efb4c408fa55229f1c5750358',1,'EnemySpawning']]],
-  ['spawnpoints_14',['spawnPoints',['../structEnemySpawning.html#ae4522f9b3de625a3d7eefeca56fe2c34',1,'EnemySpawning']]],
-  ['spawnpositions_15',['spawnPositions',['../structWave.html#a5a77e7006c7b0275a00d173bb93e335d',1,'Wave']]],
-  ['spectate_16',['spectate',['../structlobby__list.html#a22eb60d72f167f2241c3398e66719e46',1,'lobby_list']]],
-  ['speed_17',['speed',['../structForce.html#a13172c9153b7162e14d4b999eb0cd572',1,'Force::speed'],['../structBoss.html#aeb83944f1fc37c3cddb3721db7b43624',1,'Boss::speed'],['../structEnemy.html#a98766d083fc49e746a37d0dc69be09e0',1,'Enemy::speed'],['../structPlayerEntity.html#a12bf39625df66714a167d98161418ada',1,'PlayerEntity::speed'],['../structProjectile.html#a70ff500bdae54f3ad1e9e759b0ecd1fe',1,'Projectile::speed']]],
-  ['sprite_18',['sprite',['../structGAME__STATE_1_1PlayerState.html#a064bf35c0c4bbe943654e738fd1084d8',1,'GAME_STATE::PlayerState::sprite'],['../structPlayerState.html#ad5cb069afa18d602f40edc4f4384ee67',1,'PlayerState::sprite']]],
-  ['state_19',['state',['../structForce.html#afdc96dc73d4f9ce1a3d020b2528b2f01',1,'Force::state'],['../structPlayerState.html#a06315a11bfd4f2ca3939a4ed962ea8ba',1,'PlayerState::state'],['../structEnemyState.html#af21d5d275d86e66180c09fc820b08b1e',1,'EnemyState::state'],['../structForceState.html#a5666112b606a225a35c12c77e99e8d9e',1,'ForceState::state'],['../structGAME__STATE_1_1PlayerState.html#a61df1fc9b6d789ada1b0bb0248278adf',1,'GAME_STATE::PlayerState::state'],['../structGAME__STATE_1_1EnemyState.html#a86263e8ba80444e709944b03d04dc64a',1,'GAME_STATE::EnemyState::state'],['../structFORCE__STATE.html#ab2cc66fda204bb40f914f1d3c34b73c8',1,'FORCE_STATE::state']]],
-  ['success_20',['success',['../structLoginResponse.html#a5c7f4ee4d4888b430f00025b051550ea',1,'LoginResponse::success'],['../structLobbyJoinResponse.html#adfa9b39c7bee20fc3aa064491807ebc3',1,'LobbyJoinResponse::success'],['../structLOGIN__RESPONSE.html#a7c3b0a17f709722238913ae29fb5ec60',1,'LOGIN_RESPONSE::success'],['../structLOBBY__JOIN__RESPONSE.html#a6a381b2fe94ca938899878a01d688526',1,'LOBBY_JOIN_RESPONSE::success']]]
+  ['rank_0',['rank',['../structGameEndScore.html#ad4c102a86ab05e0e3b0814614ae676ec',1,'GameEndScore::rank'],['../structGAME__END_1_1Score.html#a472e46f691aaf19ee42f21bc34a8dbcc',1,'GAME_END::Score::rank']]],
+  ['ready_1',['ready',['../structLobbyPlayer.html#aa46d58b74f88d888085c2c80e4673db0',1,'LobbyPlayer::ready'],['../structPlayerReady.html#a6e1b72da79166c240729fef7047c228c',1,'PlayerReady::ready'],['../structLOBBY__JOIN__RESPONSE_1_1Player.html#a8a108a67a2c31f478a6090b42bd56b0a',1,'LOBBY_JOIN_RESPONSE::Player::ready'],['../structPLAYER__READY.html#ab01838d7e13ec27a755e7d6f9821ff15',1,'PLAYER_READY::ready'],['../structPlayerInfo.html#af22ff1babd6aad924404618c52301df9',1,'PlayerInfo::ready']]],
+  ['registry_2',['registry',['../structlobby__list.html#a727f78bcfae22abafe68964333dfe8e8',1,'lobby_list']]],
+  ['reloadtime_3',['reloadTime',['../structWeapon.html#aca75f095b5c3e984a69c85e7b6468619',1,'Weapon']]],
+  ['retry_5fcount_4',['retry_count',['../structHandleClient_1_1SentPacket.html#a31cc75eac27b954ed3c35d82e76e5faa',1,'HandleClient::SentPacket']]],
+  ['right_5',['right',['../structPlayerInput.html#a5db02f412ab52e2566d9164b6b9b3426',1,'PlayerInput::right'],['../structPLAYER__INPUT.html#a11ab635f63a026e81ea0a514aa1aca0c',1,'PLAYER_INPUT::right']]]
 ];

@@ -7,7 +7,9 @@ var searchData=
   ['action1_4',['action1',['../structInputState.html#aae7d97c3da0bb5d3be808227c1754381',1,'InputState']]],
   ['action2_5',['action2',['../structInputState.html#a228c35b533ba74ee1b0c0af9e3130f36',1,'InputState']]],
   ['action3_6',['action3',['../structInputState.html#ae73d4be2e8ac697326b6dcf36642ff98',1,'InputState']]],
-  ['alive_7',['alive',['../structBossPart.html#a3c3dde336b87d73ab60dab35d4cda9f5',1,'BossPart']]],
-  ['amplitude_8',['amplitude',['../structBoss.html#a9147c4e755e0e71c7206ad88cb0467a1',1,'Boss::amplitude'],['../structEnemy.html#a8f1d9469d19c1aa01a9ff784b1c786ac',1,'Enemy::amplitude']]],
-  ['asstarted_9',['asstarted',['../structLobbyUpdate.html#a410ea52979c389fffb30163cc637e36f',1,'LobbyUpdate::asStarted'],['../structLOBBY__UPDATE.html#a973b05dbd38479db21fc0d3b3f8d5cc3',1,'LOBBY_UPDATE::asStarted']]]
+  ['active_7',['active',['../structHitBox.html#a07cd9284bc73ba0fb9b81c3dbfbc4b55',1,'HitBox']]],
+  ['alive_8',['alive',['../structBossPart.html#a3c3dde336b87d73ab60dab35d4cda9f5',1,'BossPart']]],
+  ['amplitude_9',['amplitude',['../structBoss.html#a9147c4e755e0e71c7206ad88cb0467a1',1,'Boss::amplitude'],['../structEnemy.html#a8f1d9469d19c1aa01a9ff784b1c786ac',1,'Enemy::amplitude']]],
+  ['animtimer_10',['animTimer',['../structClientFighterState.html#aa02aaa216282ed03de50e9fde58df8ce',1,'ClientFighterState']]],
+  ['asstarted_11',['asstarted',['../structLobbyUpdate.html#a410ea52979c389fffb30163cc637e36f',1,'LobbyUpdate::asStarted'],['../structLOBBY__UPDATE.html#a973b05dbd38479db21fc0d3b3f8d5cc3',1,'LOBBY_UPDATE::asStarted']]]
 ];

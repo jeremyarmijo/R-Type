@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['offset_0',['offset',['../structBossPart.html#abda09cb49abcfdd8d447ab771b8bc7e4',1,'BossPart']]],
-  ['offsetback_1',['offsetBack',['../structForce.html#a6e3e0d45b46a2daea0856b8320cf3061',1,'Force']]],
-  ['offsetfront_2',['offsetFront',['../structForce.html#ae6deb18886a21862dd118a7336cfe3da',1,'Force']]],
-  ['ownerid_3',['ownerid',['../structProjectile.html#a196f004d061dd4cce0c310a3a01312a3',1,'Projectile::ownerId'],['../structProjectileState.html#ac71c47b572bf871ff72005563b2ee3ef',1,'ProjectileState::ownerId'],['../structForceState.html#a812dfbaec7c3dd901d4e314f98efaeae',1,'ForceState::ownerId'],['../structGAME__STATE_1_1ProjectileState.html#a58b5f05cd3a6690f1cc48213b4ba7d25',1,'GAME_STATE::ProjectileState::ownerId'],['../structFORCE__STATE.html#aaaa24fda76197428d1a35fc3db282492',1,'FORCE_STATE::ownerId']]],
-  ['ownerplayer_4',['ownerPlayer',['../structForce.html#a833e926a2a489e58c0ea4879e6dfb962',1,'Force']]]
+  ['name_0',['name',['../structlobby__list.html#ac415d0789b9c9d76ea7ccb0a0def5165',1,'lobby_list::name'],['../structLobbyJoinRequest.html#a060f2bbab078eb30cab48eac7f23b955',1,'LobbyJoinRequest::name'],['../structLobbyInfo.html#aba2775552497a291f856cd90d2fde036',1,'LobbyInfo::name'],['../structLobbyUpdate.html#a106eac2b4328d924beeb1ef33844bbab',1,'LobbyUpdate::name'],['../structLOBBY__JOIN__REQUEST.html#aae907bc0877b437f187e3c6a5f8b040f',1,'LOBBY_JOIN_REQUEST::name'],['../structLobbies.html#ae4b991b7177cb1b8a8921fad6a4a981b',1,'Lobbies::name'],['../structLOBBY__UPDATE.html#a45b473ae42f1a6ef414cbe41aa042c3d',1,'LOBBY_UPDATE::name']]],
+  ['nb_5fplayer_1',['nb_player',['../structlobby__list.html#ad2f2b6dca17bf230036ec546569458c1',1,'lobby_list']]]
 ];

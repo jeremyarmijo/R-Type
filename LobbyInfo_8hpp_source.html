@@ -410,58 +410,61 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>      <span class="keyword">const</span> <span class="keyword">auto</span>* data = std::get_if&lt;GAME_START&gt;(&amp;e.<a class="code hl_variable" href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">data</a>);</div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>      GetSceneData().Set(<span class="stringliteral">&quot;posX&quot;</span>, data-&gt;playerSpawnX);</div>
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>      GetSceneData().Set(<span class="stringliteral">&quot;posY&quot;</span>, data-&gt;playerSpawnY);</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>      ChangeScene(<span class="stringliteral">&quot;game&quot;</span>);</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    }</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordflow">if</span> (e.<a class="code hl_variable" href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">type</a> == <a class="code hl_enumvalue" href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a90791ed805bd5b00d78527d39d9ef7e4">EventType::MESSAGE</a>) {</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>      <span class="keyword">const</span> <span class="keyword">auto</span>* data = std::get_if&lt;MESSAGE&gt;(&amp;e.<a class="code hl_variable" href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">data</a>);</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>      message.push_back(data-&gt;playerName + <span class="stringliteral">&quot; : &quot;</span> + data-&gt;message);</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>      UpdateChatDisplay(14);</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    }</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    <span class="keywordflow">if</span> (e.<a class="code hl_variable" href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">type</a> == <a class="code hl_enumvalue" href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34af5d74e228329f3e9a767f3730d9bb4a6">EventType::LOBBY_KICK</a>) {</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>      <span class="keyword">const</span> <span class="keyword">auto</span>* data = std::get_if&lt;LOBBY_KICK&gt;(&amp;e.<a class="code hl_variable" href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">data</a>);</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>      uint16_t pId = GetSceneData().Get&lt;uint16_t&gt;(<span class="stringliteral">&quot;playerId&quot;</span>, 0);</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>      <span class="keywordflow">if</span> (pId == data-&gt;playerId) {</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>        ChangeScene(<span class="stringliteral">&quot;lobby&quot;</span>);</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>      }</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    }</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>  }</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>      <span class="keywordflow">if</span> (m_lobbyName == <span class="stringliteral">&quot;secondgame&quot;</span>)</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>        ChangeScene(<span class="stringliteral">&quot;secondGame&quot;</span>);</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>        ChangeScene(<span class="stringliteral">&quot;game&quot;</span>);</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    }</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordflow">if</span> (e.<a class="code hl_variable" href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">type</a> == <a class="code hl_enumvalue" href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a90791ed805bd5b00d78527d39d9ef7e4">EventType::MESSAGE</a>) {</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>      <span class="keyword">const</span> <span class="keyword">auto</span>* data = std::get_if&lt;MESSAGE&gt;(&amp;e.<a class="code hl_variable" href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">data</a>);</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>      message.push_back(data-&gt;playerName + <span class="stringliteral">&quot; : &quot;</span> + data-&gt;message);</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>      UpdateChatDisplay(14);</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    }</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <span class="keywordflow">if</span> (e.<a class="code hl_variable" href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">type</a> == <a class="code hl_enumvalue" href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34af5d74e228329f3e9a767f3730d9bb4a6">EventType::LOBBY_KICK</a>) {</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>      <span class="keyword">const</span> <span class="keyword">auto</span>* data = std::get_if&lt;LOBBY_KICK&gt;(&amp;e.<a class="code hl_variable" href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">data</a>);</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>      uint16_t pId = GetSceneData().Get&lt;uint16_t&gt;(<span class="stringliteral">&quot;playerId&quot;</span>, 0);</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>      <span class="keywordflow">if</span> (pId == data-&gt;playerId) {</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>        ChangeScene(<span class="stringliteral">&quot;lobby&quot;</span>);</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>      }</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    }</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>  }</div>
 </div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span> </div>
-<div class="foldopen" id="foldopen00338" data-start="{" data-end="}">
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno"><a class="line" href="classLobbyInfoPlayer.html#a627734e4d1d32615bff3c34f732678fd">  338</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classLobbyInfoPlayer.html#a627734e4d1d32615bff3c34f732678fd">Render</a>()<span class="keyword"> override </span>{</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="keywordflow">if</span> (!m_isInitialized) <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="comment">// RenderSpritesLayered();</span></div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="comment">// GetUI().Render();</span></div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>  }</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span> </div>
+<div class="foldopen" id="foldopen00341" data-start="{" data-end="}">
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno"><a class="line" href="classLobbyInfoPlayer.html#a627734e4d1d32615bff3c34f732678fd">  341</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classLobbyInfoPlayer.html#a627734e4d1d32615bff3c34f732678fd">Render</a>()<span class="keyword"> override </span>{</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    <span class="keywordflow">if</span> (!m_isInitialized) <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="comment">// RenderSpritesLayered();</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="comment">// GetUI().Render();</span></div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>  }</div>
 </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
-<div class="foldopen" id="foldopen00344" data-start="{" data-end="}">
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno"><a class="line" href="classLobbyInfoPlayer.html#a04efa020ffe38873ab4d90ba780aa47c">  344</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classLobbyInfoPlayer.html#a04efa020ffe38873ab4d90ba780aa47c">HandleEvent</a>(SDL_Event&amp; event)<span class="keyword"> override </span>{</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordflow">if</span> (GetUI()-&gt;<a class="code hl_function" href="classLobbyInfoPlayer.html#a04efa020ffe38873ab4d90ba780aa47c">HandleEvent</a>(event)) {</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>      <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    }</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>  }</div>
-</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span> </div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno"><a class="line" href="classLobbyInfoPlayer.html#aa593cce6ee7600d52e4d46c955ed7909">  350</a></span>  std::unordered_map&lt;uint16_t, Entity&gt; <a class="code hl_function" href="classLobbyInfoPlayer.html#aa593cce6ee7600d52e4d46c955ed7909">GetPlayers</a>()<span class="keyword"> override </span>{ <span class="keywordflow">return</span> m_list; }</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>};</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span> </div>
+<div class="foldopen" id="foldopen00347" data-start="{" data-end="}">
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno"><a class="line" href="classLobbyInfoPlayer.html#a04efa020ffe38873ab4d90ba780aa47c">  347</a></span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classLobbyInfoPlayer.html#a04efa020ffe38873ab4d90ba780aa47c">HandleEvent</a>(SDL_Event&amp; event)<span class="keyword"> override </span>{</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keywordflow">if</span> (GetUI()-&gt;<a class="code hl_function" href="classLobbyInfoPlayer.html#a04efa020ffe38873ab4d90ba780aa47c">HandleEvent</a>(event)) {</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>      <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    }</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>  }</div>
 </div>
 <div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="preprocessor">#ifdef _WIN32</span></div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>  __declspec(dllexport) Scene* <a class="code hl_function" href="LobbyInfo_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a>();</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>}</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>Scene* <a class="code hl_function" href="LobbyInfo_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a>();</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>}</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno"><a class="line" href="classLobbyInfoPlayer.html#aa593cce6ee7600d52e4d46c955ed7909">  353</a></span>  std::unordered_map&lt;uint16_t, Entity&gt; <a class="code hl_function" href="classLobbyInfoPlayer.html#aa593cce6ee7600d52e4d46c955ed7909">GetPlayers</a>()<span class="keyword"> override </span>{ <span class="keywordflow">return</span> m_list; }</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>};</div>
+</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span><span class="preprocessor">#ifdef _WIN32</span></div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>  __declspec(dllexport) Scene* <a class="code hl_function" href="LobbyInfo_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a>();</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>}</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>Scene* <a class="code hl_function" href="LobbyInfo_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a>();</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>}</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aAction_8hpp_html_a7969551e86fba60fed45ceed884b7532a90791ed805bd5b00d78527d39d9ef7e4"><div class="ttname"><a href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532a90791ed805bd5b00d78527d39d9ef7e4">ActionType::MESSAGE</a></div><div class="ttdeci">@ MESSAGE</div></div>
 <div class="ttc" id="aAction_8hpp_html_a7969551e86fba60fed45ceed884b7532abb82289343b23349cb005559cbffb961"><div class="ttname"><a href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532abb82289343b23349cb005559cbffb961">ActionType::PLAYER_READY</a></div><div class="ttdeci">@ PLAYER_READY</div></div>
 <div class="ttc" id="aAction_8hpp_html_a7969551e86fba60fed45ceed884b7532af5d74e228329f3e9a767f3730d9bb4a6"><div class="ttname"><a href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532af5d74e228329f3e9a767f3730d9bb4a6">ActionType::LOBBY_KICK</a></div><div class="ttdeci">@ LOBBY_KICK</div></div>
 <div class="ttc" id="aAction_8hpp_html_a7969551e86fba60fed45ceed884b7532afb670908dad67ad2977c041ad78202fc"><div class="ttname"><a href="Action_8hpp.html#a7969551e86fba60fed45ceed884b7532afb670908dad67ad2977c041ad78202fc">ActionType::LOBBY_LEAVE</a></div><div class="ttdeci">@ LOBBY_LEAVE</div></div>
 <div class="ttc" id="aEntityHelper_8hpp_html"><div class="ttname"><a href="EntityHelper_8hpp.html">EntityHelper.hpp</a></div></div>
-<div class="ttc" id="aEntityHelper_8hpp_html_a583e16eed64bebd6b01363a8173d9ea6"><div class="ttname"><a href="EntityHelper_8hpp.html#a583e16eed64bebd6b01363a8173d9ea6">CreateSprite</a></div><div class="ttdeci">Entity CreateSprite(Registry &amp;registry, const std::string &amp;textureKey, Vector2 position, int layer=0)</div><div class="ttdoc">Creates a sprite.</div><div class="ttdef"><b>Definition</b> EntityHelper.hpp:293</div></div>
+<div class="ttc" id="aEntityHelper_8hpp_html_a583e16eed64bebd6b01363a8173d9ea6"><div class="ttname"><a href="EntityHelper_8hpp.html#a583e16eed64bebd6b01363a8173d9ea6">CreateSprite</a></div><div class="ttdeci">Entity CreateSprite(Registry &amp;registry, const std::string &amp;textureKey, Vector2 position, int layer=0)</div><div class="ttdoc">Creates a sprite.</div><div class="ttdef"><b>Definition</b> EntityHelper.hpp:308</div></div>
 <div class="ttc" id="aEvent_8hpp_html_afdf2c10d40c582d9884ac5635a374a34a492d6b502496f97aa7b2bfd2d7f75fb4"><div class="ttname"><a href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a492d6b502496f97aa7b2bfd2d7f75fb4">EventType::SEND_MAP</a></div><div class="ttdeci">@ SEND_MAP</div></div>
 <div class="ttc" id="aEvent_8hpp_html_afdf2c10d40c582d9884ac5635a374a34a8820bda144613a0e3758d7d4f15abd6a"><div class="ttname"><a href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a8820bda144613a0e3758d7d4f15abd6a">EventType::GAME_START</a></div><div class="ttdeci">@ GAME_START</div></div>
 <div class="ttc" id="aEvent_8hpp_html_afdf2c10d40c582d9884ac5635a374a34a8e4f3e6b4d420913cdb00c12af8309ff"><div class="ttname"><a href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a8e4f3e6b4d420913cdb00c12af8309ff">EventType::LOBBY_UPDATE</a></div><div class="ttdeci">@ LOBBY_UPDATE</div></div>
@@ -469,18 +472,18 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="aEvent_8hpp_html_afdf2c10d40c582d9884ac5635a374a34af5d74e228329f3e9a767f3730d9bb4a6"><div class="ttname"><a href="Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34af5d74e228329f3e9a767f3730d9bb4a6">EventType::LOBBY_KICK</a></div><div class="ttdeci">@ LOBBY_KICK</div></div>
 <div class="ttc" id="aLobbyInfo_8hpp_html_a4c3ef05eef9f27de82de2e0bc8353c59"><div class="ttname"><a href="LobbyInfo_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a></div><div class="ttdeci">Scene * CreateScene()</div><div class="ttdef"><b>Definition</b> CreateLobby.cpp:10</div></div>
 <div class="ttc" id="aclassLobbyInfoPlayer_html"><div class="ttname"><a href="classLobbyInfoPlayer.html">LobbyInfoPlayer</a></div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:27</div></div>
-<div class="ttc" id="aclassLobbyInfoPlayer_html_a04efa020ffe38873ab4d90ba780aa47c"><div class="ttname"><a href="classLobbyInfoPlayer.html#a04efa020ffe38873ab4d90ba780aa47c">LobbyInfoPlayer::HandleEvent</a></div><div class="ttdeci">void HandleEvent(SDL_Event &amp;event) override</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:344</div></div>
-<div class="ttc" id="aclassLobbyInfoPlayer_html_a627734e4d1d32615bff3c34f732678fd"><div class="ttname"><a href="classLobbyInfoPlayer.html#a627734e4d1d32615bff3c34f732678fd">LobbyInfoPlayer::Render</a></div><div class="ttdeci">void Render() override</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:338</div></div>
+<div class="ttc" id="aclassLobbyInfoPlayer_html_a04efa020ffe38873ab4d90ba780aa47c"><div class="ttname"><a href="classLobbyInfoPlayer.html#a04efa020ffe38873ab4d90ba780aa47c">LobbyInfoPlayer::HandleEvent</a></div><div class="ttdeci">void HandleEvent(SDL_Event &amp;event) override</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:347</div></div>
+<div class="ttc" id="aclassLobbyInfoPlayer_html_a627734e4d1d32615bff3c34f732678fd"><div class="ttname"><a href="classLobbyInfoPlayer.html#a627734e4d1d32615bff3c34f732678fd">LobbyInfoPlayer::Render</a></div><div class="ttdeci">void Render() override</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:341</div></div>
 <div class="ttc" id="aclassLobbyInfoPlayer_html_a7cb702ce654983098879a85ac4335e65"><div class="ttname"><a href="classLobbyInfoPlayer.html#a7cb702ce654983098879a85ac4335e65">LobbyInfoPlayer::OnExit</a></div><div class="ttdeci">void OnExit() override</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:282</div></div>
 <div class="ttc" id="aclassLobbyInfoPlayer_html_a7e32bafa15ed7aa1ba0afab1e34d79ee"><div class="ttname"><a href="classLobbyInfoPlayer.html#a7e32bafa15ed7aa1ba0afab1e34d79ee">LobbyInfoPlayer::OnEnter</a></div><div class="ttdeci">void OnEnter() override</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:263</div></div>
 <div class="ttc" id="aclassLobbyInfoPlayer_html_a8d0aefdd1a16a0d2cf41f1ad7614f500"><div class="ttname"><a href="classLobbyInfoPlayer.html#a8d0aefdd1a16a0d2cf41f1ad7614f500">LobbyInfoPlayer::Update</a></div><div class="ttdeci">void Update(float deltaTime) override</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:289</div></div>
-<div class="ttc" id="aclassLobbyInfoPlayer_html_aa593cce6ee7600d52e4d46c955ed7909"><div class="ttname"><a href="classLobbyInfoPlayer.html#aa593cce6ee7600d52e4d46c955ed7909">LobbyInfoPlayer::GetPlayers</a></div><div class="ttdeci">std::unordered_map&lt; uint16_t, Entity &gt; GetPlayers() override</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:350</div></div>
+<div class="ttc" id="aclassLobbyInfoPlayer_html_aa593cce6ee7600d52e4d46c955ed7909"><div class="ttname"><a href="classLobbyInfoPlayer.html#aa593cce6ee7600d52e4d46c955ed7909">LobbyInfoPlayer::GetPlayers</a></div><div class="ttdeci">std::unordered_map&lt; uint16_t, Entity &gt; GetPlayers() override</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:353</div></div>
 <div class="ttc" id="aclassLobbyInfoPlayer_html_af40995bff4c93fc5ffc1c9be43b0718e"><div class="ttname"><a href="classLobbyInfoPlayer.html#af40995bff4c93fc5ffc1c9be43b0718e">LobbyInfoPlayer::LobbyInfoPlayer</a></div><div class="ttdeci">LobbyInfoPlayer()</div><div class="ttdef"><b>Definition</b> LobbyInfo.hpp:255</div></div>
-<div class="ttc" id="astructAction_html"><div class="ttname"><a href="structAction.html">Action</a></div><div class="ttdef"><b>Definition</b> Action.hpp:277</div></div>
-<div class="ttc" id="astructEvent_html"><div class="ttname"><a href="structEvent.html">Event</a></div><div class="ttdef"><b>Definition</b> Event.hpp:274</div></div>
-<div class="ttc" id="astructEvent_html_ac721e4f34b3b9a1ae302165412221724"><div class="ttname"><a href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">Event::type</a></div><div class="ttdeci">EventType type</div><div class="ttdef"><b>Definition</b> Event.hpp:275</div></div>
-<div class="ttc" id="astructEvent_html_ad177356e880288c8f4b9915a038ebcb7"><div class="ttname"><a href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">Event::data</a></div><div class="ttdeci">EventData data</div><div class="ttdef"><b>Definition</b> Event.hpp:276</div></div>
-<div class="ttc" id="astructLobbyKick_html"><div class="ttname"><a href="structLobbyKick.html">LobbyKick</a></div><div class="ttdef"><b>Definition</b> Action.hpp:249</div></div>
+<div class="ttc" id="astructAction_html"><div class="ttname"><a href="structAction.html">Action</a></div><div class="ttdef"><b>Definition</b> Action.hpp:278</div></div>
+<div class="ttc" id="astructEvent_html"><div class="ttname"><a href="structEvent.html">Event</a></div><div class="ttdef"><b>Definition</b> Event.hpp:275</div></div>
+<div class="ttc" id="astructEvent_html_ac721e4f34b3b9a1ae302165412221724"><div class="ttname"><a href="structEvent.html#ac721e4f34b3b9a1ae302165412221724">Event::type</a></div><div class="ttdeci">EventType type</div><div class="ttdef"><b>Definition</b> Event.hpp:276</div></div>
+<div class="ttc" id="astructEvent_html_ad177356e880288c8f4b9915a038ebcb7"><div class="ttname"><a href="structEvent.html#ad177356e880288c8f4b9915a038ebcb7">Event::data</a></div><div class="ttdeci">EventData data</div><div class="ttdef"><b>Definition</b> Event.hpp:277</div></div>
+<div class="ttc" id="astructLobbyKick_html"><div class="ttname"><a href="structLobbyKick.html">LobbyKick</a></div><div class="ttdef"><b>Definition</b> Action.hpp:250</div></div>
 <div class="ttc" id="astructLobbyLeave_html"><div class="ttname"><a href="structLobbyLeave.html">LobbyLeave</a></div><div class="ttdef"><b>Definition</b> Action.hpp:130</div></div>
 <div class="ttc" id="astructMessage_html"><div class="ttname"><a href="structMessage.html">Message</a></div><div class="ttdef"><b>Definition</b> Action.hpp:120</div></div>
 <div class="ttc" id="astructPlayerReady_html"><div class="ttname"><a href="structPlayerReady.html">PlayerReady</a></div><div class="ttdef"><b>Definition</b> Action.hpp:138</div></div>

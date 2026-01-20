@@ -1,30 +1,32 @@
 <map id="/home/runner/work/R&#45;Type/R&#45;Type/Shared/network/Action.hpp" name="/home/runner/work/R&#45;Type/R&#45;Type/Shared/network/Action.hpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="339,5,498,60"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="439,5,598,60"/>
 <area shape="rect" id="Node000002" href="$Client_2src_2engine_2inputs_2InputSystem_8cpp.html" title=" " alt="" coords="5,108,256,163"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="332,67,207,110,205,105,330,62"/>
-<area shape="rect" id="Node000003" href="$INetworkManager_8hpp.html" title=" " alt="" coords="280,108,557,163"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="421,74,421,108,416,108,416,74"/>
-<area shape="rect" id="Node000009" href="$Encoder_8hpp.html" title=" " alt="" coords="581,108,744,163"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="496,63,600,105,598,110,494,68"/>
-<area shape="rect" id="Node000004" href="$ServerNetworkManager_8hpp.html" title=" " alt="" coords="315,211,546,280"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="426,176,430,210,424,211,420,177"/>
-<area shape="rect" id="Node000005" href="$ServerGame_8hpp.html" title=" " alt="" coords="281,328,468,383"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="409,293,391,329,386,327,405,291"/>
-<area shape="rect" id="Node000008" href="$ServerNetworkManager_8cpp.html" title=" " alt="" coords="493,328,779,383"/>
-<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="508,284,587,325,585,330,505,289"/>
-<area shape="rect" id="Node000006" href="$ServerGame_8cpp.html" title=" " alt="" coords="205,431,363,485"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="344,395,310,432,306,429,340,391"/>
-<area shape="rect" id="Node000007" href="$main_8cpp.html" title=" " alt="" coords="387,431,546,485"/>
-<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="410,391,445,429,441,432,406,395"/>
-<area shape="poly" id="edge9_Node000009_Node000004" title=" " alt="" coords="595,171,504,213,502,208,592,166"/>
-<area shape="rect" id="Node000010" href="$Encode_8cpp.html" title=" " alt="" coords="577,218,735,273"/>
-<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="663,177,660,218,655,218,658,177"/>
-<area shape="rect" id="Node000011" href="$EncodeFunc_8hpp.html" title=" " alt="" coords="759,218,947,273"/>
-<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="722,167,808,215,805,220,720,172"/>
-<area shape="poly" id="edge12_Node000011_Node000005" title=" " alt="" coords="762,279,749,283,674,299,615,308,482,331,469,333,468,328,481,325,615,303,673,294,747,277,761,274"/>
-<area shape="poly" id="edge13_Node000011_Node000008" title=" " alt="" coords="789,281,690,330,688,325,787,277"/>
-<area shape="rect" id="Node000012" href="$TCPServer_8cpp.html" title=" " alt="" coords="803,328,1002,383"/>
-<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="874,284,893,327,888,329,869,287"/>
-<area shape="rect" id="Node000013" href="$EncodeFunc_8cpp.html" title=" " alt="" coords="1027,328,1213,383"/>
-<area shape="poly" id="edge15_Node000011_Node000013" title=" " alt="" coords="932,275,1056,325,1054,330,930,280"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="427,60,232,111,231,105,426,55"/>
+<area shape="rect" id="Node000003" href="$SecondGame_8cpp.html" title=" " alt="" coords="280,108,491,163"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="475,70,422,110,419,106,471,66"/>
+<area shape="rect" id="Node000004" href="$INetworkManager_8hpp.html" title=" " alt="" coords="515,108,792,163"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="566,66,620,106,616,110,563,70"/>
+<area shape="rect" id="Node000010" href="$Encoder_8hpp.html" title=" " alt="" coords="816,108,979,163"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="612,55,805,105,817,109,815,114,803,111,611,60"/>
+<area shape="rect" id="Node000005" href="$ServerNetworkManager_8hpp.html" title=" " alt="" coords="550,211,781,280"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="660,176,664,210,659,211,655,177"/>
+<area shape="rect" id="Node000006" href="$ServerGame_8hpp.html" title=" " alt="" coords="516,328,703,383"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="644,293,625,329,621,327,639,291"/>
+<area shape="rect" id="Node000009" href="$ServerNetworkManager_8cpp.html" title=" " alt="" coords="727,328,1014,383"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="742,284,822,325,819,330,740,289"/>
+<area shape="rect" id="Node000007" href="$ServerGame_8cpp.html" title=" " alt="" coords="439,431,598,485"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="578,395,544,432,540,429,574,391"/>
+<area shape="rect" id="Node000008" href="$main_8cpp.html" title=" " alt="" coords="622,431,781,485"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="645,391,679,429,675,432,641,395"/>
+<area shape="poly" id="edge10_Node000010_Node000005" title=" " alt="" coords="829,171,739,213,737,208,827,166"/>
+<area shape="rect" id="Node000011" href="$Encode_8cpp.html" title=" " alt="" coords="811,218,970,273"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="897,177,895,218,890,218,892,177"/>
+<area shape="rect" id="Node000012" href="$EncodeFunc_8hpp.html" title=" " alt="" coords="994,218,1182,273"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="957,167,1042,215,1040,220,954,172"/>
+<area shape="poly" id="edge13_Node000012_Node000006" title=" " alt="" coords="997,279,983,283,909,299,850,308,717,331,703,333,702,328,715,325,849,303,908,294,982,277,996,274"/>
+<area shape="poly" id="edge14_Node000012_Node000009" title=" " alt="" coords="1024,281,925,330,922,325,1021,277"/>
+<area shape="rect" id="Node000013" href="$TCPServer_8cpp.html" title=" " alt="" coords="1038,328,1237,383"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="1108,284,1128,327,1123,329,1103,287"/>
+<area shape="rect" id="Node000014" href="$EncodeFunc_8cpp.html" title=" " alt="" coords="1261,328,1448,383"/>
+<area shape="poly" id="edge16_Node000012_Node000014" title=" " alt="" coords="1166,275,1291,325,1289,330,1164,280"/>
 </map>

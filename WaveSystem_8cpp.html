@@ -98,10 +98,10 @@ Functions</h2></td></tr>
 <tr class="separator:aa4ac681eb82e532209ebc0c6a3f7e073"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a270045124e92b7ddc4e93e935d0610a8" id="r_a270045124e92b7ddc4e93e935d0610a8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a270045124e92b7ddc4e93e935d0610a8">checkWaveEnd</a> (Registry &amp;registry, SparseArray&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;enemies)</td></tr>
 <tr class="separator:a270045124e92b7ddc4e93e935d0610a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9a50ea337295fa59e1c3732b19de67c" id="r_aa9a50ea337295fa59e1c3732b19de67c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#aa9a50ea337295fa59e1c3732b19de67c">create_multiples_enemies</a> (Registry &amp;registry, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type, int nbEnemies)</td></tr>
-<tr class="separator:aa9a50ea337295fa59e1c3732b19de67c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8eb043381857cf6f81f8caa53a250f06" id="r_a8eb043381857cf6f81f8caa53a250f06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a8eb043381857cf6f81f8caa53a250f06">enemy_wave_system</a> (Registry &amp;registry, SparseArray&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;enemies, float deltaTime, int nbWave, int difficulty)</td></tr>
-<tr class="separator:a8eb043381857cf6f81f8caa53a250f06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05fc9f08d059c2a7280bd494de782470" id="r_a05fc9f08d059c2a7280bd494de782470"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a05fc9f08d059c2a7280bd494de782470">create_multiples_enemies</a> (Registry &amp;registry, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type, int nbEnemies, uint8_t diff)</td></tr>
+<tr class="separator:a05fc9f08d059c2a7280bd494de782470"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a364e229f0a844858e81126fbb62b5f09" id="r_a364e229f0a844858e81126fbb62b5f09"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="WaveSystem_8cpp.html#a364e229f0a844858e81126fbb62b5f09">enemy_wave_system</a> (Registry &amp;registry, SparseArray&lt; <a class="el" href="structEnemy.html">Enemy</a> &gt; &amp;enemies, float deltaTime, int nbWave, uint8_t diff)</td></tr>
+<tr class="separator:a364e229f0a844858e81126fbb62b5f09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a270045124e92b7ddc4e93e935d0610a8" name="a270045124e92b7ddc4e93e935d0610a8"></a>
@@ -132,8 +132,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa9a50ea337295fa59e1c3732b19de67c" name="aa9a50ea337295fa59e1c3732b19de67c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9a50ea337295fa59e1c3732b19de67c">&#9670;&#160;</a></span>create_multiples_enemies()</h2>
+<a id="a05fc9f08d059c2a7280bd494de782470" name="a05fc9f08d059c2a7280bd494de782470"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a05fc9f08d059c2a7280bd494de782470">&#9670;&#160;</a></span>create_multiples_enemies()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -154,7 +154,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>nbEnemies</em>&#160;</td>
+          <td class="paramname"><em>nbEnemies</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>diff</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -166,8 +172,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a8eb043381857cf6f81f8caa53a250f06" name="a8eb043381857cf6f81f8caa53a250f06"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8eb043381857cf6f81f8caa53a250f06">&#9670;&#160;</a></span>enemy_wave_system()</h2>
+<a id="a364e229f0a844858e81126fbb62b5f09" name="a364e229f0a844858e81126fbb62b5f09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a364e229f0a844858e81126fbb62b5f09">&#9670;&#160;</a></span>enemy_wave_system()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -199,8 +205,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>difficulty</em>&#160;</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>diff</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

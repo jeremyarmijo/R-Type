@@ -104,20 +104,20 @@ Functions</h2></td></tr>
 <tr class="separator:adeb33819f9edab3e5d06933f51190fae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f9fd8aee1fd94a3c0256f2b01459630" id="r_a5f9fd8aee1fd94a3c0256f2b01459630"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Movement_8cpp.html#a5f9fd8aee1fd94a3c0256f2b01459630">Projectile_movement_system</a> (SparseArray&lt; Transform &gt; &amp;transforms, SparseArray&lt; RigidBody &gt; &amp;rigidbodies, SparseArray&lt; <a class="el" href="structProjectile.html">Projectile</a> &gt; &amp;projectiles, Registry &amp;registry, float deltaTime)</td></tr>
 <tr class="separator:a5f9fd8aee1fd94a3c0256f2b01459630"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abfcc208ab4ff478f234614635710c178" id="r_abfcc208ab4ff478f234614635710c178"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Movement_8cpp.html#abfcc208ab4ff478f234614635710c178">spawn_basic_enemy_for_boss</a> (Registry &amp;registry)</td></tr>
-<tr class="separator:abfcc208ab4ff478f234614635710c178"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc469fd54e0094c70906151473309207" id="r_adc469fd54e0094c70906151473309207"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Movement_8cpp.html#adc469fd54e0094c70906151473309207">spawn_basic_enemy_for_boss</a> (Registry &amp;registry, uint8_t diff)</td></tr>
+<tr class="separator:adc469fd54e0094c70906151473309207"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17548eb7f4af1b82da0bbed698737148" id="r_a17548eb7f4af1b82da0bbed698737148"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Movement_8cpp.html#a17548eb7f4af1b82da0bbed698737148">spawn_boss_projectile</a> (Registry &amp;registry, Vector2 position, size_t bossEntityId)</td></tr>
 <tr class="separator:a17548eb7f4af1b82da0bbed698737148"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abaa6fdea1a648bcb143a60fca1a8d399" id="r_abaa6fdea1a648bcb143a60fca1a8d399"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Movement_8cpp.html#abaa6fdea1a648bcb143a60fca1a8d399">boss_movement_system</a> (Registry &amp;registry, SparseArray&lt; Transform &gt; &amp;transforms, SparseArray&lt; RigidBody &gt; &amp;rigidbodies, SparseArray&lt; <a class="el" href="structBoss.html">Boss</a> &gt; &amp;bosses, float deltaTime)</td></tr>
-<tr class="separator:abaa6fdea1a648bcb143a60fca1a8d399"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98f4d954c5804f265784f5509cc2273b" id="r_a98f4d954c5804f265784f5509cc2273b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Movement_8cpp.html#a98f4d954c5804f265784f5509cc2273b">boss_movement_system</a> (Registry &amp;registry, SparseArray&lt; Transform &gt; &amp;transforms, SparseArray&lt; RigidBody &gt; &amp;rigidbodies, SparseArray&lt; <a class="el" href="structBoss.html">Boss</a> &gt; &amp;bosses, float deltaTime, uint8_t diff)</td></tr>
+<tr class="separator:a98f4d954c5804f265784f5509cc2273b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a360d7d625b64a6c6f31166a838cf53a5" id="r_a360d7d625b64a6c6f31166a838cf53a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Movement_8cpp.html#a360d7d625b64a6c6f31166a838cf53a5">boss_part_system</a> (Registry &amp;registry, float deltaTime)</td></tr>
 <tr class="separator:a360d7d625b64a6c6f31166a838cf53a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee86c1ee227ec9026f0de22e54d9f5af" id="r_aee86c1ee227ec9026f0de22e54d9f5af"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Movement_8cpp.html#aee86c1ee227ec9026f0de22e54d9f5af">force_movement_system</a> (Registry &amp;registry, SparseArray&lt; Transform &gt; &amp;transforms, SparseArray&lt; RigidBody &gt; &amp;rigidbodies, SparseArray&lt; <a class="el" href="structForce.html">Force</a> &gt; &amp;forces, SparseArray&lt; <a class="el" href="structPlayerEntity.html">PlayerEntity</a> &gt; &amp;players, float deltaTime)</td></tr>
 <tr class="separator:aee86c1ee227ec9026f0de22e54d9f5af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="abaa6fdea1a648bcb143a60fca1a8d399" name="abaa6fdea1a648bcb143a60fca1a8d399"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abaa6fdea1a648bcb143a60fca1a8d399">&#9670;&#160;</a></span>boss_movement_system()</h2>
+<a id="a98f4d954c5804f265784f5509cc2273b" name="a98f4d954c5804f265784f5509cc2273b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98f4d954c5804f265784f5509cc2273b">&#9670;&#160;</a></span>boss_movement_system()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -150,7 +150,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>deltaTime</em>&#160;</td>
+          <td class="paramname"><em>deltaTime</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>diff</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -358,8 +364,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="abfcc208ab4ff478f234614635710c178" name="abfcc208ab4ff478f234614635710c178"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abfcc208ab4ff478f234614635710c178">&#9670;&#160;</a></span>spawn_basic_enemy_for_boss()</h2>
+<a id="adc469fd54e0094c70906151473309207" name="adc469fd54e0094c70906151473309207"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc469fd54e0094c70906151473309207">&#9670;&#160;</a></span>spawn_basic_enemy_for_boss()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -368,8 +374,18 @@ Functions</h2></td></tr>
           <td class="memname">void spawn_basic_enemy_for_boss </td>
           <td>(</td>
           <td class="paramtype">Registry &amp;&#160;</td>
-          <td class="paramname"><em>registry</em></td><td>)</td>
+          <td class="paramname"><em>registry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>diff</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">

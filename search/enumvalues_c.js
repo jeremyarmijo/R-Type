@@ -1,12 +1,21 @@
 var searchData=
 [
-  ['phase1_0',['Phase1',['../Boss_8hpp.html#a07a185cf5c3b2a4716f5f67f67e502dfa8a30db76958b6044010ecfde6bdb2c4e',1,'Boss.hpp']]],
-  ['phase2_1',['Phase2',['../Boss_8hpp.html#a07a185cf5c3b2a4716f5f67f67e502dfab1875776ff4ed4e8e098b65581e40770',1,'Boss.hpp']]],
-  ['phase3_2',['Phase3',['../Boss_8hpp.html#a07a185cf5c3b2a4716f5f67f67e502dfa1f3cebd3271b7411767683ab8fc47605',1,'Boss.hpp']]],
-  ['pink_3',['PINK',['../PlayerSettings_8hpp.html#a132f797212c3cb97adedc86763d9c9e8a2536bd3910cf3069e2cd184e614ea97d',1,'PlayerSettings.hpp']]],
-  ['platform_4',['PLATFORM',['../TileMap_8hpp.html#afeb05ddeb338daafc71854ddc9166969a8b55a44b49368262df89fd0e17b1a181',1,'TileMap.hpp']]],
-  ['player_5',['player',['../CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249a636da1d35e805b00eae0fcd8333f9234',1,'Player:&#160;CollisionController.hpp'],['../EntityHelper_8hpp.html#ad79a57ed3105eb60d991a1aeb4a9dc44a636da1d35e805b00eae0fcd8333f9234',1,'Player:&#160;EntityHelper.hpp']]],
-  ['player_5finput_6',['PLAYER_INPUT',['../Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a180c1b797f83d66065d0313fa7e863d1',1,'Event.hpp']]],
-  ['player_5fready_7',['player_ready',['../Action_8hpp.html#a7969551e86fba60fed45ceed884b7532abb82289343b23349cb005559cbffb961',1,'PLAYER_READY:&#160;Action.hpp'],['../Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34abb82289343b23349cb005559cbffb961',1,'PLAYER_READY:&#160;Event.hpp']]],
-  ['projectile_8',['projectile',['../CollisionController_8hpp.html#af96ed9b0247cf32be15cf4073c337249aae7968d26b598ce434958b0825b7a4ac',1,'Projectile:&#160;CollisionController.hpp'],['../EntityHelper_8hpp.html#ad79a57ed3105eb60d991a1aeb4a9dc44aae7968d26b598ce434958b0825b7a4ac',1,'Projectile:&#160;EntityHelper.hpp']]]
+  ['m_5fdamage_0',['M_DAMAGE',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24a03e8cc78344a605794f67051cc66dcc9',1,'DataMask.hpp']]],
+  ['m_5fdelete_1',['M_DELETE',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24a6585b74ed62814f2a7f5819fa840cf38',1,'DataMask.hpp']]],
+  ['m_5fdir_2',['M_DIR',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24a5c431475f8f9020ac6bea1dc5dbb6703',1,'DataMask.hpp']]],
+  ['m_5fhp_3',['M_HP',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24a994c95c39d72a17f2e8f3e4eea0598b4',1,'DataMask.hpp']]],
+  ['m_5fnone_4',['M_NONE',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24ae0d29ca59bf1683dbc7bcc22fc782676',1,'DataMask.hpp']]],
+  ['m_5fowner_5',['M_OWNER',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24affdf6b913f9f0d5eae608b9e6137a2b5',1,'DataMask.hpp']]],
+  ['m_5fpos_5fx_6',['M_POS_X',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24a386ecb914fcd76e9a1779836400ef6f8',1,'DataMask.hpp']]],
+  ['m_5fpos_5fy_7',['M_POS_Y',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24afb8086f8bd3d0814c870a15142a1c1f6',1,'DataMask.hpp']]],
+  ['m_5fscore_8',['M_SCORE',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24a29443c718eb7764826db22ffc5093925',1,'DataMask.hpp']]],
+  ['m_5fshield_9',['M_SHIELD',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24ae5ee97e1d6759f7f69abe1aff9fd8d16',1,'DataMask.hpp']]],
+  ['m_5fsprite_10',['M_SPRITE',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24a4bcb6ee1c2e00cc8381c8a03ba725e60',1,'DataMask.hpp']]],
+  ['m_5fstate_11',['M_STATE',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24ae0162b88d39f4448aa1d66c26f71d946',1,'DataMask.hpp']]],
+  ['m_5ftype_12',['M_TYPE',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24ab63ce8f0f37a66a8cd0819b6d22ceb2a',1,'DataMask.hpp']]],
+  ['m_5fvelocity_13',['M_VELOCITY',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24a3531c33749b46dd6fdc07608ddf09904',1,'DataMask.hpp']]],
+  ['m_5fweapon_14',['M_WEAPON',['../DataMask_8hpp.html#a417bd0349d856b0c0d924489e92c1e24a67fef39232eda898bfd1f33c6dc1bd98',1,'DataMask.hpp']]],
+  ['manapotion_15',['ManaPotion',['../Items_8hpp.html#a443f647757dde85043b49343f5cbe66ba7e30635b09b68e4eb4d43ae905c3dce7',1,'Items.hpp']]],
+  ['message_16',['message',['../Action_8hpp.html#a7969551e86fba60fed45ceed884b7532a90791ed805bd5b00d78527d39d9ef7e4',1,'MESSAGE:&#160;Action.hpp'],['../Event_8hpp.html#afdf2c10d40c582d9884ac5635a374a34a90791ed805bd5b00d78527d39d9ef7e4',1,'MESSAGE:&#160;Event.hpp']]],
+  ['mini_5fgreen_17',['mini_Green',['../Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268eabc7626d5d76c9abc6bf8b1bd4f830bb1',1,'Enemy.hpp']]]
 ];

@@ -106,7 +106,7 @@ Include dependency graph for EntityHelper.hpp:</div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="EntityHelper_8hpp__dep__incl.svg" width="4424" height="271"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="EntityHelper_8hpp__dep__incl.svg" width="4699" height="271"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="EntityHelper_8hpp_source.html">Go to the source code of this file.</a></p>
@@ -124,8 +124,8 @@ Enumerations</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:abf08f5fa08491217956d6c0df1674b89" id="r_abf08f5fa08491217956d6c0df1674b89"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#abf08f5fa08491217956d6c0df1674b89">createPlayer</a> (Registry &amp;registry, const Vector2 &amp;startPos, int playerId=0)</td></tr>
 <tr class="separator:abf08f5fa08491217956d6c0df1674b89"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a726abfd316a37d3481adcc1106fb2ffb" id="r_a726abfd316a37d3481adcc1106fb2ffb"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a726abfd316a37d3481adcc1106fb2ffb">createEnemy</a> (Registry &amp;registry, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type, const Vector2 &amp;startPos, float speedMultiplier=1.0f, float hpMultiplier=1.0f)</td></tr>
-<tr class="separator:a726abfd316a37d3481adcc1106fb2ffb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b37c0650a23f5e89389151499725ba4" id="r_a6b37c0650a23f5e89389151499725ba4"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a6b37c0650a23f5e89389151499725ba4">createEnemy</a> (Registry &amp;registry, <a class="el" href="Enemy_8hpp.html#ac3e413a86119db4b031458c7259e268e">EnemyType</a> type, const Vector2 &amp;startPos, float speedMultiplier=1.0f, float hpMultiplier=1.0f, uint8_t diff=1)</td></tr>
+<tr class="separator:a6b37c0650a23f5e89389151499725ba4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9978ecef5b9c4be58b984a4f313f343" id="r_ac9978ecef5b9c4be58b984a4f313f343"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#ac9978ecef5b9c4be58b984a4f313f343">createBoss</a> (Registry &amp;registry, <a class="el" href="Boss_8hpp.html#af75f53750ffcde869545d08348fb7f96">BossType</a> type, const Vector2 &amp;startPos, <a class="el" href="Boss_8hpp.html#a07a185cf5c3b2a4716f5f67f67e502df">BossPhase</a> phase, int maxHp)</td></tr>
 <tr class="separator:ac9978ecef5b9c4be58b984a4f313f343"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ca0772d8e1dc3eec3917b38c94c269c" id="r_a0ca0772d8e1dc3eec3917b38c94c269c"><td class="memItemLeft" align="right" valign="top">Entity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="EntityHelper_8hpp.html#a0ca0772d8e1dc3eec3917b38c94c269c">createProjectile</a> (Registry &amp;registry, const Vector2 &amp;startPos, const Vector2 &amp;direction, float speed, Uint32 damage, bool fromPlayer, int chargeLevel=0)</td></tr>
@@ -375,8 +375,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a726abfd316a37d3481adcc1106fb2ffb" name="a726abfd316a37d3481adcc1106fb2ffb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a726abfd316a37d3481adcc1106fb2ffb">&#9670;&#160;</a></span>createEnemy()</h2>
+<a id="a6b37c0650a23f5e89389151499725ba4" name="a6b37c0650a23f5e89389151499725ba4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b37c0650a23f5e89389151499725ba4">&#9670;&#160;</a></span>createEnemy()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -412,7 +412,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>hpMultiplier</em> = <code>1.0f</code>&#160;</td>
+          <td class="paramname"><em>hpMultiplier</em> = <code>1.0f</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>diff</em> = <code>1</code>&#160;</td>
         </tr>
         <tr>
           <td></td>

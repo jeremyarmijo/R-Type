@@ -6,12 +6,15 @@ var searchData=
   ['contact_5fdamage_3',['contact_damage',['../structBoss.html#a0cff1d1300dc0231f8f7ab5e4dd07e89',1,'Boss::contact_damage'],['../structEnemy.html#a0ff37331686dfaa7733921c22a713b7d',1,'Enemy::contact_damage']]],
   ['contactdamage_4',['contactDamage',['../structForce.html#a3b53919b8a660202998c2bff74b31117',1,'Force']]],
   ['countdown_5',['countdown',['../structLobbyStart.html#a73ef0f2eef8e944e967eea9c2263564e',1,'LobbyStart::countdown'],['../structLOBBY__START.html#a431741934f761e723953125edaa86912',1,'LOBBY_START::countdown']]],
-  ['current_6',['current',['../structBoss.html#a50cc302750c336f4e4c0670ed4337efe',1,'Boss::current'],['../structPlayerEntity.html#ac3ba933ff30bd6c615953928250efa0b',1,'PlayerEntity::current'],['../structEnemy.html#ac4517922f92a8afaa4c627444eb31f62',1,'Enemy::current']]],
+  ['current_6',['current',['../structEnemy.html#ac4517922f92a8afaa4c627444eb31f62',1,'Enemy::current'],['../structPlayerEntity.html#ac3ba933ff30bd6c615953928250efa0b',1,'PlayerEntity::current'],['../structBoss.html#a50cc302750c336f4e4c0670ed4337efe',1,'Boss::current']]],
   ['currentammo_7',['currentAmmo',['../structWeapon.html#aec5d93ada419767586724255c81e9265',1,'Weapon']]],
-  ['currentdistance_8',['currentDistance',['../structForce.html#ac36e60a6bac769a176bee53fb37e79be',1,'Force']]],
-  ['currentlevelentity_9',['currentLevelEntity',['../structlobby__list.html#a03da6eec6a7fc000fcba826abaf7bc6f',1,'lobby_list']]],
-  ['currentlevelindex_10',['currentLevelIndex',['../structlobby__list.html#a07fe4efcd9bc1864c9eb932d359f6fcb',1,'lobby_list']]],
-  ['currentlife_11',['currentLife',['../structProjectile.html#ae62fdc2b1794670dccec3e4035443469',1,'Projectile']]],
-  ['currentmap_12',['currentMap',['../structlobby__list.html#a32689b4b2b12902f97ace31392eeecb8',1,'lobby_list']]],
-  ['currentwave_13',['currentWave',['../structLevelComponent.html#a34b7bf74686253cb532502705ee07831',1,'LevelComponent']]]
+  ['currentanim_8',['currentAnim',['../structClientFighterState.html#a3bd93f91063c940382f80c1a8d8b945c',1,'ClientFighterState']]],
+  ['currentdistance_9',['currentDistance',['../structForce.html#ac36e60a6bac769a176bee53fb37e79be',1,'Force']]],
+  ['currentlevelentity_10',['currentLevelEntity',['../structlobby__list.html#a03da6eec6a7fc000fcba826abaf7bc6f',1,'lobby_list']]],
+  ['currentlevelindex_11',['currentLevelIndex',['../structlobby__list.html#a07fe4efcd9bc1864c9eb932d359f6fcb',1,'lobby_list']]],
+  ['currentlife_12',['currentLife',['../structProjectile.html#ae62fdc2b1794670dccec3e4035443469',1,'Projectile']]],
+  ['currentmap_13',['currentMap',['../structlobby__list.html#a32689b4b2b12902f97ace31392eeecb8',1,'lobby_list']]],
+  ['currentscores_14',['currentScores',['../structlobby__list.html#a733e3db4c396752f3e75f9bccdedc59c',1,'lobby_list']]],
+  ['currentstate_15',['currentState',['../structFighterState.html#a3a181a9b0acf86cde7878b2e28954fec',1,'FighterState']]],
+  ['currentwave_16',['currentWave',['../structLevelComponent.html#a34b7bf74686253cb532502705ee07831',1,'LevelComponent']]]
 ];

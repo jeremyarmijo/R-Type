@@ -103,7 +103,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> <span class="keyword">private</span>:</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  std::vector&lt;Entity&gt; m_entities;</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>  <span class="keywordtype">bool</span> m_isVictory;</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>  std::vector&lt;std::tuple&lt;uint16_t, uint32_t, uint8_t&gt;&gt;</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>  std::vector&lt;std::tuple&lt;uint16_t, std::string, uint32_t, uint8_t&gt;&gt;</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>      m_scores;  <span class="comment">// playerId, score, rank</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  <span class="keywordtype">bool</span> m_isInitialized;</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
@@ -121,7 +121,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="comment">// Récupérer les données</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    m_isVictory = GetSceneData().Get&lt;<span class="keywordtype">bool</span>&gt;(<span class="stringliteral">&quot;victory&quot;</span>, <span class="keyword">false</span>);</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    m_scores = GetSceneData()</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>                   .Get&lt;std::vector&lt;std::tuple&lt;uint16_t, uint32_t, uint8_t&gt;&gt;&gt;(</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>                   .Get&lt;std::vector&lt;std::tuple&lt;uint16_t, std::string, uint32_t, uint8_t&gt;&gt;&gt;(</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>                       <span class="stringliteral">&quot;scores&quot;</span>, {});</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    GetAudio()-&gt;LoadMusic(<span class="stringliteral">&quot;gameover_music&quot;</span>, <span class="stringliteral">&quot;../assets/gameover_music.ogg&quot;</span>);</div>
@@ -147,9 +147,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    scoresTitle-&gt;SetLayer(10);</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">int</span> yPos = 200;</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; [playerId, score, rank] : m_scores) {</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; [playerId, name, score, rank] : m_scores) {</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>      std::string rankStr = <span class="stringliteral">&quot;#&quot;</span> + std::to_string(rank);</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>      std::string playerStr = <span class="stringliteral">&quot;Player &quot;</span> + std::to_string(playerId);</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>      std::string playerStr = <span class="stringliteral">&quot; : &quot;</span> + name;</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>      std::string scoreStr = std::to_string(score) + <span class="stringliteral">&quot; pts&quot;</span>;</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>      std::string line = rankStr + <span class="stringliteral">&quot;  &quot;</span> + playerStr + <span class="stringliteral">&quot;  -  &quot;</span> + scoreStr;</div>
@@ -183,9 +183,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;Victory: &quot;</span> &lt;&lt; m_isVictory &lt;&lt; std::endl;</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;Scores count: &quot;</span> &lt;&lt; m_scores.size() &lt;&lt; std::endl;</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; [playerId, score, rank] : m_scores) {</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>      std::cout &lt;&lt; <span class="stringliteral">&quot;  Rank &quot;</span> &lt;&lt; <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(rank) &lt;&lt; <span class="stringliteral">&quot;: Player &quot;</span></div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>                &lt;&lt; playerId &lt;&lt; <span class="stringliteral">&quot; - &quot;</span> &lt;&lt; score &lt;&lt; <span class="stringliteral">&quot; pts&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; [playerId, name, score, rank] : m_scores) {</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>      std::cout &lt;&lt; <span class="stringliteral">&quot;  Rank &quot;</span> &lt;&lt; <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(rank) &lt;&lt; <span class="stringliteral">&quot;: &quot;</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>                &lt;&lt; name &lt;&lt; <span class="stringliteral">&quot; - &quot;</span> &lt;&lt; score &lt;&lt; <span class="stringliteral">&quot; pts&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    }</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>  }</div>
 </div>
@@ -245,7 +245,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>}</div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aEntityHelper_8hpp_html"><div class="ttname"><a href="EntityHelper_8hpp.html">EntityHelper.hpp</a></div></div>
-<div class="ttc" id="aEntityHelper_8hpp_html_a583e16eed64bebd6b01363a8173d9ea6"><div class="ttname"><a href="EntityHelper_8hpp.html#a583e16eed64bebd6b01363a8173d9ea6">CreateSprite</a></div><div class="ttdeci">Entity CreateSprite(Registry &amp;registry, const std::string &amp;textureKey, Vector2 position, int layer=0)</div><div class="ttdoc">Creates a sprite.</div><div class="ttdef"><b>Definition</b> EntityHelper.hpp:293</div></div>
+<div class="ttc" id="aEntityHelper_8hpp_html_a583e16eed64bebd6b01363a8173d9ea6"><div class="ttname"><a href="EntityHelper_8hpp.html#a583e16eed64bebd6b01363a8173d9ea6">CreateSprite</a></div><div class="ttdeci">Entity CreateSprite(Registry &amp;registry, const std::string &amp;textureKey, Vector2 position, int layer=0)</div><div class="ttdoc">Creates a sprite.</div><div class="ttdef"><b>Definition</b> EntityHelper.hpp:308</div></div>
 <div class="ttc" id="aGameOver_8hpp_html_a4c3ef05eef9f27de82de2e0bc8353c59"><div class="ttname"><a href="GameOver_8hpp.html#a4c3ef05eef9f27de82de2e0bc8353c59">CreateScene</a></div><div class="ttdeci">Scene * CreateScene()</div><div class="ttdef"><b>Definition</b> CreateLobby.cpp:10</div></div>
 <div class="ttc" id="aclassGameOverScene_html"><div class="ttname"><a href="classGameOverScene.html">GameOverScene</a></div><div class="ttdef"><b>Definition</b> GameOver.hpp:18</div></div>
 <div class="ttc" id="aclassGameOverScene_html_a4dd0350ec3cb15213c04813955879155"><div class="ttname"><a href="classGameOverScene.html#a4dd0350ec3cb15213c04813955879155">GameOverScene::OnExit</a></div><div class="ttdeci">void OnExit() override</div><div class="ttdef"><b>Definition</b> GameOver.hpp:105</div></div>
